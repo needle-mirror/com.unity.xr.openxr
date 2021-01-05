@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEditor;
-using UnityEngine.Events;
 using UnityEngine.XR.OpenXR.Features;
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
@@ -93,7 +93,7 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
             Debug.Log($"EXT: about to xrEndSession: {xrSession}");
         }
 
-        private const string ExtLib = "InterceptFeature";
+        private const string ExtLib = "InterceptFeaturePlugin";
         [DllImport(ExtLib, EntryPoint = "script_intercept_xrCreateSession_xrGetInstanceProcAddr")]
         private static extern IntPtr intercept_xrCreateSession_xrGetInstanceProcAddr(IntPtr func);
 

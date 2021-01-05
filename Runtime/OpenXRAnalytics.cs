@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
-using UnityEngine.Analytics;
 
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
+
+#if UNITY_ANALYTICS
+using UnityEngine.Analytics;
 #endif
 
 namespace UnityEngine.XR.OpenXR
@@ -15,7 +18,9 @@ namespace UnityEngine.XR.OpenXR
         private const string kVendorKey = "unity.openxr";
         private const string kEventInitialize = "openxr_initialize";
 
+#if UNITY_ANALYTICS
         private static bool s_Initialized = false;
+#endif
 
         [Serializable]
         private struct InitializeEvent
@@ -33,7 +38,7 @@ namespace UnityEngine.XR.OpenXR
 
         private static bool Initialize()
         {
-#if ENABLE_TEST_SUPPORT
+#if ENABLE_TEST_SUPPORT || !UNITY_ANALYTICS
             return false;
 #else
             if (s_Initialized)
@@ -57,6 +62,7 @@ namespace UnityEngine.XR.OpenXR
 
         public static void SendInitializeEvent(bool success)
         {
+#if UNITY_ANALYTICS
             if (!s_Initialized && !Initialize())
                 return;
 
@@ -85,6 +91,7 @@ namespace UnityEngine.XR.OpenXR
             EditorAnalytics.SendEventWithLimit(kEventInitialize, data);
 #else
             Analytics.Analytics.SendEvent(kEventInitialize, data);
+#endif
 #endif
         }
     }

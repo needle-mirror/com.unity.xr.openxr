@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
 {
     /// <summary>

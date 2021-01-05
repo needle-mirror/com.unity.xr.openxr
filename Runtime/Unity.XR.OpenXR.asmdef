@@ -17,6 +17,11 @@
             "name": "com.unity.inputsystem",
             "expression": "",
             "define": ""
+        },
+        {
+            "name": "com.unity.modules.unityanalytics",
+            "expression": "1.0.0",
+            "define": "UNITY_ANALYTICS"
         }
     ],
     "noEngineReferences": false

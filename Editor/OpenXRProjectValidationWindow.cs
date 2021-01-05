@@ -100,14 +100,17 @@ namespace UnityEditor.XR.OpenXR
 
                 EditorGUILayout.BeginVertical(Styles.s_ListLabel);
                 Content.k_FixButton.tooltip = result.fixItMessage;
-                if (result.fixIt != null && GUILayout.Button(Content.k_FixButton, GUILayout.Width(55.0f)))
+                if (result.fixIt != null)
                 {
-                    result.fixIt.Invoke();
-                    anyFixAppiled = true;
+                    if (GUILayout.Button(Content.k_FixButton, GUILayout.Width(55.0f)))
+                    {
+                        result.fixIt.Invoke();
+                        anyFixAppiled = true;
+                    }
                 }
                 else
                 {
-                    GUILayout.Label("", GUILayout.Width(55.0f), GUILayout.ExpandWidth(true), GUILayout.Height(0.0f));
+                    GUILayout.Label("", GUILayout.Width(55.0f), GUILayout.ExpandWidth(true));
                 }
 
                 EditorGUILayout.EndVertical();

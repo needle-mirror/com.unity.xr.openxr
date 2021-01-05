@@ -6,7 +6,7 @@ namespace UnityEditor.XR.OpenXR.Samples.InterceptFeature
 {
     // see https://docs.unity3d.com/Manual/editor-CustomEditors.html for details on how to create custom editors
     [CustomEditor(typeof(InterceptCreateSessionFeature))]
-    internal class InterceptCreateSessionFeatureEditor : UnityEditor.Editor
+    public class InterceptCreateSessionFeatureEditor : UnityEditor.Editor
     {
         private SerializedProperty message;
 

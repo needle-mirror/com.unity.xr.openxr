@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "0.1.1-preview.1",
+  "version": "0.1.2-preview.2",
   "unity": "2020.2",
   "unityRelease": "0b14",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
@@ -19,7 +19,7 @@
   "samples": [
     {
       "displayName": "Controller",
-      "description": "Basic sample showing how to create and reference OpenXR action maps with the new input system",
+      "description": "Basic sample showing how to create and reference OpenXR action maps with the new input system.",
       "path": "Samples~/Controller"
     },
     {
@@ -34,11 +34,11 @@
     }
   ],
   "upmCi": {
-    "footprint": "b17c6aea3cdc81ed60fafa7240373b4ef89e5f49"
+    "footprint": "b17d42b750df3eded68075dede5663f1be36efee"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "0297a82a33c5b22a7cd428453841f41a11ce9567"
+    "revision": "8621e12ff34382c8a02cf25e5728c4c2ef41b474"
   }
 }

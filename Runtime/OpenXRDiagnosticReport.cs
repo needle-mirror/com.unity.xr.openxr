@@ -53,6 +53,7 @@ namespace UnityEngine.XR.OpenXR
             { "Microsoft Holographic AppRemoting Runtime", "Microsoft" },
             { "Oculus", "Oculus"},
             { "SteamVR/OpenXR", "Valve"},
+            { "Unity Mock Runtime", "Unity" },
         };
 
         public static void AddCustomerSupportRuntimeInfo(string runtimeName)
@@ -88,7 +89,7 @@ namespace UnityEngine.XR.OpenXR
             var features = (OpenXRFeature[])OpenXRSettings.Instance.features.Clone();
             foreach (var feature in features)
             {
-                if (null == feature)
+                if (null == feature || !feature.enabled)
                     continue;
 
                 if (String.IsNullOrEmpty(feature.company) || String.IsNullOrEmpty(feature.name))

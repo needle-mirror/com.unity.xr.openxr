@@ -10,7 +10,7 @@ This version of OpenXR is compatible with the following versions of the Unity Ed
 
 ## Supported platforms
 
-Unity's OpenXR plug-in should work with any Windows PC runtime or device that conforms to OpenXR standards. The following platforms have been fully tested and are officially supported:
+Unity's OpenXR plug-in should work with any device that supports conformant PC-based OpenXR runtimes. The following platforms have been fully tested and are officially supported:
 
 |**Platform**|**Build target**|**Graphics API**|**Rendering mode**|
 |---|---|---|---|
@@ -25,10 +25,12 @@ Unity plans to expand the number of supported platforms in the future as more of
 
 To enable OpenXR in your project, follow the steps below:
 
-1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
-2. Enable the **OpenXR** option and any **Feature Sets** for the platforms you intend to target.
-3. In the **OpenXR** tab, select the interaction profile of the device you are testing with.
-4. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
+1. Install the **OpenXR Plugin** package from **Package Manager** (Select the **Gear** icon in the **Package Manager** UI to bring up the **Package Manager** settings drop down and select the **Advanced Project Settings** item. This will take you to the **Package Manager** settings page where you can enable preview packages.).
+2. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
+3. Enable the **OpenXR** option and any **Feature Sets** for the runtimes you intend to target.
+4. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
+5. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
+ 
 
 ## Project validation
 
