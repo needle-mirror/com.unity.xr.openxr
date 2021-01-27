@@ -71,8 +71,10 @@ namespace UnityEngine.XR.TestTooling
                 testManager = xrGeneralSettings?.Manager ?? null;
             }
 
+#pragma warning disable CS0618
             xrGeneralSettings?.Manager.loaders.Clear();
             xrGeneralSettings?.Manager.loaders.Add(loader);
+#pragma warning restore CS0618
 
             // Setup Settings
             var settingsPath = Path.Combine(path, $"Test_{typeof(S).Name}.asset");
@@ -98,7 +100,9 @@ namespace UnityEngine.XR.TestTooling
 
             if (loader != null)
             {
+#pragma warning disable CS0618
                 xrGeneralSettings.Manager.loaders.Remove(loader);
+#pragma warning restore CS0618
             }
 
             EditorBuildSettings.RemoveConfigObject(settingsKey);

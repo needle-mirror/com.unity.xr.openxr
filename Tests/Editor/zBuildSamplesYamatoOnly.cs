@@ -74,6 +74,11 @@ class zBuildSamplesYamatoOnly
     {
         foreach(var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
+            if (feature.GetType().Namespace == null)
+            {
+                throw new Exception("All code in the OpenXR Package must be in a namespace.");
+            }
+
             if (feature.GetType().Namespace.StartsWith("UnityEngine.XR.OpenXR.Samples"))
             {
                 Console.WriteLine($"Enable: {feature.nameUi}");

@@ -52,7 +52,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             }
         }
 
+#pragma warning disable CS0618
         public OpenXRLoader Loader => XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
+#pragma warning restore CS0618
 
 
         public override void SetupTest()
@@ -78,7 +80,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Disable all features incase some features were enable before the tests started.
             DisableAllFeatures();
             Assert.IsTrue(EnableMockRuntime(true));
+#pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
+#pragma warning restore CS0618
         }
 
         // NOTE: If you override this function, do NOT add the SetUp test attribute.

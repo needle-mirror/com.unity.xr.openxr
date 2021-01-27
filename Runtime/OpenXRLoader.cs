@@ -217,15 +217,15 @@ namespace UnityEngine.XR.OpenXR
 
             OpenXRFeature.HookGetInstanceProcAddr();
 
+            if (!Internal_InitializeSession())
+                return false;
+
             SetApplicationInfo();
             RequestOpenXRFeatures();
             RegisterOpenXRCallbacks();
 
             if(null != OpenXRSettings.Instance)
                 OpenXRSettings.Instance.ApplySettings();
-
-            if (!Internal_InitializeSession())
-                return false;
 
             if (!CreateSubsystems())
                 return false;

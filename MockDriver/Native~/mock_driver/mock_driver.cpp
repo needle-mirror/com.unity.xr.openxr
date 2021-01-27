@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#define XR_USE_PLATFORM_WIN32
 #define XR_NO_PROTOTYPES
 #include <openxr/openxr.h>
 

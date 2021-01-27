@@ -15,7 +15,9 @@ namespace UnityEditor.XR.OpenXR
 
             if (settings)
             {
+#pragma warning disable CS0618
                 return settings.Manager.loaders.Any(loader.IsInstanceOfType);
+#pragma warning restore CS0618
             }
 
             return false;

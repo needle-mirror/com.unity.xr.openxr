@@ -650,6 +650,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetD3D11GraphicsRequireme
 //     return XR_SUCCESS;
 // }
 
+#ifdef XR_USE_GRAPHICS_API_VULKAN
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetVulkanInstanceExtensionsKHR(XrInstance instance, XrSystemId systemId, uint32_t bufferCapacityInput, uint32_t* bufferCountOutput, char* buffer)
 {
     *bufferCountOutput = 0;
@@ -671,6 +672,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetVulkanGraphicsRequirem
 {
     return XR_SUCCESS;
 }
+#endif
 
 extern uint32_t s_VisibilityMaskVerticesSizes[2][3];
 extern uint32_t s_VisibilityMaskIndicesSizes[2][3];
@@ -777,10 +779,12 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetInstanceProcAddr(XrIns
 
     // LOOKUP(xrGetOpenGLESGraphicsRequirementsKHR)
 
+#ifdef XR_USE_GRAPHICS_API_VULKAN
     LOOKUP(xrGetVulkanInstanceExtensionsKHR)
     LOOKUP(xrGetVulkanDeviceExtensionsKHR)
     LOOKUP(xrGetVulkanGraphicsDeviceKHR)
     LOOKUP(xrGetVulkanGraphicsRequirementsKHR)
+#endif
 
 #undef LOOKUP
 

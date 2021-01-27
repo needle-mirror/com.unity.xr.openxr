@@ -4,13 +4,12 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif // !WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define XR_USE_GRAPHICS_API_D3D11
 #include <d3d11.h>
+#include <d3d12.h>
+#include <windows.h>
 #endif
 
 #include <vulkan/vulkan.h>
-#define XR_USE_GRAPHICS_API_VULKAN
 
 struct IUnityXRTrace;
 extern IUnityXRTrace* s_Trace;

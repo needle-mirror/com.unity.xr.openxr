@@ -79,7 +79,8 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            ApplyRenderSettings();
+            if (Application.isPlaying)
+                ApplyRenderSettings();
         }
 #endif
 
