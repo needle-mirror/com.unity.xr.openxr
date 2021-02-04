@@ -33,6 +33,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             return report;
         }
 
+#if OPENXR_CI
         [Test]
         public void PrePostCallbacksAreReceived()
         {
@@ -59,6 +60,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsTrue(preprocessCalled);
             Assert.IsTrue(postprocessCalled);
         }
+#endif //OPENXR_CI
 
         internal class BuildCallbacks : OpenXRFeatureBuildHooks
         {

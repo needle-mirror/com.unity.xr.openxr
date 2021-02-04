@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.TestTools;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.TestTooling;
@@ -9,6 +11,8 @@ using Assert = UnityEngine.Assertions.Assert;
 using XrSessionState = UnityEngine.XR.OpenXR.Features.Mock.MockDriver.XrSessionState;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly:UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor)]
+
 namespace UnityEngine.XR.OpenXR.Tests
 {
     internal class OpenXRLoaderSetup : LoaderTestSetup<OpenXRLoader, OpenXRSettings>
