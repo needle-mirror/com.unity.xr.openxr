@@ -14,7 +14,7 @@ namespace UnityEditor.XR.OpenXR.Features
     {
         public const float k_IconSize = 16.0f;
 
-        public static readonly GUIContent k_LoaderName = new GUIContent("OpenXR (Preview)");
+        public static readonly GUIContent k_LoaderName = new GUIContent("OpenXR");
         public static readonly GUIContent k_OpenXRExperimental = new GUIContent("OpenXR is an experimental release. You may need to configure additional settings for OpenXR to enable features and interactions for different runtimes.");
 
         public static readonly GUIContent k_OpenXRExperimentalIcon = new GUIContent("", CommonContent.k_HelpIcon.image, k_OpenXRExperimental.text);

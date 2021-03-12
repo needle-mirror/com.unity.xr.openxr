@@ -25,7 +25,7 @@ Unity plans to expand the number of supported platforms in the future as more of
 
 To enable OpenXR in your project, follow the steps below:
 
-1. Install the **OpenXR Plugin** package from **Package Manager** (Select the **Gear** icon in the **Package Manager** UI to bring up the **Package Manager** settings drop down and select the **Advanced Project Settings** item. This will take you to the **Package Manager** settings page where you can enable preview packages.).
+1. Install the **OpenXR Plugin** package from **Package Manager**.
 2. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
 3. Enable the **OpenXR** option and any **Feature Sets** for the runtimes you intend to target.
 4. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
