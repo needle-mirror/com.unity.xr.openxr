@@ -4,8 +4,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.3] - 2021-03-12
-* Removed preview tag from documentation and UI
+## [1.1.1] - 2021-04-06
+* Oculus controller profile now exposes both grip and aim poses.
+* Fixed issue where OpenXR layouts were not visible in the InputSystem bindings dialog.
+* `OpenXRSettings.renderMode` and `OpenXrSettings.depthSubmissionMode` can now be changed via script outside of play mode.
+* Fix for managed stripping levels of Medium and High
+* Fixed bugs in `XR_KHR_VULKAN_ENABLE2` extension support
+* Added support for `XR_VARJO_QUAD_VIEWS` extension 
+* Added `XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT` and `XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT` bits to the composition layer flags 
+* Added `XrSecondaryViewConfigurationSwapchainCreateInfoMSFT` to to `XrSwapchainCreateInfo` when using a secondary view
+* MockRuntime First Person Observer View support
+* MockRuntime input support
+* MockRuntime vulkan_enable2 support
+* MockRuntime d3d11_enable support
 
 ## [1.0.2] - 2021-02-04
 * Resolve further release verification issues.
@@ -41,4 +52,3 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.1.1-preview.1] - 2020-12-16
 
 ### This is the first release of *OpenXR Plugin \<com.unity.xr.openxr\>*.
-

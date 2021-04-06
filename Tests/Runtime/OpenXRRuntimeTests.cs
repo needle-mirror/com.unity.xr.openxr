@@ -132,13 +132,19 @@ namespace UnityEngine.XR.OpenXR.Tests
         [Test]
         public void InstanceDestroyed()
         {
+            object instance = null;
             bool instanceDestroyed = false;
             MockRuntime.Instance.TestCallback = (methodName, param) =>
             {
+                if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
+                {
+                    instance = param;
+                }
+
                 if (methodName == nameof(OpenXRFeature.OnInstanceDestroy))
                 {
                     instanceDestroyed = true;
-                    Assert.AreEqual(1, param);
+                    Assert.AreEqual(instance, param);
                 }
 
                 return true;
@@ -162,12 +168,12 @@ namespace UnityEngine.XR.OpenXR.Tests
                 // this function checks to see if the initial SetAppSpace call
                 // from unity_session.cpp. if you change the default setup in unity_session.cpp
                 // you will need to update the value here so that the handle matches.
-                // this also makes an assumption that the 5th space we create is the "Stage"
+                // this also makes an assumption that the 3rd space we create is the "Stage"
                 // space and that the handles are deterministic.
                 if (methodName == nameof(OpenXRFeature.OnAppSpaceChange))
                 {
-                    spaceAppSet = (oldSpaceApp == 0 && (ulong) param == 5);
-                    spaceAppRemoved = (oldSpaceApp == 5 && (ulong) param == 0);
+                    spaceAppSet = (oldSpaceApp == 0 && (ulong) param == 3);
+                    spaceAppRemoved = (oldSpaceApp == 3 && (ulong) param == 0);
                     oldSpaceApp = (ulong) param;
                 }
 
@@ -324,8 +330,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         public IEnumerator CheckDepthSubmissionMode([ValueSource("depthModes")]
             OpenXRSettings.DepthSubmissionMode depthMode)
         {
-            MockRuntime.Instance.openxrExtensionStrings = MockRuntime.XR_UNITY_mock_test;
-
             base.InitializeAndStart();
             yield return null;
             OpenXRSettings.Instance.depthSubmissionMode = depthMode;
@@ -336,8 +340,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CheckRenderMode()
         {
-            MockRuntime.Instance.openxrExtensionStrings = MockRuntime.XR_UNITY_mock_test;
-
             base.InitializeAndStart();
 
             yield return null;
@@ -379,8 +381,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CheckDisplayRestartAfterStopSendRestartEvent()
         {
-            AddExtension(MockRuntime.XR_UNITY_mock_test);
-
             bool onBeginSessionAfterEndSessionCalled = false;
             bool onEndSessionCalled = false;
 
@@ -480,6 +480,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
         public IEnumerator PreInitRealGfxAPI()
         {
             // remove the null gfx device from requested extensions
@@ -510,17 +511,19 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(initedRealGfxApi, Is.True);
         }
 
+        [UnityPlatform(exclude=new[] {RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer})] // OSX doesn't support single-pass very well, disable for test.
         [UnityTest]
         public IEnumerator CombinedFrustum()
         {
+            EnableMockDriver();
+
             var cameraGO = new GameObject("Test Cam");
             var camera = cameraGO.AddComponent<Camera>();
 
             base.InitializeAndStart();
             OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
 
-            yield return null;
-            yield return null;
+            yield return new WaitForXrFrame(2);
 
             var displays = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances(displays);
@@ -567,12 +570,32 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             base.InitializeAndStart();
 
-            // Wait two frames to let the input catch up with the renderer
-            yield return null;
-            yield return null;
+            // Wait a few frames to let the input catch up with the renderer
+            yield return new WaitForXrFrame(2);
 
             MockDriver.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
             Assert.IsTrue(primaryLayerCount == 0);
+        }
+
+        [UnityTest]
+        public IEnumerator FirstPersonObserver()
+        {
+            EnableMockDriver();
+            base.InitializeAndStart();
+
+            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
+
+            yield return new WaitForXrFrame(1);
+
+            MockDriver.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 1);
+
+            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, false);
+
+            yield return new WaitForXrFrame(1);
+
+            MockDriver.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 0);
         }
 
         [UnityTest]

@@ -29,6 +29,13 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.mockdriver";
 
+        public delegate void EndFrameDelegate ();
+
+        public static event EndFrameDelegate onEndFrame;
+
+        [AOT.MonoPInvokeCallback(typeof(EndFrameDelegate))]
+        private static void ReceiveEndFrame() => onEndFrame?.Invoke();
+
         /// <inheritdoc />
         protected override bool OnInstanceCreate(ulong instance)
         {
@@ -39,6 +46,9 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             }
 
             InitializeNative(xrGetInstanceProcAddr, instance, 0ul, 0ul);
+
+            MockDriver_RegisterEndFrameCallback(ReceiveEndFrame);
+
             return true;
         }
 
@@ -46,6 +56,14 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         protected override void OnInstanceDestroy(ulong xrInstance)
         {
             ShutdownNative(0);
+        }
+
+        internal enum XrViewConfigurationType
+        {
+            PrimaryMono = 1,
+            PrimaryStereo = 2,
+            PrimaryQuadVarjo = 1000037000,
+            SecondaryMonoFirstPersonObserver = 1000054000
         }
 
         [Flags]
@@ -223,5 +241,11 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         [DllImport(extLib, EntryPoint = "MockDriver_GetEndFrameStats")]
         internal static extern XrResult GetEndFrameStats(out int primaryLayerCount, out int secondaryLayerCount);
+
+        [DllImport(extLib, EntryPoint = "MockDriver_ActivateSecondaryView")]
+        internal static extern XrResult ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, bool activate);
+
+        [DllImport(extLib, EntryPoint = "MockDriver_RegisterEndFrameCallback")]
+        private static extern XrResult MockDriver_RegisterEndFrameCallback (EndFrameDelegate callback);
     }
 }

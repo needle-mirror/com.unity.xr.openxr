@@ -31,8 +31,20 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         public RenderMode renderMode
         {
-            get => Internal_GetRenderMode();
-            set => Internal_SetRenderMode(value);
+            get
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    return Internal_GetRenderMode();
+                else
+                    return m_renderMode;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetRenderMode(value);
+                else
+                    m_renderMode = value;
+            }
         }
 
         /// <summary>
@@ -66,14 +78,26 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         public DepthSubmissionMode depthSubmissionMode
         {
-            get => Internal_GetDepthSubmissionMode();
-            set => Internal_SetDepthSubmissionMode(value);
+            get
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    return Internal_GetDepthSubmissionMode();
+                else
+                    return m_depthSubmissionMode;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetDepthSubmissionMode(value);
+                else
+                    m_depthSubmissionMode = value;
+            }
         }
 
         private void ApplyRenderSettings()
         {
-            renderMode = m_renderMode;
-            depthSubmissionMode = m_depthSubmissionMode;
+            Internal_SetRenderMode(m_renderMode);
+            Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
         }
 
 #if UNITY_EDITOR

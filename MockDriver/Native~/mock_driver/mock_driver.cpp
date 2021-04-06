@@ -30,6 +30,8 @@ struct DriverContext
     PFN_xrSetSpacePoseUNITY xrSetSpacePoseUNITY;
     PFN_xrSetViewPoseUNITY xrSetViewPoseUNITY;
     PFN_xrGetEndFrameStatsUNITY xrGetEndFrameStatsUNITY;
+    PFN_xrActivateSecondaryViewUNITY xrActivateSecondaryViewUNITY;
+    PFN_xrRegisterEndFrameCallback xrRegisterEndFrameCallbackUNITY;
 } s_DriverContext{};
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
@@ -44,6 +46,8 @@ script_initialize(PFN_xrGetInstanceProcAddr xrGetInstanceProcAddr, XrInstance in
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetSpacePoseUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrSetSpacePoseUNITY));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetViewPoseUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrSetViewPoseUNITY));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrGetEndFrameStatsUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrGetEndFrameStatsUNITY));
+    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrActivateSecondaryViewUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrActivateSecondaryViewUNITY));
+    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrRegisterEndFrameCallbackUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrRegisterEndFrameCallbackUNITY));
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
@@ -124,6 +128,22 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_GetEndFrameStats
 
     *primaryLayerCount = 0;
     *secondaryLayerCount = 0;
+    return XR_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, bool activate)
+{
+    if (s_DriverContext.xrActivateSecondaryViewUNITY)
+        return s_DriverContext.xrActivateSecondaryViewUNITY(viewConfigurationType, activate);
+
+    return XR_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_RegisterEndFrameCallback(PFN_EndFrameCallback callback)
+{
+    if (s_DriverContext.xrRegisterEndFrameCallbackUNITY)
+        return s_DriverContext.xrRegisterEndFrameCallbackUNITY(callback);
+
     return XR_ERROR_EXTENSION_NOT_PRESENT;
 }
 

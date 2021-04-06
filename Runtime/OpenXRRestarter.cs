@@ -15,6 +15,8 @@ namespace UnityEngine.XR.OpenXR
         internal OpenXRLoader loader = null;
         internal bool shouldRestart = true;
 
+        internal Func<bool> ShouldCancelQuit = null;
+
         internal void ShutdownLoader(OpenXRLoaderBase loader, Action shutdownCallback)
         {
             StartCoroutine(Restart(loader, false, shutdownCallback, () => {}));
@@ -54,8 +56,21 @@ namespace UnityEngine.XR.OpenXR
 
                 restartCallback();
             }
+            else
+            {
 
-            GameObject.Destroy(gameObject);
+                if (ShouldCancelQuit != null && ShouldCancelQuit.Invoke())
+                {
+#if UNITY_EDITOR
+                    if (EditorApplication.isPlaying || EditorApplication.isPaused)
+                    {
+                        EditorApplication.ExitPlaymode();
+                    }
+#else
+                    Application.Quit();
+#endif
+                }
+            }
         }
     }
 }

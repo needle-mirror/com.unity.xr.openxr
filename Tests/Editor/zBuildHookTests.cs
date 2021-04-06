@@ -25,15 +25,13 @@ namespace UnityEditor.XR.OpenXR.Tests
             opts.targetGroup = BuildTargetGroup.Standalone;
             opts.locationPathName = "mocktest/mocktest.exe";
 
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, opts.target);
-
             UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
+            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, opts.target);
             var report = BuildPipeline.BuildPlayer(opts);
             UnityEngine.TestTools.LogAssert.ignoreFailingMessages = false;
             return report;
         }
 
-#if OPENXR_CI
         [Test]
         public void PrePostCallbacksAreReceived()
         {
@@ -55,12 +53,16 @@ namespace UnityEditor.XR.OpenXR.Tests
                 return true;
             };
 
-            BuildMockPlayer();
+            var result = BuildMockPlayer();
+
+            if(Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") == "1")
+                Assert.IsTrue(result.summary.result == BuildResult.Succeeded);
+            else if (result.summary.result != BuildResult.Succeeded)
+                return;
 
             Assert.IsTrue(preprocessCalled);
             Assert.IsTrue(postprocessCalled);
         }
-#endif //OPENXR_CI
 
         internal class BuildCallbacks : OpenXRFeatureBuildHooks
         {

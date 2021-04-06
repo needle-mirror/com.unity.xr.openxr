@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEngine.Scripting;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.Features;
@@ -17,6 +18,8 @@ using UnityEditor.XR.Management;
 using UnityEditor.XR.OpenXR;
 
 #endif
+
+[assembly: Preserve]
 
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
@@ -127,12 +130,21 @@ namespace UnityEngine.XR.OpenXR
 
         private UnhandledExceptionEventHandler unhandledExceptionHandler = null;
 
-        OpenXRRestarter GetRestarter()
+        private static OpenXRRestarter s_RestarterInstance = null;
+
+        internal OpenXRRestarter GetRestarter()
         {
-            var go = new GameObject("~oxrestarter");
-            go.hideFlags = HideFlags.HideAndDontSave;
-            var ret = go.AddComponent<OpenXRRestarter>();
-            return ret;
+            if (s_RestarterInstance == null)
+            {
+                var go = GameObject.Find("~oxrestarter");
+                if (go == null)
+                {
+                    go = new GameObject("~oxrestarter");
+                    go.hideFlags = HideFlags.HideAndDontSave;
+                }
+                s_RestarterInstance = go.AddComponent<OpenXRRestarter>();
+            }
+            return s_RestarterInstance;
         }
 
         internal bool DisableValidationChecksOnEnteringPlaymode = false;
@@ -200,6 +212,8 @@ namespace UnityEngine.XR.OpenXR
             }
 #endif
 
+            OpenXRInput.RegisterLayouts();
+
             OpenXRFeature.Initialize();
 
             if (!LoadOpenXRSymbols())
@@ -236,8 +250,6 @@ namespace UnityEngine.XR.OpenXR
             OpenXRAnalytics.SendInitializeEvent(true);
 
             OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemCreate);
-
-            OpenXRInput.Initialize();
 
             DebugLogEnabledSpecExtensions();
 
@@ -566,7 +578,7 @@ namespace UnityEngine.XR.OpenXR
             DiagnosticReport.AddSectionBreak(section);
             DiagnosticReport.AddSectionEntry(section, "Features requested to be enabled", $"{count}\n{requestedLog.ToString()}");
             DiagnosticReport.AddSectionBreak(section);
-            DiagnosticReport.AddSectionEntry(section, "Features failed to be enabled", $"{failedCount}\n{failedLog.ToString()}");
+            DiagnosticReport.AddSectionEntry(section, "Features with extensions that failed to be enabled", $"{failedCount}\n{failedLog.ToString()}");
         }
 
         private static void DebugLogEnabledSpecExtensions()

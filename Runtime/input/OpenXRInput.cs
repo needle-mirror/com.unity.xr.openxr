@@ -1,18 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR.Input
 {
+#if UNITY_EDITOR
+    [InitializeOnLoad]
+#endif
     internal static class OpenXRInput
     {
         static List<OpenXRInteractionFeature.ActionMapConfig> s_ActionMapsToLoad = new List<OpenXRInteractionFeature.ActionMapConfig>();
 
         static bool started { get; set; }
+
+        static OpenXRInput()
+        {
+#if UNITY_EDITOR
+            // In the editor we need to make sure the OpenXR layouts get registered even if the user doesn't
+            // navigate to the project settings.  The following code will register the base layouts as well
+            // as any enabled interaction features.
+            RegisterLayouts();
+
+            var settings = OpenXRSettings.Instance;
+            if (settings == null)
+                return;
+
+            foreach (var feature in settings.features.OfType<OpenXRInteractionFeature>())
+                feature.ActiveStateChanged();
+#endif
+        }
 
         internal static void AddActionMap(OpenXRInteractionFeature.ActionMapConfig map)
         {
@@ -26,7 +48,7 @@ namespace UnityEngine.XR.OpenXR.Input
             s_ActionMapsToLoad.Add(map);
         }
 
-        internal static void Initialize()
+        internal static void RegisterLayouts ()
         {
             InputSystem.InputSystem.RegisterLayout<PoseControl>("Pose");
             InputSystem.InputSystem.RegisterLayout<OpenXRDevice>();

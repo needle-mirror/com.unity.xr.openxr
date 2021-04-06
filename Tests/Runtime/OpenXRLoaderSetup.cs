@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -86,6 +87,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(EnableMockRuntime(true));
 #pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
+            loader.GetRestarter().ShouldCancelQuit = () => false;
 #pragma warning restore CS0618
         }
 
@@ -95,6 +97,11 @@ namespace UnityEngine.XR.OpenXR.Tests
         [TearDown]
         public virtual void AfterTest()
         {
+#pragma warning disable CS0618
+            loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
+            loader.GetRestarter().ShouldCancelQuit = null;
+#pragma warning restore CS0618
+
             StopAndShutdown();
             EnableMockRuntime(false);
             MockRuntime.Instance.TestCallback = (methodName, param) => true;

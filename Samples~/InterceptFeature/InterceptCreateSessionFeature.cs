@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using AOT;
 using UnityEditor;
 using UnityEngine.XR.OpenXR.Features;
 #if UNITY_EDITOR
@@ -60,6 +61,8 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
             return true;
         }
 
+        private delegate void OnMessageDelegate(string message);
+        [MonoPInvokeCallback(typeof(OnMessageDelegate))]
         private static void OnMessage(string message)
         {
             if (message == null)

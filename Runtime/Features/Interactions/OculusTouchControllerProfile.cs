@@ -145,14 +145,26 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for backwards compatibility with the XRSDK layouts. Tthis is the device position. For the Oculus Touch device, this is both the grip and the pointer position. This value is equivalent to mapping devicePose/position.
             /// </summary>
-            [Preserve, InputControl(offset = 96, aliases = new[] { "pointerPosition", "gripPosition" })]
+            [Preserve, InputControl(offset = 36, aliases = new[] { "gripPosition" })]
             new public Vector3Control devicePosition { get; private set; }
 
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the device orientation. For the Oculus Touch device, this is both the grip and the pointer rotation. This value is equivalent to mapping devicePose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 108, aliases = new[] { "pointerOrientation", "pointerRotation", "gripOrientation" })]
+            [Preserve, InputControl(offset = 48, aliases = new[] { "gripOrientation" })]
             new public QuaternionControl deviceRotation { get; private set; }
+
+            /// <summary>
+            /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for back compatibility with the XRSDK layouts. This is the pointer position. This value is equivalent to mapping pointerPose/position.
+            /// </summary>
+            [Preserve, InputControl(offset = 96)]
+            public Vector3Control pointerPosition { get; private set; }
+
+            /// <summary>
+            /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the pointer rotation. This value is equivalent to mapping pointerPose/rotation.
+            /// </summary>
+            [Preserve, InputControl(offset = 108, aliases = new[] { "pointerOrientation" })]
+            public QuaternionControl pointerRotation { get; private set; }
 
             /// <summary>
             /// Internal call used to assign controls to the the correct element.
@@ -181,6 +193,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 trackingState = GetChildControl<IntegerControl>("trackingState");
                 devicePosition = GetChildControl<Vector3Control>("devicePosition");
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
+                pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
+                pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
             }
         }
 

@@ -30,7 +30,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
-        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.LinuxEditor})] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
+        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor})] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
         public IEnumerator NoInitNoCrash()
         {
             base.InitializeAndStart();
@@ -42,7 +42,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
-        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.LinuxEditor})]
+        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor})]
         public IEnumerator LoadRuntimeAfterNoRuntime()
         {
             base.InitializeAndStart();

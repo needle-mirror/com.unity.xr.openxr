@@ -1,13 +1,14 @@
 ﻿using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.Scripting;
 
 namespace UnityEngine.XR.OpenXR.Input
 {
-    [InputControlLayout(displayName = "OpenXR HMD")]
+    [Preserve, InputControlLayout(displayName = "OpenXR HMD")]
     internal class OpenXRHmd : XRHMD
     {
-        [InputControl] ButtonControl userPresence { get; set; }
+        [Preserve, InputControl] ButtonControl userPresence { get; set; }
 
         /// <inheritdoc/>
         protected override void FinishSetup()

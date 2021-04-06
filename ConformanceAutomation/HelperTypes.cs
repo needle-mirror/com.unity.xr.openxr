@@ -33,14 +33,14 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         {
             this.x = x;
             this.y = y;
-            this.z = z;
+            this.z = -z;
         }
 
         public XrVector3f(Vector3 value)
         {
             x = value.x;
             y = value.y;
-            z = value.z;
+            z = -value.z;
         }
     };
 
@@ -53,16 +53,16 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
 
         public XrQuaternionf(float x, float y, float z, float w)
         {
-            this.x = x;
-            this.y = y;
+            this.x = -x;
+            this.y = -y;
             this.z = z;
             this.w = w;
         }
 
         public XrQuaternionf(Quaternion quaternion)
         {
-            this.x = quaternion.x;
-            this.y = quaternion.y;
+            this.x = -quaternion.x;
+            this.y = -quaternion.y;
             this.z = quaternion.z;
             this.w = quaternion.w;
         }

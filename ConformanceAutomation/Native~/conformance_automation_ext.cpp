@@ -29,12 +29,18 @@ static IUnityXRTrace* s_Trace = nullptr;
 extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 script_xrSetInputDeviceActiveEXT(XrSession session, XrPath interactionProfile, XrPath topLevelPath, XrBool32 isActive)
 {
+    if (nullptr == unity_xrSetInputDeviceActiveEXT)
+        return false;
+
     return XR_SUCCESS == unity_xrSetInputDeviceActiveEXT(session, interactionProfile, topLevelPath, isActive);
 }
 
 extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 script_xrSetInputDeviceStateBoolEXT(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, XrBool32 state)
 {
+    if (nullptr == unity_xrSetInputDeviceStateBoolEXT)
+        return false;
+
     XrResult result = unity_xrSetInputDeviceStateBoolEXT(session, topLevelPath, inputSourcePath, state);
     std::string traceString = "[ConformanceAutomationExt] - script_xrSetInputDeviceStateBoolEXT XrResult is ";
 
@@ -51,18 +57,27 @@ script_xrSetInputDeviceStateBoolEXT(XrSession session, XrPath topLevelPath, XrPa
 extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 script_xrSetInputDeviceStateFloatEXT(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, float state)
 {
+    if (nullptr == unity_xrSetInputDeviceStateFloatEXT)
+        return false;
+
     return XR_SUCCESS == unity_xrSetInputDeviceStateFloatEXT(session, topLevelPath, inputSourcePath, state);
 }
 
 extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 script_xrSetInputDeviceStateVector2fEXT(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, XrVector2f state)
 {
+    if (nullptr == unity_xrSetInputDeviceStateVector2fEXT)
+        return false;
+
     return XR_SUCCESS == unity_xrSetInputDeviceStateVector2fEXT(session, topLevelPath, inputSourcePath, state);
 }
 
 extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 script_xrSetInputDeviceLocationEXT(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, XrSpace space, XrPosef pose)
 {
+    if (nullptr == unity_xrSetInputDeviceLocationEXT)
+        return false;
+
     return XR_SUCCESS == unity_xrSetInputDeviceLocationEXT(session, topLevelPath, inputSourcePath, space, pose);
 }
 

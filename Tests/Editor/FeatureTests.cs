@@ -37,7 +37,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.AreEqual(mockExtInfo.Attribute.OpenxrExtensionStrings, mockExtInfo.Feature.openxrExtensionStrings);
         }
 
-#if OPENXR_CI
         [Test]
         public void ValidationError()
         {
@@ -84,7 +83,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             // Close the validation window ...
             OpenXRProjectValidationWindow.CloseWindow();
         }
-#endif //OPENXR_CI
 
         [Test]
         public void GetFeatureByFeatureId()

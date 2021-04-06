@@ -28,7 +28,7 @@ A feature must also provide an `OpenXRFeature` attribute when running in the Edi
 
 ```c#
  #if UNITY_EDITOR
-    [Unity.XR.OpenXR.Editor.OpenXRFeature(UiName = "Example Intercept Create Session",
+    [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Example Intercept Create Session",
         BuildTargetGroups = new []{BuildTargetGroup.Standalone, BuildTargetGroup.WSA},
         Company = "Unity",
         Desc = "Example feature extension showing how to intercept a single OpenXR function.",
@@ -191,11 +191,15 @@ Any native libraries included in the same directory or a subdirectory of your fe
 
 ### Intercepting OpenXR function calls
 
-To intercept OpenXR function calls, override `OpenXRFeature.xrGetInstanceProcAddr`. Returning a different function pointer allows intercepting any OpenXR method. For an example, see `InterceptCreateSessionExt`.
+To intercept OpenXR function calls, override `OpenXRFeature.HookGetInstanceProcAddr`. Returning a different function pointer allows intercepting any OpenXR method. For an example, see the `Intercept Feature` sample.
+
+### Calling OpenXR functions from a feature
+
+To call an OpenXR function within a feature you first need to retreive a pointer to the function.  To do this use the `OpenXRFeature.xrGetInstanceProcAddr` function pointer to request a pointer to the function you want to call.  Using  `OpenXRFeature.xrGetInstanceProcAddr` to retrieve the function pointer ensures that any intercepted calls set up by features using `OpenXRFeature.HookGetInstanceProcAddr` will be included.
 
 ### Providing a Unity subsystem implementation
 
-`OpenXRFeature` provides several XR Loader callbacks where you can manage the lifecycle of Unity subsystems. For an example meshing subsystem feature, see the `MeshingTeapotExt` example (and the package sample that corresponds with it).
+`OpenXRFeature` provides several XR Loader callbacks where you can manage the lifecycle of Unity subsystems. For an example meshing subsystem feature, see the `Meshing Subsystem Feature` sample.
 
 Note that a `UnitySubsystemsManifest.json` file is required in order for Unity to discover any subsystems you define. At the moment, there are several restrictions around this file:
 

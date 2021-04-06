@@ -20,7 +20,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
         CustomRuntimeLoaderBuildTargets = new [] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX },
         OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx,
-        Version = "0.0.1",
+        Version = "0.0.2",
         FeatureId = featureId)]
 #endif
     internal class MockRuntime : OpenXRFeature

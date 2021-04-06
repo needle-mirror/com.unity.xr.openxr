@@ -48,6 +48,7 @@ namespace UnityEngine.XR.TestTooling
         protected void DestroyLoaderAndSettings()
         {
 #if UNITY_EDITOR
+
             var path = GetAssetPathForComponents(s_TempSettingsPath);
             var settingsPath = Path.Combine(path, $"Test_{typeof(S).Name}.asset");
             AssetDatabase.DeleteAsset(settingsPath);

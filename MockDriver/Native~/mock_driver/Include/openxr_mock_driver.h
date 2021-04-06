@@ -46,4 +46,14 @@ typedef XrResult(XRAPI_PTR* PFN_xrSetViewPoseUNITY)(int viewIndex, XrPosef pose,
 //
 typedef XrResult(XRAPI_PTR* PFN_xrGetEndFrameStatsUNITY)(int* primaryLayerCount, int* secondaryLayerCount);
 
+// Activate a secondary view configuration
+//
+typedef XrResult(XRAPI_PTR* PFN_xrActivateSecondaryViewUNITY)(XrViewConfigurationType viewConfigurationType, bool activate);
+
+// Register a callback that gets called after every end frame
+//
+typedef void (*PFN_EndFrameCallback)();
+
+typedef XrResult(XRAPI_PTR* PFN_xrRegisterEndFrameCallback)(PFN_EndFrameCallback callback);
+
 #endif //OPENXR_MOCK_DRIVER
