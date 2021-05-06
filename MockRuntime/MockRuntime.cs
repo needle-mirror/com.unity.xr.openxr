@@ -17,7 +17,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone},
         Company = "Unity",
         Desc = "Mock runtime extension for automated testing.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
+        DocumentationLink = Constants.k_DocumentationURL,
         CustomRuntimeLoaderBuildTargets = new [] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX },
         OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx,
         Version = "0.0.2",

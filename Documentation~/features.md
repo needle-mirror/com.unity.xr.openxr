@@ -2,15 +2,13 @@
 
 OpenXR is an extensible API that can be extended with new features. To facilitate this within the Unity ecosystem, the Unity OpenXR provider offers a feature extension mechanism.
 
-## Feature management window
-
-**Note:** The configuration of this window might change in the future.
+## Feature Management
 
 ![feature-ui](images/openxr-features.png)
 
-You can manage features from the **Project Settings &gt; XR Plug-in Management &gt; OpenXR &gt; Features** window.
+You can manage features from the **Project Settings &gt; XR Plug-in Management &gt; OpenXR** window.
 
-To enable or disable a feature, select or clear the checkbox next to it. Unity doesn't execute disabled features at runtime, and does't deploy any of the feature's native libraries with the Player build. To configure additional build-time properties specific to each feature, click the arrow under a feature to expand the additional settings foldout.
+To enable or disable a feature, select or clear the checkbox next to it. Unity doesn't execute disabled features at runtime, and does't deploy any of the feature's native libraries with the Player build. To configure additional build-time properties specific to each feature, click the gear icon to the right of the feature.
 
 All of the information in this window is populated via the `OpenXRFeatureAttribute` described below.
 

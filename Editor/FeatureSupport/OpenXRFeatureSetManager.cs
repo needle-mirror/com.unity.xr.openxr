@@ -8,6 +8,7 @@ using UnityEditor.XR.OpenXR;
 
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR.Features
 {
@@ -20,6 +21,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
         static OpenXRFeatureSetManager()
         {
+            OpenXRFeature.canSetFeatureDisabled = CanFeatureBeDisabled;
             AssemblyReloadEvents.afterAssemblyReload += OnAssemblyReload;
         }
 
@@ -79,6 +81,16 @@ namespace UnityEditor.XR.OpenXR.Features
             /// State that tracks whether this feature set is built in or was detected after the user installed it.
             /// </summary>
             public bool isInstalled;
+
+            /// <summary>
+            /// The set of required features that this feature set manages.
+            /// </summary>
+            public string[] requiredFeatureIds;
+
+            /// <summary>
+            /// The set of default features that this feature set manages.
+            /// </summary>
+            public string[] defaultFeatureIds;
         }
 
         internal class FeatureSetInfo : FeatureSet
@@ -95,6 +107,23 @@ namespace UnityEditor.XR.OpenXR.Features
         }
 
         static Dictionary<BuildTargetGroup, List<FeatureSetInfo>> s_AllFeatureSets = null;
+
+        struct FeatureSetState
+        {
+            public HashSet<string> featureSetFeatureIds;
+            public HashSet<string> requiredToEnabledFeatureIds;
+            public HashSet<string> requiredToDisabledFeatureIds;
+            public HashSet<string> defaultToEnabledFeatureIds;
+        }
+
+        static Dictionary<BuildTargetGroup, FeatureSetState> s_FeatureSetState = new Dictionary<BuildTargetGroup, FeatureSetState>();
+
+
+        /// <summary>
+        /// The current active build target. Used to handle callbacks from <see cref="OpenXRFeature.enabled" /> into
+        /// <see cref="CanFeatureBeDisabled" /> to determine if a feature can currently be disabled.
+        /// </summary>
+        public static BuildTargetGroup activeBuildTarget = BuildTargetGroup.Unknown;
 
         static void FillKnownFeatureSets(bool addTestFeatureSet = false)
         {
@@ -113,7 +142,7 @@ namespace UnityEditor.XR.OpenXR.Features
                             featureSetId = "com.unity.xr.test.featureset",
                             description = "Known Test feature set.",
                             downloadText = "Click here to go to the Unity main website.",
-                            downloadLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
+                            downloadLink = Constants.k_DocumentationURL,
                             uiName = new GUIContent("Known Test"),
                             uiDescription = new GUIContent("Known Test feature set."),
                             helpIcon = new GUIContent("", CommonContent.k_HelpIcon.image, "Click here to go to the Unity main website."),
@@ -147,6 +176,30 @@ namespace UnityEditor.XR.OpenXR.Features
                     s_AllFeatureSets.Add(kvp.Key, knownFeatureSets);
                 }
             }
+        }
+
+        static bool AllFeaturesEnabled(string[] featureIds, BuildTargetGroup buildTargetGroup)
+        {
+            if (featureIds == null)
+                return false;
+
+            var allFeatureInfo = FeatureHelpersInternal.GetAllFeatureInfo(buildTargetGroup);
+            if (allFeatureInfo == null || allFeatureInfo.Features.Count == 0)
+                return false;
+
+            bool ret = true;
+            bool found = false;
+            foreach(var featureInfo in allFeatureInfo.Features)
+            {
+                if (Array.IndexOf(featureIds, featureInfo.Attribute.FeatureId) > -1)
+                {
+                    found = true;
+                    ret &= featureInfo.Feature.enabled;
+                }
+            }
+
+            ret &= found;
+            return ret;
         }
 
         /// <summary>
@@ -192,13 +245,15 @@ namespace UnityEditor.XR.OpenXR.Features
                         }
 
                         var newFeatureSet = new FeatureSetInfo(){
-                            isEnabled = false,
+                            isEnabled = AllFeaturesEnabled(featureSetAttr.RequiredFeatureIds, buildTargetGroup),
                             name = featureSetAttr.UiName,
                             description = featureSetAttr.Description,
                             featureSetId = featureSetAttr.FeatureSetId,
                             downloadText = "",
                             downloadLink = "",
                             featureIds = featureSetAttr.FeatureIds,
+                            requiredFeatureIds = featureSetAttr.RequiredFeatureIds,
+                            defaultFeatureIds = featureSetAttr.DefaultFeatureIds,
                             isInstalled = true,
                             uiName = new GUIContent(featureSetAttr.UiName),
                             uiLongName = new GUIContent($"{featureSetAttr.UiName} feature set"),
@@ -217,10 +272,30 @@ namespace UnityEditor.XR.OpenXR.Features
                                 break;
                             }
                         }
+
                         if (!foundFeatureSet)
                             featureSets.Add(newFeatureSet);
                     }
                 }
+            }
+
+
+            var buildTargetGroups = Enum.GetValues(typeof(BuildTargetGroup));
+            foreach (BuildTargetGroup buildTargetGroup in buildTargetGroups)
+            {
+                FeatureSetState fsi;
+                if (!s_FeatureSetState.TryGetValue(buildTargetGroup, out fsi))
+                {
+                    fsi = new FeatureSetState();
+                    fsi.featureSetFeatureIds = new HashSet<string>();
+                    fsi.requiredToEnabledFeatureIds = new HashSet<string>();
+                    fsi.requiredToDisabledFeatureIds = new HashSet<string>();
+                    fsi.defaultToEnabledFeatureIds = new HashSet<string>();
+
+                    s_FeatureSetState.Add(buildTargetGroup, fsi);
+                }
+
+                SetFeaturesFromEnabledFeatureSets(buildTargetGroup);
             }
         }
 
@@ -289,33 +364,101 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <param name="buildTargetGroup">The build target group to process features sets for.</param>
         public static void SetFeaturesFromEnabledFeatureSets(BuildTargetGroup buildTargetGroup)
         {
-            HashSet<string> enabledFeatureIds = new HashSet<string>();
+            var featureSets = FeatureSetInfosForBuildTarget(buildTargetGroup);
             var extInfo = FeatureHelpersInternal.GetAllFeatureInfo(buildTargetGroup);
-            foreach (var ext in extInfo.Features)
+
+            var fsi = s_FeatureSetState[buildTargetGroup];
+
+            fsi.featureSetFeatureIds.Clear();
+            foreach (var featureSet in featureSets)
             {
-                if (ext.Feature.enabled)
-                    enabledFeatureIds.Add(ext.Attribute.FeatureId);
+                if (featureSet.featureIds != null)
+                    fsi.featureSetFeatureIds.UnionWith(featureSet.featureIds);
             }
 
+            fsi.featureSetFeatureIds.Clear();
+            fsi.requiredToEnabledFeatureIds.Clear();
+            fsi.requiredToDisabledFeatureIds.Clear();
+            fsi.defaultToEnabledFeatureIds.Clear();
 
-            var featureSets = FeatureSetInfosForBuildTarget(buildTargetGroup);
             foreach (var featureSet in featureSets)
             {
                 if (featureSet.featureIds == null)
                     continue;
 
-                if (featureSet.isEnabled)
-                    enabledFeatureIds.UnionWith(featureSet.featureIds);
-                else if (featureSet.wasChanged)
-                    enabledFeatureIds.ExceptWith(featureSet.featureIds);
+                if (featureSet.isEnabled && featureSet.requiredFeatureIds != null)
+                {
+                    fsi.requiredToEnabledFeatureIds.UnionWith(featureSet.requiredFeatureIds);
+                }
+
+                if (featureSet.wasChanged)
+                {
+                    if (featureSet.isEnabled && featureSet.defaultFeatureIds != null)
+                    {
+                        fsi.defaultToEnabledFeatureIds.UnionWith(featureSet.defaultFeatureIds);
+                    }
+                    else if (!featureSet.isEnabled && featureSet.requiredFeatureIds != null)
+                    {
+                        fsi.requiredToDisabledFeatureIds.UnionWith(featureSet.requiredFeatureIds);
+                    }
+                }
 
                 featureSet.wasChanged = false;
             }
 
             foreach (var ext in extInfo.Features)
             {
-                ext.Feature.enabled = enabledFeatureIds.Contains(ext.Attribute.FeatureId);
+                if (ext.Feature.enabled && fsi.requiredToDisabledFeatureIds.Contains(ext.Attribute.FeatureId))
+                    ext.Feature.enabled = false;
+
+                if (!ext.Feature.enabled && fsi.requiredToEnabledFeatureIds.Contains(ext.Attribute.FeatureId))
+                    ext.Feature.enabled = true;
+
+                if (!ext.Feature.enabled && fsi.defaultToEnabledFeatureIds.Contains(ext.Attribute.FeatureId))
+                    ext.Feature.enabled = true;
             }
+
+            s_FeatureSetState[buildTargetGroup] = fsi;
+        }
+
+        /// <summary>
+        /// Tell the user if the feature with passed in feature id can be disabled.
+        ///
+        /// Uses the currently set <see cref="activeBuildTarget" /> to determine
+        /// the BuildTargetGroup to use for checking against. If this value is not set, or
+        /// set for a different build target than expected then return value may be incorrect.
+        /// </summary>
+        /// <param name="featureId">The feature id of the feature to check.</param>
+        /// <returns>True if currently required by some feature set, false otherwise.</returns>
+        internal static bool CanFeatureBeDisabled(string featureId)
+        {
+            return CanFeatureBeDisabled(featureId, activeBuildTarget);
+        }
+
+        /// <summary>
+        /// Tell the user if the feature with passed in feature id can be disabled based on the build target group.
+        /// </summary>
+        /// <param name="featureId">The feature id of the feature to check.</param>
+        /// <param name="buildTargetGroup">The build target group whose feature sets you are checking against.</param>
+        /// <returns>True if currently required by some feature set, false otherwise.</returns>
+        public static bool CanFeatureBeDisabled(string featureId, BuildTargetGroup buildTargetGroup)
+        {
+            if (!s_FeatureSetState.ContainsKey(buildTargetGroup))
+                return true;
+
+            var fsi = s_FeatureSetState[buildTargetGroup];
+            return !fsi.requiredToEnabledFeatureIds.Contains(featureId);
+        }
+
+        internal static bool IsKnownFeatureSet(BuildTargetGroup buildTargetGroup, string featureSetId)
+        {
+            if (!KnownFeatureSets.k_KnownFeatureSets.ContainsKey(buildTargetGroup))
+                return false;
+
+            var featureSets = KnownFeatureSets.k_KnownFeatureSets[buildTargetGroup].
+                Where((fs) => fs.featureSetId == featureSetId);
+
+            return featureSets.Any();
         }
     }
 }

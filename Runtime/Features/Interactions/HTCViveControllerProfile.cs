@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA},
         Company = "Unity",
         Desc = "Allows for mapping input to the HTC Vive Controller interaction profile.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/features/htcvivecontrollerprofile.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/htcvivecontrollerprofile.html",
         OpenxrExtensionStrings = "",
         Version = "0.0.1",
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Interaction,

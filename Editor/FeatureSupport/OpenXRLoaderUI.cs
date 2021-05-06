@@ -15,9 +15,8 @@ namespace UnityEditor.XR.OpenXR.Features
         public const float k_IconSize = 16.0f;
 
         public static readonly GUIContent k_LoaderName = new GUIContent("OpenXR");
-        public static readonly GUIContent k_OpenXRExperimental = new GUIContent("OpenXR is an experimental release. You may need to configure additional settings for OpenXR to enable features and interactions for different runtimes.");
-
-        public static readonly GUIContent k_OpenXRExperimentalIcon = new GUIContent("", CommonContent.k_HelpIcon.image, k_OpenXRExperimental.text);
+        public static readonly GUIContent k_OpenXRHelp = new GUIContent("You may need to configure additional settings for OpenXR to enable features and interactions for different runtimes.");
+        public static readonly GUIContent k_OpenXRHelpIcon = new GUIContent("", CommonContent.k_HelpIcon.image, k_OpenXRHelp.text);
     }
 
 
@@ -114,7 +113,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
                 if (GUI.Button(iconRect, featureSet.helpIcon, EditorStyles.label))
                 {
-                    if (!String.IsNullOrEmpty(featureSet.downloadLink)) System.Diagnostics.Process.Start(featureSet.downloadLink);
+                    if (!String.IsNullOrEmpty(featureSet.downloadLink)) UnityEngine.Application.OpenURL(featureSet.downloadLink);
                 }
                 xMin = iconRect.xMax + 1;
             }
@@ -123,6 +122,10 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <inheritdoc/>
         public virtual void OnGUI(Rect rect)
         {
+            // If this editor is rendering then the make sure the project validator is showing
+            // issues for the same build target.
+            OpenXRProjectValidationWindow.SetSelectedBuildTargetGroup(activeBuildTargetGroup);
+
             Vector2 oldIconSize = EditorGUIUtility.GetIconSize();
             EditorGUIUtility.SetIconSize(new Vector2(Content.k_IconSize, Content.k_IconSize));
             shouldApplyFeatureSetChanges = false;
@@ -141,8 +144,8 @@ namespace UnityEditor.XR.OpenXR.Features
 
             if (IsLoaderEnabled)
             {
-                var iconRect = CalculateRectForContent(xMin, yMin, EditorStyles.label, Content.k_OpenXRExperimentalIcon);
-                EditorGUI.LabelField(iconRect, Content.k_OpenXRExperimentalIcon);
+                var iconRect = CalculateRectForContent(xMin, yMin, EditorStyles.label, Content.k_OpenXRHelpIcon);
+                EditorGUI.LabelField(iconRect, Content.k_OpenXRHelpIcon);
                 xMin += Content.k_IconSize + 1.0f;
 
                 OpenXRProjectValidation.GetCurrentValidationIssues(_validationRules, activeBuildTargetGroup);

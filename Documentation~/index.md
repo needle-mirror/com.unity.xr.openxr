@@ -6,31 +6,42 @@ OpenXR is an open, royalty-free standard developed by Khronos that aims to simpl
 
 This version of OpenXR is compatible with the following versions of the Unity Editor:
 
-* 2020.2+
+* 2020 LTS+
 
-## Supported platforms
+## Runtimes
 
-Unity's OpenXR plug-in should work with any device that supports conformant PC-based OpenXR runtimes. The following platforms have been fully tested and are officially supported:
+Unity's OpenXR plug-in should work with any device that supports conformant OpenXR runtimes. The following is a list of known runtimes that you may want to target:
 
-|**Platform**|**Build target**|**Graphics API**|**Rendering mode**|
-|---|---|---|---|
-|Windows Mixed Reality|Windows|DX11|Single Pass Instanced|
-|HoloLens 2|UWP|DX11|Single Pass Instanced|
+|**Runtime**|**Build target**|**Preferred Graphics API**|**Feature Parity**|**Known Limitations**|
+|---|---|---|---|---|
+|Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
+|HoloLens 2|UWP arm64|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
+|Oculus PC + Link|Windows 64-bit|DX11|HMD + Controllers|Oculus Integration package features not available|
+|Oculus Quest|Android arm64|Vulkan|HMD + Controllers via [Oculus Quest Support Feature](./features/oculusquest.md)|Oculus Integration package features not available<br><br>Not yet recommended for production.|
+|All other conformant runtimes (eg. SteamVR)|Windows 64-bit|DX11|HMD + Controllers|Given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally.<br><br>SteamVR Plugin features not available|
 
-At this time, deploying directly to Oculus Quest/Quest 2 is not supported.
+To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.
 
-Unity plans to expand the number of supported platforms in the future as more of our platform partners adopt the OpenXR standard. However, given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally. To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.
+## Considerations before porting to OpenXR
+
+Unity does not yet provide out-of-the-box solutions to the following when using OpenXR, however there may be platform-specific plugins (eg. [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)) or third party solutions available:
+
+* Controller / hand models
+* Finger tracking
+* Augmented reality / mixed reality features
+* Composition layers
+* Overlays
+* Foveated rendering
 
 ## Getting started
 
 To enable OpenXR in your project, follow the steps below:
 
-1. Install the **OpenXR Plugin** package from **Package Manager**.
-2. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
-3. Enable the **OpenXR** option and any **Feature Sets** for the runtimes you intend to target.
-4. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
-5. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
- 
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
+2. Enable the **OpenXR** option and any **Feature Sets** for the runtimes you intend to target.
+3. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
+4. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
+
 
 ## Project validation
 
@@ -38,7 +49,7 @@ To enable OpenXR in your project, follow the steps below:
 
 Unity raises errors and warnings at build time if your project is not compatible with OpenXR. Make sure that your project conforms to the following rules and standards:
 
-* The **Color Space** must be set to Linear in the Player settings (menu: **Edit &gt; Project Settings &gt; Player**, then select your platform and change this setting under **Other Settings &gt; Rendering**). OpenXR does not support Gamma color space rendering in Unity. 
+* If using OpenGLES the **Color Space** must be set to Linear in the Player settings (menu: **Edit &gt; Project Settings &gt; Player**, then select your platform and change this setting under **Other Settings &gt; Rendering**). OpenXR does not support Gamma **Color Space** rendering with OpenGLES in Unity.
 
 * You must select at least one interaction profile in the **OpenXR** tab. Unity's OpenXR plug-in includes several interaction profiles, and you can add more from the **Features** tab. For more information on interaction profiles, see the [OpenXR input](./input.md) page. 
 
@@ -50,6 +61,8 @@ Unity reports validation issues in the following locations:
 * Features pane: Icon next to the feature set containing the feature that is reporting a validation issue.
 * Features pane: Icon next to each feature that is reporting a validation issue.
 * Console window, as the result of a build: Validation errors cause the build to terminate. Validation warnings do not terminate the build.
+
+The Validation window can also be opened manually from the menu (**Window &gt; XR &gt; OpenXR &gt; Project Validation**).
 
 ### Validation issues reported in XR Plug-in Management
 
@@ -71,7 +84,7 @@ Double-clicking on build warnings or errors from validation brings up the Valida
 
 ## Troubleshooting
 
-If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/2020.2/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
+If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/2020.3/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
 
 Unity generates a diagnostic log in either the Player or Editor log, depending on where you run the application. The diagnostic log starts with `==== Start Unity OpenXR Diagnostic Report ====` and ends with `==== End Unity OpenXR Diagnostic Report ====` log entries. It contains information about your application, Unity version, OpenXR runtime, OpenXR Extensions, and other aspects that can help diagnose issues.
 
@@ -103,10 +116,7 @@ The most important part of the diagnostic log is the section marked `==== OpenXR
 
 ## Known issues
 
-* Deploying directly to Oculus Quest/Quest 2 will be released at a later date.
-* A black box appears in upper-right quadrant when running in Oculus desktop. An updated Oculus runtime will be released which fixes this. In the meantime, you can turn off [occlusion mesh](https://docs.unity3d.com/ScriptReference/XR.XRSettings-useOcclusionMesh.html) for the built-in renderer.
-* Eye Tracking Interaction device layout does not appear in the Unity Input System menus.
-* Haptics is currently not supported. It will be added in a later version of the OpenXR plug-in.
+* For projects targeting HoloLens 2 that are using Out of the Box Unity OpenXR support, **Project Settings - &gt; Player - &gt; Resolution and Presentation - &gt; Run in Background** must be enabled. For projects that are using the Microsoft OpenXR extended support package this is not required.
 * An issue with an invalid stage space during startup may cause problems with the XR Rig component from the `com.unity.xr.interaction.toolkit` package, or the camera offset component in the `com.unity.xr.legacyinputhelpers` package. These packages will be updated shortly to contain fixes for this issue. Until then the workaround is to use the `Floor` Device Tracking Option setting. 
 
 ## Upgrading a project to use OpenXR
@@ -176,34 +186,29 @@ Features are a collection of Unity Assets that can be distributed through the Pa
 
 ![openxr-features-ui](images/openxr-features.png)
 
-You can enable, disable, and configure features from the **Features** tab in the **XR Plug-in Management &gt; OpenXR** window. The window has two main sections: **Feature Sets** in the left pane, and **Features** that a feature set supports in the right pane.
+You can enable, disable, and configure features from the **XR Plug-in Management &gt; OpenXR** window. There are two main sections: **Interaction Profiles** and **Feature Sets** .
+
+**Interaction Profiles** are a specific type of feature that provide support for various controllers and input devices within OpenXR.  Generally you would add **Interaction Profiles** for each device that you are able to test with and intend to support.
 
 Feature sets are a grouping of features that a provider defines. Use them to easily select and group a number of features. Selecting a feature set in the left pane filters the set of features on the right to only the features that the set contains. You can then enable or disable these features individually.
 
-The right pane provides the following information for each feature:
-* Name
-* Category, which can be one of the following:
-  * Feature - Category for general features.
-  * Interaction - Category for features that provide specific support for input or other interaction devices.
-* Author, which can be a person, team, or company
-* Version
-* Settings - If the feature has any custom settings, you can configure these here.
-  
+Some features will will have links to documentation following their name as well as a gear icon to the right for additional configuration. 
+
 ### OpenXR core features
 
 #### General features
 
 * Mock Runtime (**Note:** Enabling this will take over whatever current OpenXR runtime you might be using.)
-* Eye Tracking Support
 
 #### Interaction profile features
 
-* Microsoft Hand Interaction Support
-* HTC Vive Controller Support
-* Khronos Simple Controller Support
-* Microsoft Motion Controller Support
-* Oculus Touch Controller Support
-* Valve Index Controller Support
+* [Eye Gaze Interaction](./features/eyegazeinteraction.md)
+* [Microsoft Hand Interaction](./features/microsofthandinteraction.md)
+* [HTC Vive Controller](./features/htcvivecontrollerprofile.md)
+* [Khronos Simple Controller](./features/khrsimplecontrollerprofile.md)
+* [Microsoft Motion Controller](./features/microsoftmotioncontrollerprofile.md)
+* [Oculus Touch Controller](./features/oculustouchcontrollerprofile.md)
+* [Valve Index Controller](./features/valveindexcontrollerprofile.md)
 
 ### Accessing features at runtime via script
 

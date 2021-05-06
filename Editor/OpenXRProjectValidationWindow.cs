@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Build;
@@ -12,42 +13,76 @@ namespace UnityEditor.XR.OpenXR
 {
     internal class OpenXRProjectValidationWindow : EditorWindow
     {
-        private Vector2 scrollViewPos = Vector2.zero;
+        private Vector2 _scrollViewPos = Vector2.zero;
 
-        private List<OpenXRFeature.ValidationRule> _failures = new List<OpenXRFeature.ValidationRule>();
+        private readonly List<OpenXRFeature.ValidationRule> _failures = new List<OpenXRFeature.ValidationRule>();
 
         // Fix all state
         private List<OpenXRFeature.ValidationRule> _fixAllStack = new List<OpenXRFeature.ValidationRule>();
-        private const uint desiredFramesBetweenFixes = 60;
-        private uint _framesBetweenFixesCounter = 0;
 
-        static class Content
+        /// <summary>
+        /// Last time the issues in the window were upated
+        /// </summary>
+        private double _lastUpdate = 0.0f;
+
+        /// <summary>
+        /// Interval that that issues should be updated
+        /// </summary>
+        private const double k_UpdateInterval = 1.0f;
+
+        /// <summary>
+        /// Interval that that issues should be updated when the window does not have focus
+        /// </summary>
+        private const double k_BackgroundUpdateInterval = 3.0f;
+
+        private static class Content
         {
-            public const float k_Space = 15.0f;
-            public static readonly GUIContent k_Title = new GUIContent("OpenXR Project Validation", CommonContent.k_ErrorIcon.image);
-            public static readonly GUIStyle k_Wrap = new GUIStyle(EditorStyles.label);
+            public static readonly GUIContent k_Title = new GUIContent(" OpenXR Project Validation", CommonContent.k_ErrorIcon.image);
             public static readonly GUIContent k_FixButton = new GUIContent("Fix", "");
-            public static readonly GUIContent k_PlayMode = new GUIContent("Exit play mode before fixing project validation issues.", EditorGUIUtility.IconContent("console.infoicon").image);
+            public static readonly GUIContent k_EditButton = new GUIContent("Edit", "");
+            public static readonly GUIContent k_PlayMode = new GUIContent("  Exit play mode before fixing project validation issues.", EditorGUIUtility.IconContent("console.infoicon").image);
+            public static readonly GUIContent k_HelpButton = new GUIContent(CommonContent.k_HelpIcon.image);
             public static readonly Vector2 k_IconSize = new Vector2(16.0f, 16.0f);
         }
 
-        static class Styles
+        private static class Styles
         {
             public static GUIStyle s_SelectionStyle = "TV Selection";
             public static GUIStyle s_IssuesBackground = "ScrollViewAlt";
             public static GUIStyle s_ListLabel;
             public static GUIStyle s_IssuesTitleLabel;
-
+            public static GUIStyle s_Wrap;
+            public static GUIStyle s_Icon;
+            public static GUIStyle s_InfoBanner;
+            public static GUIStyle s_FixAll;
         }
 
-        BuildTargetGroup selectedBuildTargetGroup = BuildTargetGroup.Unknown;
+        private static bool s_Dirty = true;
+        private static BuildTargetGroup s_SelectedBuildTargetGroup = BuildTargetGroup.Unknown;
+
+        [MenuItem("Window/XR/OpenXR/Project Validation")]
+        private static void MenuItem()
+        {
+            ShowWindow();
+        }
+
+        internal static void SetSelectedBuildTargetGroup(BuildTargetGroup buildTargetGroup)
+        {
+            if (s_SelectedBuildTargetGroup == buildTargetGroup)
+                return;
+
+            s_Dirty = true;
+            s_SelectedBuildTargetGroup = buildTargetGroup;
+        }
 
         internal static void ShowWindow(BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown)
         {
+            SetSelectedBuildTargetGroup(buildTargetGroup);
+
             var window = (OpenXRProjectValidationWindow) GetWindow(typeof(OpenXRProjectValidationWindow));
             window.titleContent = Content.k_Title;
             window.minSize = new Vector2(500.0f, 300.0f);
-            window.selectedBuildTargetGroup = buildTargetGroup;
+            window.UpdateIssues();
             window.Show();
         }
 
@@ -57,158 +92,185 @@ namespace UnityEditor.XR.OpenXR
             window.Close();
         }
 
-        private void InitStyles()
+        private static void InitStyles()
         {
-            if (Styles.s_ListLabel == null)
+            if (Styles.s_ListLabel != null)
+                return;
+
+            Styles.s_ListLabel = new GUIStyle(Styles.s_SelectionStyle)
             {
-                Styles.s_ListLabel = new GUIStyle(Styles.s_SelectionStyle);
-                Styles.s_ListLabel.border = new RectOffset(0,0,0,0);
-                Styles.s_ListLabel.padding = new RectOffset(5, 5, 0, 0);
-                Styles.s_ListLabel.margin = new RectOffset(5, 5, 5, 5);
+                border = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(5, 5, 5, 5),
+                margin = new RectOffset(5, 5, 5, 5)
+            };
 
-                Styles.s_IssuesTitleLabel = new GUIStyle(EditorStyles.label);
-                Styles.s_IssuesTitleLabel.fontSize = 14;
-                Styles.s_IssuesTitleLabel.fontStyle = FontStyle.Bold;
+            Styles.s_IssuesTitleLabel = new GUIStyle(EditorStyles.label)
+            {
+                fontSize = 14,
+                fontStyle = FontStyle.Bold,
+                padding = new RectOffset(10, 10, 0, 0)
+            };
 
+            Styles.s_Wrap = new GUIStyle(EditorStyles.label)
+            {
+                wordWrap = true,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(0, 5, 1, 1)
+            };
+
+            Styles.s_Icon = new GUIStyle(EditorStyles.label)
+            {
+                margin = new RectOffset(5, 5, 0, 0),
+                fixedWidth = Content.k_IconSize.x * 2
+            };
+
+            Styles.s_InfoBanner = new GUIStyle(EditorStyles.label)
+            {
+                padding = new RectOffset(10,10,15,5)
+            };
+
+            Styles.s_FixAll = new GUIStyle(EditorStyles.miniButton)
+            {
+                stretchWidth = false,
+                fixedWidth = 80,
+                margin = new RectOffset(0,10,2,2)
+            };
+        }
+
+        protected void OnFocus() => UpdateIssues(true);
+
+        protected void Update() => UpdateIssues();
+
+        private void DrawIssuesList()
+        {
+            var hasFix = _failures.Any(f => f.fixIt != null);
+            var hasAutoFix = hasFix && _failures.Any(f => f.fixIt != null && f.fixItAutomatic);
+
+            // Header
+            EditorGUILayout.BeginHorizontal();
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+            {
+                EditorGUILayout.LabelField($"Issues ({_failures.Count})", Styles.s_IssuesTitleLabel);
             }
-        }
 
-        bool DrawIssuesAndFixAll()
-        {
-            bool fixAll = false;
-            GUILayout.Space(Content.k_Space);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label($"({_failures.Count}) OpenXR Validation Issues.", GUILayout.ExpandWidth(false));
-            if (_failures.Count > 0)
-                fixAll = GUILayout.Button("Fix All", GUILayout.ExpandWidth(false), GUILayout.Width(100));
-            GUILayout.EndHorizontal();
-
-            return fixAll;
-        }
-
-        bool DrawIssuesList()
-        {
-            bool anyFixAppiled = false;
-            EditorGUILayout.LabelField("Issues", Styles.s_IssuesTitleLabel);
-            EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying);
-
-            scrollViewPos = EditorGUILayout.BeginScrollView(scrollViewPos, Styles.s_IssuesBackground, GUILayout.ExpandHeight(true));
-
-            foreach (var result in _failures)
+            // FixAll button
+            if (hasAutoFix)
             {
-                EditorGUILayout.BeginHorizontal(Styles.s_ListLabel);
-
-                EditorGUILayout.BeginVertical(Styles.s_ListLabel);
-                Content.k_FixButton.tooltip = result.fixItMessage;
-                if (result.fixIt != null)
+                using (new EditorGUI.DisabledScope(EditorApplication.isPlaying || _fixAllStack.Count > 0))
                 {
-                    if (GUILayout.Button(Content.k_FixButton, GUILayout.Width(55.0f)))
+                    if (GUILayout.Button("Fix All", Styles.s_FixAll))
+                        _fixAllStack = _failures.Where(i => i.fixIt != null && i.fixItAutomatic).ToList();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            _scrollViewPos = EditorGUILayout.BeginScrollView(_scrollViewPos, Styles.s_IssuesBackground, GUILayout.ExpandHeight(true));
+
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+            {
+                foreach (var result in _failures)
+                {
+                    EditorGUILayout.BeginHorizontal(Styles.s_ListLabel);
+
+                    GUILayout.Label(result.error ? CommonContent.k_ErrorIcon : CommonContent.k_WarningIcon, Styles.s_Icon, GUILayout.Width(Content.k_IconSize.x));
+
+                    string message = result.message;
+                    if (result.feature != null)
+                        message = $"[{result.feature.nameUi}] {result.message}";
+                    GUILayout.Label(message, Styles.s_Wrap);
+                    GUILayout.FlexibleSpace();
+
+                    if (!string.IsNullOrEmpty(result.helpText) || !string.IsNullOrEmpty(result.helpLink))
                     {
-                        result.fixIt.Invoke();
-                        anyFixAppiled = true;
+                        Content.k_HelpButton.tooltip = result.helpText;
+                        if (GUILayout.Button(Content.k_HelpButton, Styles.s_Icon, GUILayout.Width(Content.k_IconSize.x * 1.5f)))
+                        {
+                            if (!string.IsNullOrEmpty(result.helpLink))
+                                UnityEngine.Application.OpenURL(result.helpLink);
+                        }
                     }
+                    else
+                        GUILayout.Label("", GUILayout.Width(Content.k_IconSize.x * 1.5f));
+
+
+                    if (result.fixIt != null)
+                    {
+                        using (new EditorGUI.DisabledScope(_fixAllStack.Count != 0))
+                        {
+                            var button = result.fixItAutomatic ? Content.k_FixButton : Content.k_EditButton;
+                            button.tooltip = result.fixItMessage;
+                            if (GUILayout.Button(button, GUILayout.Width(80.0f)))
+                            {
+                                if (result.fixItAutomatic)
+                                    _fixAllStack.Add(result);
+                                else
+                                    result.fixIt();
+                            }
+                        }
+                    }
+                    else if (hasFix)
+                    {
+                        GUILayout.Label("", GUILayout.Width(80.0f));
+                    }
+
+
+                    EditorGUILayout.EndHorizontal();
                 }
-                else
-                {
-                    GUILayout.Label("", GUILayout.Width(55.0f), GUILayout.ExpandWidth(true));
-                }
-
-                EditorGUILayout.EndVertical();
-
-                if (result.error)
-                    GUILayout.Label(CommonContent.k_ErrorIcon, EditorStyles.label);
-                else
-                    GUILayout.Label(CommonContent.k_WarningIcon, EditorStyles.label);
-
-                string message = result.message;
-                if (result.feature != null)
-                    message = $"[{result.feature.nameUi}] {result.message}";
-                Content.k_Wrap.wordWrap = true;
-                GUILayout.Label(message, Content.k_Wrap);
-                GUILayout.FlexibleSpace();
-
-                EditorGUILayout.EndHorizontal();
             }
+
             EditorGUILayout.EndScrollView();
-            EditorGUI.EndDisabledGroup();
-
-            return anyFixAppiled;
         }
 
-        void ActionAnyFixes(bool fixAllSelected, bool anyFixApplied, BuildTargetGroup activeBuildTargetGroup)
+        private void UpdateIssues(bool force = false)
         {
-            bool fixApplied = anyFixApplied;
+            var interval = EditorWindow.focusedWindow == this ? k_UpdateInterval : k_BackgroundUpdateInterval;
+            if (!s_Dirty && !force && EditorApplication.timeSinceStartup - _lastUpdate < interval)
+                return;
 
-            if ((_failures.Any(s => s.fixIt != null) && fixAllSelected) || _fixAllStack.Count > 0)
+            s_Dirty = false;
+
+            if (_fixAllStack.Count > 0)
             {
-                // Copy the failures list if there are any that we need to fix
-                if (_fixAllStack.Count == 0 && _failures.Count > 0)
-                    _fixAllStack = _failures.ToList();
-
-                // If we have any failures that we're fixing ..
-                if (_fixAllStack.Count > 0)
-                {
-                    // Wait a few frames between fixes - some are deferred
-                    ++_framesBetweenFixesCounter;
-                    if (_framesBetweenFixesCounter >= desiredFramesBetweenFixes)
-                    {
-                        // Do the fix, remove from the fixall stack, reset counter.
-                        _fixAllStack[0].fixIt?.Invoke();
-                        _fixAllStack.Remove(_fixAllStack[0]);
-                        _framesBetweenFixesCounter = 0;
-                    }
-                }
-
-                // Request that come in here again next frame to fix the rest of the errors
-                if (_fixAllStack.Count > 0)
-                    Repaint();
-
-                fixApplied = true;
+                _fixAllStack[0].fixIt?.Invoke();
+                _fixAllStack.RemoveAt(0);
             }
 
-            if (fixApplied)
-                OpenXRProjectValidation.GetCurrentValidationIssues(_failures, activeBuildTargetGroup);
+            var activeBuildTargetGroup = s_SelectedBuildTargetGroup;
+            if (activeBuildTargetGroup == BuildTargetGroup.Unknown)
+                activeBuildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
+
+            var failureCount = _failures.Count;
+
+            OpenXRProjectValidation.GetCurrentValidationIssues(_failures, activeBuildTargetGroup);
+
+            // Repaint the window if the failure count has changed
+            if(_failures.Count > 0 || failureCount > 0)
+                Repaint();
+
+            _lastUpdate = EditorApplication.timeSinceStartup;
         }
 
         public void OnGUI()
         {
-
             InitStyles();
 
-            Vector2 oldIconSize = EditorGUIUtility.GetIconSize();
             EditorGUIUtility.SetIconSize(Content.k_IconSize);
-
-            var activeBuildTargetGroup = selectedBuildTargetGroup;
-
-            if (activeBuildTargetGroup == BuildTargetGroup.Unknown)
-                activeBuildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
-            OpenXRProjectValidation.GetCurrentValidationIssues(_failures, activeBuildTargetGroup);
-
             EditorGUILayout.BeginVertical();
 
-            bool fixAllSelected = DrawIssuesAndFixAll();
-
-            if (EditorApplication.isPlaying)
+            if (EditorApplication.isPlaying && _failures.Count > 0)
             {
-                GUILayout.Space(Content.k_Space);
-                GUILayout.Label(Content.k_PlayMode);
+                GUILayout.Label(Content.k_PlayMode, Styles.s_InfoBanner);
             }
 
             EditorGUILayout.Space();
 
-            bool anyFixApplied = false;
-            if (_failures.Count > 0)
-                anyFixApplied = DrawIssuesList();
+            DrawIssuesList();
 
             EditorGUILayout.EndVertical();
-
-            EditorGUIUtility.SetIconSize(oldIconSize);
-
-            ActionAnyFixes(fixAllSelected, anyFixApplied, activeBuildTargetGroup);
         }
     }
 
-    internal class OpenXRProjectValidationBuiildStep : IPreprocessBuildWithReport
+    internal class OpenXRProjectValidationBuildStep : IPreprocessBuildWithReport
     {
         [OnOpenAsset()]
         static bool ConsoleErrorDoubleClicked(int instanceId, int line)

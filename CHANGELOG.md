@@ -4,6 +4,20 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2021-05-06
+
+* Enabled Android build target for Oculus Quest via the `Oculus Quest Support` feature.
+* Removed `experimental` text from OpenXR plugin help icon.
+* Removed `Linear` color space restriction for all build targets and graphics apis except OpenGLES.
+* Fixed bug with haptics that caused `XRControllerWithRumble.SendImpulse` to not work with `OpenXR`.
+* Fixed bug that could cause some interaction profile device layouts to not be registered on startup.
+* OpenXR Settings UI reworked to make managing features and interaction profiles easier.
+* Added menu item to open Project Validation window (`Window > XR > OpenXR > Project Validation`).
+* Project validation window now supports manual fixes for an issue.
+* Project validation window now supports optional help links for an issue.
+* Added `OpenXRFeature.OnEnableChanged` method to give features a chance to handle their enabled state changing.
+* Added `IPackageSettings.GetFeatures` method that returns all features of a given type from all build targets.
+
 ## [1.1.1] - 2021-04-06
 * Oculus controller profile now exposes both grip and aim poses.
 * Fixed issue where OpenXR layouts were not visible in the InputSystem bindings dialog.

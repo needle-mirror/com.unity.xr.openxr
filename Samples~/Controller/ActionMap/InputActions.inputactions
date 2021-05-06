@@ -174,7 +174,18 @@
                 {
                     "name": "",
                     "id": "9603ae96-fef3-432c-88a0-282232c1368d",
-                    "path": "<XRController>{LeftHand}/{menu}",
+                    "path": "<XRController>{LeftHand}/menu",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "171f2010-aff7-4c02-8e86-44c84eba40e6",
+                    "path": "<XRController>{LeftHand}/system",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -467,7 +478,18 @@
                 {
                     "name": "",
                     "id": "c3d9acf1-00ab-4616-951f-ef81d04d4d58",
-                    "path": "<XRController>{RightHand}/{menu}",
+                    "path": "<XRController>{RightHand}/menu",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "369648ca-da2c-4cb7-bb0c-8b7dcab3b6b5",
+                    "path": "<XRController>{RightHand}/system",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

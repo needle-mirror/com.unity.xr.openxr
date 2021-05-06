@@ -16,10 +16,14 @@ extern IUnityXRTrace* s_Trace;
 
 #define DEBUG_TRACE 1
 
+#define MOCK_TRACE(TYPE, STRING, ...) s_Trace->Trace(TYPE, "[Mock] " STRING "\n", ##__VA_ARGS__)
+#define MOCK_TRACE_LOG(STRING, ...) MOCK_TRACE(kXRLogTypeLog, STRING, ##__VA_ARGS__)
+#define MOCK_TRACE_ERROR(STRING, ...) MOCK_TRACE(kXRLogTypeError, STRING, ##__VA_ARGS__)
+
 #if DEBUG_TRACE
-#define TRACE(STRING, ...) s_Trace->Trace(kXRLogTypeDebug, "[Mock] " STRING, ##__VA_ARGS__)
+#define MOCK_TRACE_DEBUG(STRING, ...) MOCK_TRACE(kXRLogTypeDebug, STRING, ##__VA_ARGS__)
 #else
-#define TRACE(STRING, ...)
+#define MOCK_TRACE_DEBUG(STRING, ...)
 #endif
 
 #define XR_NO_PROTOTYPES
@@ -76,7 +80,7 @@ extern MockRuntime* s_runtime;
 #define DEBUG_LOG_EVERY_FUNC_CALL 0
 
 #if DEBUG_LOG_EVERY_FUNC_CALL
-#define LOG_FUNC() s_Trace->Trace(kXRLogTypeDebug, "[Mock] %s\n", __FUNCTION__)
+#define LOG_FUNC() MOCK_TRACE(kXRLogTypeDebug, __FUNCTION__)
 #else
 #define LOG_FUNC()
 #endif

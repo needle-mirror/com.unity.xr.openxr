@@ -118,5 +118,42 @@ namespace UnityEditor.XR.OpenXR.Tests
                 Assert.IsTrue(Array.IndexOf(expectedTypes, feature.GetType()) > -1);
             }
         }
+
+        [Test]
+        public void InteractionFeatureLayoutRegistration()
+        {
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            Assert.IsNotNull(packageSettings);
+
+            // Test is not valid if there is not more than one interaction feature
+            var features = packageSettings.GetFeatures<OculusTouchControllerProfile>().Select(f => f.feature).ToArray();
+            Assert.IsTrue(features.Length > 0);
+
+            // Disable all of the oculus interaction features
+            foreach (var feature in features)
+            {
+                feature.enabled = false;
+            }
+
+            // Make sure the oculus device layout is not registered
+            NUnit.Framework.Assert.Throws(typeof(ArgumentException), () => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+
+            // Enable one of the features and make sure the layout is registered
+            features[0].enabled = true;
+            NUnit.Framework.Assert.DoesNotThrow(() => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+            NUnit.Framework.Assert.DoesNotThrow(() => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+
+            // Enable a second feature and make sure the layout is still enabled
+            features[1].enabled = true;
+            NUnit.Framework.Assert.DoesNotThrow(() => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+
+            // Disable the first feature and make sure the layout is still enabled
+            features[0].enabled = false;
+            NUnit.Framework.Assert.DoesNotThrow(() => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+
+            // Disable the second feature and make sure the layout is no longer
+            features[1].enabled = false;
+            NUnit.Framework.Assert.Throws(typeof(ArgumentException), () => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
+        }
     }
 }

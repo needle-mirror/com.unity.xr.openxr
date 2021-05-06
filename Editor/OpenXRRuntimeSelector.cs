@@ -114,7 +114,7 @@ namespace UnityEditor.XR.OpenXR
 
         static class Content
         {
-            public static readonly GUIContent k_ActiveRuntimeLabel = new GUIContent("OpenXR Runtime (Editor Instance Only)", "Changing this value will only affect this instance of the editor.");
+            public static readonly GUIContent k_ActiveRuntimeLabel = new GUIContent("Play Mode OpenXR Runtime", "Changing this value will only affect this instance of the editor.");
         }
 
         static int GetActiveRuntimeIndex(List<RuntimeDetector> runtimes)
@@ -134,16 +134,17 @@ namespace UnityEditor.XR.OpenXR
 
         public static void DrawSelector()
         {
+            EditorGUIUtility.labelWidth = 200;
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Content.k_ActiveRuntimeLabel);
             var runtimes = runtimeDetectors.Where(runtime => runtime.detected).ToList();
             int selectedIndex = GetActiveRuntimeIndex(runtimes);
-            int index = EditorGUILayout.Popup(selectedIndex, runtimes.Select(s => new GUIContent(s.name, s.tooltip)).ToArray());
+            int index = EditorGUILayout.Popup(Content.k_ActiveRuntimeLabel, selectedIndex, runtimes.Select(s => new GUIContent(s.name, s.tooltip)).ToArray());
             if (selectedIndex != index)
             {
                 runtimes[index].MakeActive();
             }
             GUILayout.EndHorizontal();
+            EditorGUIUtility.labelWidth = 0;
         }
     }
 }

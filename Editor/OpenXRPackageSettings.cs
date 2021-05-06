@@ -6,6 +6,7 @@ using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR
 {
@@ -143,6 +144,26 @@ namespace UnityEditor.XR.OpenXR
             for (int i = 0; i < Math.Min(Keys.Count, Values.Count); i++)
             {
                 Settings.Add(Keys[i], Values[i]);
+            }
+        }
+
+        /// <summary>
+        /// Return all features of the given type from all available build target groups.
+        /// </summary>
+        /// <typeparam name="T">Feature type to retrieve</typeparam>
+        /// <returns>All features and their build target group that match the given feature type.</returns>
+        public IEnumerable<(BuildTargetGroup buildTargetGroup,T feature)> GetFeatures<T>() where T : OpenXRFeature
+        {
+            foreach (var kv in Settings)
+            {
+                if (kv.Value.features == null)
+                    continue;
+
+                foreach (var feature in kv.Value.features)
+                {
+                    if(feature is T featureT)
+                        yield return (kv.Key, featureT);
+                }
             }
         }
     }

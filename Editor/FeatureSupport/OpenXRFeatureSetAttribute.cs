@@ -32,5 +32,20 @@ namespace UnityEditor.XR.OpenXR.Features
         /// The list of build targets that this feature set supports.
         /// </summary>
         public BuildTargetGroup[] SupportedBuildTargets;
+
+        /// <summary>
+        /// The list of feature ids that this feature set requires. The features in this list will be enabled (and the UI will not allow them to be disabled) whenever the feature set itself is enabled.
+        ///
+        /// Feature Ids are a subset of <see cref="FeatureIds"/>. Any feature id in this list and not also in <see cref="FeatureIds"/> will be ignored.
+        /// </summary>
+        public string[] RequiredFeatureIds;
+
+        /// <summary>
+        /// The list of feature ids that this feature set desires (but does not require). The features in this list will be enabled (but the UI will allow them to be disabled) whenever the feature set itself is enabled.
+        ///
+        /// Feature Ids are a subset of <see cref="FeatureIds"/>. Any feature id in this list and not also in <see cref="FeatureIds"/> will be ignored.
+        /// </summary>
+        public string[] DefaultFeatureIds;
+
     }
 }

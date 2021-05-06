@@ -73,7 +73,19 @@ MockRuntime* s_runtime = nullptr;
         nullptr,
         XR_MSFT_SECONDARY_VIEW_CONFIGURATION_EXTENSION_NAME,
         XR_MSFT_secondary_view_configuration_SPEC_VERSION
-    },     
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME,
+        XR_EXT_eye_gaze_interaction_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_MSFT_HAND_INTERACTION_EXTENSION_NAME,
+        XR_MSFT_hand_interaction_SPEC_VERSION
+    },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
@@ -219,6 +231,18 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             flags |= MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT;
             continue;
         }
+
+        if (strncmp(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME, extension, sizeof(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_EYE_GAZE_INTERACTION_EXT;
+            continue;
+        }
+
+        if (strncmp(XR_MSFT_HAND_INTERACTION_EXTENSION_NAME, extension, sizeof(XR_MSFT_HAND_INTERACTION_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_MSFT_HAND_INTERACTION_EXT;
+            continue;
+        }
     }
 
     if ((flags & MR_CREATE_ALL_GFX_EXT) == 0)
@@ -298,10 +322,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetSystemProperties(XrIns
 {
     LOG_FUNC();
     CHECK_INSTANCE(instance);
-    properties->vendorId = 0xFEFE;
-    properties->systemId = (XrSystemId)2;
-    properties->graphicsProperties.maxLayerCount = XR_MIN_COMPOSITION_LAYERS_SUPPORTED;
-    return XR_SUCCESS;
+    return s_runtime->GetSystemProperties(systemId, properties);
 }
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateEnvironmentBlendModes(XrInstance instance, XrSystemId systemId, XrViewConfigurationType viewConfigurationType, uint32_t environmentBlendModeCapacityInput, uint32_t* environmentBlendModeCountOutput, XrEnvironmentBlendMode* environmentBlendModes)

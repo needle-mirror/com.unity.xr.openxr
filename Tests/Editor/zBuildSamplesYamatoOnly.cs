@@ -239,17 +239,44 @@ class zBuildSamplesYamatoOnly
         }
     }
 
+    static string GetResultDir()
+    {
+        bool next = false;
+        foreach (var arg in System.Environment.GetCommandLineArgs())
+        {
+            if (next)
+                return arg;
+
+            if (arg == "-resultDir")
+                next = true;
+        }
+        return "OpenXR Samples";
+    }
     static void BuildSamples()
     {
-        string resultDir = Path.Combine("..", "OpenXR Samples");
-        string projSamplesDir = "Assets/Sample";
+        string resultDir = GetResultDir();
+
+        Console.WriteLine("Result Dir: " + resultDir);
+
+        var sampleName = "Unknown Sample";
+        var projSamplesDir = new DirectoryInfo("Assets/Sample");
+        if (projSamplesDir.Exists)
+        {
+            // Use the directory name in the samples directory, if it exists
+            sampleName = projSamplesDir.GetDirectories()[0].Name;
+        }
+        else
+        {
+            // Otherwise use the current folder as the project name
+            projSamplesDir = new DirectoryInfo("Assets");
+            sampleName = new DirectoryInfo(".").Name;
+        }
 
         PlayerSettings.colorSpace = ColorSpace.Linear;
         FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
 
         foreach (var setup in buildTargetSetup)
         {
-            var sampleName = new DirectoryInfo(projSamplesDir).GetDirectories()[0].Name;
             if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
                 continue;
 
@@ -266,9 +293,18 @@ class zBuildSamplesYamatoOnly
                 PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
             setup.setupPlayerSettings(outputFile, identifier);
 
+            // Get the list of scenes set in build settings in the project
+            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+
+            // If there aren't any, just build all of the scenes found in the sample
+            if (scenes.Length == 0)
+            {
+                scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
+            }
+
             BuildPlayerOptions buildOptions = new BuildPlayerOptions
             {
-                scenes = Directory.GetFiles(projSamplesDir, "*.unity", SearchOption.AllDirectories),
+                scenes = scenes,
                 target = setup.buildTarget,
                 targetGroup = setup.targetGroup,
                 locationPathName = outputFile,

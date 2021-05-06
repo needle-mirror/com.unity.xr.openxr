@@ -6,6 +6,7 @@ public:
     XrPath interactionProfile;
     XrPath path;
     XrActionType type;
+    const char* localizedName;
 
     bool IsType(XrActionType actionType) const
     {

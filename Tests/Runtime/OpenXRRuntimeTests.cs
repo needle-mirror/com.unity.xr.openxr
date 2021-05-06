@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -8,6 +9,7 @@ using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.TestTools;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.Scripting;
+using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.TestHelpers;
 using XrSessionState = UnityEngine.XR.OpenXR.Features.Mock.MockDriver.XrSessionState;
 
@@ -250,8 +252,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 if (methodName == nameof(OpenXRFeature.OnSessionStateChange))
                 {
-                    var oldState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams) param).OldState;
-                    var newState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams) param).NewState;
+                    var oldState = (XrSessionState) ((MockRuntime.XrSessionStateChangedParams) param).OldState;
+                    var newState = (XrSessionState) ((MockRuntime.XrSessionStateChangedParams) param).NewState;
                     CheckValidStateTransition(oldState, newState);
                     states.Add(newState);
                 }
@@ -320,15 +322,15 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.AreEqual(true, OpenXRRuntime.IsExtensionEnabled(MockRuntime.XR_UNITY_mock_test));
         }
 
-        static OpenXRSettings.DepthSubmissionMode[] depthModes = new OpenXRSettings.DepthSubmissionMode[]{
+        static OpenXRSettings.DepthSubmissionMode[] depthModes = new OpenXRSettings.DepthSubmissionMode[]
+        {
             OpenXRSettings.DepthSubmissionMode.None,
             OpenXRSettings.DepthSubmissionMode.Depth16Bit,
             OpenXRSettings.DepthSubmissionMode.Depth24Bit
         };
 
         [UnityTest]
-        public IEnumerator CheckDepthSubmissionMode([ValueSource("depthModes")]
-            OpenXRSettings.DepthSubmissionMode depthMode)
+        public IEnumerator CheckDepthSubmissionMode([ValueSource("depthModes")] OpenXRSettings.DepthSubmissionMode depthMode)
         {
             base.InitializeAndStart();
             yield return null;
@@ -395,6 +397,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                         onBeginSessionAfterEndSessionCalled = onEndSessionCalled;
                         break;
                 }
+
                 return true;
             };
 
@@ -511,7 +514,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(initedRealGfxApi, Is.True);
         }
 
-        [UnityPlatform(exclude=new[] {RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer})] // OSX doesn't support single-pass very well, disable for test.
+        [UnityPlatform(exclude = new[] {RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer})] // OSX doesn't support single-pass very well, disable for test.
         [UnityTest]
         public IEnumerator CombinedFrustum()
         {
@@ -559,9 +562,9 @@ namespace UnityEngine.XR.OpenXR.Tests
                 {
                     case nameof(OpenXRFeature.OnInstanceCreate):
                         // Set the location space to invalid data
-                        MockDriver.SetSpacePose(new Quaternion(0,0,0,0), Vector3.zero, MockDriver.XrSpaceLocationFlags.None);
-                        MockDriver.SetViewPose(0, new Quaternion(0,0,0,0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
-                        MockDriver.SetViewPose(1, new Quaternion(0,0,0,0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
+                        MockDriver.SetSpacePose(new Quaternion(0, 0, 0, 0), Vector3.zero, MockDriver.XrSpaceLocationFlags.None);
+                        MockDriver.SetViewPose(0, new Quaternion(0, 0, 0, 0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
+                        MockDriver.SetViewPose(1, new Quaternion(0, 0, 0, 0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
                         break;
                 }
 
@@ -613,6 +616,94 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return null;
 
             base.StopAndShutdown();
+        }
+
+        /// <summary>
+        /// Tests whether or not the Initialize method of OpenXRLoader will properly handle an exception being thrown
+        /// </summary>
+        [Test]
+        public void InitializeException()
+        {
+            EnableMockDriver();
+
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                switch (methodName)
+                {
+                    case nameof(OpenXRFeature.HookGetInstanceProcAddr):
+                        throw new Exception("Testing exception within Initialize");
+                }
+
+                return true;
+            };
+
+            LogAssert.ignoreFailingMessages = true;
+            base.InitializeAndStart();
+            LogAssert.ignoreFailingMessages = false;
+
+            // The static instance should not be set if initialize failed
+            Assert.IsTrue(OpenXRLoaderBase.Instance == null);
+        }
+
+        private static (Type featureType, Type layoutType)[] interactionFeatureLayouts =
+        {
+            (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController)),
+            (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice)),
+            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController)),
+            (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand)),
+            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController)),
+            (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController)),
+            (typeof(ValveIndexControllerProfile), typeof(ValveIndexControllerProfile.ValveIndexController)),
+        };
+
+        /// <summary>
+        /// Ensures that the `interactionFeatureLayouts` list is not missing any entries
+        /// </summary>
+        [Test]
+        public void AllInteractionFeaturesCovered()
+        {
+            // Array of all known interaction features
+            var knownInteractionFeatures = OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>().Select(f => f.GetType()).ToArray();
+
+            // Array of interaction features being tested
+            var testedFeatures = interactionFeatureLayouts.Select(l => l.featureType).ToArray();
+
+            // Make sure the two arrays are equal
+            Assert.IsTrue(knownInteractionFeatures.Length == testedFeatures.Length && knownInteractionFeatures.Intersect(testedFeatures).Count() == knownInteractionFeatures.Length);
+        }
+
+        /// <summary>
+        /// Tests whether or not the device layout for an interaction feature is registered at runtime
+        /// </summary>
+        [UnityTest]
+        public IEnumerator DeviceLayoutIsRegistered([ValueSource("interactionFeatureLayouts")] (Type featureType, Type layoutType) interactionFeature)
+        {
+            // Disable all interaction features
+            foreach (var f in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
+            {
+                f.enabled = false;
+
+                // This makes sure the interaction feature's device layout gets unregistered.
+                f.OnEnabledChange();
+            }
+
+            var feature = OpenXRSettings.Instance.GetFeature(interactionFeature.featureType) as OpenXRInteractionFeature;
+            Assert.IsNotNull(feature);
+
+            feature.enabled = true;
+
+            InputSystem.InputSystem.Update();
+
+            base.InitializeAndStart();
+
+            yield return null;
+
+            // Is the device layout enabled?
+            Assert.DoesNotThrow(() => InputSystem.InputSystem.LoadLayout(interactionFeature.layoutType.Name));
+
+            base.StopAndShutdown();
+
+            yield return null;
         }
     }
 }

@@ -34,10 +34,35 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>The instance of the feature matching thd id, or null.</returns>
         public static OpenXRFeature GetFeatureWithIdForActiveBuildTarget(string featureId)
         {
+            return GetFeatureWithIdForBuildTarget(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget), featureId);
+        }
+
+        /// <summary>
+        /// Given an array of feature ids, returns an array of matching <see cref="OpenXRFeature" /> instances.
+        /// </summary>
+        /// <param name="featureIds">Array of feature ids to match against.</param>
+        /// <returns>An array of all matching features.</returns>
+        public static OpenXRFeature[] GetFeaturesWithIdsForActiveBuildTarget(string[] featureIds)
+        {
+            return GetFeaturesWithIdsForBuildTarget(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget), featureIds);
+        }
+
+        /// <summary>
+        /// Given a feature id, returns the first <see cref="OpenXRFeature" /> associated with that id.
+        /// </summary>
+        /// <param name="buildTargetGroup">The build target group to get the feature from.</param>
+        /// <param name="featureId">The unique id identifying the feature</param>
+        /// <returns>The instance of the feature matching thd id, or null.</returns>
+        public static OpenXRFeature GetFeatureWithIdForBuildTarget(BuildTargetGroup buildTargetGroup, string featureId)
+        {
             if (String.IsNullOrEmpty(featureId))
                 return null;
 
-            foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+            if (settings == null)
+                return null;
+
+            foreach (var feature in settings.features)
             {
                 if (String.Compare(featureId, feature.featureIdInternal, true) == 0)
                     return feature;
@@ -46,12 +71,14 @@ namespace UnityEditor.XR.OpenXR.Features
             return null;
         }
 
+
         /// <summary>
         /// Given an array of feature ids, returns an array of matching <see cref="OpenXRFeature" /> instances that match.
         /// </summary>
+        /// <param name="buildTargetGroup">The build target group to get the feature from.</param>
         /// <param name="featureIds">Array of feature ids to match against.</param>
         /// <returns>An array of all matching features.</returns>
-        public static OpenXRFeature[] GetFeaturesWithIdsForActiveBuildTarget(string[] featureIds)
+        public static OpenXRFeature[] GetFeaturesWithIdsForBuildTarget(BuildTargetGroup buildTargetGroup, string[] featureIds)
         {
             List<OpenXRFeature> ret = new List<OpenXRFeature>();
 
@@ -60,14 +87,16 @@ namespace UnityEditor.XR.OpenXR.Features
 
             foreach(var featureId in featureIds)
             {
-                var feature = GetFeatureWithIdForActiveBuildTarget(featureId);
+                var feature = GetFeatureWithIdForBuildTarget(buildTargetGroup, featureId);
                 if (feature != null)
                     ret.Add(feature);
             }
 
             return ret.ToArray();
         }
+
     }
+
 
     internal static class FeatureHelpersInternal
     {
@@ -163,10 +192,6 @@ namespace UnityEditor.XR.OpenXR.Features
                             continue;
 
                         bool enabled = (extObj.enabled);
-
-                        if (extObj is OpenXRInteractionFeature)
-                            ((OpenXRInteractionFeature)extObj).ActiveStateChanged();
-
                         var ms = MonoScript.FromScriptableObject(extObj);
                         var path = AssetDatabase.GetAssetPath(ms);
 

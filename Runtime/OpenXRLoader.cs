@@ -181,17 +181,35 @@ namespace UnityEngine.XR.OpenXR
                 return false;
             }
 
-            DiagnosticReport.StartReport();
-
-            if (!InitializeInternal())
+#if UNITY_EDITOR
+            if (!DisableValidationChecksOnEnteringPlaymode)
             {
-                Deinitialize();
-                Instance = null;
-                OpenXRAnalytics.SendInitializeEvent(false);
-                return false;
+                if (OpenXRProjectValidation.LogPlaymodeValidationIssues())
+                    return false;
             }
 
-            return true;
+            OpenXRSettings.Instance.lastPlayVersion = UnityEditor.PackageManager.PackageInfo.FindForAssembly(GetType().Assembly)?.version;
+#endif
+
+            DiagnosticReport.StartReport();
+
+            // Wrap the initialization in a try catch block to ensure if any exceptions are thrown that
+            // we cleanup, otherwise the user will not be able to run again until they restart the editor.
+            try
+            {
+                if (InitializeInternal())
+                    return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            Deinitialize();
+            Instance = null;
+            OpenXRAnalytics.SendInitializeEvent(false);
+
+            return false;
         }
 
         private bool InitializeInternal ()
@@ -202,14 +220,6 @@ namespace UnityEngine.XR.OpenXR
 
 #if TEST_SUPPORT
             if (ShouldExitEarly()) return false;
-#endif
-
-#if UNITY_EDITOR
-            if (!DisableValidationChecksOnEnteringPlaymode)
-            {
-                if (OpenXRProjectValidation.LogPlaymodeValidationIssues())
-                    return false;
-            }
 #endif
 
             OpenXRInput.RegisterLayouts();

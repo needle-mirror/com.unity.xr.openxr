@@ -10,9 +10,11 @@ using UnityEngine.InputSystem.Utilities;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR;
+using UnityEditor.XR.OpenXR.Features;
 #endif
 
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly:InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEngine.XR.OpenXR.Features
 {
     /// <summary>
@@ -23,6 +25,9 @@ namespace UnityEngine.XR.OpenXR.Features
     [Serializable]
     public abstract partial class OpenXRFeature : ScriptableObject
     {
+#if UNITY_EDITOR
+        internal static Func<string, bool> canSetFeatureDisabled;
+#endif
         /// <summary>
         /// Feature will be enabled when OpenXR is initialized.
         /// </summary>
@@ -49,6 +54,11 @@ namespace UnityEngine.XR.OpenXR.Features
                 if (m_enabled == value)
                     return;
 
+#if UNITY_EDITOR
+                if (canSetFeatureDisabled != null && !value && !canSetFeatureDisabled.Invoke(featureIdInternal))
+                    return;
+#endif //UNITY_EDITOR
+
                 if (OpenXRLoaderBase.Instance != null)
                 {
                     Debug.LogError("OpenXRFeature.enabled cannot be changed while OpenXR is running");
@@ -56,6 +66,8 @@ namespace UnityEngine.XR.OpenXR.Features
                 }
 
                 m_enabled = value;
+
+                OnEnabledChange();
             }
         }
 
@@ -230,6 +242,13 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnEnvironmentBlendModeChange (int xrEnvironmentBlendMode) {}
 
         /// <summary>
+        /// Called when the enabled state of a feature changes
+        /// </summary>
+        protected internal virtual void OnEnabledChange()
+        {
+        }
+
+        /// <summary>
         /// Converts an XrPath to a string.
         /// </summary>
         /// <param name="path">Path to convert</param>
@@ -309,6 +328,12 @@ namespace UnityEngine.XR.OpenXR.Features
             public string fixItMessage;
 
             /// <summary>
+            /// True if the fixIt Lambda function performs a function that is automatic and does not require user input.  If your fixIt
+            /// function requires user input, set fixitAutomatic to false to prevent the fixIt method from being executed during fixAll
+            /// </summary>
+            public bool fixItAutomatic = true;
+
+            /// <summary>
             /// If true, failing the rule is treated as an error and stops the build.
             /// If false, failing the rule is treated as a warning and it doesn't stop the build. The developer has the option to correct the problem, but is not required to.
             /// </summary>
@@ -319,6 +344,16 @@ namespace UnityEngine.XR.OpenXR.Features
             /// If false, can still enter playmode in editor if this issue isn't fixed.
             /// </summary>
             public bool errorEnteringPlaymode;
+
+            /// <summary>
+            /// Optional text to display in a help icon with the issue in the validator.
+            /// </summary>
+            public string helpText;
+
+            /// <summary>
+            /// Optional link that will be opened if the help icon is clicked.
+            /// </summary>
+            public string helpLink;
 
             internal OpenXRFeature feature;
         }

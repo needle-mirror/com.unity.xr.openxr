@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
+using UnityEditor.XR.Management;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
@@ -18,10 +20,50 @@ namespace UnityEditor.XR.OpenXR
     {
         private static readonly OpenXRFeature.ValidationRule[] BuiltinValidationRules =
         {
+            new OpenXRFeature.ValidationRule
+            {
+                message = "The OpenXR package has been updated and Unity must be restarted to complete the update.",
+                checkPredicate = () => {
+                    var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(OpenXRProjectValidation).Assembly);
+                    if (packageInfo == null)
+                        return false;
+
+                    var lastPlayVersion = OpenXRSettings.Instance.lastPlayVersion;
+                    return string.IsNullOrEmpty(lastPlayVersion) || lastPlayVersion == packageInfo.version;
+                },
+                fixIt = RequireRestart,
+                error = true,
+                errorEnteringPlaymode = true
+            },
+
             new OpenXRFeature.ValidationRule()
             {
-                message = "Only Linear Color Space is supported with OpenXR.",
-                checkPredicate = () => PlayerSettings.colorSpace == ColorSpace.Linear,
+                message = "Gamma Color Space is not supported when using OpenGLES.",
+                checkPredicate = () =>
+                {
+                    if (PlayerSettings.colorSpace == ColorSpace.Linear)
+                        return true;
+
+                    return !Enum.GetValues(typeof(BuildTarget))
+                        .Cast<BuildTarget>()
+                        .Where(t =>
+                        {
+                            var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(t);
+                            if(!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, t))
+                                return false;
+
+                            var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
+                            if(null == settings)
+                                return false;
+
+                            var manager = settings.Manager;
+                            if(null == manager)
+                                return false;
+
+                            return manager.activeLoaders.OfType<OpenXRLoader>().Any();
+                        })
+                        .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES2 || g == GraphicsDeviceType.OpenGLES3));
+                },
                 fixIt = () => PlayerSettings.colorSpace = ColorSpace.Linear,
                 fixItMessage = "Set PlayerSettings.colorSpace to ColorSpace.Linear",
                 error = true,
@@ -31,6 +73,9 @@ namespace UnityEditor.XR.OpenXR
             {
                 message = "At least one interaction profile must be enabled.  Please select which controllers you will be testing against in the Features menu.",
                 checkPredicate = () => OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
+                fixIt = OpenProjectSettings,
+                fixItAutomatic = false,
+                fixItMessage = "Open Project Settings to enable an interaction profile."
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -86,20 +131,17 @@ namespace UnityEditor.XR.OpenXR
                 },
                 fixIt = () =>
                 {
-                    // There is no public way to change the input handling backend .. so resorting to non-public way for now.
-                    if (EditorUtility.DisplayDialog("Unity editor restart required", "The Unity editor must be restarted for this change to take effect.  Cancel to revert changes.", "Apply", "Cancel"))
-                    {
-                        var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
-                        if (ps == null)
-                            return;
+                    var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+                    if (ps == null)
+                        return;
 
-                        ps.Update();
-                        var newInputEnabledProp = ps.FindProperty("activeInputHandler");
-                        if (newInputEnabledProp != null)
-                            newInputEnabledProp.intValue = 1;
-                        ps.ApplyModifiedProperties();
-                        typeof(EditorApplication).GetMethod("RestartEditorAndRecompileScripts", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
-                    }
+                    ps.Update();
+                    var newInputEnabledProp = ps.FindProperty("activeInputHandler");
+                    if (newInputEnabledProp != null)
+                        newInputEnabledProp.intValue = 1;
+                    ps.ApplyModifiedProperties();
+
+                    RequireRestart();
                 },
                 error = true,
                 errorEnteringPlaymode = true,
@@ -107,6 +149,11 @@ namespace UnityEditor.XR.OpenXR
         };
 
         private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);
+
+        /// <summary>
+        /// Open the OpenXR project settings
+        /// </summary>
+        internal static void OpenProjectSettings() => SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");
 
         /// <summary>
         /// Gathers and evaluates validation issues and adds them to a list.
@@ -179,6 +226,15 @@ namespace UnityEditor.XR.OpenXR
             }
 
             return playmodeErrors;
+        }
+
+        private static void RequireRestart()
+        {
+            // There is no public way to change the input handling backend .. so resorting to non-public way for now.
+            if (!EditorUtility.DisplayDialog("Unity editor restart required", "The Unity editor must be restarted for this change to take effect.  Cancel to revert changes.", "Apply", "Cancel"))
+                return;
+
+            typeof(EditorApplication).GetMethod("RestartEditorAndRecompileScripts", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
         }
     }
 }

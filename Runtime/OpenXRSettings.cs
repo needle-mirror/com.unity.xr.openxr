@@ -1,7 +1,9 @@
 ﻿using System;
 
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine.XR.OpenXR.Features;
 #endif
 
 namespace UnityEngine.XR.OpenXR
@@ -11,6 +13,13 @@ namespace UnityEngine.XR.OpenXR
     {
         OpenXRSettings GetSettingsForBuildTargetGroup(UnityEditor.BuildTargetGroup buildTargetGroup);
         string GetActiveLoaderLibraryPath();
+
+        /// <summary>
+        /// Returns all features of a given type from all existing build target groups.
+        /// </summary>
+        /// <typeparam name="T">Feature type</typeparam>
+        /// <returns>All known features of the given type within the package settings</returns>
+        public IEnumerable<(BuildTargetGroup buildTargetGroup, T feature)> GetFeatures<T>() where T : OpenXRFeature;
     }
 #endif
 
@@ -21,17 +30,21 @@ namespace UnityEngine.XR.OpenXR
     [Serializable]
     public partial class OpenXRSettings : ScriptableObject
     {
-#if !UNITY_EDITOR
+#if UNITY_EDITOR
+        /// <summary>
+        /// Used to store version of the package the last time play mode was entered. This is stored
+        /// in the settings because here it will properly survive a domain reload which is necessary
+        /// since a domain reload is issued each time play is pressed.
+        /// </summary>
+        internal string lastPlayVersion = null;
+#else
         private static OpenXRSettings s_RuntimeInstance = null;
-#endif
 
-        void Awake()
+        private void Awake()
         {
-#if !UNITY_EDITOR
             s_RuntimeInstance = this;
-#endif
         }
-
+#endif
         internal void ApplySettings()
         {
             ApplyRenderSettings();
@@ -43,31 +56,39 @@ namespace UnityEngine.XR.OpenXR
             // When running in the Unity Editor, we have to load user's customization of configuration data directly from
             // EditorBuildSettings. At runtime, we need to grab it from the static instance field instead.
 #if UNITY_EDITOR
-            UnityEngine.Object obj = null;
-            UnityEditor.EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out obj);
-            if (obj == null || !(obj is IPackageSettings))
-                return null;
-            var packageSettings = (IPackageSettings) obj;
-            // Use standalone settings when running in editor
-            var activeBuildTargetGroup = UnityEditor.BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget);
-            settings = packageSettings.GetSettingsForBuildTargetGroup(useActiveBuildTarget ? activeBuildTargetGroup : UnityEditor.BuildTargetGroup.Standalone);
+            settings = GetSettingsForBuildTargetGroup(useActiveBuildTarget ?
+                BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget) :
+                BuildTargetGroup.Standalone);
 #else
             settings = s_RuntimeInstance;
             if (settings == null)
                 settings = ScriptableObject.CreateInstance<OpenXRSettings>();
 #endif
+
             return settings;
         }
 
 #if UNITY_EDITOR
-        internal static OpenXRSettings GetSettingsForBuildTargetGroup(BuildTargetGroup buildTargetGroup)
+        /// <summary>
+        /// Returns the Settings object for the given BuildTargetGroup
+        /// </summary>
+        /// <param name="buildTargetGroup">BuildTargetGroup to request settings for</param>
+        /// <returns>OpenXRSettings object for the given build target group</returns>
+        public static OpenXRSettings GetSettingsForBuildTargetGroup(BuildTargetGroup buildTargetGroup)
         {
-            UnityEngine.Object obj = null;
-            UnityEditor.EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out obj);
-            if (obj == null || !(obj is IPackageSettings))
+            var packageSettings = GetPackageSettings();
+            if(null == packageSettings)
                 return null;
-            var packageSettings = (IPackageSettings) obj;
+
             return packageSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+        }
+
+        internal static IPackageSettings GetPackageSettings()
+        {
+            if (EditorBuildSettings.TryGetConfigObject<UnityEngine.Object>(Constants.k_SettingsKey, out var obj) && (obj is IPackageSettings packageSettings))
+                return packageSettings;
+
+            return null;
         }
 #endif
 

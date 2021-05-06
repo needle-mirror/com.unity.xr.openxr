@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.XR.OpenXR.Input;
 
+#if UNITY_EDITOR
+using System.Linq;
+#endif
+
 namespace UnityEngine.XR.OpenXR.Features
 {
     /// <summary>
@@ -214,13 +218,19 @@ namespace UnityEngine.XR.OpenXR.Features
             OpenXRInput.AddActionMap(map);
         }
 
-#if UNITY_EDITOR
         /// <summary>
-        /// Property for accessing the current enabled state for this feature.
+        /// Handle enabled state change to register/unregister device layouts as needed
         /// </summary>
-        internal void ActiveStateChanged()
+        protected internal override void OnEnabledChange()
         {
-            if (enabled)
+            base.OnEnabledChange();
+
+#if UNITY_EDITOR
+            // Keep the layouts registered in the editor as long as at least one of the build target
+            // groups has the feature enabled.
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            var featureType = GetType();
+            if(null != packageSettings && packageSettings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.feature.enabled && featureType.IsAssignableFrom(f.feature.GetType())))
             {
                 RegisterDeviceLayout();
             }
@@ -228,7 +238,7 @@ namespace UnityEngine.XR.OpenXR.Features
             {
                 UnregisterDeviceLayout();
             }
-        }
 #endif
+        }
     }
 }

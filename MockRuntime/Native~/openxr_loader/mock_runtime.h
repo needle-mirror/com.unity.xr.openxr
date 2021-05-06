@@ -10,6 +10,8 @@ static const MockRuntimeCreateFlags MR_CREATE_D3D11_GFX_EXT = 0x00000020;
 static const MockRuntimeCreateFlags MR_CREATE_VARJO_QUAD_VIEWS_EXT = 0x00000040;
 static const MockRuntimeCreateFlags MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT = 0x00000080;
 static const MockRuntimeCreateFlags MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT = 0x00000100;
+static const MockRuntimeCreateFlags MR_CREATE_EYE_GAZE_INTERACTION_EXT = 0x00000200;
+static const MockRuntimeCreateFlags MR_CREATE_MSFT_HAND_INTERACTION_EXT = 0x00000400;
 
 static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT;
 
@@ -195,6 +197,8 @@ public:
 
     XrResult RegisterEndFrameCallback(PFN_EndFrameCallback callback);
 
+    XrResult GetSystemProperties(XrSystemId systemId, XrSystemProperties* properties);
+
 private:
     struct MockView
     {
@@ -238,13 +242,21 @@ private:
     {
         XrPath path;
         XrActionType actionType;
+        const char* localizedName;
     };
 
     struct MockInteractionProfile
     {
         XrPath path;
+        const char* localizedName;
         std::vector<XrPath> userPaths;
-        std::vector<MockInteractionInputSource> inputSources;
+    };
+
+    struct MockUserPath
+    {
+        std::string path;
+        std::string localizedName;
+        const MockInteractionProfile* profile;
     };
 
     struct MockSpace
@@ -276,17 +288,20 @@ private:
     MockAction* GetMockAction(XrAction action);
     const MockInteractionProfile* GetMockInteractionProfile(XrPath interactionProfile) const;
     bool IsActionAttached(XrAction action);
-    MockInputState* GetMockInputState(const MockInteractionProfile& mockProfile, XrPath path, XrActionType actionType, bool allowParentPath = true);
+    MockInputState* GetMockInputState(const MockInteractionProfile& mockProfile, XrPath path, XrActionType actionType = XR_ACTION_TYPE_MAX_ENUM);
     MockSpace* GetMockSpace(XrSpace space);
     MockViewConfiguration* GetMockViewConfiguration(XrViewConfigurationType viewConfigType);
+    MockUserPath* GetMockUserPath(XrPath path);
 
     XrResult ValidateName(const char* name) const;
     XrResult ValidatePath(const char* path) const;
 
+    XrTime GetPredictedTime();
+
     void InitializeInteractionProfiles();
 
-    bool SetActiveInteractionProfile(XrPath interactionProfilePath);
-    MockInputState* AddMockInputState(XrPath interactionPath, XrPath path, XrActionType actionType);
+    bool SetActiveInteractionProfile(MockUserPath* mockUserPath, const MockInteractionProfile* mockProfile);
+    MockInputState* AddMockInputState(XrPath interactionPath, XrPath path, XrActionType actionType, const char* localizedName);
 
     //// XR_MSFT_secondary_view_configuration
 
@@ -318,7 +333,9 @@ private:
     std::map<XrViewConfigurationType, MockViewConfiguration> viewConfigurations;
 
     std::vector<std::string> componentPathStrings;
-    std::vector<std::string> userPathStrings;
+    std::vector<MockUserPath> userPaths;
+
+    std::chrono::steady_clock::time_point startTime;
 
     ExtentMap extentMap;
 
@@ -337,12 +354,6 @@ private:
     std::vector<MockActionSet> actionSets;
     std::vector<MockInputState> inputStates;
     std::vector<MockSpace> spaces;
-
-    const MockInteractionProfile* activeInteractionProfile;
-
-    XrPath userLeftPath;
-    XrPath userRightPath;
-    XrPath userHeadPath;
 
     PFN_EndFrameCallback endFrameCallback;
 };

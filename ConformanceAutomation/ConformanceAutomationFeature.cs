@@ -17,7 +17,7 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone, UnityEditor.BuildTargetGroup.Android, UnityEditor.BuildTargetGroup.WSA, },
         Company = "Unity",
         Desc = "The XR_EXT_conformance_automation allows conformance test and runtime developers to provide hints to the underlying runtime as to what input the test is expecting. This enables runtime authors to automate the testing of their runtime conformance.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
+        DocumentationLink = Constants.k_DocumentationURL,
         OpenxrExtensionStrings = "XR_EXT_conformance_automation",
         Version = "0.0.1",
         FeatureId = featureId)]

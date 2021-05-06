@@ -14,7 +14,8 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     isRunning = false;
     exitSessionRequested = false;
     actionSetsAttached = false;
-    activeInteractionProfile = nullptr;
+
+    startTime = std::chrono::high_resolution_clock::now();
 
     // Default pose is identity pose
     spacePoseOverriden = false;
@@ -92,11 +93,15 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
         MSFTFirstPersonObserver_Init();
 
     // Generate the internal strings
-    userPathStrings = {
-        "/user/hand/left",
-        "/user/hand/right",
-        "/user/head",
-        "/user/gamepad"};
+    userPaths = {
+        {"/user/hand/left", "Left Hand", nullptr},
+        {"/user/hand/right", "Right Hand", nullptr},
+        {"/user/head", "Head", nullptr},
+        {"/user/gamepad", "GamePad", nullptr}};
+
+    // Add the eye gaze user path if enabled
+    if ((createFlags & MR_CREATE_EYE_GAZE_INTERACTION_EXT) != 0)
+        userPaths.push_back({"/user/eyes_ext", "Eyes", nullptr});
 
     InitializeInteractionProfiles();
 
@@ -152,8 +157,14 @@ void MockRuntime::ChangeSessionState(XrSessionState state)
     evt.state = state;
 }
 
+XrTime MockRuntime::GetPredictedTime()
+{
+    return (XrTime)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - startTime).count();
+}
+
 XrResult MockRuntime::WaitFrame(const XrFrameWaitInfo* frameWaitInfo, XrFrameState* frameState)
 {
+    frameState->predictedDisplayTime = GetPredictedTime();
     frameState->predictedDisplayPeriod = 16666000;
     frameState->shouldRender = (createFlags & MR_CREATE_ALL_GFX_EXT) != 0;
 
@@ -205,7 +216,6 @@ XrResult MockRuntime::DestroySession()
     exitSessionRequested = false;
     session = XR_NULL_HANDLE;
     actionSetsAttached = false;
-    activeInteractionProfile = nullptr;
 
     return XR_SUCCESS;
 }
@@ -217,16 +227,6 @@ XrResult MockRuntime::BeginSession(const XrSessionBeginInfo* beginInfo)
     ChangeSessionStateFrom(XR_SESSION_STATE_READY, XR_SESSION_STATE_SYNCHRONIZED);
     ChangeSessionStateFrom(XR_SESSION_STATE_SYNCHRONIZED, XR_SESSION_STATE_VISIBLE);
     ChangeSessionStateFrom(XR_SESSION_STATE_VISIBLE, XR_SESSION_STATE_FOCUSED);
-
-    // Queue interaction profile change event
-    if (activeInteractionProfile != nullptr)
-    {
-        eventQueue.emplace();
-        auto& evt = (XrEventDataInteractionProfileChanged&)eventQueue.back();
-        evt.type = XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED;
-        evt.next = nullptr;
-        evt.session = session;
-    }
 
     XrResult result = XR_SUCCESS;
     if ((createFlags & MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT) != 0)
@@ -371,6 +371,17 @@ XrResult MockRuntime::LocateSpace(XrSpace space, XrSpace baseSpace, XrTime time,
     }
 
     location->locationFlags = spaceLocationFlags;
+
+    // Eye gaze extension
+    if ((createFlags & MR_CREATE_EYE_GAZE_INTERACTION_EXT) != 0)
+    {
+        XrEyeGazeSampleTimeEXT* eyeGazeSampleTime =
+            FindNextPointerType<XrEyeGazeSampleTimeEXT>(location, XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT);
+
+        if (nullptr != eyeGazeSampleTime)
+            eyeGazeSampleTime->time = GetPredictedTime();
+    }
+
     return XR_SUCCESS;
 }
 
@@ -751,9 +762,9 @@ XrResult MockRuntime::StringToPath(const char* pathString, XrPath* path)
 
     // If the path contains a user path then separate the user path from the component path
     XrPath result = XR_NULL_PATH;
-    for (size_t i = 0; i < userPathStrings.size(); i++)
+    for (size_t i = 0; i < userPaths.size(); i++)
     {
-        auto& userPathString = userPathStrings[i];
+        auto& userPathString = userPaths[i].path;
         if (strncmp(pathString, userPathString.c_str(), userPathString.length()) == 0)
         {
             result |= (XrPath)(i + 1);
@@ -789,11 +800,11 @@ std::string MockRuntime::PathToString(XrPath path) const
     size_t componentPath = (size_t)(((uint64_t)path) >> 32) - 1;
 
     // Both user path and component path are there.
-    if (userPath < userPathStrings.size() && componentPath < componentPathStrings.size())
-        return userPathStrings[userPath] + componentPathStrings[componentPath];
+    if (userPath < userPaths.size() && componentPath < componentPathStrings.size())
+        return userPaths[userPath].path + componentPathStrings[componentPath];
 
-    if (userPath < userPathStrings.size())
-        return userPathStrings[userPath];
+    if (userPath < userPaths.size())
+        return userPaths[userPath].path;
 
     if (componentPath < componentPathStrings.size())
         return componentPathStrings[componentPath];
@@ -838,7 +849,7 @@ bool MockRuntime::IsValidHandle(XrPath path) const
 
     size_t userPath = (size_t)(path & 0xFFFFFFFF);
     size_t componentPath = (size_t)(path >> 32);
-    return userPath <= userPathStrings.size() && componentPath <= componentPathStrings.size();
+    return userPath <= userPaths.size() && componentPath <= componentPathStrings.size();
 }
 
 XrPath MockRuntime::AppendPath(XrPath path, const char* append)
@@ -901,10 +912,6 @@ XrResult MockRuntime::SuggestInteractionProfileBindings(const XrInteractionProfi
     if (actionSetsAttached)
         return XR_ERROR_ACTIONSETS_ALREADY_ATTACHED;
 
-    if (activeInteractionProfile == nullptr)
-        if (!SetActiveInteractionProfile(suggestedBindings->interactionProfile))
-            return XR_ERROR_PATH_UNSUPPORTED;
-
     const MockInteractionProfile* mockProfile = GetMockInteractionProfile(suggestedBindings->interactionProfile);
     if (nullptr == mockProfile)
         return XR_ERROR_PATH_UNSUPPORTED;
@@ -918,49 +925,57 @@ XrResult MockRuntime::SuggestInteractionProfileBindings(const XrInteractionProfi
         if (nullptr == mockAction)
             return XR_ERROR_HANDLE_INVALID;
 
-        // If no user path was given then apply the binding to all known user paths in the action if there are any
+        // Top level user path must be specified
         XrPath bindingUserPath = GetUserPath(suggestedBinding.binding);
         if (GetUserPath(suggestedBinding.binding) == XR_NULL_PATH)
             return XR_ERROR_PATH_UNSUPPORTED;
 
+        MockUserPath* mockUserPath = GetMockUserPath(bindingUserPath);
+        if (nullptr == mockUserPath)
+            return XR_ERROR_PATH_UNSUPPORTED;
+
+        if (mockUserPath->profile == nullptr)
+            if (!SetActiveInteractionProfile(mockUserPath, mockProfile))
+                return XR_ERROR_PATH_UNSUPPORTED;
+
         // Try to bind directly to a known input source
         MockInputState* inputState = GetMockInputState(*mockProfile, suggestedBinding.binding, mockAction->type);
         if (nullptr == inputState)
+        {
+            MOCK_TRACE_ERROR("[SuggestInteractionProfileBindings] %s:%s%s: XR_ERROR_PATH_UNSUPPORTED", mockAction->name.c_str(), PathToString(mockProfile->path).c_str(), PathToString(suggestedBinding.binding).c_str());
             return XR_ERROR_PATH_UNSUPPORTED;
+        }
 
         mockAction->bindings.push_back(inputState);
     }
 
-#if 0
-    // Print all bindings
-    for(auto& as : actionSets)
-        for(auto& a : as.actions)
-        {
-            int bindingIndex = 0;
-            for(auto& b : a.bindings)
-                TRACE("[binding] %s.%s(%d) -> %s%s\n", as.name.c_str(), a.name.c_str(), bindingIndex++, PathToString(b->interactionProfile).c_str(), PathToString(b->path).c_str());
-        }
-#endif
-
     return XR_SUCCESS;
 }
 
-MockInputState* MockRuntime::AddMockInputState(XrPath interactionPath, XrPath path, XrActionType actionType)
+MockInputState* MockRuntime::AddMockInputState(XrPath interactionPath, XrPath path, XrActionType actionType, const char* localizedName)
 {
     inputStates.emplace_back();
     MockInputState& mockInputState = inputStates.back();
     mockInputState.interactionProfile = interactionPath;
     mockInputState.path = path;
     mockInputState.type = actionType;
+    mockInputState.localizedName = localizedName;
     mockInputState.Reset();
     return &mockInputState;
 }
 
-bool MockRuntime::SetActiveInteractionProfile(XrPath interactionProfilePath)
+bool MockRuntime::SetActiveInteractionProfile(MockUserPath* mockUserPath, const MockInteractionProfile* mockProfile)
 {
-    activeInteractionProfile = GetMockInteractionProfile(interactionProfilePath);
-    if (nullptr == activeInteractionProfile)
+    if (nullptr == mockUserPath || nullptr == mockProfile)
         return false;
+
+    mockUserPath->profile = mockProfile;
+
+    eventQueue.emplace();
+    auto& evt = (XrEventDataInteractionProfileChanged&)eventQueue.back();
+    evt.type = XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED;
+    evt.next = nullptr;
+    evt.session = session;
 
     return true;
 }
@@ -996,6 +1011,17 @@ XrResult MockRuntime::AttachSessionActionSets(const XrSessionActionSetsAttachInf
 
     actionSetsAttached = true;
 
+#if 0
+    // Print all bindings
+    for (auto& as : actionSets)
+        for (auto& a : as.actions)
+        {
+            int bindingIndex = 0;
+            for (auto& b : a.bindings)
+                MOCK_TRACE_LOG("[Binding] %s.%s(%d) -> %s%s", as.name.c_str(), a.name.c_str(), bindingIndex++, PathToString(b->interactionProfile).c_str(), PathToString(b->path).c_str());
+        }
+#endif
+
     return XR_SUCCESS;
 }
 
@@ -1006,13 +1032,22 @@ XrResult MockRuntime::GetCurrentInteractionProfile(XrPath topLevelUserPath, XrIn
         return XR_ERROR_ACTIONSET_NOT_ATTACHED;
 
     // OpenXR 1.0: If topLevelUserPath is not one of the device input subpaths described in section /user paths, the runtime must return XR_ERROR_PATH_UNSUPPORTED.
-    if (!IsValidUserPath(topLevelUserPath))
+    MockUserPath* mockUserPath = GetMockUserPath(topLevelUserPath);
+    if (nullptr == mockUserPath)
         return XR_ERROR_PATH_UNSUPPORTED;
 
-    // Mock interaction profile is alwasy the same
-    interactionProfile->interactionProfile = activeInteractionProfile ? activeInteractionProfile->path : XR_NULL_PATH;
+    interactionProfile->interactionProfile = mockUserPath->profile != nullptr ? mockUserPath->profile->path : XR_NULL_PATH;
 
     return XR_SUCCESS;
+}
+
+MockRuntime::MockUserPath* MockRuntime::GetMockUserPath(XrPath path)
+{
+    XrPath userPath = GetUserPath(path);
+    if (userPath == XR_NULL_PATH)
+        return nullptr;
+
+    return &userPaths[userPath - 1];
 }
 
 MockRuntime::MockActionSet* MockRuntime::GetMockActionSet(XrAction action)
@@ -1041,7 +1076,7 @@ MockRuntime::MockAction* MockRuntime::GetMockAction(XrAction action)
     return mockAction;
 }
 
-MockInputState* MockRuntime::GetMockInputState(const MockInteractionProfile& mockProfile, XrPath path, XrActionType actionType, bool allowParentPath)
+MockInputState* MockRuntime::GetMockInputState(const MockInteractionProfile& mockProfile, XrPath path, XrActionType actionType)
 {
     for (auto& mockInputState : inputStates)
     {
@@ -1050,27 +1085,24 @@ MockInputState* MockRuntime::GetMockInputState(const MockInteractionProfile& moc
     }
 
     // Nothing was found, could be a parent path, lets check
-    if (allowParentPath)
+    switch (actionType)
     {
-        switch (actionType)
-        {
-        case XR_ACTION_TYPE_BOOLEAN_INPUT:
-        {
-            MockInputState* mockInputState = GetMockInputState(mockProfile, AppendPath(path, "/value"), actionType, false);
-            if (nullptr != mockInputState)
-                return mockInputState;
+    case XR_ACTION_TYPE_BOOLEAN_INPUT:
+    {
+        MockInputState* mockInputState = GetMockInputState(mockProfile, AppendPath(path, "/value"));
+        if (nullptr != mockInputState)
+            return mockInputState;
 
-            return GetMockInputState(mockProfile, AppendPath(path, "/click"), actionType, false);
-        }
+        return GetMockInputState(mockProfile, AppendPath(path, "/click"));
+    }
 
-        case XR_ACTION_TYPE_FLOAT_INPUT:
-        {
-            return GetMockInputState(mockProfile, AppendPath(path, "/value"), actionType, false);
-        }
+    case XR_ACTION_TYPE_FLOAT_INPUT:
+    {
+        return GetMockInputState(mockProfile, AppendPath(path, "/value"));
+    }
 
-        default:
-            break;
-        }
+    default:
+        break;
     }
 
     return nullptr;
@@ -1334,10 +1366,47 @@ XrResult MockRuntime::GetInputSourceLocalizedName(const XrInputSourceLocalizedNa
     if (!actionSetsAttached)
         return XR_ERROR_ACTIONSET_NOT_ATTACHED;
 
-    // TODO: we could build a better name here by looking up the binding in the interaction profile
-    *bufferCountOutput = 2;
-    buffer[0] = 'X';
-    buffer[1] = 0;
+    std::string localizedName;
+
+    // Interaction profile
+    MockUserPath* mockUserPath = GetMockUserPath(getInfo->sourcePath);
+    if (nullptr == mockUserPath)
+        return XR_ERROR_PATH_UNSUPPORTED;
+
+    if (mockUserPath->profile != nullptr && (getInfo->whichComponents & XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT) == XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT)
+    {
+        localizedName = mockUserPath->profile->localizedName;
+    }
+
+    // Top level user path
+    if ((getInfo->whichComponents & XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT) == XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT)
+    {
+        if (localizedName.size() != 0)
+            localizedName += " ";
+
+        localizedName += mockUserPath->localizedName;
+    }
+
+    // Component
+    XrPath componentPath = GetComponentPath(getInfo->sourcePath);
+    if (mockUserPath->profile != nullptr && componentPath != XR_NULL_PATH && (getInfo->whichComponents & XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT) == XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT)
+    {
+        MockInputState* mockInputState = GetMockInputState(*mockUserPath->profile, getInfo->sourcePath);
+        if (mockInputState != nullptr && mockInputState->localizedName != nullptr)
+        {
+            if (localizedName.size() != 0)
+                localizedName += " ";
+
+            localizedName += mockInputState->localizedName;
+        }
+    }
+
+    *bufferCountOutput = (uint32_t)(localizedName.size() + 1);
+
+    if (bufferCapacityInput == 0)
+        return XR_SUCCESS;
+
+    strcpy(buffer, localizedName.c_str());
 
     return XR_SUCCESS;
 }
@@ -1372,7 +1441,9 @@ XrResult MockRuntime::EnumerateBoundSourcesForAction(const XrBoundSourcesForActi
             return XR_ERROR_SIZE_INSUFFICIENT;
 
         (*sourceCountOutput)++;
-        *(sources++) = mockInputState->path;
+
+        if (sources != nullptr)
+            *(sources++) = mockInputState->path;
     }
 
     return XR_SUCCESS;
@@ -1522,5 +1593,24 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
 XrResult MockRuntime::RegisterEndFrameCallback(PFN_EndFrameCallback callback)
 {
     endFrameCallback = callback;
+    return XR_SUCCESS;
+}
+
+XrResult MockRuntime::GetSystemProperties(XrSystemId systemId, XrSystemProperties* properties)
+{
+    properties->vendorId = 0xFEFE;
+    properties->systemId = (XrSystemId)2;
+    properties->graphicsProperties.maxLayerCount = XR_MIN_COMPOSITION_LAYERS_SUPPORTED;
+
+    // Eye gaze extension
+    if ((createFlags & MR_CREATE_EYE_GAZE_INTERACTION_EXT) != 0)
+    {
+        XrSystemEyeGazeInteractionPropertiesEXT* secondaryViewConfiguration =
+            FindNextPointerType<XrSystemEyeGazeInteractionPropertiesEXT>(properties, XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT);
+
+        if (nullptr != secondaryViewConfiguration)
+            secondaryViewConfiguration->supportsEyeGazeInteraction = true;
+    }
+
     return XR_SUCCESS;
 }

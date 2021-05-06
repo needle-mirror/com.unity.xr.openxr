@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android },
         Company = "Unity",
         Desc = "Allows for mapping input to the hand interaction profile. Will register the controller map for hand interaction if enabled.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/features/microsofthandinteraction.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/microsofthandinteraction.html",
         Version = "0.0.1",
         OpenxrExtensionStrings = extensionString,
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Interaction,

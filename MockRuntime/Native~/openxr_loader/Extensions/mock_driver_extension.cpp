@@ -7,16 +7,16 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrTransitionMockToStateUNIT
     LOG_FUNC();
     CHECK_SESSION(session);
 
-    TRACE("[Mock] [Driver] Transition request to state %d with force %s\n", requestedState, forceTransition ? "TRUE" : "FALSE");
+    MOCK_TRACE_DEBUG("[Driver] Transition request to state %d with force %s", requestedState, forceTransition ? "TRUE" : "FALSE");
     if (!forceTransition && !s_runtime->IsStateTransitionValid(requestedState))
     {
-        TRACE("[Mock] [Driver] Failed to request state. Was transition valid: %s with force %s\n",
+        MOCK_TRACE_ERROR("[Driver] Failed to request state. Was transition valid: %s with force %s",
             s_runtime->IsStateTransitionValid(requestedState) ? "TRUE" : "FALSE",
             forceTransition ? "TRUE" : "FALSE");
         return XR_ERROR_VALIDATION_FAILURE;
     }
 
-    TRACE("[Mock] [Driver] Transitioning to requested state %d\n", requestedState);
+    MOCK_TRACE_DEBUG("[Driver] Transitioning to requested state %d\n", requestedState);
     s_runtime->ChangeSessionState(requestedState);
     return XR_SUCCESS;
 }

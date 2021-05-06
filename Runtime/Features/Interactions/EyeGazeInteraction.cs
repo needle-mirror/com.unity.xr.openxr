@@ -21,7 +21,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.WSA, BuildTargetGroup.Standalone, BuildTargetGroup.Android },
         Company = "Unity",
         Desc = "Support for enabling the eye tracking interaction profile. Will register the controller map for eye tracking if enabled.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/features/eyegazeinteraction.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/eyegazeinteraction.html",
         Version = "0.0.1",
         OpenxrExtensionStrings = extensionString,
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Interaction,

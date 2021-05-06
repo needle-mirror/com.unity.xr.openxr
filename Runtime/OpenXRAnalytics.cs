@@ -5,9 +5,9 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-#if UNITY_ANALYTICS
+#if UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
 using UnityEngine.Analytics;
-#endif
+#endif //UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
 
 namespace UnityEngine.XR.OpenXR
 {
@@ -18,9 +18,10 @@ namespace UnityEngine.XR.OpenXR
         private const string kVendorKey = "unity.openxr";
         private const string kEventInitialize = "openxr_initialize";
 
-#if UNITY_ANALYTICS
+#if ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         private static bool s_Initialized = false;
-#endif
+#endif //ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+
 
         [Serializable]
         private struct InitializeEvent
@@ -38,7 +39,7 @@ namespace UnityEngine.XR.OpenXR
 
         private static bool Initialize()
         {
-#if ENABLE_TEST_SUPPORT || !UNITY_ANALYTICS
+#if ENABLE_TEST_SUPPORT || !ENABLE_CLOUD_SERVICES_ANALYTICS || !UNITY_ANALYTICS
             return false;
 #else
             if (s_Initialized)
@@ -51,18 +52,18 @@ namespace UnityEngine.XR.OpenXR
             if(AnalyticsResult.Ok != EditorAnalytics.RegisterEventWithLimit(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
 #else
             if (AnalyticsResult.Ok != Analytics.Analytics.RegisterEvent(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
-#endif
+#endif //UNITY_EDITOR
                 return false;
 
             s_Initialized = true;
 
             return true;
-#endif
+#endif //ENABLE_TEST_SUPPORT || !ENABLE_CLOUD_SERVICES_ANALYTICS || !UNITY_ANALYTICS
         }
 
         public static void SendInitializeEvent(bool success)
         {
-#if UNITY_ANALYTICS
+#if UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
             if (!s_Initialized && !Initialize())
                 return;
 
@@ -91,8 +92,8 @@ namespace UnityEngine.XR.OpenXR
             EditorAnalytics.SendEventWithLimit(kEventInitialize, data);
 #else
             Analytics.Analytics.SendEvent(kEventInitialize, data);
-#endif
-#endif
+#endif //UNITY_EDITOR
+#endif //UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
         }
     }
 }

@@ -16,3 +16,15 @@ License Type: Apache 2.0
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+---------
+
+Component Name: Oculus OpenXR Mobile SDK
+
+License Type: Oculus SDK License Agreement
+
+   Copyright © Facebook Technologies, LLC and its affiliates. All rights reserved.
+
+   The text of this may be found at: https://developer.oculus.com/licenses/oculussdk/
+
+Detail: Applicable when "Oculus Quest Support" feature is enabled with Android build target.

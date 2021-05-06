@@ -17,7 +17,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone},
         Company = "Unity",
         Desc = "Mock driver that allows tests to change the state of the mock runtime.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
+        DocumentationLink = Constants.k_DocumentationURL,
         OpenxrExtensionStrings = "XR_UNITY_mock_driver",
         Version = "0.0.1",
         FeatureId = featureId)]

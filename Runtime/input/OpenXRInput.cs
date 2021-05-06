@@ -27,12 +27,13 @@ namespace UnityEngine.XR.OpenXR.Input
             // as any enabled interaction features.
             RegisterLayouts();
 
-            var settings = OpenXRSettings.Instance;
-            if (settings == null)
+            // Find all enabled interaction features and force them to register their device layouts
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (null == packageSettings)
                 return;
 
-            foreach (var feature in settings.features.OfType<OpenXRInteractionFeature>())
-                feature.ActiveStateChanged();
+            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>().Where(f => f.feature.enabled).Select(f => f.feature))
+                feature.OnEnabledChange();
 #endif
         }
 

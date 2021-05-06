@@ -21,7 +21,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Allows for mapping input to the Khronos Simple Controller interaction profile.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/features/khrsimplecontrollerprofile.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/khrsimplecontrollerprofile.html",
         OpenxrExtensionStrings = "",
         Version = "0.0.1",
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Interaction,
