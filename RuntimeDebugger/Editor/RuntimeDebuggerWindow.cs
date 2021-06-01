@@ -32,6 +32,34 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
     internal class RuntimeDebuggerWindow : EditorWindow
     {
+        private static class Styles
+        {
+            public static GUIStyle s_Wrap;
+        }
+
+        private static void InitStyles()
+        {
+            if (Styles.s_Wrap != null)
+                return;
+
+            Styles.s_Wrap = new GUIStyle(EditorStyles.label)
+            {
+                wordWrap = true,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(0, 5, 1, 1)
+            };
+
+        }
+
+        [MenuItem("Window/Analysis/OpenXR Runtime Debugger")]
+        [MenuItem("Window/XR/OpenXR/Runtime Debugger")]
+        internal static void Init()
+        {
+            RuntimeDebuggerWindow w = EditorWindow.GetWindow<RuntimeDebuggerWindow>() as RuntimeDebuggerWindow;
+            w.titleContent = new GUIContent("OpenXR Runtime Debugger");
+            w.Show();
+        }
+
         private IConnectionState state;
         void OnEnable()
         {
@@ -54,6 +82,25 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
         void OnGUI()
         {
+            InitStyles();
+            var debuggerFeatureInfo = FeatureHelpers.GetFeatureWithIdForActiveBuildTarget("com.unity.openxr.features.runtimedebugger");
+
+            if (!debuggerFeatureInfo.enabled)
+            {
+                EditorGUILayout.BeginVertical();
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("OpenXR Runtime Debugger must be enabled for this build target.", Styles.s_Wrap);
+                EditorGUILayout.Space();
+                if (GUILayout.Button("Enable Runtime Debugger"))
+                {
+                    debuggerFeatureInfo.enabled = true;
+                }
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
+
             PlayerConnectionGUILayout.ConnectionTargetSelectionDropdown(state);
 
             GUILayout.BeginHorizontal();

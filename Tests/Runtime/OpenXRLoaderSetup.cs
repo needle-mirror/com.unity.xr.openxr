@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using NUnit.Framework;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.XR.Management;
@@ -22,11 +23,52 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         private OpenXRFeature[] savedFeatures = null;
 
-        protected virtual bool EnableMockRuntime(bool enable)
+        /// <summary>
+        /// Helper method to return a feature of the given type
+        /// </summary>
+        /// <param name="featureType">Feature type</param>
+        /// <returns>Reference to the requested feature or null if not found</returns>
+        protected OpenXRFeature GetFeature(Type featureType) =>
+            OpenXRSettings.Instance.GetFeature(featureType);
+
+        /// <summary>
+        /// Helper method to return a feature of the given type
+        /// </summary>
+        /// <typeparam name="T">Feature Type</typeparam>
+        /// <returns>Reference to the requested feature or null if not found</returns>
+        protected T GetFeature<T>() where T : OpenXRFeature => GetFeature(typeof(T)) as T;
+
+        /// <summary>
+        /// Enables a required feature of a given type.
+        /// </summary>
+        /// <param name="featureType">Type of feature to enable</param>
+        /// <returns>Feature that was enabled or null</returns>
+        protected OpenXRFeature EnableFeature(Type featureType, bool enable=true)
+        {
+            var feature = GetFeature(featureType);
+            Assert.IsNotNull(feature);
+            feature.enabled = true;
+            return feature;
+        }
+
+        /// <summary>
+        /// Enables a required feature of a given type.
+        /// </summary>
+        /// <typeparam name="T">Type of feature to enable</typeparam>
+        /// <returns>Feature that was enabled or null</returns>
+        protected T EnableFeature<T>(bool enable=true) where T : OpenXRFeature => EnableFeature(typeof(T), enable) as T;
+
+        protected bool EnableMockRuntime(bool enable = true)
         {
             var feature = MockRuntime.Instance;
             if(null == feature)
                 return false;
+
+            if (feature.enabled == enable)
+                return true;
+
+            // Always enable/disable the mock driver when the runtime is enabled/disabled
+            EnableFeature<MockDriver>(enable);
 
             feature.enabled = enable;
             feature.openxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx;
@@ -35,13 +77,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             feature.ignoreValidationErrors = true;
 
             return true;
-        }
-
-        protected void EnableMockDriver()
-        {
-            var driver = OpenXRSettings.Instance.GetFeature<MockDriver>();
-            if(driver != null)
-                driver.enabled = true;
         }
 
         protected void AddExtension(string extensionName)
@@ -70,7 +105,22 @@ namespace UnityEngine.XR.OpenXR.Tests
             UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(UnityEditor.BuildTargetGroup.Standalone);
 #endif
 
-            EnableMockRuntime(true);
+            // Enable all build features
+            var featureTypes = new List<Type>();
+            QueryBuildFeatures(featureTypes);
+            featureTypes.Add(typeof(MockRuntime));
+            featureTypes.Add(typeof(MockDriver));
+            foreach (var feature in featureTypes.Select(featureType => OpenXRSettings.Instance.GetFeature(featureType)).Where(feature => null != feature))
+            {
+                feature.enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Override to return a list of feature types that should be enabled in the build
+        /// </summary>
+        protected virtual void QueryBuildFeatures(List<Type> featureTypes)
+        {
         }
 
         // NOTE: If you override this function, do NOT add the SetUp test attribute.
@@ -79,12 +129,16 @@ namespace UnityEngine.XR.OpenXR.Tests
         [SetUp]
         public virtual void BeforeTest()
         {
+            // Make sure we are not running
+            if(OpenXRLoaderBase.Instance != null)
+                StopAndShutdown();
+
             // Cache off the features before we start
             savedFeatures = (OpenXRFeature[])OpenXRSettings.Instance.features.Clone();
 
             // Disable all features incase some features were enable before the tests started.
             DisableAllFeatures();
-            Assert.IsTrue(EnableMockRuntime(true));
+            Assert.IsTrue(EnableMockRuntime());
 #pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
             loader.GetRestarter().ShouldCancelQuit = () => false;
@@ -113,7 +167,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         public override void Setup()
         {
             SetupTest();
-            EnableMockRuntime(true);
+            EnableMockRuntime();
             base.Setup();
         }
 

@@ -50,10 +50,18 @@ typedef XrResult(XRAPI_PTR* PFN_xrGetEndFrameStatsUNITY)(int* primaryLayerCount,
 //
 typedef XrResult(XRAPI_PTR* PFN_xrActivateSecondaryViewUNITY)(XrViewConfigurationType viewConfigurationType, bool activate);
 
-// Register a callback that gets called after every end frame
+// Register a callback that gets called for script events sent by mock
 //
-typedef void (*PFN_EndFrameCallback)();
+typedef enum
+{
+    XR_MOCK_SCRIPT_EVENT_UNKNOWN,
+    XR_MOCK_SCRIPT_EVENT_END_FRAME,
+    XR_MOCK_SCRIPT_EVENT_HAPTIC_IMPULSE,
+    XR_MOCK_SCRIPT_EVENT_HAPTIC_STOP
+} XrMockScriptEvent;
 
-typedef XrResult(XRAPI_PTR* PFN_xrRegisterEndFrameCallback)(PFN_EndFrameCallback callback);
+typedef void (*PFN_ScriptEventCallback)(XrMockScriptEvent event, uint64_t param);
+
+typedef XrResult(XRAPI_PTR* PFN_xrRegisterScriptEventCallback)(PFN_ScriptEventCallback callback);
 
 #endif //OPENXR_MOCK_DRIVER

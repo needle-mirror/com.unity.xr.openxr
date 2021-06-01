@@ -8,11 +8,11 @@ OpenXR is an extensible API that can be extended with new features. To facilitat
 
 You can manage features from the **Project Settings &gt; XR Plug-in Management &gt; OpenXR** window.
 
-To enable or disable a feature, select or clear the checkbox next to it. Unity doesn't execute disabled features at runtime, and does't deploy any of the feature's native libraries with the Player build. To configure additional build-time properties specific to each feature, click the gear icon to the right of the feature.
+To enable or disable a feature, select or clear the checkbox next to it. Unity doesn't execute disabled features at runtime, and doesn't deploy any of the feature's native libraries with the Player build. To configure additional build-time properties specific to each feature, click the gear icon to the right of the feature.
 
 All of the information in this window is populated via the `OpenXRFeatureAttribute` described below.
 
-**Feature sets** group a number of different **features** together to allow you to configure them simultaneously, which might offer a better development experience. For more information, see the [Defining a feature set](#defining-a-feature-set) section on this page.
+**Feature Groups** group a number of different **features** together to allow you to configure them simultaneously, which might offer a better development experience. For more information, see the [Defining a feature group](#defining-a-feature-group) section on this page.
 
 ## Defining a feature
 
@@ -47,30 +47,30 @@ A feature must also provide an `OpenXRFeature` attribute when running in the Edi
 
 Unity uses this information at build time, either to build the Player or to display it to the user in the UI.
 
-## Defining a feature set
+## Defining a feature group
 
-Unity OpenXR allows you to define a feature set you can use to enable or disable a group of features at the same time. This way, you don't need to access the **Feature** section in **Project Settings &gt; XR Plug-in Management &gt; OpenXR** window to enable or disable features.
+Unity OpenXR allows you to define a feature group you can use to enable or disable a group of features at the same time. This way, you don't need to access the **Feature** section in **Project Settings &gt; XR Plug-in Management &gt; OpenXR** window to enable or disable features.
 
-Declare a feature set through the definition of one or more `OpenXRFeatureSetAttribute` declarations in your code. You can place the attribute anywhere because the feature set functionality only depends on the attribute existing and not on the actual class it's declared on.
+Declare a feature group through the definition of one or more `OpenXRFeatureSetAttribute` declarations in your code. You can place the attribute anywhere because the feature group functionality only depends on the attribute existing and not on the actual class it's declared on.
 
 ```c#
       [OpenXRFeatureSet(
-          FeatureIds = new string[] {   // The list of features that this feature set is defined for.
+          FeatureIds = new string[] {   // The list of features that this feature group is defined for.
               EyeGazeInteraction.featureId,
               KHRSimpleControllerProfile.featureId,
               "com.mycompany.myprovider.mynewfeature",
               },
           UiName = "Feature_Set_Name",
-          Description = "Feature set that allows for setting up the best environment for My Company's hardware.",
-          // Unique ID for this feature set
-          FeatureSetId = "com.mycompany.myprovider.mynewfeatureset",
+          Description = "Feature group that allows for setting up the best environment for My Company's hardware.",
+          // Unique ID for this feature group
+          FeatureSetId = "com.mycompany.myprovider.mynewfeaturegroup",
           SupportedBuildTargets = new BuildTargetGroup[]{ BuildTargetGroup.Standalone, BuildTargetGroup.Android }
       )]
       class MyCompanysFeatureSet
       {}
 ```
 
-You can configure feature sets in the **XR Plug-in Management** plug-in selection window. When you select the **OpenXR** plug-in from this window, the section under the plug-in displays the sets of features available. Not all feature sets are configurable. Some require you to install third-party definitions. The window displays information on where to get the required packages if needed.
+You can configure feature groups in the **XR Plug-in Management** plug-in selection window. When you select the **OpenXR** plug-in from this window, the section under the plug-in displays the groups of features available. Not all feature groups are configurable. Some require you to install third-party definitions. The window displays information on where to get the required packages if needed.
 
 ### Enabling OpenXR spec extension strings
 

@@ -11,18 +11,29 @@ namespace UnityEditor.XR.OpenXR
     {
         class RuntimeDetector
         {
+            const string k_RuntimeEnvKey = "XR_RUNTIME_JSON";
             public virtual string name { get; }
             public virtual string jsonPath { get; }
             public virtual string tooltip => jsonPath;
 
             public virtual bool detected => File.Exists(jsonPath);
 
-            public virtual void MakeActive()
+            public virtual void PrepareRuntime()
+            {
+
+            }
+
+            public virtual void Activate()
             {
                 if (detected)
                 {
-                    Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", jsonPath);
+                    Environment.SetEnvironmentVariable(k_RuntimeEnvKey, jsonPath);
                 }
+            }
+
+            public virtual void Deactivate()
+            {
+                Environment.SetEnvironmentVariable(k_RuntimeEnvKey, "");
             }
         };
 
@@ -56,13 +67,13 @@ namespace UnityEditor.XR.OpenXR
 
             public override string jsonPath => runtimeJsonPath;
 
-            public override void MakeActive()
+            public override void PrepareRuntime()
             {
                 var selectedJson = EditorUtility.OpenFilePanel("Select OpenXR Runtime json", "", "json");
                 if (!string.IsNullOrEmpty(selectedJson))
                 {
                     runtimeJsonPath = selectedJson;
-                    base.MakeActive();
+                    base.PrepareRuntime();
                 }
             }
 
@@ -105,7 +116,7 @@ namespace UnityEditor.XR.OpenXR
 
         private static List<RuntimeDetector> runtimeDetectors = new List<RuntimeDetector>()
         {
-            new SystemDefault(),
+            new SystemDefault(), // SystemDefault must always be the first item in the list.
             new WindowsMRDetector(),
             new SteamVRDetector(),
             new OculusDetector(),
@@ -117,34 +128,65 @@ namespace UnityEditor.XR.OpenXR
             public static readonly GUIContent k_ActiveRuntimeLabel = new GUIContent("Play Mode OpenXR Runtime", "Changing this value will only affect this instance of the editor.");
         }
 
+        static int selectedRuntimeIndex = -1;
+
+        const string k_SelectedRuntimeEnvKey = "XR_SELECTED_RUNTIME_JSON";
+
         static int GetActiveRuntimeIndex(List<RuntimeDetector> runtimes)
         {
-            var runtimeJson = Environment.GetEnvironmentVariable("XR_RUNTIME_JSON");
-
-            if (string.IsNullOrEmpty(runtimeJson))
+            string envValue = Environment.GetEnvironmentVariable(k_SelectedRuntimeEnvKey);
+            if (string.IsNullOrEmpty(envValue))
                 return 0;
 
-            var index = runtimes.FindLastIndex(s => s.jsonPath.Equals(runtimeJson, StringComparison.CurrentCultureIgnoreCase));
+            var runtime = runtimes.Where(r => String.Compare(r.jsonPath, envValue, StringComparison.InvariantCulture) == 0);
+            if (!runtime.Any())
+                return 0;
 
-            if (index == -1)
-                return runtimes.Count - 1;
-
-            return index;
+            return runtimes.IndexOf(runtime.First());
         }
+
 
         public static void DrawSelector()
         {
             EditorGUIUtility.labelWidth = 200;
             GUILayout.BeginHorizontal();
             var runtimes = runtimeDetectors.Where(runtime => runtime.detected).ToList();
-            int selectedIndex = GetActiveRuntimeIndex(runtimes);
-            int index = EditorGUILayout.Popup(Content.k_ActiveRuntimeLabel, selectedIndex, runtimes.Select(s => new GUIContent(s.name, s.tooltip)).ToArray());
-            if (selectedIndex != index)
+            if (selectedRuntimeIndex < 0)
+                selectedRuntimeIndex = GetActiveRuntimeIndex(runtimes);
+            int index = EditorGUILayout.Popup(Content.k_ActiveRuntimeLabel, selectedRuntimeIndex, runtimes.Select(s => new GUIContent(s.name, s.tooltip)).ToArray());
+            if (selectedRuntimeIndex != index)
             {
-                runtimes[index].MakeActive();
+                selectedRuntimeIndex = index;
+                runtimes[selectedRuntimeIndex].PrepareRuntime();
+                Environment.SetEnvironmentVariable(k_SelectedRuntimeEnvKey, runtimes[selectedRuntimeIndex].jsonPath);
             }
             GUILayout.EndHorizontal();
             EditorGUIUtility.labelWidth = 0;
+        }
+
+        static OpenXRRuntimeSelector()
+        {
+            EditorApplication.playModeStateChanged += (state) =>
+            {
+                var runtimes = runtimeDetectors.Where(runtime => runtime.detected).ToList();
+                int runtimeIndex = GetActiveRuntimeIndex(runtimes);
+                switch (state)
+                {
+                    case PlayModeStateChange.ExitingEditMode:
+                        if (runtimeIndex >= 0)
+                        {
+                            runtimes[runtimeIndex].Activate();
+                        }
+                        break;
+
+                    case PlayModeStateChange.EnteredEditMode:
+                        if (runtimeIndex >= 0)
+                        {
+                            runtimes[runtimeIndex].Deactivate();
+                        }
+                        break;
+                }
+            };
         }
     }
 }

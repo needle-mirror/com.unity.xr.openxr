@@ -31,7 +31,7 @@ struct DriverContext
     PFN_xrSetViewPoseUNITY xrSetViewPoseUNITY;
     PFN_xrGetEndFrameStatsUNITY xrGetEndFrameStatsUNITY;
     PFN_xrActivateSecondaryViewUNITY xrActivateSecondaryViewUNITY;
-    PFN_xrRegisterEndFrameCallback xrRegisterEndFrameCallbackUNITY;
+    PFN_xrRegisterScriptEventCallback xrRegisterScriptEventCallbackUNITY;
 } s_DriverContext{};
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
@@ -47,7 +47,7 @@ script_initialize(PFN_xrGetInstanceProcAddr xrGetInstanceProcAddr, XrInstance in
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetViewPoseUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrSetViewPoseUNITY));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrGetEndFrameStatsUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrGetEndFrameStatsUNITY));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrActivateSecondaryViewUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrActivateSecondaryViewUNITY));
-    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrRegisterEndFrameCallbackUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrRegisterEndFrameCallbackUNITY));
+    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrRegisterScriptEventCallbackUNITY", (PFN_xrVoidFunction*)&s_DriverContext.xrRegisterScriptEventCallbackUNITY));
 }
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
@@ -139,10 +139,10 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_ActivateSecondar
     return XR_ERROR_EXTENSION_NOT_PRESENT;
 }
 
-extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_RegisterEndFrameCallback(PFN_EndFrameCallback callback)
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockDriver_RegisterScriptEventCallback(PFN_ScriptEventCallback callback)
 {
-    if (s_DriverContext.xrRegisterEndFrameCallbackUNITY)
-        return s_DriverContext.xrRegisterEndFrameCallbackUNITY(callback);
+    if (s_DriverContext.xrRegisterScriptEventCallbackUNITY)
+        return s_DriverContext.xrRegisterScriptEventCallbackUNITY(callback);
 
     return XR_ERROR_EXTENSION_NOT_PRESENT;
 }

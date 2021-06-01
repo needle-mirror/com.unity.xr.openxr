@@ -178,30 +178,6 @@ namespace UnityEditor.XR.OpenXR.Features
             }
         }
 
-        static bool AllFeaturesEnabled(string[] featureIds, BuildTargetGroup buildTargetGroup)
-        {
-            if (featureIds == null)
-                return false;
-
-            var allFeatureInfo = FeatureHelpersInternal.GetAllFeatureInfo(buildTargetGroup);
-            if (allFeatureInfo == null || allFeatureInfo.Features.Count == 0)
-                return false;
-
-            bool ret = true;
-            bool found = false;
-            foreach(var featureInfo in allFeatureInfo.Features)
-            {
-                if (Array.IndexOf(featureIds, featureInfo.Attribute.FeatureId) > -1)
-                {
-                    found = true;
-                    ret &= featureInfo.Feature.enabled;
-                }
-            }
-
-            ret &= found;
-            return ret;
-        }
-
         /// <summary>
         /// Initializes all currently known feature sets. This will do two initialization passes:
         ///
@@ -245,7 +221,7 @@ namespace UnityEditor.XR.OpenXR.Features
                         }
 
                         var newFeatureSet = new FeatureSetInfo(){
-                            isEnabled = AllFeaturesEnabled(featureSetAttr.RequiredFeatureIds, buildTargetGroup),
+                            isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(buildTargetGroup, featureSetAttr.FeatureSetId),
                             name = featureSetAttr.UiName,
                             description = featureSetAttr.Description,
                             featureSetId = featureSetAttr.FeatureSetId,

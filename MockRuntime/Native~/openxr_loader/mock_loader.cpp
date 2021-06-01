@@ -15,15 +15,6 @@ MockRuntime* s_runtime = nullptr;
         strncpy(buffer, #name, XR_MAX_RESULT_STRING_SIZE - 1); \
         break;
 
-#define CHECK_EXPECTED_RESULT(...)                                                                              \
-    std::vector<XrResult> expectedResults{__VA_ARGS__};                                                         \
-    if (s_runtime != nullptr)                                                                                   \
-    {                                                                                                           \
-        XrResult expectedResult = s_runtime->GetExpectedResultForFunction(__FUNCTION__);                        \
-        if (std::find(expectedResults.begin(), expectedResults.end(), expectedResult) == expectedResults.end()) \
-            return expectedResult;                                                                              \
-    }
-
 // clang-format off
     static XrExtensionProperties s_Extensions[] = {
     {
@@ -336,7 +327,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateSession(XrInstance 
 {
     LOG_FUNC();
     CHECK_INSTANCE(instance);
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     CHECK_SUCCESS(s_runtime->CreateSession(createInfo));
 
     *session = s_runtime->GetSession();
@@ -348,7 +339,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrDestroySession(XrSession 
 {
     LOG_FUNC();
     CHECK_SESSION(session);
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     return s_runtime->DestroySession();
 }
 
@@ -401,14 +392,14 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrLocateSpace(XrSpace space
 {
     LOG_FUNC();
     CHECK_RUNTIME();
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     return s_runtime->LocateSpace(space, baseSpace, time, location);
 }
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrDestroySpace(XrSpace space)
 {
     LOG_FUNC();
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     return XR_SUCCESS;
 }
 
@@ -504,7 +495,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrBeginSession(XrSession se
 {
     LOG_FUNC();
     CHECK_SESSION(session);
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     return s_runtime->BeginSession(beginInfo);
 }
 
@@ -512,7 +503,8 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEndSession(XrSession sess
 {
     LOG_FUNC();
     CHECK_SESSION(session);
-    CHECK_EXPECTED_RESULT(XR_SUCCESS, XR_ERROR_SESSION_NOT_STOPPING);
+    //CHECK_EXPECTED_RESULT(XR_SUCCESS, XR_ERROR_SESSION_NOT_STOPPING);
+    CHECK_FUNCTION_RESULT();
 
     return s_runtime->EndSession();
 }
@@ -521,7 +513,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrRequestExitSession(XrSess
 {
     LOG_FUNC();
     CHECK_SESSION(session);
-    CHECK_EXPECTED_RESULT(XR_SUCCESS);
+    CHECK_FUNCTION_RESULT();
     return s_runtime->RequestExitSession();
 }
 
@@ -549,6 +541,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrLocateViews(XrSession ses
 {
     LOG_FUNC();
     CHECK_SESSION(session);
+    CHECK_FUNCTION_RESULT();
     return s_runtime->LocateViews(viewLocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
 }
 

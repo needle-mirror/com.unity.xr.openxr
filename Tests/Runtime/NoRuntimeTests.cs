@@ -52,7 +52,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsNull(activeLoader);
 
             Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", "");
-            EnableMockRuntime(true);
+            EnableMockRuntime();
 
             base.InitializeAndStart();
 

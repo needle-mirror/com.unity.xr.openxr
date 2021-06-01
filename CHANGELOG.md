@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2021-06-01
+* Fixed a bug when using SteamVR runtime that would cause the view to stop rendering and input to stop tracking if the main thread stalled for too long.
+* Fixed bug with feature sets that could cause the XR Management check box to be out of sync with the checkbox on the OpenXR Settings page.
+* Fixed bug with HTC Vive controller profile that caused the `aim` and `grip` poses to be identical.
+* Renamed `Feature Sets` to `Feature Groups` in the UI.
+* Removed unnecessary build hook for `EyeGaze` that was causing incorrect capabilities to be set on `HoloLens2`.
+* Editor runtime override will no longer change the runtime for standalone builds executed using `Build and Run`.
+
 ## [1.2.0] - 2021-05-06
 
 * Enabled Android build target for Oculus Quest via the `Oculus Quest Support` feature.

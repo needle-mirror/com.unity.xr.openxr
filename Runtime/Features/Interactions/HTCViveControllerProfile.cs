@@ -11,7 +11,6 @@ using UnityEditor;
 
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 
-
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
@@ -44,67 +43,67 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the HTC Vive Controller Profile select OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Secondary", "selectbutton" })]
+            [Preserve, InputControl(aliases = new[] { "Secondary", "selectbutton" }, usage = "SystemButton" )]
             public ButtonControl select { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents information from the <see cref="HTCViveControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze"})]
+            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze"}, usage = "Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the <see cref="HTCViveControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked" })]
+            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked"}, usage = "GripButton")]
             public ButtonControl gripPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the <see cref="HTCViveControllerProfile.menu"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" })]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" }, usage = "MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents information from the <see cref="HTCViveControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "triggeraxis" })]
+            [Preserve, InputControl(alias = "triggeraxis", usage = "Trigger")]
             public AxisControl trigger { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the <see cref="HTCViveControllerProfile.triggerClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "triggerbutton" })]
+            [Preserve, InputControl(alias = "triggerbutton", usage = "TriggerButton")]
             public ButtonControl triggerPressed { get; private set; }
 
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents information from the <see cref="HTCViveControllerProfile.trackpad"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "touchpadaxes", "touchpad" })]
+            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "touchpadaxes", "touchpad" }, usage = "Primary2DAxis")]
             public Vector2Control trackpad { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the <see cref="HTCViveControllerProfile.trackpadClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "joystickorpadpressed", "touchpadpressed" })]
+            [Preserve, InputControl(aliases = new[] { "joystickorpadpressed", "touchpadpressed" }, usage = "Primary2DAxisClick")]
             public ButtonControl trackpadClicked { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents information from the <see cref="HTCViveControllerProfile.trackpadTouch"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "joystickorpadtouched", "touchpadtouched" })]
+            [Preserve, InputControl(aliases = new[] { "joystickorpadtouched", "touchpadtouched" }, usage = "Primary2DAxisTouch")]
             public ButtonControl trackpadTouched { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents information from the <see cref="HTCViveControllerProfile.grip"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" })]
+            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents information from the <see cref="HTCViveControllerProfile.aim"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "aimPose" })]
+            [Preserve, InputControl(offset = 0, alias = "aimPose", usage = "Pointer")]
             public PoseControl pointer { get; private set; }
 
             /// <summary>
@@ -122,14 +121,26 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for back compatibility with the XRSDK layouts. This is the device position. For the Oculus Touch device, this is both the grip and the pointer position. This value is equivalent to mapping devicePose/position.
             /// </summary>
-            [Preserve, InputControl(offset = 32, aliases = new[] { "pointerPosition" })]
+            [Preserve, InputControl(offset = 32, alias = "gripPosition")]
             new public Vector3Control devicePosition { get; private set; }
 
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the device orientation. For the Oculus Touch device, this is both the grip and the pointer rotation. This value is equivalent to mapping devicePose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 44, aliases = new[] { "pointerOrientation", "pointerRotation" })]
+            [Preserve, InputControl(offset = 44, alias = "gripOrientation")]
             new public QuaternionControl deviceRotation { get; private set; }
+
+            /// <summary>
+            /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for back compatibility with the XRSDK layouts. This is the pointer position. This value is equivalent to mapping pointerPose/position.
+            /// </summary>
+            [Preserve, InputControl(offset = 92)]
+            public Vector3Control pointerPosition { get; private set; }
+
+            /// <summary>
+            /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the pointer rotation. This value is equivalent to mapping pointerPose/rotation.
+            /// </summary>
+            [Preserve, InputControl(offset = 104, alias = "pointerOrientation")]
+            public QuaternionControl pointerRotation { get; private set; }
 
             /// <inheritdoc cref="OpenXRDevice"/>
             protected override void FinishSetup()
@@ -144,15 +155,19 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 trackpad = GetChildControl<Vector2Control>("trackpad");
                 trackpadClicked = GetChildControl<ButtonControl>("trackpadClicked");
                 trackpadTouched = GetChildControl<ButtonControl>("trackpadTouched");
-                devicePose = GetChildControl<PoseControl>("devicePose");
-                pointer = GetChildControl<PoseControl>("pointer");
 
+                pointer = GetChildControl<PoseControl>("pointer");
+                pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
+                pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
+
+                devicePose = GetChildControl<PoseControl>("devicePose");
                 isTracked = GetChildControl<ButtonControl>("isTracked");
                 trackingState = GetChildControl<IntegerControl>("trackingState");
                 devicePosition = GetChildControl<Vector3Control>("devicePosition");
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
             }
         }
+
         /// <summary>The interaction profile string used to reference the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_htc_vive_controller_profile">HTC Vive Controller</a>.</summary>
         public const string profile = "/interaction_profiles/htc/vive_controller";
 
@@ -214,13 +229,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         .WithProduct(kDeviceLocalizedName));
         }
 
-
         /// <summary>
         /// Removes the <see cref="ViveController"/> layout from the Input System.
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
-            InputSystem.InputSystem.RemoveLayout(typeof(ViveController).Name);
+            InputSystem.InputSystem.RemoveLayout(nameof(ViveController));
         }
 
         /// <inheritdoc/>
@@ -428,6 +442,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
+                    // Pointer Pose
+                    new ActionConfig()
+                    {
+                        name = "pointer",
+                        localizedName = "Pointer Pose",
+                        type = ActionType.Pose,
+                        usages = new List<string>()
+                        {
+                            "Pointer"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = aim,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    }
                 }
             };
 

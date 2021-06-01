@@ -69,7 +69,7 @@ namespace UnityEditor.XR.OpenXR.Features
         static class Content
         {
             public static readonly GUIContent k_HelpIcon = EditorGUIUtility.IconContent("_Help");
-            public static readonly GUIContent k_SettingsIcon = EditorGUIUtility.IconContent("d_Settings");
+            public static readonly GUIContent k_SettingsIcon = EditorGUIUtility.IconContent("Settings");
 
             public static readonly GUIContent k_Settings = new GUIContent("", k_SettingsIcon.image, "Open settings editor for this feature.");
             public static readonly GUIContent k_InteractionProfilesTitle = new GUIContent("Interaction Profiles");
@@ -312,7 +312,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
             EditorGUILayout.BeginVertical(GUILayout.Width(Styles.k_DefaultSelectionWidth), GUILayout.ExpandWidth(true));
             {
-                EditorGUILayout.LabelField("Feature Sets", Styles.s_FeatureSetTitleLable);
+                EditorGUILayout.LabelField("OpenXR Feature Groups", Styles.s_FeatureSetTitleLable);
 
                 EditorGUILayout.BeginVertical(Styles.s_SelectionBackground, GUILayout.ExpandHeight(true));
                 {
@@ -335,6 +335,7 @@ namespace UnityEditor.XR.OpenXR.Features
                                 {
                                     item.wasChanged = true;
                                     item.isEnabled = newToggleState;
+                                    OpenXREditorSettings.Instance.SetFeatureSetSelected(activeBuildTarget, item.featureSetId, item.isEnabled);
                                     OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets(activeBuildTarget);
                                     mustInitializeFeatures = true;
                                 }

@@ -1,5 +1,9 @@
 #include "mock.h"
 #include <algorithm>
+#include <mutex>
+
+static std::mutex s_EventQueueMutex;
+static std::mutex s_ExpectedResultMutex;
 
 MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
 {
@@ -9,7 +13,7 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     createFlags = flags;
     currentState = XR_SESSION_STATE_UNKNOWN;
 
-    endFrameCallback = nullptr;
+    scriptEventCallback = nullptr;
 
     isRunning = false;
     exitSessionRequested = false;
@@ -149,12 +153,11 @@ void MockRuntime::ChangeSessionState(XrSessionState state)
 
     currentState = state;
 
-    eventQueue.emplace();
-    auto& evt = (XrEventDataSessionStateChanged&)eventQueue.back();
-    evt.type = XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED;
-    evt.next = nullptr;
-    evt.session = session;
-    evt.state = state;
+    QueueEvent(XrEventDataSessionStateChanged{
+        XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED,
+        nullptr,
+        session,
+        state});
 }
 
 XrTime MockRuntime::GetPredictedTime()
@@ -188,8 +191,7 @@ XrResult MockRuntime::EndFrame(const XrFrameEndInfo* frameEndInfo)
 
     primaryLayersRendered = frameEndInfo->layerCount;
 
-    if (nullptr != endFrameCallback)
-        endFrameCallback();
+    QueueEvent(XrEventScriptEventMOCK{XR_TYPE_EVENT_SCRIPT_EVENT_MOCK, nullptr, XR_MOCK_SCRIPT_EVENT_END_FRAME});
 
     return XR_SUCCESS;
 }
@@ -249,21 +251,54 @@ XrResult MockRuntime::EndSession()
     return XR_SUCCESS;
 }
 
+void MockRuntime::QueueEvent(const XrEventDataBuffer& buffer)
+{
+    std::lock_guard<std::mutex> lock(s_EventQueueMutex);
+    eventQueue.push(buffer);
+}
+
+XrEventDataBuffer MockRuntime::GetNextEvent()
+{
+    std::lock_guard<std::mutex> lock(s_EventQueueMutex);
+    if (eventQueue.size() == 0)
+        return XrEventDataBuffer{};
+
+    XrEventDataBuffer event = eventQueue.front();
+    eventQueue.pop();
+    return event;
+}
+
 XrResult MockRuntime::GetNextEvent(XrEventDataBuffer* eventData)
 {
     if (!eventData)
         return XR_ERROR_HANDLE_INVALID;
 
-    if (eventQueue.size() > 0)
+    while (true)
     {
-        *eventData = eventQueue.front();
-        if (s_Trace)
-            s_Trace->Trace(kXRLogTypeDebug, "  - Returning event type: %s\n", to_string(eventData->type));
-        eventQueue.pop();
+        *eventData = GetNextEvent();
+
+        // Handle mock internal events
+        switch (eventData->type)
+        {
+        case XR_TYPE_UNKNOWN:
+            return XR_EVENT_UNAVAILABLE;
+
+        case XR_TYPE_EVENT_SCRIPT_EVENT_MOCK:
+        {
+            XrEventScriptEventMOCK* scriptEvent = (XrEventScriptEventMOCK*)eventData;
+            if (nullptr != scriptEventCallback)
+                scriptEventCallback(scriptEvent->event, scriptEvent->param);
+
+            continue;
+        }
+        default:
+            break;
+        }
+
+        MOCK_TRACE_DEBUG("[GetNextEvent] type=%s\n", to_string(eventData->type));
+
         return XR_SUCCESS;
     }
-
-    return XR_EVENT_UNAVAILABLE;
 }
 
 bool MockRuntime::IsStateTransitionValid(XrSessionState newState) const
@@ -304,8 +339,7 @@ void MockRuntime::SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpac
     extentMap[referenceSpace] = extents;
 
     // queue a reference space changed pending event
-    eventQueue.emplace();
-    auto& evt = (XrEventDataReferenceSpaceChangePending&)eventQueue.back();
+    XrEventDataReferenceSpaceChangePending evt = {};
     evt.type = XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING;
     evt.next = nullptr;
     evt.session = session;
@@ -313,20 +347,20 @@ void MockRuntime::SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpac
     evt.changeTime = 0;
     evt.poseValid = false;
     evt.poseInPreviousSpace = {{0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}};
+    QueueEvent(evt);
 }
 
 XrResult MockRuntime::CauseInstanceLoss()
 {
     instanceIsLost = true;
 
-    auto now = std::chrono::system_clock::now();
-    auto killTime = now + std::chrono::seconds(5);
+    auto killTime = std::chrono::system_clock::now() + std::chrono::seconds(5);
 
-    eventQueue.emplace();
-    auto& evt = (XrEventDataInstanceLossPending&)eventQueue.back();
-    evt.type = XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING;
-    evt.next = nullptr;
-    evt.lossTime = killTime.time_since_epoch().count();
+    QueueEvent(XrEventDataInstanceLossPending{
+        XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING,
+        nullptr,
+        killTime.time_since_epoch().count()});
+
     return XR_SUCCESS;
 }
 
@@ -353,6 +387,7 @@ XrResult MockRuntime::LocateSpace(XrSpace space, XrSpace baseSpace, XrTime time,
     // TODO: relative to the base space?
 
     location->pose = mockSpace->pose;
+    location->locationFlags = spaceLocationFlags;
 
     if (mockSpace->action != XR_NULL_HANDLE)
     {
@@ -369,8 +404,6 @@ XrResult MockRuntime::LocateSpace(XrSpace space, XrSpace baseSpace, XrTime time,
             break;
         }
     }
-
-    location->locationFlags = spaceLocationFlags;
 
     // Eye gaze extension
     if ((createFlags & MR_CREATE_EYE_GAZE_INTERACTION_EXT) != 0)
@@ -451,13 +484,13 @@ XrResult MockRuntime::GetEndFrameStats(int* primaryLayersRendered, int* secondar
 
 void MockRuntime::VisibilityMaskChangedKHR(XrViewConfigurationType viewConfigurationType, uint32_t viewIndex)
 {
-    eventQueue.emplace();
-    auto& evt = (XrEventDataVisibilityMaskChangedKHR&)eventQueue.back();
+    XrEventDataVisibilityMaskChangedKHR evt = {};
     evt.type = XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR;
     evt.next = nullptr;
     evt.session = session;
     evt.viewConfigurationType = viewConfigurationType;
     evt.viewIndex = viewIndex;
+    QueueEvent(evt);
 }
 
 XrResult MockRuntime::ValidateName(const char* name) const
@@ -872,27 +905,22 @@ XrPath MockRuntime::MakePath(XrPath userPath, XrPath componentPath) const
     return userPath | componentPath;
 }
 
-void MockRuntime::SetExpectedResultForFunction(const char* functionName, XrResult result)
+void MockRuntime::SetFunctionResult(const char* functionName, XrResult result)
 {
-    // TODO: Make thread safe
+    std::lock_guard<std::mutex> lock(s_ExpectedResultMutex);
+
     functionResultMap[functionName] = result;
 }
 
-XrResult MockRuntime::GetExpectedResultForFunction(const char* functionName)
+XrResult MockRuntime::GetFunctionResult(const char* functionName) const
 {
-    // TODO: Make thread safe
-    // Assume success if nothing else specified.
-    XrResult ret = XR_SUCCESS;
+    std::lock_guard<std::mutex> lock(s_ExpectedResultMutex);
 
     auto it = functionResultMap.find(functionName);
     if (it != functionResultMap.end())
-    {
-        XrResult ret = it->second;
-        functionResultMap.erase(it);
-        return ret;
-    }
+        return it->second;
 
-    return ret;
+    return XR_SUCCESS;
 }
 
 XrResult MockRuntime::SuggestInteractionProfileBindings(const XrInteractionProfileSuggestedBinding* suggestedBindings)
@@ -971,11 +999,7 @@ bool MockRuntime::SetActiveInteractionProfile(MockUserPath* mockUserPath, const 
 
     mockUserPath->profile = mockProfile;
 
-    eventQueue.emplace();
-    auto& evt = (XrEventDataInteractionProfileChanged&)eventQueue.back();
-    evt.type = XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED;
-    evt.next = nullptr;
-    evt.session = session;
+    QueueEvent(XrEventDataInteractionProfileChanged{XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED, nullptr, session});
 
     return true;
 }
@@ -1200,6 +1224,7 @@ XrResult MockRuntime::GetActionStateFloat(const XrActionStateGetInfo* getInfo, X
     }
 
     state->currentState = value;
+    state->lastChangeTime = GetPredictedTime();
     return XR_SUCCESS;
 }
 
@@ -1229,6 +1254,7 @@ XrResult MockRuntime::GetActionStateBoolean(const XrActionStateGetInfo* getInfo,
     }
 
     state->currentState = (XrBool32)value;
+    state->lastChangeTime = GetPredictedTime();
     return XR_SUCCESS;
 }
 
@@ -1265,6 +1291,7 @@ XrResult MockRuntime::GetActionStateVector2f(const XrActionStateGetInfo* getInfo
     }
 
     state->currentState = value;
+    state->lastChangeTime = GetPredictedTime();
     return XR_SUCCESS;
 }
 
@@ -1281,6 +1308,15 @@ XrResult MockRuntime::GetActionStatePose(const XrActionStateGetInfo* getInfo, Xr
         return XR_ERROR_ACTIONSET_NOT_ATTACHED;
 
     state->isActive = !mockAction->bindings.empty();
+
+    // Conformance automation can disable a user path so if enabled
+    // make sure any given subpaths are checked for being deactivated.
+    if (IsConformanceAutomationEnabled() && getInfo->subactionPath != XR_NULL_PATH)
+    {
+        MockUserPath* mockUserPath = GetMockUserPath(getInfo->subactionPath);
+        if (nullptr != mockUserPath)
+            state->isActive = ConformanceAutomation_IsActive(XR_NULL_PATH, getInfo->subactionPath, state->isActive);
+    }
 
     return XR_SUCCESS;
 }
@@ -1466,6 +1502,8 @@ XrResult MockRuntime::ApplyHapticFeedback(const XrHapticActionInfo* hapticAction
     if (nullptr == mockAction)
         return XR_ERROR_HANDLE_INVALID;
 
+    QueueEvent(XrEventScriptEventMOCK{XR_TYPE_EVENT_SCRIPT_EVENT_MOCK, nullptr, XR_MOCK_SCRIPT_EVENT_HAPTIC_IMPULSE, (uint64_t)hapticActionInfo->action});
+
     return XR_SUCCESS;
 }
 
@@ -1481,6 +1519,8 @@ XrResult MockRuntime::StopHapticFeedback(const XrHapticActionInfo* hapticActionI
     MockAction* mockAction = GetMockAction(hapticActionInfo->action);
     if (nullptr == mockAction)
         return XR_ERROR_HANDLE_INVALID;
+
+    QueueEvent(XrEventScriptEventMOCK{XR_TYPE_EVENT_SCRIPT_EVENT_MOCK, nullptr, XR_MOCK_SCRIPT_EVENT_HAPTIC_STOP, (uint64_t)hapticActionInfo->action});
 
     return XR_SUCCESS;
 }
@@ -1590,9 +1630,9 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
 
-XrResult MockRuntime::RegisterEndFrameCallback(PFN_EndFrameCallback callback)
+XrResult MockRuntime::RegisterScriptEventCallback(PFN_ScriptEventCallback callback)
 {
-    endFrameCallback = callback;
+    scriptEventCallback = callback;
     return XR_SUCCESS;
 }
 

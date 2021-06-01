@@ -655,31 +655,5 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         }
 
-        [Test]
-        public void FeatureSetEnabledIfAllRequiredFeaturesEnabled()
-        {
-            OpenXRFeatureSetManager.InitializeFeatureSets(true);
-            var extInfo = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
-            foreach (var ext in extInfo.Features)
-            {
-                Assert.IsFalse(ext.Feature.enabled);
-            }
-
-            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
-            Assert.IsNotNull(foundFeatureSet);
-            Assert.IsFalse(foundFeatureSet.isEnabled);
-
-            foreach (var ext in extInfo.Features)
-            {
-                if (Array.IndexOf(foundFeatureSet.requiredFeatureIds, ext.Attribute.FeatureId) > -1)
-                {
-                    ext.Feature.enabled = true;
-                }
-            }
-
-            OpenXRFeatureSetManager.InitializeFeatureSets(true);
-            foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
-            Assert.IsTrue(foundFeatureSet.isEnabled);
-        }
     }
 }

@@ -25,9 +25,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             if (GUILayout.Button("Open Debugger Window"))
             {
-                RuntimeDebuggerWindow window = (RuntimeDebuggerWindow)EditorWindow.GetWindow(typeof(RuntimeDebuggerWindow));
-                window.Show();
-                window.titleContent = new GUIContent("OpenXR Runtime Debugger");
+                RuntimeDebuggerWindow.Init();
             }
 
             serializedObject.ApplyModifiedProperties();

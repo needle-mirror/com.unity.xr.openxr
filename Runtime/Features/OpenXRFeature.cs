@@ -127,39 +127,39 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual IntPtr HookGetInstanceProcAddr(IntPtr func) => func;
 
         /// <summary>
-        /// Called after the XR Loader is initialized and has created its subsystems.
+        /// Called after the OpenXR Loader is initialized and has created its subsystems.
         /// </summary>
         protected internal virtual void OnSubsystemCreate() { }
 
         /// <summary>
-        /// Called after the XR loader starts its subsystems.
+        /// Called after the OpenXR loader has started its subsystems.
         /// </summary>
         protected internal virtual void OnSubsystemStart() { }
 
         /// <summary>
-        /// Called before the XR loader stops its subsystems.
+        /// Called before the OpenXR loader stops its subsystems.
         /// </summary>
         protected internal virtual void OnSubsystemStop () { }
 
         /// <summary>
-        /// Called before the XR loader destroys its subsystems.
+        /// Called before the OpenXR loader destroys its subsystems.
         /// </summary>
         protected internal virtual void OnSubsystemDestroy () { }
 
         /// <summary>
-        /// Called when xrInstance is created.
+        /// Called after xrCreateInstance.
         /// </summary>
         /// <param name="xrInstance">Handle of the xrInstance</param>
         protected internal virtual bool OnInstanceCreate(ulong xrInstance) => true;
 
         /// <summary>
-        /// Called when xrSystemId is created.
+        /// Called after xrGetSystem.
         /// </summary>
         /// <param name="xrSystem">Handle of the xrSystemId</param>
         protected internal virtual void OnSystemChange (ulong xrSystem) { }
 
         /// <summary>
-        /// Called when xrSession is created.
+        /// Called after xrCreateSession.
         /// </summary>
         /// <param name="xrSession">Handle of the xrSession</param>
         protected internal virtual void OnSessionCreate(ulong xrSession) { }
@@ -171,7 +171,8 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnAppSpaceChange (ulong xrSpace) { }
 
         /// <summary>
-        /// Called when xrSessionState changes.
+        /// Called when the OpenXR loader receives the XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED event
+        /// from the runtime signaling that the XrSessionState has changed.
         /// </summary>
         /// <param name="oldState">Previous state</param>
         /// <param name="newState">New state</param>
@@ -190,7 +191,7 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnSessionEnd(ulong xrSession) { }
 
         /// <summary>
-        /// Called when the runtime sends an Exiting event.
+        /// Called when the runtime transitions to the XR_SESSION_STATE_EXITING state.
         /// </summary>
         /// <param name="xrSession">Handle of the xrSession</param>
         protected internal virtual void OnSessionExiting (ulong xrSession) { }
@@ -208,7 +209,8 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnInstanceDestroy (ulong xrInstance) { }
 
         /// <summary>
-        /// Notification to the feature implementer that the session is
+        /// Called when the runtime transitions to the XR_SESSION_STATE_LOSS_PENDING
+        /// state. This is a notification to the feature implementer that the session is
         /// about to be lost. This feature should do what it needs to do to
         /// prepare for potential session recreation.
         /// </summary>
@@ -216,7 +218,8 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnSessionLossPending(ulong xrSession) { }
 
         /// <summary>
-        /// Notification to the feature implementer that the instance is
+        /// Called when the OpenXR loader receives the XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING event
+        /// from the runtime.  This is a notification to the feature implementer that the instance is
         /// about to be lost. This feature should do what it needs to do to
         /// clean up in preparation for termination.
         /// </summary>

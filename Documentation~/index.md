@@ -38,7 +38,7 @@ Unity does not yet provide out-of-the-box solutions to the following when using 
 To enable OpenXR in your project, follow the steps below:
 
 1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
-2. Enable the **OpenXR** option and any **Feature Sets** for the runtimes you intend to target.
+2. Enable the **OpenXR** option and any **Feature Groups** for the runtimes you intend to target.
 3. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
 4. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
 
@@ -58,7 +58,7 @@ Features might introduce new validation steps. For more information, refer to sp
 Unity reports validation issues in the following locations:
 
 * XR Plug-in Management window: Icon next to the OpenXR loader.
-* Features pane: Icon next to the feature set containing the feature that is reporting a validation issue.
+* Features pane: Icon next to the feature group containing the feature that is reporting a validation issue.
 * Features pane: Icon next to each feature that is reporting a validation issue.
 * Console window, as the result of a build: Validation errors cause the build to terminate. Validation warnings do not terminate the build.
 
@@ -186,11 +186,11 @@ Features are a collection of Unity Assets that can be distributed through the Pa
 
 ![openxr-features-ui](images/openxr-features.png)
 
-You can enable, disable, and configure features from the **XR Plug-in Management &gt; OpenXR** window. There are two main sections: **Interaction Profiles** and **Feature Sets** .
+You can enable, disable, and configure features from the **XR Plug-in Management &gt; OpenXR** window. There are two main sections: **Interaction Profiles** and **Feature Groups** .
 
 **Interaction Profiles** are a specific type of feature that provide support for various controllers and input devices within OpenXR.  Generally you would add **Interaction Profiles** for each device that you are able to test with and intend to support.
 
-Feature sets are a grouping of features that a provider defines. Use them to easily select and group a number of features. Selecting a feature set in the left pane filters the set of features on the right to only the features that the set contains. You can then enable or disable these features individually.
+Feature groups are a grouping of features that a provider defines. Use them to easily select and group a number of features. Selecting group in the left pane filters the set of features on the right to only the features that the set contains. You can then enable or disable these features individually.
 
 Some features will will have links to documentation following their name as well as a gear icon to the right for additional configuration. 
 
@@ -236,9 +236,9 @@ You can also access all the settings in the **Features** window through script. 
     feature.enabled = ...;
 ```
 
-#### Iterating over all feature sets
+#### Iterating over all feature groups
 
-Feature sets are an Editor-only concept and as such can only be accessed in the Unity Editor.
+Feature groups are an Editor-only concept and as such can only be accessed in the Unity Editor.
 
 ```c#
 #if UNITY_EDITOR
@@ -252,9 +252,9 @@ Feature sets are an Editor-only concept and as such can only be accessed in the 
 #endif
 ```
 
-#### Iterating over features in a feature set
+#### Iterating over features in a feature group
 
-Feature sets are an Editor-only concept and as such can only be accessed in the Unity Editor.
+Feature groups are an Editor-only concept and as such can only be accessed in the Unity Editor.
 
 ```c#
 #if UNITY_EDITOR

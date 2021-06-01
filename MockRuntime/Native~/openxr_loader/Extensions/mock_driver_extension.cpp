@@ -24,7 +24,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrTransitionMockToStateUNIT
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrSetReturnCodeForFunctionUNITY(const char* functionName, XrResult result)
 {
     LOG_FUNC();
-    s_runtime->SetExpectedResultForFunction(functionName, result);
+    s_runtime->SetFunctionResult(functionName, result);
     return XR_SUCCESS;
 }
 
@@ -89,10 +89,10 @@ XrResult xrGetEndFrameStatsUNITY(int* primaryLayerCount, int* secondaryLayerCoun
     return s_runtime->GetEndFrameStats(primaryLayerCount, secondaryLayerCount);
 }
 
-XrResult xrRegisterEndFrameCallbackUNITY(PFN_EndFrameCallback callback)
+XrResult xrRegisterScriptEventCallbackUNITY(PFN_ScriptEventCallback callback)
 {
     CHECK_RUNTIME();
-    return s_runtime->RegisterEndFrameCallback(callback);
+    return s_runtime->RegisterScriptEventCallback(callback);
 }
 
 XrResult MockDriver_GetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
@@ -114,7 +114,7 @@ XrResult MockDriver_GetInstanceProcAddr(XrInstance instance, const char* name, P
     LOOKUP(xrSetSpacePoseUNITY);
     LOOKUP(xrSetViewPoseUNITY);
     LOOKUP(xrGetEndFrameStatsUNITY);
-    LOOKUP(xrRegisterEndFrameCallbackUNITY);
+    LOOKUP(xrRegisterScriptEventCallbackUNITY);
 
 #undef LOOKUP
 

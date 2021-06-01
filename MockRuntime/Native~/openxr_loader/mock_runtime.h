@@ -77,8 +77,8 @@ public:
         return isRunning;
     }
 
-    void SetExpectedResultForFunction(const char* name, XrResult result);
-    XrResult GetExpectedResultForFunction(const char* name);
+    void SetFunctionResult(const char* name, XrResult result);
+    XrResult GetFunctionResult(const char* name) const;
 
     XrResult RequestExitSession();
     bool HasExitBeenRequested() const
@@ -195,7 +195,7 @@ public:
 
     XrResult ActivateSecondaryView(XrViewConfigurationType viewConfiguration, bool activate);
 
-    XrResult RegisterEndFrameCallback(PFN_EndFrameCallback callback);
+    XrResult RegisterScriptEventCallback(PFN_ScriptEventCallback callback);
 
     XrResult GetSystemProperties(XrSystemId systemId, XrSystemProperties* properties);
 
@@ -309,6 +309,16 @@ private:
     XrResult MSFTSecondaryViewConfiguration_WaitFrame(const XrFrameWaitInfo* frameWaitInfo, XrFrameState* frameState);
     XrResult MSFTSecondaryViewConfiguration_EndFrame(const XrFrameEndInfo* frameEndInfo);
 
+    template <typename T>
+    void QueueEvent(const T& event)
+    {
+        QueueEvent((const XrEventDataBuffer&)event);
+    }
+
+    void QueueEvent(const XrEventDataBuffer& buffer);
+
+    XrEventDataBuffer GetNextEvent();
+
     std::vector<XrSecondaryViewConfigurationStateMSFT> secondaryViewConfigurationStates;
 
     //// XR_MSFT_first_person_observer
@@ -329,6 +339,8 @@ private:
     bool isRunning;
     bool exitSessionRequested;
     bool actionSetsAttached;
+    XrTime lastWaitFrame;
+    XrTime invalidTimeThreshold;
 
     std::map<XrViewConfigurationType, MockViewConfiguration> viewConfigurations;
 
@@ -355,7 +367,7 @@ private:
     std::vector<MockInputState> inputStates;
     std::vector<MockSpace> spaces;
 
-    PFN_EndFrameCallback endFrameCallback;
+    PFN_ScriptEventCallback scriptEventCallback;
 };
 
 extern MockRuntime* s_runtime;

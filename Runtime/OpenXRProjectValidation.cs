@@ -71,11 +71,11 @@ namespace UnityEditor.XR.OpenXR
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "At least one interaction profile must be enabled.  Please select which controllers you will be testing against in the Features menu.",
+                message = "At least one interaction profile must be added.  Please select which controllers you will be testing against in the Features menu.",
                 checkPredicate = () => OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
                 fixIt = OpenProjectSettings,
                 fixItAutomatic = false,
-                fixItMessage = "Open Project Settings to enable an interaction profile."
+                fixItMessage = "Open Project Settings to select one or more interaction profiles."
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -145,6 +145,18 @@ namespace UnityEditor.XR.OpenXR
                 },
                 error = true,
                 errorEnteringPlaymode = true,
+            },
+            new OpenXRFeature.ValidationRule()
+            {
+                message = "If targeting HoloLens V2 devices Run In Background should be enabled.",
+                checkPredicate = () =>
+                    EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer || PlayerSettings.runInBackground,
+                fixIt = () =>
+                {
+                    PlayerSettings.runInBackground = true;
+                },
+                fixItMessage = "Change Run In Background to True.",
+                error = false,
             },
         };
 

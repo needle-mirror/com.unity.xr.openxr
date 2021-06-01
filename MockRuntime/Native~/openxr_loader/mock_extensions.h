@@ -13,6 +13,7 @@ void ConformanceAutomation_Create();
 void ConformanceAutomation_Destroy();
 XrResult ConformanceAutomation_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function);
 XrResult ConformanceAutomation_GetInputState(MockInputState* state);
+bool ConformanceAutomation_IsActive(XrPath interactionProfile, XrPath userPath, bool defaultValue = true);
 
 // XR_KHR_win32_convert_performance_counter_time
 

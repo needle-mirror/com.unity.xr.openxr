@@ -17,18 +17,6 @@ namespace UnityEngine.XR.OpenXR.Tests
 {
     internal class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
-        [InputControlLayout(displayName = "Test Device")]
-        [Preserve]
-        public class TestDevice : UnityEngine.InputSystem.InputDevice
-        {
-            [InputControl, Preserve] public PoseControl TestPose { get; private set; }
-
-            protected override void FinishSetup()
-            {
-                TestPose = GetChildControl<PoseControl>("TestPose");
-            }
-        }
-
         [UnityTest]
         public IEnumerator SystemIdRetrieved()
         {
@@ -436,8 +424,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator UserPresence()
         {
-            EnableMockDriver();
-
             List<InputDevice> hmdDevices = new List<InputDevice>();
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeadMounted, hmdDevices);
             Assert.That(hmdDevices.Count == 0, Is.True);
@@ -518,8 +504,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CombinedFrustum()
         {
-            EnableMockDriver();
-
             var cameraGO = new GameObject("Test Cam");
             var camera = cameraGO.AddComponent<Camera>();
 
@@ -554,8 +538,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator InvalidLocateSpace()
         {
-            EnableMockDriver();
-
             MockRuntime.Instance.TestCallback = (methodName, param) =>
             {
                 switch (methodName)
@@ -583,7 +565,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator FirstPersonObserver()
         {
-            EnableMockDriver();
             base.InitializeAndStart();
 
             MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
@@ -624,8 +605,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [Test]
         public void InitializeException()
         {
-            EnableMockDriver();
-
             MockRuntime.Instance.TestCallback = (methodName, param) =>
             {
                 switch (methodName)
@@ -704,6 +683,42 @@ namespace UnityEngine.XR.OpenXR.Tests
             base.StopAndShutdown();
 
             yield return null;
+        }
+
+        /// <summary>
+        /// Test to make sure a runtime returning XR_ERROR_INVALID_TIME from xrLocateSpace and xrLocateViews
+        /// does not cause our GFX thread to shut down or fail in any other way .  When the GFX thread shuts
+        /// down xrWaitForXrFrame will time out so we use the that timeout to detect the error.
+        /// </summary>
+        /// <returns></returns>
+        [UnityTest]
+        public IEnumerator InvalidTime()
+        {
+            InitializeAndStart();
+
+            // Activate the first person observer as well because it contained code that was also causing the error.
+            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
+
+            yield return new WaitForXrFrame(2);
+
+            // xrLocateSpace returning XR_ERROR_INVALID_TIME.
+            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.TimeInvalid);
+            yield return new WaitForXrFrame(2, 1);
+
+            // xrLocateViews returning XR_ERROR_INVALID_TIME
+            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.Success);
+            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.TimeInvalid);
+            yield return new WaitForXrFrame(2, 1);
+
+            // Both xrLocateViews and xrLocateSpace returning XR_ERROR_INVALID_TIME
+            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.TimeInvalid);
+            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.TimeInvalid);
+            yield return new WaitForXrFrame(2, 1);
+
+            // Back to normal, make sure we recover
+            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.Success);
+            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.Success);
+            yield return new WaitForXrFrame(2, 1);
         }
     }
 }

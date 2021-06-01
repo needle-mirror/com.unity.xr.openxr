@@ -29,12 +29,28 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.mockdriver";
 
-        public delegate void EndFrameDelegate ();
+        public enum ScriptEvent
+        {
+            Unknown,
+            EndFrame,
+            HapticImpulse,
+            HapticStop
+        }
 
-        public static event EndFrameDelegate onEndFrame;
+        public delegate void ScriptEventDelegate (ScriptEvent evt, ulong param);
 
-        [AOT.MonoPInvokeCallback(typeof(EndFrameDelegate))]
-        private static void ReceiveEndFrame() => onEndFrame?.Invoke();
+        public static event ScriptEventDelegate onScriptEvent;
+
+        [AOT.MonoPInvokeCallback(typeof(ScriptEventDelegate))]
+        private static void ReceiveScriptEvent (ScriptEvent evt, ulong param) => onScriptEvent?.Invoke(evt, param);
+
+        /// <summary>
+        /// Reset the mock driver to its default state
+        /// </summary>
+        public static void ResetDefaults()
+        {
+            onScriptEvent = null;
+        }
 
         /// <inheritdoc />
         protected override bool OnInstanceCreate(ulong instance)
@@ -47,7 +63,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
             InitializeNative(xrGetInstanceProcAddr, instance, 0ul, 0ul);
 
-            MockDriver_RegisterEndFrameCallback(ReceiveEndFrame);
+            MockDriver_RegisterScriptEventCallback(ReceiveScriptEvent);
 
             return true;
         }
@@ -245,7 +261,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockDriver_ActivateSecondaryView")]
         internal static extern XrResult ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, bool activate);
 
-        [DllImport(extLib, EntryPoint = "MockDriver_RegisterEndFrameCallback")]
-        private static extern XrResult MockDriver_RegisterEndFrameCallback (EndFrameDelegate callback);
+        [DllImport(extLib, EntryPoint = "MockDriver_RegisterScriptEventCallback")]
+        private static extern XrResult MockDriver_RegisterScriptEventCallback (ScriptEventDelegate callback);
     }
 }

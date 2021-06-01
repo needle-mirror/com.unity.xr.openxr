@@ -7,6 +7,7 @@
 struct ConformanceAutomation
 {
     std::map<XrPath, MockInputState> states;
+    std::map<std::pair<XrPath, XrPath>, bool> activeStates;
 
     MockInputState& GetState(XrPath path, XrActionType actionType)
     {
@@ -25,7 +26,9 @@ static ConformanceAutomation* s_ext = nullptr;
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrSetInputDeviceActiveEXT(XrSession session, XrPath interactionProfile, XrPath topLevelPath, XrBool32 isActive)
 {
     LOG_FUNC();
+    CHECK_RUNTIME();
     CHECK_EXT();
+    s_ext->activeStates[std::pair<XrPath, XrPath>(interactionProfile, topLevelPath)] = isActive;
     return XR_SUCCESS;
 }
 
@@ -98,4 +101,16 @@ XrResult ConformanceAutomation_GetInputState(MockInputState* state)
     state->CopyValue(it->second);
 
     return XR_SUCCESS;
+}
+
+bool ConformanceAutomation_IsActive(XrPath interactionProfilePath, XrPath userPath, bool defaultValue)
+{
+    if (nullptr == s_ext)
+        return false;
+
+    auto active = s_ext->activeStates.find(std::pair<XrPath, XrPath>(interactionProfilePath, userPath));
+    if (active == s_ext->activeStates.end())
+        active = s_ext->activeStates.find(std::pair<XrPath, XrPath>(XR_NULL_PATH, userPath));
+
+    return (active != s_ext->activeStates.end()) ? active->second : defaultValue;
 }

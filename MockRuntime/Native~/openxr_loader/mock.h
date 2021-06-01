@@ -76,6 +76,7 @@ extern MockRuntime* s_runtime;
         if (result != XR_SUCCESS) \
             return result;        \
     }
+#define CHECK_FUNCTION_RESULT() CHECK_SUCCESS(s_runtime->GetFunctionResult(__FUNCTION__))
 
 #define DEBUG_LOG_EVERY_FUNC_CALL 0
 
@@ -87,6 +88,7 @@ extern MockRuntime* s_runtime;
 
 #include "openxr_mock_driver.h"
 
+#include "mock_events.h"
 #include "mock_extensions.h"
 #include "mock_input_state.h"
 #include "mock_runtime.h"
