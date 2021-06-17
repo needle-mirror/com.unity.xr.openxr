@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR
             else
             {
 
-                if (ShouldCancelQuit != null && ShouldCancelQuit.Invoke())
+                if (ShouldCancelQuit == null || ShouldCancelQuit.Invoke())
                 {
 #if UNITY_EDITOR
                     if (EditorApplication.isPlaying || EditorApplication.isPaused)

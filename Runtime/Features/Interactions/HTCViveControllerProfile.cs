@@ -460,6 +460,22 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                                 interactionProfileName = profile,
                             }
                         }
+                    },
+                    // Haptics
+                    new ActionConfig()
+                    {
+                        name = "haptic",
+                        localizedName = "Haptic Output",
+                        type = ActionType.Vibrate,
+                        usages = new List<string>() { "Haptic" },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = haptic,
+                                interactionProfileName = profile,
+                            }
+                        }
                     }
                 }
             };

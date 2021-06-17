@@ -618,7 +618,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                     },
                     new ActionConfig()
                     {
-                        name = "thumbstickTouch",
+                        name = "thumbstickTouched",
                         localizedName = "Thumbstick Touched",
                         type = ActionType.Binary,
                         usages = new List<string>()

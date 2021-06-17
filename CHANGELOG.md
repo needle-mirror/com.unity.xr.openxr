@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2021-06-17
+* Updated OpenXR Loader to 1.0.17 
+* Fixed missing haptic output on HTC Vive controller profile
+* Fixed bug that caused `ThumbstickTouched` binding on the `ValveIndex` controller profile to not work.
+* Changed `feature set` text to `feature group` in the top level XR-Management list
+* Fixed issue that would cause the app to not exit when closed by the runtime
+* Ensured a deterministic order of features within the OpenXR Settings
+
 ## [1.2.2] - 2021-06-01
 * Fixed a bug when using SteamVR runtime that would cause the view to stop rendering and input to stop tracking if the main thread stalled for too long.
 * Fixed bug with feature sets that could cause the XR Management check box to be out of sync with the checkbox on the OpenXR Settings page.

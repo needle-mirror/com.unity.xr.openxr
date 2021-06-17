@@ -140,11 +140,11 @@ namespace UnityEditor.XR.OpenXR.Features
                             isEnabled = false,
                             name = "Known Test",
                             featureSetId = "com.unity.xr.test.featureset",
-                            description = "Known Test feature set.",
+                            description = "Known Test feature group.",
                             downloadText = "Click here to go to the Unity main website.",
                             downloadLink = Constants.k_DocumentationURL,
                             uiName = new GUIContent("Known Test"),
-                            uiDescription = new GUIContent("Known Test feature set."),
+                            uiDescription = new GUIContent("Known Test feature group."),
                             helpIcon = new GUIContent("", CommonContent.k_HelpIcon.image, "Click here to go to the Unity main website."),
                         });
                     }
@@ -168,7 +168,7 @@ namespace UnityEditor.XR.OpenXR.Features
                             downloadText = featureSet.downloadText,
                             downloadLink = featureSet.downloadLink,
                             uiName = new GUIContent(featureSet.name),
-                            uiLongName = new GUIContent($"{featureSet.name} feature set"),
+                            uiLongName = new GUIContent($"{featureSet.name} feature group"),
                             uiDescription = new GUIContent(featureSet.description),
                             helpIcon = new GUIContent("", CommonContent.k_HelpIcon.image, featureSet.downloadText),
                         });
@@ -232,7 +232,7 @@ namespace UnityEditor.XR.OpenXR.Features
                             defaultFeatureIds = featureSetAttr.DefaultFeatureIds,
                             isInstalled = true,
                             uiName = new GUIContent(featureSetAttr.UiName),
-                            uiLongName = new GUIContent($"{featureSetAttr.UiName} feature set"),
+                            uiLongName = new GUIContent($"{featureSetAttr.UiName} feature group"),
                             uiDescription = new GUIContent(featureSetAttr.Description),
                             helpIcon = String.IsNullOrEmpty(featureSetAttr.Description) ? null : new GUIContent("", CommonContent.k_HelpIcon.image, featureSetAttr.Description),
                         };

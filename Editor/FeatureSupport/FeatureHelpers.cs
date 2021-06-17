@@ -222,7 +222,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
-            openXrSettings.features = all.ToArray();
+            openXrSettings.features = all.OrderBy(f => f.name).ToArray();
 
 #if UNITY_EDITOR
             // Ensure the settings are saved after the features are populated
