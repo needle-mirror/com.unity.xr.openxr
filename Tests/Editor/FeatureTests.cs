@@ -125,9 +125,10 @@ namespace UnityEditor.XR.OpenXR.Tests
             var packageSettings = OpenXRSettings.GetPackageSettings();
             Assert.IsNotNull(packageSettings);
 
-            // Test is not valid if there is not more than one interaction feature
+            // Ignore the test if there is not more than 1 build target.
             var features = packageSettings.GetFeatures<OculusTouchControllerProfile>().Select(f => f.feature).ToArray();
-            Assert.IsTrue(features.Length > 0);
+            if(features.Length < 2)
+                return;
 
             // Disable all of the oculus interaction features
             foreach (var feature in features)

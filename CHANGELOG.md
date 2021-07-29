@@ -4,6 +4,13 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.8] - 2021-07-29
+* Fixed an issue that was causing Oculus Android OpenGL builds to stop working after v31 of the oculus software was installed.
+* Fixed a bug that would cause Asset Bundles to fail building in some circumstances when OpenXR was included in the project.
+* Fixed a crash that would occur if XR was shut down from within a Feature callback.
+* Fixed a bug that was causing duplicate entries in the OpenXR Package Settings file.
+* Fixed a bug causing angular velocities on both the HMD and controllers to have the wrong sign when compared to the other Unity XR plugins
+
 ## [1.2.3] - 2021-06-17
 * Updated OpenXR Loader to 1.0.17 
 * Fixed missing haptic output on HTC Vive controller profile

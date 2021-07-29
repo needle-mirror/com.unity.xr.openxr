@@ -376,7 +376,6 @@ namespace UnityEngine.XR.OpenXR.Features
             var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
             if (openXrSettings == null)
             {
-                Debug.LogError("Invalid OpenXR Settings");
                 return;
             }
 

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEditor.Build;
+using UnityEditor.Experimental;
 using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
@@ -100,12 +102,23 @@ namespace UnityEditor.XR.OpenXR
             return OpenXRChooseRuntimeLibraries.GetLoaderLibraryPath();
         }
 
+        private bool IsValidBuildTargetGroup(BuildTargetGroup buildTargetGroup) =>
+            buildTargetGroup == BuildTargetGroup.Standalone ||
+            Enum.GetValues(typeof(BuildTarget)).Cast<BuildTarget>().Any(bt =>
+            {
+                var group = BuildPipeline.GetBuildTargetGroup(bt);
+                return group == buildTargetGroup && BuildPipeline.IsBuildTargetSupported(group, bt);
+            });
+
         public OpenXRSettings GetSettingsForBuildTargetGroup(BuildTargetGroup buildTargetGroup)
         {
             OpenXRSettings ret = null;
             Settings.TryGetValue(buildTargetGroup, out ret);
             if (ret == null)
             {
+                if (!IsValidBuildTargetGroup(buildTargetGroup))
+                    return null;
+
                 ret = ScriptableObject.CreateInstance<OpenXRSettings>();
                 if (Settings.ContainsKey(buildTargetGroup))
                 {

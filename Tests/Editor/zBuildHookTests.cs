@@ -55,7 +55,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             var result = BuildMockPlayer();
 
-            if(Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") == "1")
+            if (Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") == "1")
                 Assert.IsTrue(result.summary.result == BuildResult.Succeeded);
             else if (result.summary.result != BuildResult.Succeeded)
                 return;

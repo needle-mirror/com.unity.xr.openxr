@@ -1,6 +1,6 @@
 {
         "name": "OpenXR XR Plugin",
-        "version": "1.2.3",
+        "version": "1.2.8",
         "libraryName": "UnityOpenXR",
         "displays": [
                 {

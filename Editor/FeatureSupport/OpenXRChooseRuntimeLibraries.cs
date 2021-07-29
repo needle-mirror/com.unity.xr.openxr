@@ -109,5 +109,20 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
         }
+
+        [InitializeOnLoadMethod]
+        static void InitializeOnLoad ()
+        {
+            var importers = PluginImporter.GetAllImporters();
+
+            // fixes asset bundle building since IPreProcessBuildWithReport isn't called
+            foreach (var importer in importers)
+            {
+                if (importer.assetPath.Contains("openxr_loader"))
+                {
+                    importer.SetIncludeInBuildDelegate(path => false);
+                }
+            }
+        }
     }
 }

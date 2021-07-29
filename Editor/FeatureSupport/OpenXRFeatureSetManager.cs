@@ -18,22 +18,17 @@ namespace UnityEditor.XR.OpenXR.Features
     [InitializeOnLoad]
     public static class OpenXRFeatureSetManager
     {
-
-        static OpenXRFeatureSetManager()
+        [InitializeOnLoadMethod]
+        static void InitializeOnLoad ()
         {
+            void OnFirstUpdate()
+            {
+                EditorApplication.update -= OnFirstUpdate;
+                InitializeFeatureSets();
+            }
+
             OpenXRFeature.canSetFeatureDisabled = CanFeatureBeDisabled;
-            AssemblyReloadEvents.afterAssemblyReload += OnAssemblyReload;
-        }
-
-        static void OnAssemblyReload()
-        {
-            InitializeFeatureSets();
-        }
-
-        internal static void FirstRunInitOfFeatureSets()
-        {
-            EditorApplication.update -= FirstRunInitOfFeatureSets;
-            InitializeFeatureSets();
+            EditorApplication.update += OnFirstUpdate;
         }
 
         /// <summary>
