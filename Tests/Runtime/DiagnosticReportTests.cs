@@ -1,11 +1,5 @@
-using NUnit.Framework;
-
 using System;
-using System.Collections.Generic;
-
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.XR.OpenXR;
+using NUnit.Framework;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -230,101 +224,5 @@ Event 30: Event Body 30
 
         }
 
-        static readonly (string, string, string)[] k_CompanyValues = {
-                ("Windows Mixed Reality Runtime", "Microsoft", "is"),
-                ("Oculus", "Oculus", "is"),
-                ("SteamVR/OpenXR", "Valve", "is not"),
-                ("", "UNKNOWN COMPANY", "is not")
-        };
-
-        [Test]
-        public void AddRuntimeToCustomerSupportAddsCorrectCompanyInfoToReport(
-            [ValueSource("k_CompanyValues")](string runtime, string company, string supported) info)
-        {
-            string matchString = $"OpenXR Runtime:\n    {info.company}, which {info.supported} a Unity supported partner";
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportRuntimeInfo(info.runtime);
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf(matchString) > 0);
-        }
-
-
-        [Test]
-        public void AddDuplicateFeauterOnlyReportsOneIntance()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Microsoft Hand Interaction Profile");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Microsoft Hand Interaction Profile");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf("    Microsoft Hand Interaction Profile: Microsoft, which is a Unity supported partner") > 0);
-        }
-
-        [Test]
-        public void AddFeatureToCustomerSupportAddsCorrectCompanyInfoToReport()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Microsoft Hand Interaction Profile");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Eye Tracking");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Unity", "First Person Observer");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Valve", "Knuckles");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf("    Microsoft Hand Interaction Profile, Eye Tracking: Microsoft, which is a Unity supported partner") > 0);
-            Assert.IsTrue(report.IndexOf("    First Person Observer: Unity") > 0);
-            Assert.IsTrue(report.IndexOf("    Knuckles: Valve, which is not a Unity supported partner") > 0);
-        }
-
-        const string k_ExpectedCustomerSupportSupportedText = "Unity Support:\n    Unity supports the runtime and Unity OpenXR Features above. When requesting assistance, please copy the OpenXR section from ==== Start Unity OpenXR Diagnostic Report ==== to ==== End Unity OpenXR Diagnostic Report ==== to the bug or forum post.";
-        const string k_ExpectedCustomerSupportNotsupportedText = "Unity Support:\n    Unity doesn't support some aspects of the runtime and Unity OpenXR Features above. Please attempt to reproduce the issue with only Unity supported aspects before submitting an issue to Unity.";
-
-        [Test]
-        public void AddSupportedPartnersReportsSupported()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportRuntimeInfo("Windows Mixed Reality Runtime");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Microsoft Hand Interaction Profile");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Eye Tracking");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Unity", "First Person Observer");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf(k_ExpectedCustomerSupportSupportedText) > 0);
-        }
-
-        [Test]
-        public void AddUnsupportedPartnersReportsUnsupported()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportRuntimeInfo("Windows Mixed Reality Runtime");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Valve", "Knuckles");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf(k_ExpectedCustomerSupportNotsupportedText) > 0);
-        }
-
-        [Test]
-        public void AddMixedPartnersReportsUnsupported()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportRuntimeInfo("Windows Mixed Reality Runtime");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Microsoft Hand Interaction Profile");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Microsoft", "Eye Tracking");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Unity", "First Person Observer");
-            DiagnosticReport.AddCustomerSupportFeatureInfo("Valve", "Knuckles");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf(k_ExpectedCustomerSupportNotsupportedText) > 0);
-        }
-
-        [Test]
-        public void AddUnsupportedRuntimeReportsUnsupported()
-        {
-            DiagnosticReport.StartReport();
-            DiagnosticReport.AddCustomerSupportRuntimeInfo("SteamVR/OpenXR");
-            var report = DiagnosticReport.GenerateReport();
-
-            Assert.IsTrue(report.IndexOf(k_ExpectedCustomerSupportNotsupportedText) > 0);
-        }
     }
 }

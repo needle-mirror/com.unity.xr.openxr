@@ -4,6 +4,37 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2021-10-20
+### Added
+* Added API `OpenXRInput.SendHapticImpulse`
+* Added API `OpenXRInput.StopHaptics`
+* Added API `OpenXRInput.TryGetInputSourceName`
+* Added event `OpenXRRuntime.wantsToRestart`
+* Added event `OpenXRRuntime.wantsToQuit`
+* Added support for `XR_OCULUS_audio_device_guid
+` extension.
+* Added `Haptic` control to OpenXR Controller Profile layouts that can be bound to an action and used to trigger haptics using the new `OpenXRInput.SendHapticImpulse` API.
+
+### Fixed
+* Fixed ARM32 crash when OpenXR API layers were present
+  * [ISSUE-1355859](https://issuetracker.unity3d.com/issues/xr-uwp-any-openxr-layer-will-crash-unityopenxr-dot-dll-on-hololens2-when-compiling-with-arm32)
+* Fixed issue that would cause console errors if `OpenXRFeature.enable` was changed while  the OpenXR Projects Settings windows was open.
+* Fixed potential Android crash when shutting down.
+* Fixed potential crash with `XR_MSFT_SECONDARY_VIEW_CONFIGURATION_EXTENSION_NAME`
+* Fixed issue with alpha channel on Projection layer causing visual artifacts.
+  * [ISSUE-1338699](https://issuetracker.unity3d.com/issues/xr-openxr-a-black-background-is-rendered-in-hmd-when-using-solid-color-camera-clear-flags)
+  * [ISSUE-1349271](https://issuetracker.unity3d.com/issues/xr-sdk-openxr-post-processing-postexposure-effect-has-visual-artifacts)
+  * [ISSUE-1346455](https://issuetracker.unity3d.com/issues/xr-sdk-openxr-right-eye-contains-artifacts-when-taa-anti-aliasing-is-used-with-multi-pass-rendering-mode)
+  * [ISSUE-1336968](https://issuetracker.unity3d.com/issues/xr-openxr-oculus-post-processing-view-in-hmd-is-darker-and-sometimes-flickers-when-changing-depth-of-field-focus-distance)
+  * [ISSUE-1338696](https://issuetracker.unity3d.com/issues/xr-sdk-openxr-black-edges-are-rendered-on-the-game-objects-when-fxaa-anti-aliasing-is-used)
+* Fixed bug that caused Vulkan support on Oculus to stop working.
+* Fixed missing usages on `HoloLensHand` layout.
+* Fixed vulkan shared depth buffer on versions `2021.2.0b15` and `2022.1.0a8` or higher.
+
+### Updated
+* Improved `OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets` so that no internal methods are required after calling this.
+* Updated `Controller` sample to improve the visuals and use the new APIs
+
 ## [1.2.8] - 2021-07-29
 * Fixed an issue that was causing Oculus Android OpenGL builds to stop working after v31 of the oculus software was installed.
 * Fixed a bug that would cause Asset Bundles to fail building in some circumstances when OpenXR was included in the project.

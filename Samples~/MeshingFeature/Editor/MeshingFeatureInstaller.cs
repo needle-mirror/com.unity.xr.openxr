@@ -33,6 +33,13 @@ namespace UnityEditor.XR.OpenXR.Samples.MeshingFeature
 
         static MeshingFeatureInstaller()
         {
+            EditorApplication.update += Install;
+        }
+
+        private static void Install()
+        {
+            EditorApplication.update -= Install;
+
             // Automatically enable the feature
             FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
             var feature = OpenXRSettings.Instance.GetFeature<MeshingTeapotFeature>();

@@ -29,7 +29,7 @@ namespace UnityEngine.XR.OpenXR.Features
         [DllImport(Library, EntryPoint = "NativeConfig_GetEnvironmentBlendMode")]
         static extern int Internal_GetEnvironmentBlendMode();
 
-        [DllImport(Library, EntryPoint = "Internal_GetAppSpace")]
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetAppSpace")]
         static extern bool Internal_GetAppSpace(out ulong appSpace);
 
         [DllImport(Library, EntryPoint = "NativeConfig_GetProcAddressPtr")]
@@ -37,8 +37,5 @@ namespace UnityEngine.XR.OpenXR.Features
 
         [DllImport(Library, EntryPoint = "NativeConfig_SetProcAddressPtrAndLoadStage1")]
         internal static extern void Internal_SetProcAddressPtrAndLoadStage1(IntPtr func);
-
-        [DllImport(Library, EntryPoint = "Internal_GetActionId")]
-        internal static extern ulong Internal_GetAction(uint deviceId, string name);
     }
 }

@@ -30,8 +30,11 @@ struct RingBuf
 
     void Reset()
     {
-        offsets->clear();
-        offsets->push_back(0);
+        if (offsets != nullptr)
+        {
+            offsets->clear();
+            offsets->push_back(0);
+        }
     }
 
     void Destroy()

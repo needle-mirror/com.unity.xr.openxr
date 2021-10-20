@@ -14,12 +14,15 @@
         assert(ret == XR_SUCCESS); \
     }
 
+typedef XrResult(XRAPI_PTR* PFN_xrSetInputDeviceVelocityUNITY)(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, bool linearValid, XrVector3f linear, bool angularValid, XrVector3f angular);
+
 // OpenXR runtime functions
 PFN_xrSetInputDeviceActiveEXT unity_xrSetInputDeviceActiveEXT = nullptr;
 PFN_xrSetInputDeviceStateBoolEXT unity_xrSetInputDeviceStateBoolEXT = nullptr;
 PFN_xrSetInputDeviceStateFloatEXT unity_xrSetInputDeviceStateFloatEXT = nullptr;
 PFN_xrSetInputDeviceStateVector2fEXT unity_xrSetInputDeviceStateVector2fEXT = nullptr;
 PFN_xrSetInputDeviceLocationEXT unity_xrSetInputDeviceLocationEXT = nullptr;
+PFN_xrSetInputDeviceVelocityUNITY unity_xrSetInputDeviceVelocityUNITY = nullptr;
 
 // Trace for Debug
 static IUnityXRTrace* s_Trace = nullptr;
@@ -81,6 +84,15 @@ script_xrSetInputDeviceLocationEXT(XrSession session, XrPath topLevelPath, XrPat
     return XR_SUCCESS == unity_xrSetInputDeviceLocationEXT(session, topLevelPath, inputSourcePath, space, pose);
 }
 
+extern "C" bool UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
+script_xrSetInputDeviceVelocityUNITY(XrSession session, XrPath topLevelPath, XrPath inputSourcePath, bool linearValid, XrVector3f linear, bool angularValid, XrVector3f angular)
+{
+    if (nullptr == unity_xrSetInputDeviceVelocityUNITY)
+        return false;
+
+    return XR_SUCCESS == unity_xrSetInputDeviceVelocityUNITY(session, topLevelPath, inputSourcePath, linearValid, linear, angularValid, angular);
+}
+
 // Init
 
 extern "C" void UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
@@ -93,6 +105,7 @@ script_initialize(PFN_xrGetInstanceProcAddr xrGetInstanceProcAddr, XrInstance in
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceStateFloatEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceStateFloatEXT));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceStateVector2fEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceStateVector2fEXT));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceLocationEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceLocationEXT));
+    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceVelocityUNITY", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceVelocityUNITY));
 
     XR_TRACE_LOG(s_Trace, "[ConformanceAutomationExt] - script_initialize complete");
 }

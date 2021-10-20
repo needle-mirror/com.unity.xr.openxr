@@ -99,8 +99,6 @@ namespace UnityEditor.XR.OpenXR.Features
             if (newToggled != featureSet.isEnabled)
             {
                 featureSet.isEnabled = newToggled;
-                featureSet.wasChanged = true;
-                OpenXREditorSettings.Instance.SetFeatureSetSelected(activeBuildTargetGroup, featureSet.featureSetId, featureSet.isEnabled);
                 shouldApplyFeatureSetChanges = true;
             }
 

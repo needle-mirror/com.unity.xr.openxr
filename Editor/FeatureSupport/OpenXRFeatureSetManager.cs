@@ -15,7 +15,6 @@ namespace UnityEditor.XR.OpenXR.Features
     /// <summary>
     /// API for finding and managing feature sets for OpenXR.
     /// </summary>
-    [InitializeOnLoad]
     public static class OpenXRFeatureSetManager
     {
         [InitializeOnLoadMethod]
@@ -98,7 +97,10 @@ namespace UnityEditor.XR.OpenXR.Features
 
             public GUIContent helpIcon;
 
-            public bool wasChanged;
+            /// <summary>
+            /// Stores the previous known value of isEnabled as of the last call to `SetFeaturesFromEnabledFeatureSets`
+            /// </summary>
+            public bool wasEnabled;
         }
 
         static Dictionary<BuildTargetGroup, List<FeatureSetInfo>> s_AllFeatureSets = null;
@@ -113,6 +115,10 @@ namespace UnityEditor.XR.OpenXR.Features
 
         static Dictionary<BuildTargetGroup, FeatureSetState> s_FeatureSetState = new Dictionary<BuildTargetGroup, FeatureSetState>();
 
+        /// <summary>
+        /// Event called when the feature set state has been changed.
+        /// </summary>
+        internal static event Action<BuildTargetGroup> onFeatureSetStateChanged;
 
         /// <summary>
         /// The current active build target. Used to handle callbacks from <see cref="OpenXRFeature.enabled" /> into
@@ -215,8 +221,10 @@ namespace UnityEditor.XR.OpenXR.Features
                             s_AllFeatureSets.Add(key, new List<FeatureSetInfo>());
                         }
 
+                        var isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(buildTargetGroup, featureSetAttr.FeatureSetId);
                         var newFeatureSet = new FeatureSetInfo(){
-                            isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(buildTargetGroup, featureSetAttr.FeatureSetId),
+                            isEnabled = isEnabled,
+                            wasEnabled = isEnabled,
                             name = featureSetAttr.UiName,
                             description = featureSetAttr.Description,
                             featureSetId = featureSetAttr.FeatureSetId,
@@ -352,6 +360,15 @@ namespace UnityEditor.XR.OpenXR.Features
             fsi.requiredToDisabledFeatureIds.Clear();
             fsi.defaultToEnabledFeatureIds.Clear();
 
+            // Update the selected feature set states first
+            foreach (var featureSet in featureSets)
+            {
+                if (featureSet.featureIds == null)
+                    continue;
+
+                OpenXREditorSettings.Instance.SetFeatureSetSelected(buildTargetGroup, featureSet.featureSetId, featureSet.isEnabled);
+            }
+
             foreach (var featureSet in featureSets)
             {
                 if (featureSet.featureIds == null)
@@ -362,7 +379,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     fsi.requiredToEnabledFeatureIds.UnionWith(featureSet.requiredFeatureIds);
                 }
 
-                if (featureSet.wasChanged)
+                if (featureSet.isEnabled != featureSet.wasEnabled)
                 {
                     if (featureSet.isEnabled && featureSet.defaultFeatureIds != null)
                     {
@@ -372,9 +389,9 @@ namespace UnityEditor.XR.OpenXR.Features
                     {
                         fsi.requiredToDisabledFeatureIds.UnionWith(featureSet.requiredFeatureIds);
                     }
-                }
 
-                featureSet.wasChanged = false;
+                    featureSet.wasEnabled = featureSet.isEnabled;
+                }
             }
 
             foreach (var ext in extInfo.Features)
@@ -390,6 +407,8 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             s_FeatureSetState[buildTargetGroup] = fsi;
+
+            onFeatureSetStateChanged?.Invoke(buildTargetGroup);
         }
 
         /// <summary>

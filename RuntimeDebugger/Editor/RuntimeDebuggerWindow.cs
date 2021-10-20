@@ -80,6 +80,15 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
         private string _lastRefreshStats;
 
+        void Clear()
+        {
+            DebuggerState.Clear();
+            treeView = null;
+            treeViewState = null;
+            _lastRefreshStats = "";
+            scrollpos = Vector2.zero;
+        }
+
         void OnGUI()
         {
             InitStyles();
@@ -117,7 +126,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                     if (debugger != null)
                         _lastRefreshStats = $"Last payload size: {DebuggerState._lastPayloadSize} ({((100.0f * DebuggerState._lastPayloadSize / debugger.cacheSize)):F2}% cache full) Number of Frames: {DebuggerState._frameCount}";
                     else
-                        _lastRefreshStats = $"Last payload size: {DebuggerState._lastPayloadSize}) Number of Frames: {DebuggerState._frameCount}";
+                        _lastRefreshStats = $"Last payload size: {DebuggerState._lastPayloadSize} Number of Frames: {DebuggerState._frameCount}";
                 });
 
                 _lastRefreshStats = "Refreshing ...";
@@ -137,12 +146,39 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             if (GUILayout.Button("Clear"))
             {
-                DebuggerState._functionCalls.Clear();
-                treeView = null;
-                treeViewState = null;
-                _lastRefreshStats = "";
-                scrollpos = Vector2.zero;
+                Clear();
             }
+
+            if (GUILayout.Button(EditorGUIUtility.IconContent("d_SaveAs")))
+            {
+                string path = EditorUtility.SaveFilePanel("Save OpenXR Dump", "", state.connectionName,"openxrdump");
+                if (path.Length != 0)
+                {
+                    DebuggerState.SaveToFile(path);
+                }
+            }
+
+            if (GUILayout.Button(EditorGUIUtility.IconContent("d_FolderOpened Icon")))
+            {
+                string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new [] { "OpenXR Dump", "openxrdump" });
+                if (path.Length != 0)
+                {
+                    Clear();
+
+                    DebuggerState.SetDoneCallback(() =>
+                    {
+                        if (treeViewState == null)
+                            treeViewState = new TreeViewState();
+
+                        treeView = new DebuggerTreeView(treeViewState);
+
+                        _lastRefreshStats = $"Last payload size: {DebuggerState._lastPayloadSize} Number of Frames: {DebuggerState._frameCount}";
+                    });
+
+                    DebuggerState.LoadFromFile(path);
+                }
+            }
+
 
             GUILayout.EndHorizontal();
 

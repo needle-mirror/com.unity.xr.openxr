@@ -137,11 +137,17 @@ namespace UnityEditor.XR.OpenXR
             return ret;
         }
 
-        internal void SetFeatureSetSelected(BuildTargetGroup buildTargetGroup, string featureSetId, bool selected)
+        /// <summary>
+        /// Set the selected state of the given feature set
+        /// </summary>
+        /// <returns>True if the state was changed, false if not</returns>
+        internal bool SetFeatureSetSelected(BuildTargetGroup buildTargetGroup, string featureSetId, bool selected)
         {
+            var dirty = false;
             if (!selectedFeatureSets.ContainsKey(buildTargetGroup))
             {
                 selectedFeatureSets.Add(buildTargetGroup, new BuildTargetFeatureSets() { featureSets = new List<string>() });
+                dirty = true;
             }
 
             var featureSets = selectedFeatureSets[buildTargetGroup].featureSets;
@@ -149,13 +155,18 @@ namespace UnityEditor.XR.OpenXR
             if (selected && !featureSets.Contains(featureSetId))
             {
                 featureSets.Add(featureSetId);
+                dirty = true;
             }
             else if (!selected && featureSets.Contains(featureSetId))
             {
                 featureSets.Remove(featureSetId);
+                dirty = true;
             }
 
-            EditorUtility.SetDirty(this);
+            if(dirty)
+                EditorUtility.SetDirty(this);
+
+            return dirty;
         }
     }
 }

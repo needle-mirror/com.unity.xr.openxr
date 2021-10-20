@@ -1,5 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Tests",
+    "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
@@ -8,9 +9,8 @@
         "Unity.XR.Management.Editor",
         "Unity.XR.OpenXR.Editor",
         "Unity.InputSystem",
-        "Unity.XR.OpenXR.TestHelpers",
-        "Unity.XR.OpenXR.Features.MockDriver",
-        "Unity.XR.OpenXR.Features.MockRuntime"
+        "Unity.XR.OpenXR.Features.MockRuntime",
+        "Unity.XR.OpenXR.Features.ConformanceAutomation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

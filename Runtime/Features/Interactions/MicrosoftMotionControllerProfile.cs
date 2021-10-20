@@ -43,73 +43,73 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="MicrosoftMotionControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "thumbstickaxes", "thumbstick" })]
+            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "thumbstickaxes", "thumbstick" }, usage = "Primary2DAxis")]
             public Vector2Control joystick { get; private set; }
 
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="MicrosoftMotionControllerProfile.trackpad"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Secondary2DAxis", "touchpadaxes", "trackpad" })]
+            [Preserve, InputControl(aliases = new[] { "Secondary2DAxis", "touchpadaxes", "trackpad" }, usage = "Secondary2DAxis")]
             public Vector2Control touchpad { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftMotionControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" })]
+            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" }, usage ="Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked" })]
+            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked" }, usage = "GripButton")]
             public ButtonControl gripPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.menu"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" })]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" }, usage = "MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftMotionControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "triggeraxis" })]
+            [Preserve, InputControl(aliases = new[] { "triggeraxis" }, usage = "Trigger")]
             public AxisControl trigger { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "triggerbutton" })]
+            [Preserve, InputControl(alias="triggerbutton", usage="TriggerButton")]
             public ButtonControl triggerPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.thumbstickClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "thumbstickpressed" })]
+            [Preserve, InputControl(aliases = new[] {"joystickClicked", "thumbstickpressed"}, usage = "Primary2DAxisClick")]
             public ButtonControl joystickClicked { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.trackpadClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "joystickorpadpressed", "touchpadpressed", "trackpadClicked" })]
+            [Preserve, InputControl(aliases = new[] { "joystickorpadpressed", "touchpadpressed", "trackpadClicked" }, usage = "Secondary2DAxisClick")]
             public ButtonControl touchpadClicked { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.trackpadTouch"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "joystickorpadtouched", "touchpadtouched", "trackpadTouched" })]
+            [Preserve, InputControl(aliases = new[] { "joystickorpadtouched", "touchpadtouched", "trackpadTouched" }, usage = "Secondary2DAxisTouch")]
             public ButtonControl touchpadTouched { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="MicrosoftMotionControllerProfile.grip"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" })]
+            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="MicrosoftMotionControllerProfile.aim"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "aimPose" })]
+            [Preserve, InputControl(offset = 0, aliases = new[] { "aimPose" }, usage = "Pointer")]
             public PoseControl pointer { get; private set; }
 
             /// <summary>
@@ -149,6 +149,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public QuaternionControl pointerRotation { get; private set; }
 
             /// <summary>
+            /// A <see cref="HapticControl"/> that represents the <see cref="MicrosoftMotionControllerProfile.haptic"/> binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "Haptic")]
+            public HapticControl haptic { get; private set; }
+
+            /// <summary>
             /// Internal call used to assign controls to the the correct element.
             /// </summary>
             protected override void FinishSetup()
@@ -174,6 +180,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
                 pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
 
+                haptic = GetChildControl<HapticControl>("haptic");
             }
         }
 
@@ -245,7 +252,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
-            InputSystem.InputSystem.RemoveLayout(typeof(WMRSpatialController).Name);
+            InputSystem.InputSystem.RemoveLayout(nameof(WMRSpatialController));
         }
 
         /// <inheritdoc/>
@@ -504,10 +511,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 // Haptics
                 new ActionConfig()
                 {
-                    name = "vibrate",
-                    localizedName = "Vibrate",
+                    name = "haptic",
+                    localizedName = "Haptic Output",
                     type = ActionType.Vibrate,
-                    usages = new List<string>(),
+                    usages = new List<string>() { "Haptic" },
                     bindings = new List<ActionBinding>()
                     {
                         new ActionBinding()

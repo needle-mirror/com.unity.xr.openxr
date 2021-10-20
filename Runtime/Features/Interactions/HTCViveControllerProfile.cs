@@ -142,6 +142,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             [Preserve, InputControl(offset = 104, alias = "pointerOrientation")]
             public QuaternionControl pointerRotation { get; private set; }
 
+            /// <summary>
+            /// A <see cref="HapticControl"/> that represents the <see cref="HTCViveControllerProfile.haptic"/> binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "Haptic")]
+            public HapticControl haptic { get; private set; }
+
             /// <inheritdoc cref="OpenXRDevice"/>
             protected override void FinishSetup()
             {
@@ -165,6 +171,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 trackingState = GetChildControl<IntegerControl>("trackingState");
                 devicePosition = GetChildControl<Vector3Control>("devicePosition");
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
+
+                haptic = GetChildControl<HapticControl>("haptic");
             }
         }
 

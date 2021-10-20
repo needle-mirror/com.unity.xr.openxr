@@ -43,115 +43,115 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="OculusTouchControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" })]
+            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis" )]
             public Vector2Control thumbstick { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="OculusTouchControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis" , "squeeze"})]
+            [Preserve, InputControl(aliases = new[] { "GripAxis" , "squeeze"}, usage = "Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked" })]
+            [Preserve, InputControl(aliases = new[] { "GripButton", "squeezeClicked" }, usage = "GripButton")]
             public ButtonControl gripPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.system"/> <see cref="OculusTouchControllerProfile.menu"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" })]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" }, usage = "Menu")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.buttonA"/> <see cref="OculusTouchControllerProfile.buttonX"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "A", "X", "buttonA", "buttonX" })]
+            [Preserve, InputControl(aliases = new[] { "A", "X", "buttonA", "buttonX" }, usage = "PrimaryButton")]
             public ButtonControl primaryButton { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.buttonATouch"/> <see cref="OculusTouchControllerProfile.buttonYTouch"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "ATouched", "XTouched", "ATouch", "XTouch", "buttonATouched", "buttonXTouched" })]
+            [Preserve, InputControl(aliases = new[] { "ATouched", "XTouched", "ATouch", "XTouch", "buttonATouched", "buttonXTouched" }, usage = "PrimaryTouch")]
             public ButtonControl primaryTouched { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.buttonB"/> <see cref="OculusTouchControllerProfile.buttonY"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "B", "Y", "buttonB", "buttonY" })]
+            [Preserve, InputControl(aliases = new[] { "B", "Y", "buttonB", "buttonY" }, usage = "SecondaryButton")]
             public ButtonControl secondaryButton { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.buttonBTouch"/> <see cref="OculusTouchControllerProfile.buttonYTouch"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "BTouched", "YTouched", "BTouch", "YTouch", "buttonBTouched", "buttonYTouched" })]
+            [Preserve, InputControl(aliases = new[] { "BTouched", "YTouched", "BTouch", "YTouch", "buttonBTouched", "buttonYTouched" }, usage = "SecondaryTouch")]
             public ButtonControl secondaryTouched { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="OculusTouchControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl]
+            [Preserve, InputControl(usage = "Trigger")]
             public AxisControl trigger { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "indexButton", "indexTouched", "triggerbutton" })]
+            [Preserve, InputControl(aliases = new[] { "indexButton", "indexTouched", "triggerbutton" }, usage = "TriggerButton")]
             public ButtonControl triggerPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.triggerTouch"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "indexTouch", "indexNearTouched" })]
+            [Preserve, InputControl(aliases = new[] { "indexTouch", "indexNearTouched" }, usage = "TriggerTouch")]
             public ButtonControl triggerTouched { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.thumbstickClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked"})]
+            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked"}, usage = "Primary2DAxisClick")]
             public ButtonControl thumbstickClicked { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.thumbstickTouch"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "JoystickOrPadTouched", "thumbstickTouch", "joystickTouched" })]
+            [Preserve, InputControl(aliases = new[] { "JoystickOrPadTouched", "thumbstickTouch", "joystickTouched" }, usage = "Primary2DAxisTouch")]
             public ButtonControl thumbstickTouched { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="OculusTouchControllerProfile.grip"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" })]
+            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="OculusTouchControllerProfile.aim"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "aimPose" })]
+            [Preserve, InputControl(offset = 0, alias = "aimPose", usage = "Pointer")]
             public PoseControl pointer { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) required for backwards compatibility with the XRSDK layouts. This represents the overall tracking state of the device. This value is equivalent to mapping devicePose/isTracked.
             /// </summary>
-            [Preserve, InputControl(offset = 28)]
+            [Preserve, InputControl(offset = 28, usage = "IsTracked")]
             new public ButtonControl isTracked { get; private set; }
 
             /// <summary>
             /// A [IntegerControl](xref:UnityEngine.InputSystem.Controls.IntegerControl) required for backwards compatibility with the XRSDK layouts. This represents the bit flag set to indicate what data is valid. This value is equivalent to mapping devicePose/trackingState.
             /// </summary>
-            [Preserve, InputControl(offset = 32)]
+            [Preserve, InputControl(offset = 32, usage = "TrackingState")]
             new public IntegerControl trackingState { get; private set; }
 
             /// <summary>
-            /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for backwards compatibility with the XRSDK layouts. Tthis is the device position. For the Oculus Touch device, this is both the grip and the pointer position. This value is equivalent to mapping devicePose/position.
+            /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for backwards compatibility with the XRSDK layouts. This is the device position. For the Oculus Touch device, this is both the grip and the pointer position. This value is equivalent to mapping devicePose/position.
             /// </summary>
-            [Preserve, InputControl(offset = 36, aliases = new[] { "gripPosition" })]
+            [Preserve, InputControl(offset = 36, noisy = true, alias = "gripPosition")]
             new public Vector3Control devicePosition { get; private set; }
 
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the device orientation. For the Oculus Touch device, this is both the grip and the pointer rotation. This value is equivalent to mapping devicePose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 48, aliases = new[] { "gripOrientation" })]
+            [Preserve, InputControl(offset = 48, noisy = true, alias = "gripOrientation")]
             new public QuaternionControl deviceRotation { get; private set; }
 
             /// <summary>
@@ -163,8 +163,14 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the pointer rotation. This value is equivalent to mapping pointerPose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 108, aliases = new[] { "pointerOrientation" })]
+            [Preserve, InputControl(offset = 108, alias = "pointerOrientation")]
             public QuaternionControl pointerRotation { get; private set; }
+
+            /// <summary>
+            /// A <see cref="HapticControl"/> that represents the <see cref="OculusTouchControllerProfile.haptic"/> binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "Haptic")]
+            public HapticControl haptic { get; private set; }
 
             /// <summary>
             /// Internal call used to assign controls to the the correct element.
@@ -195,6 +201,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
                 pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
                 pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
+
+                haptic = GetChildControl<HapticControl>("haptic");
             }
         }
 
@@ -304,7 +312,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// <inheritdoc/>
         protected override void UnregisterDeviceLayout()
         {
-            InputSystem.InputSystem.RemoveLayout(typeof(OculusTouchController).Name);
+            InputSystem.InputSystem.RemoveLayout(nameof(OculusTouchController));
         }
 
         /// <inheritdoc/>
@@ -655,10 +663,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                     // Haptics
                     new ActionConfig()
                     {
-                        name = "vibrate",
-                        localizedName = "Vibrate",
+                        name = "haptic",
+                        localizedName = "Haptic Output",
                         type = ActionType.Vibrate,
-                        usages = new List<string>(),
+                        usages = new List<string>() { "Haptic" },
                         bindings = new List<ActionBinding>()
                         {
                             new ActionBinding()
@@ -674,8 +682,4 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             AddActionMap(actionMap);
         }
     }
-
-
-
-
 }

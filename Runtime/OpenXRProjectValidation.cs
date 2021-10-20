@@ -148,11 +148,30 @@ namespace UnityEditor.XR.OpenXR
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "If targeting HoloLens V2 devices Run In Background should be enabled.",
+                message = "If targeting HoloLens V2 devices either Run In Background should be enabled or you should install the Microsoft Mixed Reality OpenXR Plug-in and enable the Mixed Reality Features group.",
                 checkPredicate = () =>
-                    EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer || PlayerSettings.runInBackground,
+                {
+#if MICROSOFT_OPENXR_PACKAGE
+                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
+                    foreach (var hlf in hololensFeatures)
+                    {
+                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
+                            return hlf.enabled;
+                    }
+#endif //MICROSOFT_OPENXR_PACKAGE
+
+                    return EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer || PlayerSettings.runInBackground;
+                },
                 fixIt = () =>
                 {
+#if MICROSOFT_OPENXR_PACKAGE
+                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
+                    foreach (var hlf in hololensFeatures)
+                    {
+                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
+                            hlf.enabled = true;
+                    }
+#endif //MICROSOFT_OPENXR_PACKAGE
                     PlayerSettings.runInBackground = true;
                 },
                 fixItMessage = "Change Run In Background to True.",

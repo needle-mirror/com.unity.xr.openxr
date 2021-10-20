@@ -130,23 +130,6 @@ namespace UnityEngine.XR.OpenXR
 
         private UnhandledExceptionEventHandler unhandledExceptionHandler = null;
 
-        private static OpenXRRestarter s_RestarterInstance = null;
-
-        internal OpenXRRestarter GetRestarter()
-        {
-            if (s_RestarterInstance == null)
-            {
-                var go = GameObject.Find("~oxrestarter");
-                if (go == null)
-                {
-                    go = new GameObject("~oxrestarter");
-                    go.hideFlags = HideFlags.HideAndDontSave;
-                }
-                s_RestarterInstance = go.AddComponent<OpenXRRestarter>();
-            }
-            return s_RestarterInstance;
-        }
-
         internal bool DisableValidationChecksOnEnteringPlaymode = false;
 
         static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -360,12 +343,13 @@ namespace UnityEngine.XR.OpenXR
             // calls xrBeginSession
             Internal_BeginSession();
 
+            OpenXRInput.AttachActionSets();
+
             // Note: Display has to be started before Input so that Input can have access to the Session object
             StartSubsystem<XRDisplaySubsystem>();
             if (!displaySubsystem?.running ?? false)
                 return false;
 
-            OpenXRInput.Start();
             StartSubsystem<XRInputSubsystem>();
             if (!inputSubsystem?.running ?? false)
                 return false;
@@ -411,8 +395,6 @@ namespace UnityEngine.XR.OpenXR
 
             if(displaySubsystem?.running ?? false)
                 StopSubsystem<XRDisplaySubsystem>();
-
-            OpenXRInput.Stop();
 
             Internal_EndSession();
         }
@@ -491,33 +473,13 @@ namespace UnityEngine.XR.OpenXR
 
         private void SetApplicationInfo()
         {
-            uint appVersion = 0;
-            uint engineVersion = 0;
+            var md5 = MD5.Create();
+            byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(Application.version));
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(data);
+            uint applicationVersionHash = BitConverter.ToUInt32(data, 0);
 
-            {
-                var md5 = MD5.Create();
-                byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(Application.version));
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(data);
-                appVersion = BitConverter.ToUInt32(data, 0);
-            }
-
-            {
-                var md5 = MD5.Create();
-                byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(Application.unityVersion));
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(data);
-                engineVersion = BitConverter.ToUInt32(data, 0);
-            }
-
-
-            var section = DiagnosticReport.GetSection("OpenXR Provider Info");
-            DiagnosticReport.AddSectionEntry(section, "Spec Version", $"{OpenXRRuntime.apiVersion}");
-            DiagnosticReport.AddSectionEntry(section, "Provider Version", $"{OpenXRRuntime.pluginVersion}");
-            DiagnosticReport.AddSectionEntry(section, "App", $"{Application.productName} {Application.version} #{appVersion}");
-            DiagnosticReport.AddSectionEntry(section, "Engine", $"{Application.unityVersion} #{engineVersion}");
-
-            Internal_SetApplicationInfo(Application.productName, appVersion, engineVersion);
+            Internal_SetApplicationInfo(Application.productName, Application.version, applicationVersionHash, Application.unityVersion);
         }
 
         private bool LoadOpenXRSymbols()
@@ -559,36 +521,37 @@ namespace UnityEngine.XR.OpenXR
             uint failedCount = 0;
             foreach (var feature in instance.features)
             {
-                if (feature != null && feature.enabled)
-                {
-                    ++count;
-                    if (string.IsNullOrEmpty(feature.openxrExtensionStrings))
-                    {
-                        requestedLog.Append($"    Name={feature.nameUi} Extension=NA Version={feature.version}\n");
-                        continue;
-                    }
-                    else
-                    {
-                        requestedLog.Append($"    Name={feature.nameUi} Extension={feature.openxrExtensionStrings} Version={feature.version}\n");
-                    }
+                if (feature == null || !feature.enabled)
+                    continue;
 
+                ++count;
+
+                requestedLog.Append($"  {feature.nameUi}: Version={feature.version}, Company=\"{feature.company}\"");
+
+                if (!string.IsNullOrEmpty(feature.openxrExtensionStrings))
+                {
+                    requestedLog.Append($", Extensions=\"{feature.openxrExtensionStrings}\"");
+
+                    // Check to see if any of the required extensions are not supported by the runtime
                     foreach (var extensionString in feature.openxrExtensionStrings.Split(' '))
                     {
-                        if (string.IsNullOrEmpty(extensionString)) continue;
+                        if (string.IsNullOrWhiteSpace(extensionString)) continue;
                         if (!Internal_RequestEnableExtensionString(extensionString))
                         {
                             ++failedCount;
-                            failedLog.Append($"    Name={feature.nameUi} Extension={extensionString}  Version={feature.version}\n");
+                            failedLog.Append($"  {extensionString}: Feature=\"{feature.nameUi}\": Version={feature.version}, Company=\"{feature.company}\"\n");
                         }
                     }
                 }
+
+                requestedLog.Append("\n");
             }
 
             var section = DiagnosticReport.GetSection("OpenXR Runtime Info");
             DiagnosticReport.AddSectionBreak(section);
-            DiagnosticReport.AddSectionEntry(section, "Features requested to be enabled", $"{count}\n{requestedLog.ToString()}");
+            DiagnosticReport.AddSectionEntry(section, "Features requested to be enabled", $"({count})\n{requestedLog.ToString()}");
             DiagnosticReport.AddSectionBreak(section);
-            DiagnosticReport.AddSectionEntry(section, "Features with extensions that failed to be enabled", $"{failedCount}\n{failedLog.ToString()}");
+            DiagnosticReport.AddSectionEntry(section, "Requested feature extensions not supported by runtime", $"({failedCount})\n{failedLog.ToString()}");
         }
 
         private static void DebugLogEnabledSpecExtensions()
@@ -599,39 +562,9 @@ namespace UnityEngine.XR.OpenXR
             var extensions = OpenXRRuntime.GetEnabledExtensions();
             var log = new StringBuilder($"({extensions.Length})\n");
             foreach(var extension in extensions)
-                log.Append($"  Name={extension} Version={OpenXRRuntime.GetExtensionVersion(extension)}\n");
+                log.Append($"  {extension}: Version={OpenXRRuntime.GetExtensionVersion(extension)}\n");
 
-            DiagnosticReport.AddSectionEntry(section, "Spec extensions enabled", log.ToString());
-        }
-
-        internal event Action<OpenXRLoaderBase> onAutoShutdown;
-
-        void ShutdownCompleted()
-        {
-            onAutoShutdown?.Invoke(this);
-        }
-
-        internal event Action<OpenXRLoaderBase> onAutoRestart;
-
-        void RestartCompleted()
-        {
-            onAutoRestart?.Invoke(this);
-        }
-
-
-        static void CreateRestarter(OpenXRLoaderBase loader, bool shouldRestart)
-        {
-            if (shouldRestart)
-            {
-                loader.GetRestarter().ShutdownAndRestartLoader(loader,
-                    () => { loader.ShutdownCompleted(); },
-                    () => { loader.RestartCompleted(); });
-            }
-            else
-            {
-                loader.GetRestarter().ShutdownLoader(loader,
-                    () => { loader.ShutdownCompleted(); });
-            }
+            DiagnosticReport.AddSectionEntry(section, "Runtime extensions enabled", log.ToString());
         }
 
         [AOT.MonoPInvokeCallback(typeof(ReceiveNativeEventDelegate))]
@@ -644,7 +577,7 @@ namespace UnityEngine.XR.OpenXR
             switch (e)
             {
                 case OpenXRFeature.NativeEvent.XrRestartRequested:
-                    CreateRestarter(loader, true);
+                    OpenXRRestarter.Instance.ShutdownAndRestart();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrReady:
@@ -666,28 +599,20 @@ namespace UnityEngine.XR.OpenXR
 
             switch (e)
             {
-                case OpenXRFeature.NativeEvent.XrInstanceChanged:
-                    OpenXRInput.InstanceHasChanged();
-                    OpenXRInput.SendActionDataToProvider();
-                    break;
-                case OpenXRFeature.NativeEvent.XrSessionChanged:
-                    OpenXRInput.CreateActionsAndSuggestedBindings();
-                    OpenXRInput.AttachActionSetsToSession();
-                    break;
                 case OpenXRFeature.NativeEvent.XrStopping:
                     loader.StopInternal();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrExiting:
-                    CreateRestarter(loader, false);
+                    OpenXRRestarter.Instance.Shutdown();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrLossPending:
-                    CreateRestarter(loader, true);
+                    OpenXRRestarter.Instance.ShutdownAndRestart();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrInstanceLossPending:
-                    OpenXRLoader.CreateRestarter(loader, false);
+                    OpenXRRestarter.Instance.Shutdown();
                     break;
                 default:
                     break;

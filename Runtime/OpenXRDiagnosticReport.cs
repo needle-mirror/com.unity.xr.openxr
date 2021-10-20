@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR
 {
@@ -38,37 +35,6 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "DiagnosticReport_ReleaseReport")]
         static extern void Internal_ReleaseReport(IntPtr report);
 
-
-        public enum CustomerSupportEntryType
-        {
-            Runtime,
-            Feature
-        }
-
-        [DllImport(LibraryName, EntryPoint = "DiagnosticReport_AddCustomerSupportEntry")]
-        static extern void Internal_AddCustomerSupportEntry(CustomerSupportEntryType type, string company, string value);
-
-        static Dictionary<string, string> s_RuntimeMap = new Dictionary<string, string>(){
-            { "Windows Mixed Reality Runtime", "Microsoft" },
-            { "Microsoft Holographic AppRemoting Runtime", "Microsoft" },
-            { "Oculus", "Oculus"},
-            { "SteamVR/OpenXR", "Valve"},
-            { "Unity Mock Runtime", "Unity" },
-        };
-
-        public static void AddCustomerSupportRuntimeInfo(string runtimeName)
-        {
-            string company;
-            if (!s_RuntimeMap.TryGetValue(runtimeName, out company))
-                company = "UNKNOWN COMPANY";
-            Internal_AddCustomerSupportEntry(CustomerSupportEntryType.Runtime, company, "");
-        }
-
-        public static void AddCustomerSupportFeatureInfo(string company, string value)
-        {
-            Internal_AddCustomerSupportEntry(CustomerSupportEntryType.Feature, company, value);
-        }
-
         internal static string GenerateReport()
         {
             string ret = "";
@@ -85,17 +51,6 @@ namespace UnityEngine.XR.OpenXR
 
         public static void DumpReport(string reason)
         {
-            AddCustomerSupportRuntimeInfo(OpenXRRuntime.name);
-            var features = (OpenXRFeature[])OpenXRSettings.Instance.features.Clone();
-            foreach (var feature in features)
-            {
-                if (null == feature || !feature.enabled)
-                    continue;
-
-                if (String.IsNullOrEmpty(feature.company) || String.IsNullOrEmpty(feature.name))
-                    continue;
-                AddCustomerSupportFeatureInfo(feature.company, feature.name);
-            }
             Internal_DumpReport(reason);
         }
     }

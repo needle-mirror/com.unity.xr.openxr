@@ -14,10 +14,17 @@ namespace UnityEditor.XR.OpenXR.Samples.InterceptFeature
     public class InterceptFeatureInstaller
     {
 #if !UNITY_SAMPLE_DEV
-        private const string k_SamplePath = "Intercept Feature/Editor/InterceptFeatureAutoEnable.cs";
+        private const string k_SamplePath = "Intercept Feature/Editor/InterceptFeatureInstaller.cs";
 
         static InterceptFeatureInstaller()
         {
+            EditorApplication.update += Install;
+        }
+
+        private static void Install()
+        {
+            EditorApplication.update -= Install;
+
             // Automatically enable the feature
             FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
             var feature = OpenXRSettings.Instance.GetFeature<InterceptCreateSessionFeature>();

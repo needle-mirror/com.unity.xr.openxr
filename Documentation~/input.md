@@ -208,6 +208,10 @@ If you use OpenXR input with controllers or interactions such as eye gaze, Unity
 |Eye Gaze Interaction|`<EyeGaze>`|[EyeGazeInteraction](./features/eyegazeinteraction.md)|
 |Microsoft Hand Interaction|`<HololensHand>`|[MicrosoftHandInteraction](./features/microsofthandinteraction.md)|
 
+## Haptics
+
+OpenXR Controllers that support haptics contain a Haptic control that you can bind to an action in the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@latest). Set the action type to Haptic when binding an InputAction to a haptic. To send a haptic impulse, call the [OpenXRInput.SendHapticImpulse](xref:UnityEngine.XR.OpenXR.Input.OpenXRInput.SendHapticImpulse*) method and specify the InputAction that you bound to the Haptic control. You can cancel the haptic impulse by calling the [OpenXRInput.StopHaptics](UnityEngine.XR.OpenXR.Input.OpenXRInput.StopHaptics*) method.
+
 ## Debugging
 
 For more information on debugging OpenXR input, see the [Input System Debugging](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/Debugging.html) documentation.

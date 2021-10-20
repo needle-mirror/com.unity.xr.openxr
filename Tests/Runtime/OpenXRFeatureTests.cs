@@ -44,6 +44,23 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        public void FeatureFailedInitialization()
+        {
+            bool enableStatus = true;
+            //Force OnInstanceCreate returning false so that failedInitialization is true.
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
+                    return false;
+                return true;
+            };
+            base.InitializeAndStart();
+            enableStatus = MockRuntime.Instance.enabled;
+            MockRuntime.Instance.enabled = enableStatus;
+            Assert.IsTrue(MockRuntime.Instance.enabled == enableStatus);
+        }
+
+        [Test]
         public void GetFeatureCount()
         {
             Assert.IsTrue(OpenXRSettings.Instance.featureCount == OpenXRSettings.Instance.GetFeatures(typeof(OpenXRFeature)).Length);

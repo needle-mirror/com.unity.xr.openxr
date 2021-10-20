@@ -7,6 +7,8 @@ using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
+using UnityEngine.XR.OpenXR.Input;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR;
@@ -51,7 +53,7 @@ namespace UnityEngine.XR.OpenXR.Features
             get => m_enabled && (OpenXRLoaderBase.Instance == null || !failedInitialization);
             set
             {
-                if (m_enabled == value)
+                if (enabled == value)
                     return;
 
 #if UNITY_EDITOR
@@ -659,46 +661,11 @@ namespace UnityEngine.XR.OpenXR.Features
             Internal_SetProcAddressPtrAndLoadStage1(procAddr);
         }
 
-        [StructLayout(LayoutKind.Explicit, Size = kSize)]
-        private struct GetInternalDeviceIdCommand : IInputDeviceCommandInfo
-        {
-            private static FourCC Type => new FourCC('X', 'R', 'D', 'I');
-
-            private const int kSize = 8 + sizeof(uint);
-
-            [FieldOffset(0)] private InputDeviceCommand baseCommand;
-
-            [FieldOffset(8)] public readonly uint deviceId;
-
-            public FourCC typeStatic => Type;
-
-            public static GetInternalDeviceIdCommand Create() =>
-                new GetInternalDeviceIdCommand { baseCommand = new InputDeviceCommand(Type, kSize) };
-        }
-
         /// <summary>
         /// Returns XrAction handle bound to the given <see cref="UnityEngine.InputSystem.InputAction"/>.
         /// </summary>
         /// <param name="inputAction">Action to retrieve XrAction handles for</param>
         /// <returns>XrAction handle bound to the given <see cref="UnityEngine.InputSystem.InputAction"/> or 0 if there is no bound XrAction</returns>
-        protected ulong GetAction(InputAction inputAction)
-        {
-            if (inputAction == null || inputAction.controls.Count == 0)
-                return 0;
-
-            foreach (var control in inputAction.controls)
-            {
-                var command = GetInternalDeviceIdCommand.Create();
-                if (control.device.ExecuteCommand(ref command) <= 0)
-                    continue;
-
-                // Populate the action handles list and make sure we dont overflow
-                var xrAction = Internal_GetAction(command.deviceId, control.name);
-                if (xrAction != 0)
-                    return xrAction;
-            }
-
-            return 0;
-        }
+        protected ulong GetAction(InputAction inputAction) => OpenXRInput.GetActionHandle(inputAction);
     }
 }

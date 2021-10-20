@@ -43,25 +43,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="KHRSimpleControllerProfile.select"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Secondary", "selectbutton" })]
+            [Preserve, InputControl(aliases = new[] { "Secondary", "selectbutton" }, usage = "PrimaryButton")]
             public ButtonControl select { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="KHRSimpleControllerProfile.menu"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" })]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" }, usage ="MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents information from the <see cref="KHRSimpleControllerProfile.grip"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" })]
+            [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents information from the <see cref="KHRSimpleControllerProfile.aim"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, aliases = new[] { "aimPose" })]
+            [Preserve, InputControl(offset = 0, alias = "aimPose", usage = "Pointer")]
             public PoseControl pointer { get; private set; }
 
             /// <summary>
@@ -79,13 +79,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector3Control](xref:UnityEngine.InputSystem.Controls.Vector3Control) required for backwards compatibility with the XRSDK layouts. This is the device position, or grip position. This value is equivalent to mapping devicePose/position.
             /// </summary>
-            [Preserve, InputControl(offset = 8, aliases = new[] { "gripPosition" })]
+            [Preserve, InputControl(offset = 8, alias = "gripPosition")]
             new public Vector3Control devicePosition { get; private set; }
 
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the device orientation, or grip orientation. This value is equivalent to mapping devicePose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 20, aliases = new[] { "gripOrientation" })]
+            [Preserve, InputControl(offset = 20, alias = "gripOrientation")]
             new public QuaternionControl deviceRotation { get; private set; }
 
             /// <summary>
@@ -97,8 +97,14 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [QuaternionControl](xref:UnityEngine.InputSystem.Controls.QuaternionControl) required for backwards compatibility with the XRSDK layouts. This is the pointer rotation. This value is equivalent to mapping pointerPose/rotation.
             /// </summary>
-            [Preserve, InputControl(offset = 80, aliases = new[] { "pointerOrientation" })]
+            [Preserve, InputControl(offset = 80, alias = "pointerOrientation")]
             public QuaternionControl pointerRotation { get; private set; }
+
+            /// <summary>
+            /// A <see cref="HapticControl"/> that represents the <see cref="KHRSimpleControllerProfile.haptic"/> binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "Haptic")]
+            public HapticControl haptic { get; private set; }
 
             /// <inheritdoc  cref="OpenXRDevice"/>
             protected override void FinishSetup()
@@ -115,6 +121,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
                 pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
                 pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
+
+                haptic = GetChildControl<HapticControl>("haptic");
             }
         }
 
@@ -273,10 +281,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                     // Haptics
                     new ActionConfig()
                     {
-                        name = "vibrate",
-                        localizedName = "Vibrate",
+                        name = "haptic",
+                        localizedName = "Haptic Output",
                         type = ActionType.Vibrate,
-                        usages = new List<string>(),
+                        usages = new List<string>() { "Haptic" },
                         bindings = new List<ActionBinding>()
                         {
                             new ActionBinding()

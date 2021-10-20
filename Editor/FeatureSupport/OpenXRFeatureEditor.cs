@@ -44,7 +44,7 @@ namespace UnityEditor.XR.OpenXR.Features
         /// Path of the OpenXR settings in the Settings window. Uses "/" as separator. The last token becomes the settings label if none is provided.
         /// </summary>
         public const string k_FeatureSettingsPathUI =
-#if XR_MGMT_320
+#if XR_MGMT_3_2_0_OR_NEWER
             "Project/XR Plug-in Management/OpenXR/Features";
 #else
             "Project/XR Plugin Management/OpenXR/Features";
@@ -333,11 +333,8 @@ namespace UnityEditor.XR.OpenXR.Features
                                 var newToggleState = EditorGUILayout.ToggleLeft("", currentToggleState, GUILayout.ExpandWidth(false), GUILayout.Width(Styles.k_IconWidth), GUILayout.Height(lineHeight));
                                 if (newToggleState != currentToggleState)
                                 {
-                                    item.wasChanged = true;
                                     item.isEnabled = newToggleState;
-                                    OpenXREditorSettings.Instance.SetFeatureSetSelected(activeBuildTarget, item.featureSetId, item.isEnabled);
                                     OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets(activeBuildTarget);
-                                    mustInitializeFeatures = true;
                                 }
                             }
 
@@ -474,10 +471,12 @@ namespace UnityEditor.XR.OpenXR.Features
 
             if (buildTargetGroup != activeBuildTarget || mustInitializeFeatures)
             {
-                mustInitializeFeatures = false;
                 InitializeFeatures(buildTargetGroup);
                 OpenXRFeatureSetManager.activeBuildTarget = buildTargetGroup;
                 OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets(buildTargetGroup);
+
+                // This must be done after SetFeaturesFromEnabledFeatureSets to ensure we dont get an infinite update loop
+                mustInitializeFeatures = false;
 
                 if (EditorWindow.HasOpenInstances<OpenXRFeatureSettingsEditor>())
                 {
@@ -642,6 +641,14 @@ namespace UnityEditor.XR.OpenXR.Features
             if (TypeCache.GetTypesWithAttribute<OpenXRFeatureAttribute>().Count > 0)
                 return new OpenXRFeatureEditor();
             return null;
+        }
+
+        internal void OnFeatureSetStateChanged(BuildTargetGroup buildTargetGroup)
+        {
+            if (activeBuildTarget != buildTargetGroup)
+                return;
+
+            mustInitializeFeatures = true;
         }
     }
 }

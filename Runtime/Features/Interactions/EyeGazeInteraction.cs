@@ -43,7 +43,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A <see cref="PoseControl"/> representing the <see cref="EyeGazeInteraction.pose"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0)]
+            [Preserve, InputControl(offset = 0, usages = new [] {"Device", "gaze"})]
             public PoseControl pose { get; private set; }
 
             /// <inheritdoc/>
@@ -114,7 +114,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
-            InputSystem.InputSystem.RemoveLayout(nameof(EyeGazeDevice));
+            InputSystem.InputSystem.RemoveLayout("EyeGaze");
         }
 
         /// <inheritdoc/>
@@ -145,6 +145,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         type = ActionType.Pose,
                         usages = new List<string>()
                         {
+                            "Device",
                             "gaze"
                         },
                         bindings = new List<ActionBinding>()

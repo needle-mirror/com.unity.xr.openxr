@@ -17,10 +17,12 @@ namespace UnityEditor.XR.OpenXR.Tests
                 if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
                 {
                     instanceCreated = true;
-                    Assert.AreEqual(1, (ulong)param);
+                    Assert.AreEqual(10, (ulong)param);
                 }
                 return true;
             };
+
+            AddExtension(MockRuntime.XR_UNITY_mock_test);
 
             base.InitializeAndStart();
 

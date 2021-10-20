@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 using UnityEngine.Networking.PlayerConnection;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.Features.RuntimeDebugger.Editor")]
 namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
@@ -30,7 +34,20 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             kCacheNotLargeEnough,
         };
 
+        private const byte FileVersion = 0x1;
+        private static readonly byte[] Header = new byte[] { 0xea, 0x24, 0x39, 0x5c, 0xe0, 0xac, 0x79, FileVersion };
+
         internal static List<FunctionCall> _functionCalls = new List<FunctionCall>();
+        private static List<byte> saveToFile = new List<byte>(Header);
+
+        internal static void Clear()
+        {
+            _functionCalls.Clear();
+            saveToFile.Clear();
+
+            // version number
+            saveToFile.AddRange(Header);
+        }
 
         private static Action _doneCallback;
         internal static UInt32 _lastPayloadSize;
@@ -53,12 +70,40 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             return _sb.ToString();
         }
 
+        internal static void SaveToFile(string path)
+        {
+            using var stream = File.Open(path, FileMode.Create);
+            using var gzip = new GZipStream(stream, CompressionLevel.Optimal);
+            gzip.Write(saveToFile.ToArray(), 0, saveToFile.Count);
+        }
+
+        internal static void LoadFromFile(string path)
+        {
+            using var inStream = File.OpenRead(path);
+            var gzip = new GZipStream(inStream, CompressionMode.Decompress);
+            byte[] bytes;
+            using (var outStream = new MemoryStream())
+            {
+                gzip.CopyTo(outStream);
+                bytes = outStream.ToArray();
+            }
+
+            if (!Header.SequenceEqual(bytes.Take(8)))
+            {
+                Debug.Log("Wrong file format or version.");
+                return;
+            }
+
+            OnMessageEvent(new MessageEventArgs() {data = bytes.Skip(8).ToArray()});
+        }
+
         internal static void OnMessageEvent(MessageEventArgs args)
         {
             if (args == null || args.data == null)
                 return;
             _lastPayloadSize = (UInt32)args.data.Length;
             _frameCount = 0;
+            saveToFile.AddRange(args.data);
             try
             {
                 using (MemoryStream ms = new MemoryStream(args.data))

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -9,8 +11,8 @@ using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.TestTooling;
 using UnityEngine.XR.OpenXR.Features.Mock;
+using UnityEngine.XR.OpenXR.NativeTypes;
 using Assert = UnityEngine.Assertions.Assert;
-using XrSessionState = UnityEngine.XR.OpenXR.Features.Mock.MockDriver.XrSessionState;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
 [assembly:UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor)]
@@ -47,7 +49,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             var feature = GetFeature(featureType);
             Assert.IsNotNull(feature);
-            feature.enabled = true;
+            feature.enabled = enable;
             return feature;
         }
 
@@ -66,9 +68,6 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             if (feature.enabled == enable)
                 return true;
-
-            // Always enable/disable the mock driver when the runtime is enabled/disabled
-            EnableFeature<MockDriver>(enable);
 
             feature.enabled = enable;
             feature.openxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx;
@@ -109,7 +108,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             var featureTypes = new List<Type>();
             QueryBuildFeatures(featureTypes);
             featureTypes.Add(typeof(MockRuntime));
-            featureTypes.Add(typeof(MockDriver));
             foreach (var feature in featureTypes.Select(featureType => OpenXRSettings.Instance.GetFeature(featureType)).Where(feature => null != feature))
             {
                 feature.enabled = true;
@@ -136,26 +134,42 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Cache off the features before we start
             savedFeatures = (OpenXRFeature[])OpenXRSettings.Instance.features.Clone();
 
-            // Disable all features incase some features were enable before the tests started.
+            // Disable all features to make sure the feature list is clean before tests start.
             DisableAllFeatures();
+
+            // Enable the mock runtime and reset it back to default state
             Assert.IsTrue(EnableMockRuntime());
+            MockRuntime.ResetDefaults();
+            OpenXRRuntime.ClearEvents();
+            OpenXRRestarter.Instance.ResetCallbacks ();
+
 #pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
-            loader.GetRestarter().ShouldCancelQuit = () => false;
 #pragma warning restore CS0618
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown ()
+        {
+            // It is possible that a test may have done something to initiate the OpenXRRestarter.  To ensure
+            // that the restarter does not impact other tests we must make sure it finishes before continuing.
+            yield return new WaitForRestarter();
+
+            AfterTest();
+
+            yield return null;
         }
 
         // NOTE: If you override this function, do NOT add the SetUp test attribute.
         // If you do the overriden function and this function will be called separately
         // and will most likely invalidate your test or even crash Unity.
-        [TearDown]
         public virtual void AfterTest()
         {
 #pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
-            loader.GetRestarter().ShouldCancelQuit = null;
 #pragma warning restore CS0618
 
+            OpenXRRestarter.Instance.ResetCallbacks();
             StopAndShutdown();
             EnableMockRuntime(false);
             MockRuntime.Instance.TestCallback = (methodName, param) => true;
@@ -207,6 +221,22 @@ namespace UnityEngine.XR.OpenXR.Tests
             NUnit.Framework.Assert.IsTrue(hasNewState);
             NUnit.Framework.Assert.IsTrue(canTransitionTo);
         }
+
+        /// <summary>
+        /// Return true if the diagnostic report contains text that matches the given regex
+        /// </summary>
+        /// <param name="match">Regex to match</param>
+        /// <returns>True if the report matches the regex</returns>
+        protected bool DoesDiagnosticReportContain(Regex match) =>
+            match.IsMatch(DiagnosticReport.GenerateReport());
+
+        /// <summary>
+        /// Return true if the diagnostic report contains the given text
+        /// </summary>
+        /// <param name="match">String to search for</param>
+        /// <returns>True if the report contains the given text</returns>
+        protected bool DoesDiagnosticReportContain(string match) =>
+            DiagnosticReport.GenerateReport().Contains(match);
 
         protected void ProcessOpenXRMessageLoop() => loader.ProcessOpenXRMessageLoop();
     }

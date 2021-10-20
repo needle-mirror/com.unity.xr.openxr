@@ -4,6 +4,9 @@ using NUnit.Framework;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    /// <summary>
+    /// Custom yield instruction that waits for xrEndFrame to be called within OpenXR
+    /// </summary>
     internal class WaitForXrFrame  : CustomYieldInstruction
     {
         private int m_Frames = 0;
@@ -20,13 +23,13 @@ namespace UnityEngine.XR.OpenXR.Tests
                 if (m_Timer.ElapsedMilliseconds < m_Timeout)
                     return true;
 
-                MockDriver.onScriptEvent -= OnScriptEvent;
+                MockRuntime.onScriptEvent -= OnScriptEvent;
                 Assert.Fail("WaitForXrFrame: Timeout");
                 return false;
             }
         }
 
-        public WaitForXrFrame(int frames, float timeout = 10.0f)
+        public WaitForXrFrame(int frames = 1, float timeout = 10.0f)
         {
             m_Frames = frames;
             m_Timeout = (long)(timeout * 1000.0);
@@ -34,24 +37,23 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return;
 
             // Start waiting for a new frame count
-            var driver = OpenXRSettings.Instance.GetFeature<MockDriver>();
-            Assert.IsNotNull(driver, "MockDriver feature not found");
-            Assert.IsTrue(driver.enabled, "MockDriver feature must be enabled to use WaitForXrFrame");
-
-            MockDriver.onScriptEvent += OnScriptEvent;
+            MockRuntime.onScriptEvent += OnScriptEvent;
 
             m_Timer = new Stopwatch();
             m_Timer.Restart();
         }
 
-        private void OnScriptEvent(MockDriver.ScriptEvent evt, ulong param)
+        private void OnScriptEvent(MockRuntime.ScriptEvent evt, ulong param)
         {
+            if (evt != MockRuntime.ScriptEvent.EndFrame)
+                return;
+
             m_Frames--;
             if (m_Frames > 0)
                 return;
 
             m_Frames = 0;
-            MockDriver.onScriptEvent -= OnScriptEvent;
+            MockRuntime.onScriptEvent -= OnScriptEvent;
         }
     }
 }

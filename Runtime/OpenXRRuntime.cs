@@ -78,6 +78,68 @@ namespace UnityEngine.XR.OpenXR
             return extensions;
         }
 
+        /// <summary>
+        /// This event is raised when OpenXR wants the application to quit.
+        ///
+        /// Note that this event is raised before Application.wantsToQuit is raised and is generally
+        /// raised because the Runtime has requested the application quit.
+        ///
+        /// Return true and the quit process will continue.  Return false and the quit process will cancel.
+        /// </summary>
+        public static event Func<bool> wantsToQuit;
+
+        /// <summary>
+        /// This event is raised when OpenXR Runtime wants to restart the XR loader by shutting down
+        /// the loader and reinitializing it.
+        ///
+        /// Return true and the restart process will continue.  Return false and the XR loader will be
+        /// unloaded and the quit process will begin.
+        /// </summary>
+        public static event Func<bool> wantsToRestart;
+
+        /// <summary>
+        /// Invokes the given event function and returns true if all invocations return true
+        /// </summary>
+        /// <param name="func">Event function</param>
+        /// <returns>True if all event invocations return true</returns>
+        private static bool InvokeEvent (Func<bool> func)
+        {
+            if (func == null)
+                return true;
+
+            foreach (Func<bool> invocation in func.GetInvocationList())
+            {
+                try
+                {
+                    if (!invocation())
+                        return false;
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
+            return true;
+        }
+
+#if UNITY_INCLUDE_TESTS
+        internal static void ClearEvents ()
+        {
+            if(wantsToQuit != null)
+                foreach (Func<bool> f in wantsToQuit.GetInvocationList()) wantsToQuit -= f;
+
+            if(wantsToRestart != null)
+                foreach (Func<bool> f in wantsToRestart.GetInvocationList()) wantsToRestart -= f;
+
+            wantsToQuit = null;
+            wantsToRestart = null;
+        }
+#endif
+
+        internal static bool ShouldQuit() => InvokeEvent(wantsToQuit);
+        internal static bool ShouldRestart() => InvokeEvent(wantsToRestart);
+
         private const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRuntimeName")]
@@ -134,5 +196,35 @@ namespace UnityEngine.XR.OpenXR
             return true;
         }
 
+        [DllImport(LibraryName, EntryPoint = "session_GetLastError", CharSet = CharSet.Ansi)]
+        private static extern bool Internal_GetLastError(out IntPtr error);
+
+        /// <summary>
+        /// Returns the last error message that was issued in the native code
+        /// </summary>
+        /// <param name="error">Last error message</param>
+        /// <returns>True if there was an error message, false if not</returns>
+        internal static bool GetLastError(out string error)
+        {
+            if (!Internal_GetLastError(out var errorPtr))
+            {
+                error = "";
+                return false;
+            }
+
+            error = Marshal.PtrToStringAnsi(errorPtr);
+            return true;
+        }
+
+        /// <summary>
+        /// Logs the last error message if there is one to the console
+        /// </summary>
+        internal static void LogLastError()
+        {
+            if (GetLastError(out var error))
+            {
+                Debug.LogError(error);
+            }
+        }
     }
 }

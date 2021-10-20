@@ -16,6 +16,11 @@ namespace UnityEngine.XR.OpenXR.Features
     public abstract class OpenXRInteractionFeature : OpenXRFeature
     {
         /// <summary>
+        /// Temporary static list used for action map creation
+        /// </summary>
+        private static List<ActionMapConfig> m_CreatedActionMaps = null;
+
+        /// <summary>
         /// The underlying type of an OpenXR action. This enumeration contains all supported control types within OpenXR. This is used when declaring actions in OpenXR with XrAction/>.
         /// </summary>
         [Serializable]
@@ -97,7 +102,7 @@ namespace UnityEngine.XR.OpenXR.Features
             public string name;
 
             /// <summary>
-            /// Human readable name of the action map
+            /// Human readable name of the OpenXR user path that this device maps to.
             /// </summary>
             public string localizedName;
 
@@ -159,8 +164,6 @@ namespace UnityEngine.XR.OpenXR.Features
             public const string treadmill = "/user/treadmill";
         }
 
-        private bool m_AllowAddActionMap = false;
-
         /// <summary>
         /// Register a device layout with the Unity Input System.
         /// Called whenever this interaction profile is enabled in the Editor.
@@ -188,17 +191,19 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <inheritdoc/>
         protected internal override bool OnInstanceCreate (ulong xrSession)
         {
-#if !UNITY_EDITOR
-            // in standalone we need to register layouts so that they
-            // are available to the standalone runtime.
             RegisterDeviceLayout();
-#endif
-
-            m_AllowAddActionMap = true;
-            RegisterActionMapsWithRuntime();
-            m_AllowAddActionMap = false;
-
             return true;
+        }
+
+        /// <summary>
+        /// Request the feature create its action maps
+        /// </summary>
+        /// <param name="configs">Target list for the action maps</param>
+        internal void CreateActionMaps(List<ActionMapConfig> configs)
+        {
+            m_CreatedActionMaps = configs;
+            RegisterActionMapsWithRuntime();
+            m_CreatedActionMaps = null;
         }
 
         /// <summary>
@@ -209,13 +214,13 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <param name="map">Action map to add</param>
         protected void AddActionMap(ActionMapConfig map)
         {
-            if (!m_AllowAddActionMap)
-            {
-                Debug.LogError("ActionMap must be added from within the RegisterActionMapsWithRuntime method");
-                return;
-            }
+            if (null == map)
+                throw new ArgumentNullException("map");
 
-            OpenXRInput.AddActionMap(map);
+            if (null == m_CreatedActionMaps)
+                throw new InvalidOperationException("ActionMap must be added from within the RegisterActionMapsWithRuntime method");
+
+            m_CreatedActionMaps.Add(map);
         }
 
         /// <summary>
@@ -238,6 +243,23 @@ namespace UnityEngine.XR.OpenXR.Features
             {
                 UnregisterDeviceLayout();
             }
+#endif
+        }
+
+        internal static void RegisterLayouts()
+        {
+#if UNITY_EDITOR
+            // Find all enabled interaction features and force them to register their device layouts
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (null == packageSettings)
+                return;
+
+            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>().Where(f => f.feature.enabled).Select(f => f.feature))
+                feature.OnEnabledChange();
+#else
+            foreach(var feature in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
+                if (feature.enabled)
+                    ((OpenXRInteractionFeature) feature).RegisterDeviceLayout();
 #endif
         }
     }

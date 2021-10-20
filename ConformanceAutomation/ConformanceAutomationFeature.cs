@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using UnityEngine.XR.OpenXR.Input;
+using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
 #endif
@@ -33,7 +33,7 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         private static ulong xrSession = 0ul;
 
         /// <inheritdoc/>
-        protected override bool OnInstanceCreate(ulong instance)
+        protected internal override bool OnInstanceCreate(ulong instance)
         {
             if (!OpenXRRuntime.IsExtensionEnabled("XR_EXT_conformance_automation"))
             {
@@ -49,21 +49,21 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         }
 
         /// <inheritdoc/>
-        protected override void OnInstanceDestroy(ulong xrInstance)
+        protected internal override void OnInstanceDestroy(ulong xrInstance)
         {
             base.OnInstanceDestroy(xrInstance);
             ConformanceAutomationFeature.xrInstance = 0ul;
         }
 
         /// <inheritdoc/>
-        protected override void OnSessionCreate(ulong xrSessionId)
+        protected internal override void OnSessionCreate(ulong xrSessionId)
         {
             ConformanceAutomationFeature.xrSession = xrSessionId;
             base.OnSessionCreate(xrSession);
         }
 
         /// <inheritdoc/>
-        protected override void OnSessionDestroy(ulong xrSessionId)
+        protected internal override void OnSessionDestroy(ulong xrSessionId)
         {
             base.OnSessionDestroy(xrSessionId);
             ConformanceAutomationFeature.xrSession = 0ul;
@@ -156,6 +156,29 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
                 new XrPosef(position, orientation));
         }
 
+        /// <summary>
+        /// Set the angular and linear velocity of a pose
+        /// </summary>
+        /// <param name="topLevelPath">An OpenXRPath that specifies the OpenXR User Path of the value to be changed (e.g. /user/hand/left).</param>
+        /// <param name="inputSourcePath">An OpenXRPath that specifies the full path of the input component whose state you wish to set (e.g. /user/hand/left/input/select/click).</param>
+        /// <param name="linearValid">True if the linear velocity is valid</param>
+        /// <param name="linear">Linear velocity value</param>
+        /// <param name="angularValid">True if the angular velocity is valid</param>
+        /// <param name="angular">Angular velocity value</param>
+        /// <returns></returns>
+        public static bool ConformanceAutomationSetVelocity(string topLevelPath, string inputSourcePath, bool linearValid, Vector3 linear, bool angularValid, Vector3 angular)
+        {
+            return xrSetInputDeviceVelocityUNITY(
+                xrSession,
+                StringToPath(topLevelPath),
+                StringToPath(inputSourcePath),
+                linearValid,
+                new XrVector3f(-1.0f * linear), // Linear velocity is multiplied by -1 in the OpenXR plugin so it must be negated here as well
+                angularValid,
+                new XrVector3f(-1.0f * angular) // Angular velocity is multiplied by -1 in the OpenXR plugin so it must be negated here as well
+            );
+        }
+
         // Dll imports
 
         private const string ExtLib = "ConformanceAutomationExt";
@@ -182,5 +205,8 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceLocationEXT")]
         private static extern bool xrSetInputDeviceLocationEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, ulong space, XrPosef pose);
+
+        [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceVelocityUNITY")]
+        private static extern bool xrSetInputDeviceVelocityUNITY(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, bool linearValid, XrVector3f linear, bool angularValid, XrVector3f angular);
     }
 }

@@ -5,13 +5,8 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
-using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.TestTools;
-using UnityEngine.InputSystem.Layouts;
-using UnityEngine.Scripting;
-using UnityEngine.XR.OpenXR.Features.Interactions;
-using UnityEngine.XR.OpenXR.TestHelpers;
-using XrSessionState = UnityEngine.XR.OpenXR.Features.Mock.MockDriver.XrSessionState;
+using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -249,13 +244,13 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return true;
             };
 
-            Assert.AreEqual(XrSessionState.Unknown, (MockDriver.XrSessionState) MockRuntime.Instance.XrSessionState);
+            Assert.AreEqual(XrSessionState.Unknown, MockRuntime.sessionState);
             base.InitializeAndStart();
             yield return null;
-            Assert.AreEqual(XrSessionState.Focused, (MockDriver.XrSessionState) MockRuntime.Instance.XrSessionState);
+            Assert.AreEqual(XrSessionState.Focused, MockRuntime.sessionState);
             base.StopAndShutdown();
             yield return null;
-            Assert.AreEqual(XrSessionState.Unknown, (MockDriver.XrSessionState) MockRuntime.Instance.XrSessionState);
+            Assert.AreEqual(XrSessionState.Unknown, MockRuntime.sessionState);
 
             var expected = new List<XrSessionState>()
             {
@@ -371,41 +366,25 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CheckDisplayRestartAfterStopSendRestartEvent()
         {
-            bool onBeginSessionAfterEndSessionCalled = false;
-            bool onEndSessionCalled = false;
+            // Initialize and make sure the frame loop is running
+            InitializeAndStart();
+            yield return new WaitForXrFrame();
 
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
-            {
-                switch (methodName)
-                {
-                    case nameof(OpenXRFeature.OnSessionEnd):
-                        onEndSessionCalled = true;
-                        break;
-                    case nameof(OpenXRFeature.OnSessionBegin):
-                        onBeginSessionAfterEndSessionCalled = onEndSessionCalled;
-                        break;
-                }
+            // Stop the session and make sure xrEndSession is called
+            var endSessionCalled = false;
+            MockRuntime.SetFunctionCallback("xrEndSession", (func, result) => endSessionCalled = true);
 
-                return true;
-            };
+            Stop();
 
-            base.InitializeAndStart();
-            yield return null;
+            Assert.IsTrue(endSessionCalled);
 
-            base.Stop();
-            yield return null;
-
-            Assert.IsTrue(onEndSessionCalled);
-            Assert.IsFalse(onBeginSessionAfterEndSessionCalled);
-
-            var waiter = new WaitForLoaderRestart(loader);
-
+            // Restart the display subsystem which should force a restart
             loader.displaySubsystem.Start();
 
-            yield return waiter;
-
-            Assert.IsTrue(onEndSessionCalled);
-            Assert.IsTrue(onBeginSessionAfterEndSessionCalled);
+            // Wait for the restart to finish and then wait for a single Xr Frame, if things restarted
+            // properly then the frame loop should be back up and running
+            yield return new WaitForLoaderRestart();
+            yield return new WaitForXrFrame();
         }
 
         void DisableHandInteraction()
@@ -428,11 +407,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeadMounted, hmdDevices);
             Assert.That(hmdDevices.Count == 0, Is.True);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             // Wait two frames to let the input catch up with the renderer
-            yield return null;
-            yield return null;
+            yield return new WaitForXrFrame(2);
 
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeadMounted, hmdDevices);
             Assert.That(hmdDevices.Count > 0, Is.True);
@@ -441,14 +419,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(hasValue, Is.True);
             Assert.That(isUserPresent, Is.True);
 
-            MockDriver.TransitionToState(MockRuntime.Instance.XrSession, XrSessionState.Visible, true);
+            MockRuntime.TransitionToState(XrSessionState.Visible, true);
 
             // State transition doesnt happen immediately so make doubly sure it has happened before we try to get the new feature value
-            yield return null;
-            yield return null;
-            ProcessOpenXRMessageLoop();
-            yield return null;
-            yield return null;
+            yield return new WaitForXrFrame(2);
 
             hasValue = hmdDevices[0].TryGetFeatureValue(CommonUsages.userPresence, out isUserPresent);
             Assert.That(hasValue, Is.True);
@@ -544,9 +518,8 @@ namespace UnityEngine.XR.OpenXR.Tests
                 {
                     case nameof(OpenXRFeature.OnInstanceCreate):
                         // Set the location space to invalid data
-                        MockDriver.SetSpacePose(new Quaternion(0, 0, 0, 0), Vector3.zero, MockDriver.XrSpaceLocationFlags.None);
-                        MockDriver.SetViewPose(0, new Quaternion(0, 0, 0, 0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
-                        MockDriver.SetViewPose(1, new Quaternion(0, 0, 0, 0), Vector3.zero, Vector4.zero, MockDriver.XrViewStateFlags.None);
+                        MockRuntime.SetSpace(XrReferenceSpaceType.View, Vector3.zero, Quaternion.identity, XrSpaceLocationFlags.None);
+                        MockRuntime.SetViewState(XrViewConfigurationType.PrimaryStereo, XrViewStateFlags.None);
                         break;
                 }
 
@@ -558,7 +531,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Wait a few frames to let the input catch up with the renderer
             yield return new WaitForXrFrame(2);
 
-            MockDriver.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
+            MockRuntime.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
             Assert.IsTrue(primaryLayerCount == 0);
         }
 
@@ -567,18 +540,67 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             base.InitializeAndStart();
 
-            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
 
-            yield return new WaitForXrFrame(1);
+            yield return new WaitForXrFrame(2);
 
-            MockDriver.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
+            MockRuntime.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
             Assert.IsTrue(secondaryLayerCount == 1);
 
-            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, false);
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, false);
 
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 0);
+        }
+
+        [UnityTest]
+        public IEnumerator FirstPersonObserverRestartWhileActive()
+        {
+            base.InitializeAndStart();
+
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
             yield return new WaitForXrFrame(1);
 
-            MockDriver.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            MockRuntime.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 1);
+
+            // Transition to ready, which was causing a crash.
+            MockRuntime.TransitionToState(XrSessionState.Visible, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Synchronized, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Stopping, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Idle, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Ready, false);
+            yield return null;
+
+            // Check that secondary layer is still there
+            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 1);
+
+            // Transition back to focused
+            MockRuntime.TransitionToState(XrSessionState.Synchronized, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Visible, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Focused, false);
+            yield return null;
+
+            yield return new WaitForXrFrame(2);
+
+            // Verify secondary layer is still up and running
+            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 1);
+
+            // Make sure we can turn it off
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, false);
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
             Assert.IsTrue(secondaryLayerCount == 0);
         }
 
@@ -624,101 +646,103 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(OpenXRLoaderBase.Instance == null);
         }
 
-        private static (Type featureType, Type layoutType)[] interactionFeatureLayouts =
-        {
-            (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController)),
-            (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice)),
-            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController)),
-            (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand)),
-            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController)),
-            (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController)),
-            (typeof(ValveIndexControllerProfile), typeof(ValveIndexControllerProfile.ValveIndexController)),
-        };
-
-        /// <summary>
-        /// Ensures that the `interactionFeatureLayouts` list is not missing any entries
-        /// </summary>
-        [Test]
-        public void AllInteractionFeaturesCovered()
-        {
-            // Array of all known interaction features
-            var knownInteractionFeatures = OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>().Select(f => f.GetType()).ToArray();
-
-            // Array of interaction features being tested
-            var testedFeatures = interactionFeatureLayouts.Select(l => l.featureType).ToArray();
-
-            // Make sure the two arrays are equal
-            Assert.IsTrue(knownInteractionFeatures.Length == testedFeatures.Length && knownInteractionFeatures.Intersect(testedFeatures).Count() == knownInteractionFeatures.Length);
-        }
-
-        /// <summary>
-        /// Tests whether or not the device layout for an interaction feature is registered at runtime
-        /// </summary>
         [UnityTest]
-        public IEnumerator DeviceLayoutIsRegistered([ValueSource("interactionFeatureLayouts")] (Type featureType, Type layoutType) interactionFeature)
+        public IEnumerator WantsToRestartTrue ()
         {
-            // Disable all interaction features
-            foreach (var f in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
-            {
-                f.enabled = false;
+            OpenXRRuntime.wantsToRestart += () => true;
+            OpenXRRuntime.wantsToRestart += () => true;
+            OpenXRRuntime.wantsToRestart += () => true;
 
-                // This makes sure the interaction feature's device layout gets unregistered.
-                f.OnEnabledChange();
-            }
-
-            var feature = OpenXRSettings.Instance.GetFeature(interactionFeature.featureType) as OpenXRInteractionFeature;
-            Assert.IsNotNull(feature);
-
-            feature.enabled = true;
-
-            InputSystem.InputSystem.Update();
-
-            base.InitializeAndStart();
-
-            yield return null;
-
-            // Is the device layout enabled?
-            Assert.DoesNotThrow(() => InputSystem.InputSystem.LoadLayout(interactionFeature.layoutType.Name));
-
-            base.StopAndShutdown();
-
-            yield return null;
-        }
-
-        /// <summary>
-        /// Test to make sure a runtime returning XR_ERROR_INVALID_TIME from xrLocateSpace and xrLocateViews
-        /// does not cause our GFX thread to shut down or fail in any other way .  When the GFX thread shuts
-        /// down xrWaitForXrFrame will time out so we use the that timeout to detect the error.
-        /// </summary>
-        /// <returns></returns>
-        [UnityTest]
-        public IEnumerator InvalidTime()
-        {
             InitializeAndStart();
-
-            // Activate the first person observer as well because it contained code that was also causing the error.
-            MockDriver.ActivateSecondaryView(MockDriver.XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
 
             yield return new WaitForXrFrame(2);
 
-            // xrLocateSpace returning XR_ERROR_INVALID_TIME.
-            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.TimeInvalid);
-            yield return new WaitForXrFrame(2, 1);
+            MockRuntime.TransitionToState(XrSessionState.LossPending, true);
 
-            // xrLocateViews returning XR_ERROR_INVALID_TIME
-            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.Success);
-            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.TimeInvalid);
-            yield return new WaitForXrFrame(2, 1);
+            yield return new WaitForLoaderRestart();
+            yield return new WaitForXrFrame(1);
+        }
 
-            // Both xrLocateViews and xrLocateSpace returning XR_ERROR_INVALID_TIME
-            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.TimeInvalid);
-            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.TimeInvalid);
-            yield return new WaitForXrFrame(2, 1);
+        [UnityTest]
+        public IEnumerator WantsToRestartFalse()
+        {
+            OpenXRRuntime.wantsToRestart += () => true;
+            OpenXRRuntime.wantsToRestart += () => false;
+            OpenXRRuntime.wantsToRestart += () => true;
 
-            // Back to normal, make sure we recover
-            MockDriver.SetReturnCodeForFunction("xrLocateSpace", MockDriver.XrResult.Success);
-            MockDriver.SetReturnCodeForFunction("xrLocateViews", MockDriver.XrResult.Success);
-            yield return new WaitForXrFrame(2, 1);
+            InitializeAndStart();
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.TransitionToState(XrSessionState.LossPending, true);
+
+            yield return new WaitForLoaderShutdown();
+        }
+
+        [UnityTest]
+        public IEnumerator WantsToQuitTrue ()
+        {
+            var onQuit = false;
+            OpenXRRuntime.wantsToQuit += () => true;
+            OpenXRRuntime.wantsToQuit += () => true;
+            OpenXRRuntime.wantsToQuit += () => true;
+            OpenXRRestarter.Instance.onQuit += () => onQuit = true;
+
+            InitializeAndStart();
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.CauseInstanceLoss();
+
+            yield return new WaitForLoaderShutdown();
+
+            Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be running");
+            Assert.IsTrue(onQuit, "Quit was not called");
+        }
+
+        [UnityTest]
+        public IEnumerator WantsToQuitFalse ()
+        {
+            var onQuit = false;
+            OpenXRRuntime.wantsToQuit += () => true;
+            OpenXRRuntime.wantsToQuit += () => false;
+            OpenXRRuntime.wantsToQuit += () => true;
+            OpenXRRestarter.Instance.onQuit += () => onQuit = true;
+
+            InitializeAndStart();
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.CauseInstanceLoss();
+
+            yield return new WaitForLoaderShutdown();
+
+            Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be running");
+            Assert.IsFalse (onQuit, "Quit was not called");
+        }
+
+        [UnityTest]
+        public IEnumerator LossPendingCausesRestart ()
+        {
+            bool lossPendingReceived = false;
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                switch (methodName)
+                {
+                    case nameof(OpenXRFeature.OnSessionLossPending):
+                        lossPendingReceived = true;
+                        break;
+                }
+
+                return true;
+            };
+
+            InitializeAndStart();
+
+            yield return new WaitForXrFrame(1);
+
+            Assert.IsTrue(MockRuntime.TransitionToState(XrSessionState.LossPending, true), "Failed to transition to loss pending state");
+
+            yield return new WaitForLoaderRestart();
+
+            Assert.IsTrue(lossPendingReceived);
         }
     }
 }

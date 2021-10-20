@@ -44,6 +44,11 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
             #if !UNITY_EDITOR
             PlayerConnection.instance.Register(kEditorToPlayerRequestDebuggerOutput, RecvMsg);
             #endif
+
+            // Reset
+            Native_StartDataAccess();
+            Native_EndDataAccess();
+
             return Native_HookGetInstanceProcAddr(func, cacheSize, perThreadCacheSize);
         }
 
