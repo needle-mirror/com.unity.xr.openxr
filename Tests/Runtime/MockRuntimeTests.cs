@@ -300,7 +300,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return null;
 
             var points = new List<Vector3>();
-            Assert.IsTrue(input.TryGetBoundaryPoints(points), "Failed to get boundary points!");
+            input.TryGetBoundaryPoints(points);
             Assert.That(() => points.Count, Is.EqualTo(0), "Incorrect number of boundary points received!");
         }
 
@@ -335,7 +335,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return null;
 
             points.Clear();
-            Assert.IsTrue(input.TryGetBoundaryPoints(points), "Failed to get boundary points!");
+            input.TryGetBoundaryPoints(points);
             Assert.That(() => points.Count, Is.EqualTo(0), "Incorrect number of boundary points received!");
         }
 

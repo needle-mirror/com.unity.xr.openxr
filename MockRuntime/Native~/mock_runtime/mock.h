@@ -87,6 +87,29 @@ extern MockRuntime* s_runtime;
 #define LOG_FUNC()
 #endif
 
+XrResult MockRuntime_BeforeFunction(const char* name);
+void MockRuntime_AfterFunction(const char* name, XrResult result);
+
+#define MOCK_HOOK_AFTER_NAMED(name, result) MockRuntime_AfterFunction(name, result);
+#define MOCK_HOOK_AFTER(result) MOCK_HOOK_AFTER_NAMED(__FUNCTION__, result);
+
+#define MOCK_HOOK_BEFORE_NAMED(name)                        \
+    XrResult hookResult = MockRuntime_BeforeFunction(name); \
+    if (hookResult != XR_SUCCESS)                           \
+    {                                                       \
+        MOCK_HOOK_AFTER_NAMED(name, hookResult);            \
+        return hookResult;                                  \
+    }
+#define MOCK_HOOK_BEFORE() MOCK_HOOK_BEFORE_NAMED(__FUNCTION__)
+
+#define MOCK_HOOK_NAMED(name, x)             \
+    MOCK_HOOK_BEFORE_NAMED(name)             \
+    hookResult = (x);                        \
+    MOCK_HOOK_AFTER_NAMED(name, hookResult); \
+    return hookResult;
+
+#define MOCK_HOOK(x) MOCK_HOOK_NAMED(__FUNCTION__, (x))
+
 #include "mock_events.h"
 #include "mock_extensions.h"
 #include "mock_input_state.h"

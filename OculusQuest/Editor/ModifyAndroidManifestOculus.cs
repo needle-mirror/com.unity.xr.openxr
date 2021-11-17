@@ -82,10 +82,12 @@ namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
         private class AndroidManifest : AndroidXmlDocument
         {
             private readonly XmlElement ApplicationElement;
+            private readonly XmlElement ActivityIntentFilterElement;
 
             public AndroidManifest(string path) : base(path)
             {
                 ApplicationElement = SelectSingleNode("/manifest/application") as XmlElement;
+                ActivityIntentFilterElement = SelectSingleNode("/manifest/application/activity/intent-filter") as XmlElement;
             }
 
             private XmlAttribute CreateAndroidAttribute(string key, string value)
@@ -95,11 +97,32 @@ namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
                 return attr;
             }
 
+            private void UpdateOrCreateAttribute(XmlElement xmlParentElement, string tag, string key, string value)
+            {
+                // Get all child nodes that match the tag and see if value already exists
+                var xmlNodeList = xmlParentElement.SelectNodes(tag);
+                foreach (XmlNode node in xmlNodeList)
+                {
+                    foreach (XmlAttribute attrib in node.Attributes)
+                    {
+                        if (attrib.Value == value)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                XmlElement newElement = CreateElement(tag);
+                newElement.SetAttribute(key, AndroidXmlNamespace, value);
+                xmlParentElement.AppendChild(newElement);
+            }
+
             internal void AddOculusMetaData()
             {
-                var md = ApplicationElement.AppendChild(CreateElement("meta-data"));
-                md.Attributes.Append(CreateAndroidAttribute("name", "com.samsung.android.vr.application.mode"));
-                md.Attributes.Append(CreateAndroidAttribute("value", "vr_only"));
+                UpdateOrCreateAttribute(ActivityIntentFilterElement,
+                    "category",
+                    "name",
+                    "com.oculus.intent.category.VR");
             }
         }
     }

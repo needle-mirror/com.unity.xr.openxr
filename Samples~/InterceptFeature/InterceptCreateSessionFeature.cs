@@ -18,7 +18,7 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
         BuildTargetGroups = new []{BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Example feature extension showing how to intercept a single OpenXR function.",
-        DocumentationLink = Constants.k_DocumentationURL + "index.html",
+        DocumentationLink = Constants.k_DocumentationURL,
         OpenxrExtensionStrings = "XR_test", // this extension doesn't exist, a log message will be printed that it couldn't be enabled
         Version = "0.0.1",
         FeatureId = featureId)]

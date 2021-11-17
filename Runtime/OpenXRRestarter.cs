@@ -12,11 +12,10 @@ namespace UnityEngine.XR.OpenXR
 {
     internal class OpenXRRestarter : MonoBehaviour
     {
-#if UNITY_INCLUDE_TESTS
-        public Action onAfterRestart;
-        public Action onAfterShutdown;
-        public Action onQuit;
-        public Action onAfterCoroutine;
+        internal Action onAfterRestart;
+        internal Action onAfterShutdown;
+        internal Action onQuit;
+        internal Action onAfterCoroutine;
 
         public void ResetCallbacks ()
         {
@@ -25,7 +24,6 @@ namespace UnityEngine.XR.OpenXR
             onAfterCoroutine = null;
             onQuit = null;
         }
-#endif
 
         /// <summary>
         /// True if the restarter is currently running
@@ -93,13 +91,13 @@ namespace UnityEngine.XR.OpenXR
         {
             try
             {
+                yield return null;
+
                 // Always shutdown the loader
                 XRGeneralSettings.Instance.Manager.DeinitializeLoader();
                 yield return null;
 
-#if UNITY_INCLUDE_TESTS
                 onAfterShutdown?.Invoke();
-#endif
 
                 // Restart?
                 if (shouldRestart && OpenXRRuntime.ShouldRestart())
@@ -111,16 +109,14 @@ namespace UnityEngine.XR.OpenXR
                     if (XRGeneralSettings.Instance.Manager.activeLoader == null)
                         Debug.LogError("Failure to restart OpenXRLoader after shutdown.");
 
-#if UNITY_INCLUDE_TESTS
                     onAfterRestart?.Invoke();
-#endif
                 }
                 // Quit?
                 else if (OpenXRRuntime.ShouldQuit())
                 {
-#if UNITY_INCLUDE_TESTS
                     onQuit?.Invoke();
-#elif UNITY_EDITOR
+#if !UNITY_INCLUDE_TESTS
+#if UNITY_EDITOR
                     if (EditorApplication.isPlaying || EditorApplication.isPaused)
                     {
                         EditorApplication.ExitPlaymode();
@@ -128,14 +124,13 @@ namespace UnityEngine.XR.OpenXR
 #else
                     Application.Quit();
 #endif
+#endif
                 }
             }
             finally
             {
-#if UNITY_INCLUDE_TESTS
                 m_Coroutine = null;
                 onAfterCoroutine?.Invoke();
-#endif
             }
         }
     }

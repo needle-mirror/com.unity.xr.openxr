@@ -4,6 +4,18 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2021-11-17
+### Fixed
+* Fixed an issue in `OpenXRRestarter` that would prevent a subsequent restart.
+* Fixed an issue in `OpenXRRestarter` that would cause a restart to fail depending on where it was initiated in the stack.
+* Fixed an issue in UWP that would prevent the main window from being rendered to when using remoting.
+* Fixed incorrect negative values on controller linear velocities.
+* Fixed a bug in HMD trackingState that would cause tracking state to flip back and forth between two states every frame.
+
+### Updated
+* Updated documentation link to 1.3.
+* Updated Oculus Android manifest with intent-filter.
+
 ## [1.3.0] - 2021-10-20
 ### Added
 * Added API `OpenXRInput.SendHapticImpulse`

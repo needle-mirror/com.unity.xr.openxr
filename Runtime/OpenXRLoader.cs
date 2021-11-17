@@ -397,6 +397,8 @@ namespace UnityEngine.XR.OpenXR
                 StopSubsystem<XRDisplaySubsystem>();
 
             Internal_EndSession();
+
+            ProcessOpenXRMessageLoop();
         }
 
         /// <summary>

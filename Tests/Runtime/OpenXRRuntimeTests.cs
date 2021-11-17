@@ -387,6 +387,27 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForXrFrame();
         }
 
+        [UnityTest]
+        public IEnumerator SimulatePause ()
+        {
+            // Initialize and make sure the frame loop is running
+            InitializeAndStart();
+            yield return new WaitForXrFrame();
+
+            // Pause..
+            loader.displaySubsystem.Stop();
+            loader.inputSubsystem.Stop();
+
+            yield return null;
+            yield return null;
+
+            // Unpause
+            loader.displaySubsystem.Start();
+            loader.inputSubsystem.Start();
+
+            yield return new WaitForXrFrame();
+        }
+
         void DisableHandInteraction()
         {
             foreach (var ext in OpenXRSettings.Instance.features)
@@ -743,6 +764,44 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForLoaderRestart();
 
             Assert.IsTrue(lossPendingReceived);
+        }
+
+        [UnityTest]
+        public IEnumerator CreateSwapChainRuntimeError()
+        {
+            MockRuntime.SetFunctionCallback("xrCreateSwapchain", (func) => XrResult.RuntimeFailure);
+
+            InitializeAndStart();
+
+            yield return new WaitForLoaderShutdown();
+
+            Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be initialized");
+        }
+
+        [UnityTest]
+        public IEnumerator CreateSessionRuntimeError ()
+        {
+            MockRuntime.SetFunctionCallback("xrCreateSession", (func) => XrResult.RuntimeFailure);
+
+            InitializeAndStart();
+
+            yield return null;
+
+            Assert.IsTrue(DoesDiagnosticReportContain(new System.Text.RegularExpressions.Regex(@"xrCreateSession: XR_ERROR_RUNTIME_FAILURE")));
+            Assert.IsTrue(OpenXRLoader.Instance.currentLoaderState == OpenXRLoaderBase.LoaderState.Stopped, "OpenXR should be stopped");
+        }
+
+        [UnityTest]
+        public IEnumerator MultipleRestart()
+        {
+            InitializeAndStart();
+            yield return new WaitForXrFrame();
+
+            OpenXRRestarter.Instance.ShutdownAndRestart();
+            yield return new WaitForXrFrame();
+
+            OpenXRRestarter.Instance.ShutdownAndRestart();
+            yield return new WaitForXrFrame();
         }
     }
 }

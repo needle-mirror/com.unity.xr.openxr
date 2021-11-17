@@ -6,30 +6,11 @@ MockRuntime* s_runtime = nullptr;
 
 uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
 
-XrResult MockRuntime_BeforeFunction(const char* name);
-void MockRuntime_AfterFunction(const char* name, XrResult result);
-
 #define XR_UNITY_mock_test_SPEC_VERSION 123
 #define XR_UNITY_MOCK_TEST_EXTENSION_NAME "XR_UNITY_mock_test"
 
 #define XR_UNITY_null_gfx_SPEC_VERSION 1
 #define XR_UNITY_NULL_GFX_EXTENSION_NAME "XR_UNITY_null_gfx"
-
-#define MOCK_HOOK_AFTER(result) MockRuntime_AfterFunction(__FUNCTION__, result);
-
-#define MOCK_HOOK_BEFORE()                                          \
-    XrResult hookResult = MockRuntime_BeforeFunction(__FUNCTION__); \
-    if (hookResult != XR_SUCCESS)                                   \
-    {                                                               \
-        MOCK_HOOK_AFTER(hookResult);                                \
-        return hookResult;                                          \
-    }
-
-#define MOCK_HOOK(x)             \
-    MOCK_HOOK_BEFORE()           \
-    hookResult = (x);            \
-    MOCK_HOOK_AFTER(hookResult); \
-    return hookResult;
 
 #define ENUM_TO_STR(name, val)                                 \
     case val:                                                  \

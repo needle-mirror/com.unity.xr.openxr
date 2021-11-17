@@ -110,7 +110,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     categoryName = new GUIContent($"Category: {featureAttr.Category.ToString()}");
                     partner = new GUIContent($"Author: {featureAttr.Company}");
                     version = new GUIContent($"Version: {featureAttr.Version}");
-                    documentationLink = featureAttr.DocumentationLink;
+                    documentationLink = featureAttr.InternalDocumentationLink;
                     titleContent = uiName;
                 }
             }

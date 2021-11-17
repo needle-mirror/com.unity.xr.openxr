@@ -65,10 +65,8 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrEnumerateSwapch
     return XR_SUCCESS;
 }
 
-extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrCreateSwapchain(XrSession session, const XrSwapchainCreateInfo* createInfo, XrSwapchain* swapchain)
+static XrResult MockD3D11_xrCreateSwapchain(XrSession session, const XrSwapchainCreateInfo* createInfo, XrSwapchain* swapchain)
 {
-    LOG_FUNC();
-
     if (nullptr == s_MockD3D11.device)
         return XR_ERROR_RUNTIME_FAILURE;
 
@@ -105,6 +103,12 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrCreateSwapchain
     *swapchain = (XrSwapchain)texture;
 
     return XR_SUCCESS;
+}
+
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrCreateSwapchainHook(XrSession session, const XrSwapchainCreateInfo* createInfo, XrSwapchain* swapchain)
+{
+    LOG_FUNC();
+    MOCK_HOOK_NAMED("xrCreateSwapchain", MockD3D11_xrCreateSwapchain(session, createInfo, swapchain));
 }
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrDestroySwapChain(XrSwapchain swapchain)
@@ -170,7 +174,7 @@ XrResult MockD3D11_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* fun
 {
     GET_PROC_ADDRESS_REMAP(xrCreateSession, MockD3D11_xrCreateSession)
     GET_PROC_ADDRESS_REMAP(xrEnumerateSwapchainFormats, MockD3D11_xrEnumerateSwapchainFormats)
-    GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockD3D11_xrCreateSwapchain)
+    GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockD3D11_xrCreateSwapchainHook)
     GET_PROC_ADDRESS_REMAP(xrDestroySwapChain, MockD3D11_xrDestroySwapChain)
     GET_PROC_ADDRESS_REMAP(xrEnumerateSwapchainImages, MockD3D11_xrEnumerateSwapchainImages)
     GET_PROC_ADDRESS_REMAP(xrAcquireSwapchainImage, MockD3D11_xrAcquireSwapchainImage)

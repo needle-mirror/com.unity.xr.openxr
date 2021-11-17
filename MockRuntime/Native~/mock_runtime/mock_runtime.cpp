@@ -810,11 +810,11 @@ XrResult MockRuntime::RequestExitSession()
     if (!IsSessionRunning())
         return XR_ERROR_SESSION_NOT_RUNNING;
 
+    exitSessionRequested = true;
+
     ChangeSessionStateFrom(XR_SESSION_STATE_FOCUSED, XR_SESSION_STATE_VISIBLE);
     ChangeSessionStateFrom(XR_SESSION_STATE_VISIBLE, XR_SESSION_STATE_SYNCHRONIZED);
     ChangeSessionStateFrom(XR_SESSION_STATE_SYNCHRONIZED, XR_SESSION_STATE_STOPPING);
-
-    exitSessionRequested = true;
 
     return XR_SUCCESS;
 }

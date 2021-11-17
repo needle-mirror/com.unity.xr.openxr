@@ -15,7 +15,7 @@ namespace UnityEngine.XR.OpenXR.Samples.MeshingFeature
         BuildTargetGroups = new []{BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Example feature extension showing how supply a mesh from native code.",
-        DocumentationLink = Constants.k_DocumentationURL + "index.html",
+        DocumentationLink = Constants.k_DocumentationURL,
         OpenxrExtensionStrings = "",
         Version = "0.0.1",
         FeatureId = featureId)]

@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.XR.OpenXR;
 
 #if UNITY_EDITOR
 namespace UnityEditor.XR.OpenXR.Features
@@ -86,6 +87,33 @@ namespace UnityEditor.XR.OpenXR.Features
         /// A well known string id for this feature. It is recommended that that id be in reverse DNS naming format (com.foo.bar.feature).
         /// </summary>
         public string FeatureId = "";
+
+
+        internal static readonly System.Text.RegularExpressions.Regex k_PackageVersionRegex = new System.Text.RegularExpressions.Regex(@"(\d*\.\d*)\..*");
+
+        /// <summary>
+        /// This method returns the OpenXR internal documentation link.  This is necessary because the documentation link was made public in the
+        /// Costants class which prevents it from being alterned in anything but a major revision.  This method will patch up the documentation links
+        /// as needed as long as they are internal openxr documentation links.
+        /// </summary>
+        internal string InternalDocumentationLink
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(DocumentationLink))
+                    return DocumentationLink;
+
+                // Update the version if needed
+                if (DocumentationLink.StartsWith(Constants.k_DocumentationManualURL))
+                {
+                    var version = PackageManager.PackageInfo.FindForAssembly(typeof(OpenXRFeatureAttribute).Assembly)?.version;
+                    var majorminor = k_PackageVersionRegex.Match(version).Groups[1].Value;
+                    DocumentationLink = DocumentationLink.Replace("1.0", majorminor);
+                }
+
+                return DocumentationLink;
+            }
+        }
     }
 }
 #endif

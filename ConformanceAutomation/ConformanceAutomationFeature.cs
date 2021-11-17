@@ -173,7 +173,7 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
                 StringToPath(topLevelPath),
                 StringToPath(inputSourcePath),
                 linearValid,
-                new XrVector3f(-1.0f * linear), // Linear velocity is multiplied by -1 in the OpenXR plugin so it must be negated here as well
+                new XrVector3f(linear),
                 angularValid,
                 new XrVector3f(-1.0f * angular) // Angular velocity is multiplied by -1 in the OpenXR plugin so it must be negated here as well
             );

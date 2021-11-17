@@ -565,7 +565,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     partner = new GUIContent($"Author: {_ext.Attribute.Company}"),
                     version = new GUIContent($"Version: {_ext.Attribute.Version}"),
                     partnerName = _ext.Attribute.Company,
-                    documentationLink = _ext.Attribute.DocumentationLink,
+                    documentationLink = _ext.Attribute.InternalDocumentationLink,
                     shouldDisplaySettings = HasSettingsToDisplay(_ext.Feature),
                     feature = _ext.Feature,
                     featureId = _ext.Attribute.FeatureId
