@@ -22,7 +22,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Standalone)]
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android)]
-    [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoaderNoPreInit", BuildTargetGroup.WSA)]
+    [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.WSA)]
     internal class OpenXRLoaderUI : IXRCustomLoaderUI
     {
 

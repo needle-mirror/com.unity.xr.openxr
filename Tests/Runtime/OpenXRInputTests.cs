@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine.InputSystem;
@@ -281,7 +282,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Validate that data flows from OpenXR to the InputSystem through the given OpenXR interaction path to
         /// the given input ControlItem
         /// </summary>
-        /// <param name="layout">Device layout to validate</param>
+        /// <param name="localizedActionMapName">Device layout name to validate</param>
         /// <param name="control">Control within the device layout to validate</param>
         /// <param name="userPath">OpenXR User path to bind to</param>
         /// <param name="interactionPath">OpenXR interaction path to bind to</param>
@@ -657,6 +658,28 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Make sure the two arrays are equal
             Assert.IsTrue(knownInteractionFeatures.Length == testedFeatures.Length && knownInteractionFeatures.Intersect(testedFeatures).Count() == knownInteractionFeatures.Length,
                 "One or more interaction features has not been added to the testable interaction feature list.");
+        }
+
+        /// <summary>
+        /// Ensures that EyeGaze isTracked, position, rotation features map correctly to action handles.
+        /// (Since the EyeGaze features use pose instead of devicePose)
+        /// </summary>
+        [UnityTest]
+        public IEnumerator EyeGazeFeatureTest()
+        {
+            EnableFeature<EyeGazeInteraction>();
+            InitializeAndStart();
+            yield return new WaitForXrFrame(1);
+
+            InputAction inputAction = new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked");
+            InputControl control = inputAction.controls[0];
+
+            var isTrackedHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked"));
+            Assert.IsTrue(isTrackedHandle != 0);
+            var positionHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/position"));
+            Assert.IsTrue(positionHandle != 0);
+            var rotationHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/rotation"));
+            Assert.IsTrue(rotationHandle != 0);
         }
 
         [UnityTest]

@@ -31,12 +31,7 @@ namespace UnityEngine.XR.OpenXR
     public partial class OpenXRSettings : ScriptableObject
     {
 #if UNITY_EDITOR
-        /// <summary>
-        /// Used to store version of the package the last time play mode was entered. This is stored
-        /// in the settings because here it will properly survive a domain reload which is necessary
-        /// since a domain reload is issued each time play is pressed.
-        /// </summary>
-        internal string lastPlayVersion = null;
+        internal bool versionChanged = false;
 #else
         private static OpenXRSettings s_RuntimeInstance = null;
 

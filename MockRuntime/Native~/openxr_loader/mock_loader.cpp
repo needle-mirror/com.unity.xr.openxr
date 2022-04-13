@@ -32,7 +32,7 @@ static bool LoadMockRuntime()
     if (nullptr != s_GetInstanceProcAddr)
         return true;
 
-    s_PluginHandle = Plugin_LoadLibrary("mock_runtime");
+    s_PluginHandle = Plugin_LoadLibrary(L"mock_runtime");
     if (nullptr == s_PluginHandle)
         return false;
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.TestTools;
@@ -12,6 +13,37 @@ namespace UnityEngine.XR.OpenXR.Tests
 {
     internal class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
+        [Test]
+        public void TestAvailableExtensions()
+        {
+            // This test verifies that the list of available extensions contains a subset of known extensions.
+            // If certain known extensions are removed from the mock this test should reflect that.
+            base.InitializeAndStart();
+            string[] extensions = OpenXRRuntime.GetAvailableExtensions();
+            HashSet<string> extensionsSet = new HashSet<string>(extensions);
+
+            List<string> expectedExtensions = new List<string>()
+            {
+                "XR_UNITY_mock_test",
+                "XR_UNITY_null_gfx",
+                "XR_KHR_visibility_mask",
+                "XR_EXT_conformance_automation",
+                "XR_KHR_composition_layer_depth",
+                "XR_VARJO_quad_views",
+                "XR_MSFT_secondary_view_configuration",
+                "XR_EXT_eye_gaze_interaction",
+                "XR_MSFT_hand_interaction",
+                "XR_MSFT_first_person_observer"
+            };
+
+            foreach (string expectedExtension in expectedExtensions)
+            {
+                Assert.IsTrue(extensionsSet.Contains(expectedExtension));
+            }
+
+            base.StopAndShutdown();
+        }
+
         [UnityTest]
         public IEnumerator SystemIdRetrieved()
         {
@@ -225,6 +257,80 @@ namespace UnityEngine.XR.OpenXR.Tests
             };
 
             Assert.AreEqual(expectedCallbackOrder, callbackQueue);
+        }
+
+        [UnityTest]
+        public IEnumerator TestConsistentFeatureValues()
+        {
+            HashSet<string> methodsUsingSession = new HashSet<string>()
+            {
+                "OnSessionCreate",
+                "OnSessionBegin",
+                "OnSessionEnd",
+                "OnSessionDestroy",
+                "OnSessionLossPending",
+                "OnSessionExiting"
+            };
+
+            HashSet<string> methodsUsingInstance = new HashSet<string>()
+            {
+                "OnInstanceCreate",
+                "OnInstanceDestroy"
+            };
+
+            Dictionary<string, ulong> methodToSessionValue = new Dictionary<string, ulong>();
+            Dictionary<string, ulong> methodToInstanceValue = new Dictionary<string, ulong>();
+
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                if (methodsUsingSession.Contains(methodName))
+                {
+                    Assert.IsFalse(methodToSessionValue.ContainsKey(methodName));
+                    methodToSessionValue[methodName] = (ulong)param;
+                }
+                else if (methodsUsingInstance.Contains(methodName))
+                {
+                    Assert.IsFalse(methodToInstanceValue.ContainsKey(methodName));
+                    methodToInstanceValue[methodName] = (ulong)param;
+                }
+
+                return true;
+            };
+
+            base.InitializeAndStart();
+            yield return null;
+            base.StopAndShutdown();
+            yield return null;
+
+            ulong? sessionValue = null;
+            ulong? instanceValue = null;
+
+            foreach (var pair in methodToSessionValue)
+            {
+                if (sessionValue.HasValue)
+                {
+                    Assert.AreEqual(sessionValue, pair.Value);
+                }
+                else
+                {
+                    sessionValue = pair.Value;
+                }
+            }
+
+            foreach (var pair in methodToInstanceValue)
+            {
+                if (instanceValue.HasValue)
+                {
+                    Assert.AreEqual(instanceValue, pair.Value);
+                }
+                else
+                {
+                    instanceValue = pair.Value;
+                }
+            }
+
+            Assert.IsTrue(sessionValue.HasValue);
+            Assert.IsTrue(instanceValue.HasValue);
         }
 
         [UnityTest]
@@ -559,6 +665,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator FirstPersonObserver()
         {
+            AddExtension("XR_MSFT_secondary_view_configuration");
+            AddExtension("XR_MSFT_first_person_observer");
             base.InitializeAndStart();
 
             MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
@@ -576,9 +684,34 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(secondaryLayerCount == 0);
         }
 
+
+        [UnityTest]
+        public IEnumerator ThirdPersonObserver()
+        {
+            AddExtension("XR_MSFT_secondary_view_configuration");
+            AddExtension("XR_MSFT_internal_third_person_observer");
+            base.InitializeAndStart();
+
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoThirdPersonObserver, true);
+
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.GetEndFrameStats(out var primaryLayerCount, out var secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 1);
+
+            MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoThirdPersonObserver, false);
+
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+            Assert.IsTrue(secondaryLayerCount == 0);
+        }
+
         [UnityTest]
         public IEnumerator FirstPersonObserverRestartWhileActive()
         {
+            AddExtension("XR_MSFT_secondary_view_configuration");
+            AddExtension("XR_MSFT_first_person_observer");
             base.InitializeAndStart();
 
             MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoFirstPersonObserver, true);
@@ -779,7 +912,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator CreateSessionRuntimeError ()
+        public IEnumerator CreateSessionRuntimeFailure ()
         {
             MockRuntime.SetFunctionCallback("xrCreateSession", (func) => XrResult.RuntimeFailure);
 
@@ -789,6 +922,23 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsTrue(DoesDiagnosticReportContain(new System.Text.RegularExpressions.Regex(@"xrCreateSession: XR_ERROR_RUNTIME_FAILURE")));
             Assert.IsTrue(OpenXRLoader.Instance.currentLoaderState == OpenXRLoaderBase.LoaderState.Stopped, "OpenXR should be stopped");
+        }
+
+        [UnityTest]
+        public IEnumerator EndFrameRuntimeFailure ()
+        {
+            InitializeAndStart();
+
+            yield return new WaitForXrFrame(2);
+
+            MockRuntime.SetFunctionCallback("xrEndFrame", (func) => XrResult.RuntimeFailure);
+
+            yield return null;
+            yield return null;
+            yield return null;
+
+            Assert.IsTrue(DoesDiagnosticReportContain(new System.Text.RegularExpressions.Regex(@"xrEndFrame: XR_ERROR_RUNTIME_FAILURE")));
+            Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should be shutdown");
         }
 
         [UnityTest]

@@ -309,7 +309,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         protected internal override void OnSessionExiting(ulong xrSession)
         {
-            TestCallback(MethodBase.GetCurrentMethod().Name, 0);
+            TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnSubsystemDestroy()

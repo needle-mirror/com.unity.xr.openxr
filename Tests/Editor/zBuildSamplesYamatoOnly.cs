@@ -57,6 +57,19 @@ class zBuildSamplesYamatoOnly
         Assert.IsTrue(false, "Could not enable oculus quest extension - if you're not on build machine you must copy dir OculusQuest to your project.");
     }
 
+    static void EnableMSFTObserverFeature()
+    {
+        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+        {
+            if (feature.nameUi.Contains("MSFT Secondary View and Observers"))
+            {
+                Console.WriteLine($"Enable: {feature.nameUi}");
+                feature.enabled = true;
+                return;
+            }
+        }
+    }
+
     static void EnableFeature<TFeatureType>() where TFeatureType : OpenXRFeature
     {
         foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
@@ -158,10 +171,12 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
+                EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
                 EnableFeature<MicrosoftHandInteraction>();
                 EnableWSAProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
                 OpenXRSettings.ActiveBuildTargetInstance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
@@ -176,12 +191,14 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
+                EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
                 EnableFeature<MicrosoftHandInteraction>();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D12 });
                 QualitySettings.SetQualityLevel(5);
                 QualitySettings.antiAliasing = 4;
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
+                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
             },
             outputPostfix = "dx12",
         },

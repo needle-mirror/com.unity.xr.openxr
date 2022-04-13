@@ -61,7 +61,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.system"/> <see cref="OculusTouchControllerProfile.menu"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" }, usage = "Menu")]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" }, usage = "MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
@@ -405,7 +405,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         type = ActionType.Binary,
                         usages = new List<string>()
                         {
-                            "Menu"
+                            "MenuButton"
                         },
                         bindings = new List<ActionBinding>()
                         {

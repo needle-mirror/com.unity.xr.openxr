@@ -1,17 +1,18 @@
 #include "plugin_load.h"
-
+#include <cstdlib>
+#include <cstring>
 #include <string>
 
 #if defined(XR_USE_PLATFORM_WIN32) && !defined(XR_USE_PLATFORM_UWP)
 
-PluginHandle Plugin_LoadLibrary(const char* libName)
+PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
 {
-    std::string lib(libName);
-    if ((lib.size() >= 1 && lib[0] == '.') ||
-        lib.find('/') == std::string::npos && lib.find('\\') == std::string::npos)
+    std::wstring lib(libName);
+    if ((lib.size() >= 1 && lib[0] == L'.') ||
+        lib.find(L'/') == std::string::npos && lib.find(L'\\') == std::string::npos)
     {
         // Look up path of current dll
-        char path[MAX_PATH];
+        wchar_t path[MAX_PATH];
         HMODULE hm = NULL;
         if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                     GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -21,24 +22,24 @@ PluginHandle Plugin_LoadLibrary(const char* libName)
             fprintf(stderr, "GetModuleHandle failed, error = %d\n", ret);
             return NULL;
         }
-        if (GetModuleFileNameA(hm, path, sizeof(path)) == 0)
+        if (GetModuleFileNameW(hm, path, MAX_PATH) == 0)
         {
             int ret = GetLastError();
-            fprintf(stderr, "GetModuleFileName failed, error = %d\n", ret);
+            fprintf(stderr, "GetModuleFileNameW failed, error = %d\n", ret);
             return NULL;
         }
 
-        std::string basePath(path);
-        basePath = basePath.substr(0, basePath.find_last_of('\\') + 1);
+        std::wstring basePath(path);
+        basePath = basePath.substr(0, basePath.find_last_of(L'\\') + 1);
 
-        lib = basePath + lib + ".dll";
+        lib = basePath + lib + L".dll";
     }
 
-    HMODULE handle = LoadLibraryA(lib.c_str());
+    HMODULE handle = LoadLibraryW(lib.c_str());
     if (handle == NULL)
     {
         int ret = GetLastError();
-        fprintf(stderr, "LoadLibraryA failed, error = %d\n", ret);
+        fprintf(stderr, "LoadLibraryW failed, error = %d\n", ret);
     }
     return handle;
 }
@@ -55,10 +56,11 @@ PluginFunc Plugin_GetSymbol(PluginHandle handle, const char* symbol)
 
 #elif defined(XR_USE_PLATFORM_UWP)
 
-PluginHandle Plugin_LoadLibrary(const char* libName)
+PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
 {
-    std::wstring lib(&libName[0], &libName[strlen(libName)]);
-    HMODULE handle = LoadPackagedLibrary(lib.c_str(), 0);
+    if (libName == NULL)
+        return NULL;
+    HMODULE handle = LoadPackagedLibrary(libName, 0);
     if (handle == NULL)
     {
         int ret = GetLastError();
@@ -79,12 +81,20 @@ PluginFunc Plugin_GetSymbol(PluginHandle handle, const char* symbol)
 
 #else // Posix
 
-PluginHandle Plugin_LoadLibrary(const char* libName)
+PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
 {
-    std::string lib(libName);
-    if ((lib.size() >= 1 && lib[0] == '.') ||
-        (lib.find('/') == std::string::npos && lib.find('\\') == std::string::npos))
+    std::wstring lib(libName);
+    std::string mbLibName;
+
+    if ((lib.size() >= 1 && lib[0] == L'.') ||
+        (lib.find(L'/') == std::string::npos && lib.find(L'\\') == std::string::npos))
     {
+        size_t len = std::wcstombs(nullptr, lib.c_str(), lib.size());
+        if (len <= 0)
+            return NULL;
+        mbLibName.resize(len);
+        std::wcstombs(&mbLibName[0], lib.c_str(), lib.size());
+
         Dl_info info;
         if (dladdr((const void*)&Plugin_LoadLibrary, &info) != 0)
         {
@@ -92,19 +102,23 @@ PluginHandle Plugin_LoadLibrary(const char* libName)
             basePath = basePath.substr(0, basePath.find_last_of('/') + 1);
 
 #if !defined(XR_USE_PLATFORM_OSX)
-            if (lib[0] != '.')
-                lib = basePath + "lib" + lib;
+            if (mbLibName[0] != '.')
+                mbLibName = basePath + "lib" + mbLibName;
             else
 #endif
-                lib = basePath + lib;
+                mbLibName = basePath + mbLibName;
 #if defined(XR_USE_PLATFORM_OSX)
-            lib += ".dylib";
+            mbLibName += ".dylib";
 #else
-            lib += ".so";
+            mbLibName += ".so";
 #endif
         }
     }
-    return dlopen(lib.c_str(), RTLD_LAZY);
+    if (mbLibName.size() <= 0)
+        return NULL;
+
+    auto ret = dlopen(mbLibName.c_str(), RTLD_LAZY);
+    return ret;
 }
 
 void Plugin_FreeLibrary(PluginHandle handle)

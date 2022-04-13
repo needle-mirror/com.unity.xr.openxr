@@ -98,17 +98,21 @@ namespace UnityEngine.XR.OpenXR.Input
             ["Haptic"] = OpenXRInteractionFeature.ActionType.Vibrate
         };
 
+        private const string s_devicePoseActionName = "devicepose";
+
+        private const string s_pointerActionName = "pointer";
+
         /// <summary>
-        /// Dictionary used to map virtual controls to concrete controls when
+        /// Dictionary used to map virtual controls to concrete controls.
         /// </summary>
         private static readonly Dictionary<string, string> kVirtualControlMap = new Dictionary<string, string>
         {
-            ["deviceposition"] = "devicepose",
-            ["devicerotation"] = "devicepose",
-            ["trackingstate"] = "devicepose",
-            ["istracked"] = "devicepose",
-            ["pointerposition"] = "pointer",
-            ["pointerrotation"] = "pointer"
+            ["deviceposition"] = s_devicePoseActionName,
+            ["devicerotation"] = s_devicePoseActionName,
+            ["trackingstate"] = s_devicePoseActionName,
+            ["istracked"] = s_devicePoseActionName,
+            ["pointerposition"] = s_pointerActionName,
+            ["pointerrotation"] = s_pointerActionName
         };
 
 #if UNITY_EDITOR
@@ -174,7 +178,6 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         internal static void AttachActionSets()
         {
-            // Build list of all action maps and validate them
             var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
             foreach(var interactionFeature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled))
             {
@@ -188,7 +191,6 @@ namespace UnityEngine.XR.OpenXR.Input
                 }
             }
 
-            // Register all devices before registering any actions.
             foreach (var actionMap in actionMaps)
             {
                 foreach (var deviceInfo in actionMap.deviceInfos)
@@ -202,12 +204,11 @@ namespace UnityEngine.XR.OpenXR.Input
                 }
             }
 
-            // Register actions
             var interactionProfiles = new Dictionary<string,List<SerializedBinding>>();
             foreach (var actionMap in actionMaps)
             {
-                // Create the action set
-                var actionSetId = Internal_CreateActionSet(SanitizeStringForOpenXRPath(actionMap.name), actionMap.localizedName, new SerializedGuid());
+                string actionMapLocalizedName = SanitizeStringForOpenXRPath(actionMap.localizedName);
+                var actionSetId = Internal_CreateActionSet(SanitizeStringForOpenXRPath(actionMap.name), actionMapLocalizedName, new SerializedGuid());
                 if (0 == actionSetId)
                 {
                     OpenXRRuntime.LogLastError();
@@ -217,7 +218,6 @@ namespace UnityEngine.XR.OpenXR.Input
                 // User paths specified in the deviceInfo
                 var deviceUserPaths = actionMap.deviceInfos.Select(d => d.userPath).ToList();
 
-                // Create actions
                 foreach (var action in actionMap.actions)
                 {
                     // User paths specified in the bindings
@@ -317,6 +317,30 @@ namespace UnityEngine.XR.OpenXR.Input
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Gets the name of the control's action handle.
+        /// </summary>
+        /// <param name="control">The input control</param>
+        /// <returns>The name of the action handle.</returns>
+        private static string GetActionHandleName(InputControl control)
+        {
+            // Extract the name of the action from the control path.
+            // Example: /EyeTrackingOpenXR/pose/isTracked --> action is pose.
+            InputControl inputControl = control;
+            while (inputControl.parent != null && inputControl.parent.parent != null)
+            {
+                inputControl = inputControl.parent;
+            }
+
+            string controlName = SanitizeStringForOpenXRPath(inputControl.name);
+            if (kVirtualControlMap.TryGetValue(controlName, out var virtualControlName))
+            {
+                return virtualControlName;
+            }
+
+            return controlName;
         }
 
         /// <summary>
@@ -468,12 +492,11 @@ namespace UnityEngine.XR.OpenXR.Input
                 if (deviceId == 0)
                     continue;
 
-                var controlName = SanitizeStringForOpenXRPath(control.name);
-                if (kVirtualControlMap.TryGetValue(controlName, out var controlNameOverride))
-                    controlName = controlNameOverride;
+                var controlName = GetActionHandleName(control);
 
                 // Populate the action handles list and make sure we dont overflow
                 var xrAction = Internal_GetActionId(deviceId, controlName);
+
                 if (xrAction != 0)
                     return xrAction;
             }

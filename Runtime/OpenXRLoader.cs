@@ -33,6 +33,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_EDITOR
     [XRSupportedBuildTarget(BuildTargetGroup.Standalone, new BuildTarget[] {BuildTarget.StandaloneWindows64})]
     [XRSupportedBuildTarget(BuildTargetGroup.Android)]
+    [XRSupportedBuildTarget(BuildTargetGroup.WSA)]
 #endif
     public class OpenXRLoader : OpenXRLoaderBase
 #if UNITY_EDITOR
@@ -170,8 +171,6 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRProjectValidation.LogPlaymodeValidationIssues())
                     return false;
             }
-
-            OpenXRSettings.Instance.lastPlayVersion = UnityEditor.PackageManager.PackageInfo.FindForAssembly(GetType().Assembly)?.version;
 #endif
 
             DiagnosticReport.StartReport();
@@ -484,6 +483,12 @@ namespace UnityEngine.XR.OpenXR
             Internal_SetApplicationInfo(Application.productName, Application.version, applicationVersionHash, Application.unityVersion);
         }
 
+        private byte[] StringToWCHAR_T(string s)
+        {
+            var encoding = Environment.OSVersion.Platform == PlatformID.Unix ? Encoding.UTF32 : Encoding.Unicode;
+            return encoding.GetBytes(s + '\0');
+        }
+
         private bool LoadOpenXRSymbols()
         {
             string loaderPath = "openxr_loader";
@@ -505,7 +510,7 @@ namespace UnityEngine.XR.OpenXR
                     loaderPath = extensionLoaderPath;
             }
 #endif
-            if (!Internal_LoadOpenXRLibrary(loaderPath))
+            if (!Internal_LoadOpenXRLibrary(StringToWCHAR_T(loaderPath)))
                 return false;
 
             return true;

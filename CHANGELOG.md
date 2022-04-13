@@ -4,6 +4,30 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2022-04-13
+### Fixed
+* Fixed an issue that would cause failure to load OpenXR loader when non-ascii characters in project path.
+* Fixed an editor crash issue when updating OpenXR package version and then enter Playmode.
+* Fixed `EyeGaze` functionality not working in the `Controller` sample.
+* Fixed Oculus `MenuButton` not being recognized in script.
+* Fixed an issue that some OpenXR Editor settings not being serialized properly.
+* Fixed `Failed to suggest bindings for interaction profile` console error spamming when a runtime doesn't support a certain interaction profile.
+
+### Updated
+* Updated OpenXR Loader to 1.0.20.
+* Updated Render Mode naming to Single Pass Instanced / Multiview for Android platform.
+* Updated Input System dependency to 1.3.0.
+* Updated XR mirror view to be based on the occlusion mesh line loop data obtained from `xrGetVisibilityMaskKHR`.
+
+### Added
+* Added runtime failures handling to completely shut down OpenXR when runtime error occurred.
+* Added support to dynamically discover runtimes by registry key.
+* Added logging for no MainCamera tag detected when depthSubmission mode enabled.
+* Added console error logging if entering playmode on unsupported platforms.
+* Added support to automatically open OpenXR project validator if any issues detected after package update.
+* Added API `OpenXRFeature.GetViewConfigurationTypeForRenderPass`, which returns viewConfigurationType for the given renderPass index.
+* Added pre-init support for UWP / WSA platform. Note: OpenXR got unchecked by upgrading to this version (only on UWP), but options chosen under `Features` remained as they were.
+
 ## [1.3.1] - 2021-11-17
 ### Fixed
 * Fixed an issue in `OpenXRRestarter` that would prevent a subsequent restart.

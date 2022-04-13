@@ -23,6 +23,9 @@ namespace UnityEngine.XR.OpenXR.Features
         [DllImport(Library, EntryPoint = "NativeConfig_GetViewConfigurationType")]
         static extern int Internal_GetViewConfigurationType();
 
+        [DllImport(Library, EntryPoint = "NativeConfig_GetViewTypeFromRenderIndex")]
+        static extern int Internal_GetViewTypeFromRenderIndex(int renderPassIndex);
+
         [DllImport(Library, EntryPoint = "session_GetSessionState")]
         static extern void Internal_GetSessionState(out int oldState, out int newState);
 

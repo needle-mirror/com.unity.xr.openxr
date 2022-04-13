@@ -23,17 +23,10 @@ namespace UnityEditor.XR.OpenXR
             new OpenXRFeature.ValidationRule
             {
                 message = "The OpenXR package has been updated and Unity must be restarted to complete the update.",
-                checkPredicate = () => {
-                    var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(OpenXRProjectValidation).Assembly);
-                    if (packageInfo == null)
-                        return false;
-
-                    var lastPlayVersion = OpenXRSettings.Instance.lastPlayVersion;
-                    return string.IsNullOrEmpty(lastPlayVersion) || lastPlayVersion == packageInfo.version;
-                },
+                checkPredicate = () => (!OpenXRSettings.Instance.versionChanged),
                 fixIt = RequireRestart,
                 error = true,
-                errorEnteringPlaymode = true
+                errorEnteringPlaymode = true,
             },
 
             new OpenXRFeature.ValidationRule()
@@ -96,6 +89,7 @@ namespace UnityEditor.XR.OpenXR
                 fixIt = () => EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64),
                 fixItMessage = "Switch active build target to StandaloneWindows64.",
                 error = true,
+                errorEnteringPlaymode = true,
             },
             new OpenXRFeature.ValidationRule()
             {

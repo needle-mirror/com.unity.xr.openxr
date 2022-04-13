@@ -7,9 +7,9 @@ namespace UnityEngine.XR.OpenXR
     {
         private const string LibraryName = "UnityOpenXR";
 
-        [DllImport(LibraryName, EntryPoint = "main_LoadOpenXRLibrary", CharSet = CharSet.Ansi)]
+        [DllImport(LibraryName, EntryPoint = "main_LoadOpenXRLibrary")]
         [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool Internal_LoadOpenXRLibrary(string loaderPath);
+        internal static extern bool Internal_LoadOpenXRLibrary(byte[] loaderPath);
 
         [DllImport(LibraryName, EntryPoint = "main_UnloadOpenXRLibrary")]
         internal static extern void Internal_UnloadOpenXRLibrary();

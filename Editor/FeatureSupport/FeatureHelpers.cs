@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -221,7 +222,28 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
+            // Update the feature list
             openXrSettings.features = all.OrderBy(f => f.name).ToArray();
+
+            // Populate the internal feature variables for all features
+            foreach (var feature in openXrSettings.features)
+            {
+                if (feature.internalFieldsUpdated)
+                    continue;
+
+                feature.internalFieldsUpdated = true;
+
+                foreach (var attr in feature.GetType().GetCustomAttributes<OpenXRFeatureAttribute>())
+                {
+                    feature.nameUi = attr.UiName;
+                    feature.version = attr.Version;
+                    feature.featureIdInternal = attr.FeatureId;
+                    feature.openxrExtensionStrings = attr.OpenxrExtensionStrings;
+                    feature.priority = attr.Priority;
+                    feature.required = attr.Required;
+                    feature.company = attr.Company;
+                }
+            }
 
 #if UNITY_EDITOR
             // Ensure the settings are saved after the features are populated

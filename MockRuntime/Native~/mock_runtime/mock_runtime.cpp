@@ -87,6 +87,10 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     if ((createFlags & (MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT)) == (MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT))
         MSFTFirstPersonObserver_Init();
 
+    // Add microsoft third person observer view if the extension is enabled
+    if ((createFlags & (MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT)) == (MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT))
+        MSFTThirdPersonObserver_Init();
+
     // Generate the internal strings
     userPaths = {
         {"/user/hand/left", "Left Hand", nullptr},

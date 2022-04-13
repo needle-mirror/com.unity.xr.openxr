@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
+using UnityEditor.PackageManager;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
@@ -11,8 +12,39 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR
 {
+    [InitializeOnLoad]
     internal class OpenXRProjectValidationWindow : EditorWindow
     {
+        static OpenXRProjectValidationWindow()
+        {
+            UnityEditor.PackageManager.Events.registeredPackages += (packageRegistrationEventArgs) =>
+            {
+                if (HasXRPackageVersionChanged(packageRegistrationEventArgs))
+                {
+                    ShowWindowIfIssuesExist();
+                }
+            };
+        }
+
+        private static bool HasXRPackageVersionChanged(PackageRegistrationEventArgs packageRegistrationEventArgs)
+        {
+            bool packageChanged = packageRegistrationEventArgs.changedTo.Any(p => p.name.Equals(OpenXRManagementSettings.PackageId));
+            OpenXRSettings.Instance.versionChanged = packageChanged;
+            return packageRegistrationEventArgs.added.Any(p => p.name.Equals(OpenXRManagementSettings.PackageId)) || packageChanged;
+        }
+
+        private static void ShowWindowIfIssuesExist()
+        {
+            List<OpenXRFeature.ValidationRule> failures = new List<OpenXRFeature.ValidationRule>();
+            BuildTargetGroup activeBuildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
+            OpenXRProjectValidation.GetCurrentValidationIssues(failures, activeBuildTargetGroup);
+
+            if (failures.Count > 0)
+            {
+                ShowWindow();
+            }
+        }
+
         private Vector2 _scrollViewPos = Vector2.zero;
 
         private readonly List<OpenXRFeature.ValidationRule> _failures = new List<OpenXRFeature.ValidationRule>();

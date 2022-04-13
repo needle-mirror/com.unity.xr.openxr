@@ -1,5 +1,5 @@
-using System.Linq;
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -8,7 +8,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.XR.OpenXR.Input;
-
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR;
@@ -114,6 +113,12 @@ namespace UnityEngine.XR.OpenXR.Features
         /// True if the feature is required, false otherwise.
         /// </summary>
         [HideInInspector] [SerializeField] internal bool required = false;
+
+        /// <summary>
+        /// Set to true if the internal fields have been updated in the current domain
+        /// </summary>
+        [NonSerialized]
+        internal bool internalFieldsUpdated = false;
 
         /// <summary>
         /// Accessor for xrGetInstanceProcAddr function pointer.
@@ -292,6 +297,14 @@ namespace UnityEngine.XR.OpenXR.Features
         protected static ulong GetCurrentAppSpace() =>
             Internal_GetAppSpace(out ulong appSpaceId) ? appSpaceId : 0ul;
 
+        /// <summary>
+        /// Returns viewConfigurationType for the given renderPass index.
+        /// </summary>
+        /// <param name="renderPassIndex">RenderPass index</param>
+        /// <returns>viewConfigurationType for certain renderPass. Return 0 if invalid renderPass.</returns>
+        protected static int GetViewConfigurationTypeForRenderPass(int renderPassIndex) =>
+            Internal_GetViewTypeFromRenderIndex(renderPassIndex);
+
 #if UNITY_EDITOR
         /// <summary>
         /// A Build-time validation rule.
@@ -468,22 +481,6 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <inheritdoc />
         protected virtual void OnEnable()
         {
-#if UNITY_EDITOR
-            foreach (Attribute attr in Attribute.GetCustomAttributes(GetType()))
-            {
-                if (attr is UnityEditor.XR.OpenXR.Features.OpenXRFeatureAttribute)
-                {
-                    var feature = (UnityEditor.XR.OpenXR.Features.OpenXRFeatureAttribute) attr;
-                    nameUi = feature.UiName;
-                    version = feature.Version;
-                    featureIdInternal = feature.FeatureId;
-                    openxrExtensionStrings = feature.OpenxrExtensionStrings;
-                    priority = feature.Priority;
-                    required = feature.Required;
-                    company = feature.Company;
-                }
-            }
-#endif
         }
 
         /// <inheritdoc />

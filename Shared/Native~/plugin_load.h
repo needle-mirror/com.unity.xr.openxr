@@ -38,6 +38,6 @@ typedef void* PluginFunc;
 
 #endif
 
-PluginHandle Plugin_LoadLibrary(const char* libName);
+PluginHandle Plugin_LoadLibrary(const wchar_t* libName);
 void Plugin_FreeLibrary(PluginHandle handle);
 PluginFunc Plugin_GetSymbol(PluginHandle handle, const char* symbol);

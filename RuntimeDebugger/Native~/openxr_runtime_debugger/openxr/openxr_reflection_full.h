@@ -42,6 +42,12 @@ XR_ENUM_STR(XrResult);
     _(XrHandTrackerEXT) \
     _(XrSceneObserverMSFT) \
     _(XrSceneMSFT) \
+    _(XrFoveationProfileFB) \
+    _(XrTriangleMeshFB) \
+    _(XrPassthroughFB) \
+    _(XrPassthroughLayerFB) \
+    _(XrGeometryInstanceFB) \
+    _(XrSpatialAnchorStoreConnectionMSFT) \
 
 
 #define XR_LIST_ENUM_XrResult(_) \
@@ -114,6 +120,16 @@ XR_ENUM_STR(XrResult);
     _(XR_ERROR_SCENE_COMPUTE_CONSISTENCY_MISMATCH_MSFT, -1000097005) \
     _(XR_ERROR_DISPLAY_REFRESH_RATE_UNSUPPORTED_FB, -1000101000) \
     _(XR_ERROR_COLOR_SPACE_UNSUPPORTED_FB, -1000108000) \
+    _(XR_ERROR_UNEXPECTED_STATE_PASSTHROUGH_FB, -1000118000) \
+    _(XR_ERROR_FEATURE_ALREADY_CREATED_PASSTHROUGH_FB, -1000118001) \
+    _(XR_ERROR_FEATURE_REQUIRED_PASSTHROUGH_FB, -1000118002) \
+    _(XR_ERROR_NOT_PERMITTED_PASSTHROUGH_FB, -1000118003) \
+    _(XR_ERROR_INSUFFICIENT_RESOURCES_PASSTHROUGH_FB, -1000118004) \
+    _(XR_ERROR_UNKNOWN_PASSTHROUGH_FB, -1000118050) \
+    _(XR_ERROR_MARKER_NOT_TRACKED_VARJO, -1000124000) \
+    _(XR_ERROR_MARKER_ID_INVALID_VARJO, -1000124001) \
+    _(XR_ERROR_SPATIAL_ANCHOR_NAME_NOT_FOUND_MSFT, -1000142001) \
+    _(XR_ERROR_SPATIAL_ANCHOR_NAME_INVALID_MSFT, -1000142002) \
     _(XR_RESULT_MAX_ENUM, 0x7FFFFFFF)
 
 #define XR_LIST_ENUM_XrStructureType(_) \
@@ -205,6 +221,8 @@ XR_ENUM_STR(XrResult);
     _(XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR, 1000034000) \
     _(XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT, 1000039000) \
     _(XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT, 1000039001) \
+    _(XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB, 1000040000) \
+    _(XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB, 1000041001) \
     _(XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT, 1000046000) \
     _(XR_TYPE_GRAPHICS_BINDING_EGL_MNDX, 1000048004) \
     _(XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT, 1000049000) \
@@ -234,6 +252,7 @@ XR_ENUM_STR(XrResult);
     _(XR_TYPE_COMPOSITION_LAYER_REPROJECTION_INFO_MSFT, 1000066000) \
     _(XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT, 1000066001) \
     _(XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB, 1000070000) \
+    _(XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB, 1000072000) \
     _(XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE, 1000079000) \
     _(XR_TYPE_HAND_JOINTS_MOTION_RANGE_INFO_EXT, 1000080000) \
     _(XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR, 1000089000) \
@@ -263,15 +282,44 @@ XR_ENUM_STR(XrResult);
     _(XR_TYPE_SERIALIZED_SCENE_FRAGMENT_DATA_GET_INFO_MSFT, 1000098000) \
     _(XR_TYPE_SCENE_DESERIALIZE_INFO_MSFT, 1000098001) \
     _(XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB, 1000101000) \
+    _(XR_TYPE_VIVE_TRACKER_PATHS_HTCX, 1000103000) \
+    _(XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX, 1000103001) \
     _(XR_TYPE_SYSTEM_COLOR_SPACE_PROPERTIES_FB, 1000108000) \
+    _(XR_TYPE_HAND_TRACKING_MESH_FB, 1000110001) \
+    _(XR_TYPE_HAND_TRACKING_SCALE_FB, 1000110003) \
+    _(XR_TYPE_HAND_TRACKING_AIM_STATE_FB, 1000111001) \
+    _(XR_TYPE_HAND_TRACKING_CAPSULES_STATE_FB, 1000112000) \
+    _(XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB, 1000114000) \
+    _(XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB, 1000114001) \
+    _(XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB, 1000114002) \
+    _(XR_TYPE_FOVEATION_LEVEL_PROFILE_CREATE_INFO_FB, 1000115000) \
+    _(XR_TYPE_TRIANGLE_MESH_CREATE_INFO_FB, 1000117001) \
+    _(XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES_FB, 1000118000) \
+    _(XR_TYPE_PASSTHROUGH_CREATE_INFO_FB, 1000118001) \
+    _(XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB, 1000118002) \
+    _(XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB, 1000118003) \
+    _(XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB, 1000118004) \
+    _(XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB, 1000118005) \
+    _(XR_TYPE_PASSTHROUGH_STYLE_FB, 1000118020) \
+    _(XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB, 1000118021) \
+    _(XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB, 1000118022) \
+    _(XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB, 1000118030) \
     _(XR_TYPE_BINDING_MODIFICATIONS_KHR, 1000120000) \
     _(XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO, 1000121000) \
     _(XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO, 1000121001) \
     _(XR_TYPE_SYSTEM_FOVEATED_RENDERING_PROPERTIES_VARJO, 1000121002) \
     _(XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_VARJO, 1000122000) \
+    _(XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_VARJO, 1000124000) \
+    _(XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO, 1000124001) \
+    _(XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO, 1000124002) \
+    _(XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT, 1000142000) \
+    _(XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT, 1000142001) \
+    _(XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB, 1000160000) \
     _(XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB, 1000161000) \
     _(XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB, 1000162000) \
     _(XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB, 1000163000) \
+    _(XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB, 1000171000) \
+    _(XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB, 1000171001) \
     _(XR_STRUCTURE_TYPE_MAX_ENUM, 0x7FFFFFFF)
 
 #define XR_LIST_ENUM_XrFormFactor(_) \
@@ -339,6 +387,12 @@ XR_ENUM_STR(XrResult);
     _(XR_OBJECT_TYPE_HAND_TRACKER_EXT, 1000051000) \
     _(XR_OBJECT_TYPE_SCENE_OBSERVER_MSFT, 1000097000) \
     _(XR_OBJECT_TYPE_SCENE_MSFT, 1000097001) \
+    _(XR_OBJECT_TYPE_FOVEATION_PROFILE_FB, 1000114000) \
+    _(XR_OBJECT_TYPE_TRIANGLE_MESH_FB, 1000117000) \
+    _(XR_OBJECT_TYPE_PASSTHROUGH_FB, 1000118000) \
+    _(XR_OBJECT_TYPE_PASSTHROUGH_LAYER_FB, 1000118002) \
+    _(XR_OBJECT_TYPE_GEOMETRY_INSTANCE_FB, 1000118004) \
+    _(XR_OBJECT_TYPE_SPATIAL_ANCHOR_STORE_CONNECTION_MSFT, 1000142000) \
     _(XR_OBJECT_TYPE_MAX_ENUM, 0x7FFFFFFF)
 
 #define XR_LIST_ENUM_XrAndroidThreadTypeKHR(_) \
@@ -377,6 +431,15 @@ XR_ENUM_STR(XrResult);
     _(XR_PERF_SETTINGS_NOTIF_LEVEL_WARNING_EXT, 25) \
     _(XR_PERF_SETTINGS_NOTIF_LEVEL_IMPAIRED_EXT, 75) \
     _(XR_PERF_SETTINGS_NOTIFICATION_LEVEL_MAX_ENUM_EXT, 0x7FFFFFFF)
+
+#define XR_LIST_ENUM_XrBlendFactorFB(_) \
+    _(XR_BLEND_FACTOR_ZERO_FB, 0) \
+    _(XR_BLEND_FACTOR_ONE_FB, 1) \
+    _(XR_BLEND_FACTOR_SRC_ALPHA_FB, 2) \
+    _(XR_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA_FB, 3) \
+    _(XR_BLEND_FACTOR_DST_ALPHA_FB, 4) \
+    _(XR_BLEND_FACTOR_ONE_MINUS_DST_ALPHA_FB, 5) \
+    _(XR_BLEND_FACTOR_MAX_ENUM_FB, 0x7FFFFFFF)
 
 #define XR_LIST_ENUM_XrSpatialGraphNodeTypeMSFT(_) \
     _(XR_SPATIAL_GRAPH_NODE_TYPE_STATIC_MSFT, 1) \
@@ -502,6 +565,29 @@ XR_ENUM_STR(XrResult);
     _(XR_COLOR_SPACE_ADOBE_RGB_FB, 7) \
     _(XR_COLOR_SPACE_MAX_ENUM_FB, 0x7FFFFFFF)
 
+#define XR_LIST_ENUM_XrFoveationLevelFB(_) \
+    _(XR_FOVEATION_LEVEL_NONE_FB, 0) \
+    _(XR_FOVEATION_LEVEL_LOW_FB, 1) \
+    _(XR_FOVEATION_LEVEL_MEDIUM_FB, 2) \
+    _(XR_FOVEATION_LEVEL_HIGH_FB, 3) \
+    _(XR_FOVEATION_LEVEL_MAX_ENUM_FB, 0x7FFFFFFF)
+
+#define XR_LIST_ENUM_XrFoveationDynamicFB(_) \
+    _(XR_FOVEATION_DYNAMIC_DISABLED_FB, 0) \
+    _(XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_FB, 1) \
+    _(XR_FOVEATION_DYNAMIC_MAX_ENUM_FB, 0x7FFFFFFF)
+
+#define XR_LIST_ENUM_XrWindingOrderFB(_) \
+    _(XR_WINDING_ORDER_UNKNOWN_FB, 0) \
+    _(XR_WINDING_ORDER_CW_FB, 1) \
+    _(XR_WINDING_ORDER_CCW_FB, 2) \
+    _(XR_WINDING_ORDER_MAX_ENUM_FB, 0x7FFFFFFF)
+
+#define XR_LIST_ENUM_XrPassthroughLayerPurposeFB(_) \
+    _(XR_PASSTHROUGH_LAYER_PURPOSE_RECONSTRUCTION_FB, 0) \
+    _(XR_PASSTHROUGH_LAYER_PURPOSE_PROJECTED_FB, 1) \
+    _(XR_PASSTHROUGH_LAYER_PURPOSE_MAX_ENUM_FB, 0x7FFFFFFF)
+
 
 
 #define XR_LIST_ENUM_TYPES_CORE(_) \
@@ -520,6 +606,7 @@ XR_ENUM_STR(XrResult);
     _(XrPerfSettingsSubDomainEXT) \
     _(XrPerfSettingsLevelEXT) \
     _(XrPerfSettingsNotificationLevelEXT) \
+    _(XrBlendFactorFB) \
     _(XrSpatialGraphNodeTypeMSFT) \
     _(XrHandEXT) \
     _(XrHandJointEXT) \
@@ -535,6 +622,10 @@ XR_ENUM_STR(XrResult);
     _(XrScenePlaneAlignmentTypeMSFT) \
     _(XrSceneComputeStateMSFT) \
     _(XrColorSpaceFB) \
+    _(XrFoveationLevelFB) \
+    _(XrFoveationDynamicFB) \
+    _(XrWindingOrderFB) \
+    _(XrPassthroughLayerPurposeFB) \
 
 
 
@@ -580,6 +671,7 @@ XR_ENUM_STR(XrResult);
     _(XR_SWAPCHAIN_USAGE_SAMPLED_BIT, 0x00000020) \
     _(XR_SWAPCHAIN_USAGE_MUTABLE_FORMAT_BIT, 0x00000040) \
     _(XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND, 0x00000080) \
+    _(XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_KHR, XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND) \
 
 #define XR_LIST_BITS_XrCompositionLayerFlags(_) \
     _(XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT, 0x00000001) \
@@ -618,9 +710,47 @@ XR_ENUM_STR(XrResult);
 #define XR_LIST_BITS_XrOverlayMainSessionFlagsEXTX(_) \
     _(XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX, 0x00000001) \
 
+#define XR_LIST_BITS_XrCompositionLayerImageLayoutFlagsFB(_) \
+    _(XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB, 0x00000001) \
+
 #define XR_LIST_BITS_XrAndroidSurfaceSwapchainFlagsFB(_) \
     _(XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB, 0x00000001) \
     _(XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB, 0x00000002) \
+
+#define XR_LIST_BITS_XrCompositionLayerSecureContentFlagsFB(_) \
+    _(XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB, 0x00000001) \
+    _(XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB, 0x00000002) \
+
+#define XR_LIST_BITS_XrHandTrackingAimFlagsFB(_) \
+    _(XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB, 0x00000001) \
+    _(XR_HAND_TRACKING_AIM_VALID_BIT_FB, 0x00000002) \
+    _(XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB, 0x00000004) \
+    _(XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB, 0x00000008) \
+    _(XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB, 0x00000010) \
+    _(XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB, 0x00000020) \
+    _(XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB, 0x00000040) \
+    _(XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB, 0x00000080) \
+    _(XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB, 0x00000100) \
+
+#define XR_LIST_BITS_XrSwapchainCreateFoveationFlagsFB(_) \
+    _(XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB, 0x00000001) \
+    _(XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB, 0x00000002) \
+
+#define XR_LIST_BITS_XrSwapchainStateFoveationFlagsFB(_)
+
+#define XR_LIST_BITS_XrTriangleMeshFlagsFB(_) \
+    _(XR_TRIANGLE_MESH_MUTABLE_BIT_FB, 0x00000001) \
+
+#define XR_LIST_BITS_XrPassthroughFlagsFB(_) \
+    _(XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB, 0x00000001) \
+
+#define XR_LIST_BITS_XrPassthroughStateChangedFlagsFB(_) \
+    _(XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB, 0x00000001) \
+    _(XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB, 0x00000002) \
+    _(XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB, 0x00000004) \
+    _(XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB, 0x00000008) \
+
+#define XR_LIST_BITS_XrCompositionLayerSpaceWarpInfoFlagsFB(_)
 
 #define XR_LIST_STRUCT_XrApiLayerProperties(_) \
     _(type) \
@@ -1349,6 +1479,19 @@ XR_ENUM_STR(XrResult);
     _(anchor) \
     _(poseInAnchorSpace) \
 
+#define XR_LIST_STRUCT_XrCompositionLayerImageLayoutFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+
+#define XR_LIST_STRUCT_XrCompositionLayerAlphaBlendFB(_) \
+    _(type) \
+    _(next) \
+    _(srcFactorColor) \
+    _(dstFactorColor) \
+    _(srcFactorAlpha) \
+    _(dstFactorAlpha) \
+
 #define XR_LIST_STRUCT_XrViewConfigurationDepthRangeEXT(_) \
     _(type) \
     _(next) \
@@ -1544,6 +1687,11 @@ XR_ENUM_STR(XrResult);
     _(type) \
     _(next) \
 
+#define XR_LIST_STRUCT_XrCompositionLayerSecureContentFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+
 #define XR_LIST_STRUCT_XrHandJointsMotionRangeInfoEXT(_) \
     _(type) \
     _(next) \
@@ -1714,10 +1862,159 @@ XR_ENUM_STR(XrResult);
     _(fromDisplayRefreshRate) \
     _(toDisplayRefreshRate) \
 
+#define XR_LIST_STRUCT_XrViveTrackerPathsHTCX(_) \
+    _(type) \
+    _(next) \
+    _(persistentPath) \
+    _(rolePath) \
+
+#define XR_LIST_STRUCT_XrEventDataViveTrackerConnectedHTCX(_) \
+    _(type) \
+    _(next) \
+    _(paths) \
+
 #define XR_LIST_STRUCT_XrSystemColorSpacePropertiesFB(_) \
     _(type) \
     _(next) \
     _(colorSpace) \
+
+#define XR_LIST_STRUCT_XrVector4sFB(_) \
+    _(x) \
+    _(y) \
+    _(z) \
+    _(w) \
+
+#define XR_LIST_STRUCT_XrHandTrackingMeshFB(_) \
+    _(type) \
+    _(next) \
+    _(jointCapacityInput) \
+    _(jointCountOutput) \
+    _(vertexCapacityInput) \
+    _(vertexCountOutput) \
+    _(indexCapacityInput) \
+    _(indexCountOutput) \
+
+#define XR_LIST_STRUCT_XrHandTrackingScaleFB(_) \
+    _(type) \
+    _(next) \
+    _(sensorOutput) \
+    _(currentOutput) \
+    _(overrideHandScale) \
+    _(overrideValueInput) \
+
+#define XR_LIST_STRUCT_XrHandTrackingAimStateFB(_) \
+    _(type) \
+    _(next) \
+    _(status) \
+    _(aimPose) \
+    _(pinchStrengthIndex) \
+    _(pinchStrengthMiddle) \
+    _(pinchStrengthRing) \
+    _(pinchStrengthLittle) \
+
+#define XR_LIST_STRUCT_XrHandCapsuleFB(_) \
+    _(points) \
+    _(radius) \
+    _(joint) \
+
+#define XR_LIST_STRUCT_XrHandTrackingCapsulesStateFB(_) \
+    _(type) \
+    _(next) \
+    _(capsules) \
+
+#define XR_LIST_STRUCT_XrFoveationProfileCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+
+#define XR_LIST_STRUCT_XrSwapchainCreateInfoFoveationFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+
+#define XR_LIST_STRUCT_XrSwapchainStateFoveationFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+    _(profile) \
+
+#define XR_LIST_STRUCT_XrFoveationLevelProfileCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(level) \
+    _(verticalOffset) \
+    _(dynamic) \
+
+#define XR_LIST_STRUCT_XrTriangleMeshCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+    _(windingOrder) \
+    _(vertexCount) \
+    _(vertexBuffer) \
+    _(triangleCount) \
+    _(indexBuffer) \
+
+#define XR_LIST_STRUCT_XrSystemPassthroughPropertiesFB(_) \
+    _(type) \
+    _(next) \
+    _(supportsPassthrough) \
+
+#define XR_LIST_STRUCT_XrPassthroughCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+
+#define XR_LIST_STRUCT_XrPassthroughLayerCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(passthrough) \
+    _(flags) \
+    _(purpose) \
+
+#define XR_LIST_STRUCT_XrCompositionLayerPassthroughFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
+    _(space) \
+    _(layerHandle) \
+
+#define XR_LIST_STRUCT_XrGeometryInstanceCreateInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(layer) \
+    _(mesh) \
+    _(baseSpace) \
+    _(pose) \
+    _(scale) \
+
+#define XR_LIST_STRUCT_XrGeometryInstanceTransformFB(_) \
+    _(type) \
+    _(next) \
+    _(baseSpace) \
+    _(time) \
+    _(pose) \
+    _(scale) \
+
+#define XR_LIST_STRUCT_XrPassthroughStyleFB(_) \
+    _(type) \
+    _(next) \
+    _(textureOpacityFactor) \
+    _(edgeColor) \
+
+#define XR_LIST_STRUCT_XrPassthroughColorMapMonoToRgbaFB(_) \
+    _(type) \
+    _(next) \
+    _(textureColorMap) \
+
+#define XR_LIST_STRUCT_XrPassthroughColorMapMonoToMonoFB(_) \
+    _(type) \
+    _(next) \
+    _(textureColorMap) \
+
+#define XR_LIST_STRUCT_XrEventDataPassthroughStateChangedFB(_) \
+    _(type) \
+    _(next) \
+    _(flags) \
 
 #define XR_LIST_STRUCT_XrViewLocateFoveatedRenderingVARJO(_) \
     _(type) \
@@ -1739,6 +2036,47 @@ XR_ENUM_STR(XrResult);
     _(next) \
     _(depthTestRangeNearZ) \
     _(depthTestRangeFarZ) \
+
+#define XR_LIST_STRUCT_XrSystemMarkerTrackingPropertiesVARJO(_) \
+    _(type) \
+    _(next) \
+    _(supportsMarkerTracking) \
+
+#define XR_LIST_STRUCT_XrEventDataMarkerTrackingUpdateVARJO(_) \
+    _(type) \
+    _(next) \
+    _(markerId) \
+    _(isActive) \
+    _(isPredicted) \
+    _(time) \
+
+#define XR_LIST_STRUCT_XrMarkerSpaceCreateInfoVARJO(_) \
+    _(type) \
+    _(next) \
+    _(markerId) \
+    _(poseInMarkerSpace) \
+
+#define XR_LIST_STRUCT_XrSpatialAnchorPersistenceNameMSFT(_) \
+    _(name) \
+
+#define XR_LIST_STRUCT_XrSpatialAnchorPersistenceInfoMSFT(_) \
+    _(type) \
+    _(next) \
+    _(spatialAnchorPersistenceName) \
+    _(spatialAnchor) \
+
+#define XR_LIST_STRUCT_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT(_) \
+    _(type) \
+    _(next) \
+    _(spatialAnchorStore) \
+    _(spatialAnchorPersistenceName) \
+
+#define XR_LIST_STRUCT_XrSwapchainImageFoveationVulkanFB(_) \
+    _(type) \
+    _(next) \
+    _(image) \
+    _(width) \
+    _(height) \
 
 #define XR_LIST_STRUCT_XrSwapchainStateAndroidSurfaceDimensionsFB(_) \
     _(type) \
@@ -1774,6 +2112,24 @@ XR_ENUM_STR(XrResult);
     _(swizzleAlpha) \
     _(maxAnisotropy) \
     _(borderColor) \
+
+#define XR_LIST_STRUCT_XrCompositionLayerSpaceWarpInfoFB(_) \
+    _(type) \
+    _(next) \
+    _(layerFlags) \
+    _(motionVectorSubImage) \
+    _(appSpaceDeltaPose) \
+    _(depthSubImage) \
+    _(minDepth) \
+    _(maxDepth) \
+    _(nearZ) \
+    _(farZ) \
+
+#define XR_LIST_STRUCT_XrSystemSpaceWarpPropertiesFB(_) \
+    _(type) \
+    _(next) \
+    _(recommendedMotionVectorImageRectWidth) \
+    _(recommendedMotionVectorImageRectHeight) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrApiLayerProperties(_) \
 
@@ -2021,6 +2377,10 @@ XR_ENUM_STR(XrResult);
 
 #define XR_LIST_STRUCT_ARRAYS_XrSpatialAnchorSpaceCreateInfoMSFT(_) \
 
+#define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerImageLayoutFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerAlphaBlendFB(_) \
+
 #define XR_LIST_STRUCT_ARRAYS_XrViewConfigurationDepthRangeEXT(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrGraphicsBindingEGLMNDX(_) \
@@ -2098,6 +2458,8 @@ XR_ENUM_STR(XrResult);
 #define XR_LIST_STRUCT_ARRAYS_XrAndroidSurfaceSwapchainCreateInfoFB(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrSwapchainStateBaseHeaderFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerSecureContentFB(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrHandJointsMotionRangeInfoEXT(_) \
 
@@ -2184,7 +2546,62 @@ XR_ENUM_STR(XrResult);
 
 #define XR_LIST_STRUCT_ARRAYS_XrEventDataDisplayRefreshRateChangedFB(_) \
 
+#define XR_LIST_STRUCT_ARRAYS_XrViveTrackerPathsHTCX(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrEventDataViveTrackerConnectedHTCX(_) \
+
 #define XR_LIST_STRUCT_ARRAYS_XrSystemColorSpacePropertiesFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrVector4sFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrHandTrackingMeshFB(_) \
+    _(jointBindPoses, jointCapacityInput) \
+    _(jointRadii, jointCapacityInput) \
+    _(jointParents, jointCapacityInput) \
+    _(vertexPositions, vertexCapacityInput) \
+    _(vertexNormals, vertexCapacityInput) \
+    _(vertexUVs, vertexCapacityInput) \
+    _(vertexBlendIndices, vertexCapacityInput) \
+    _(vertexBlendWeights, vertexCapacityInput) \
+    _(indices, indexCapacityInput) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrHandTrackingScaleFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrHandTrackingAimStateFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrHandCapsuleFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrHandTrackingCapsulesStateFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrFoveationProfileCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSwapchainCreateInfoFoveationFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSwapchainStateFoveationFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrFoveationLevelProfileCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrTriangleMeshCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSystemPassthroughPropertiesFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrPassthroughCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrPassthroughLayerCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerPassthroughFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrGeometryInstanceCreateInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrGeometryInstanceTransformFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrPassthroughStyleFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrPassthroughColorMapMonoToRgbaFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrPassthroughColorMapMonoToMonoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrEventDataPassthroughStateChangedFB(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrViewLocateFoveatedRenderingVARJO(_) \
 
@@ -2194,11 +2611,29 @@ XR_ENUM_STR(XrResult);
 
 #define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerDepthTestVARJO(_) \
 
+#define XR_LIST_STRUCT_ARRAYS_XrSystemMarkerTrackingPropertiesVARJO(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrEventDataMarkerTrackingUpdateVARJO(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrMarkerSpaceCreateInfoVARJO(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSpatialAnchorPersistenceNameMSFT(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSpatialAnchorPersistenceInfoMSFT(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSwapchainImageFoveationVulkanFB(_) \
+
 #define XR_LIST_STRUCT_ARRAYS_XrSwapchainStateAndroidSurfaceDimensionsFB(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrSwapchainStateSamplerOpenGLESFB(_) \
 
 #define XR_LIST_STRUCT_ARRAYS_XrSwapchainStateSamplerVulkanFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrCompositionLayerSpaceWarpInfoFB(_) \
+
+#define XR_LIST_STRUCT_ARRAYS_XrSystemSpaceWarpPropertiesFB(_) \
 
 
 
@@ -2270,6 +2705,8 @@ XR_ENUM_STR(XrResult);
     _(XrEventDataMainSessionVisibilityChangedEXTX, XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX) \
     _(XrSpatialAnchorCreateInfoMSFT, XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT) \
     _(XrSpatialAnchorSpaceCreateInfoMSFT, XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT) \
+    _(XrCompositionLayerImageLayoutFB, XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB) \
+    _(XrCompositionLayerAlphaBlendFB, XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB) \
     _(XrViewConfigurationDepthRangeEXT, XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT) \
     _(XrSystemHandTrackingPropertiesEXT, XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT) \
     _(XrHandTrackerCreateInfoEXT, XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT) \
@@ -2295,6 +2732,7 @@ XR_ENUM_STR(XrResult);
     _(XrViewConfigurationViewFovEPIC, XR_TYPE_VIEW_CONFIGURATION_VIEW_FOV_EPIC) \
     _(XrCompositionLayerReprojectionInfoMSFT, XR_TYPE_COMPOSITION_LAYER_REPROJECTION_INFO_MSFT) \
     _(XrCompositionLayerReprojectionPlaneOverrideMSFT, XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT) \
+    _(XrCompositionLayerSecureContentFB, XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB) \
     _(XrHandJointsMotionRangeInfoEXT, XR_TYPE_HAND_JOINTS_MOTION_RANGE_INFO_EXT) \
     _(XrSceneObserverCreateInfoMSFT, XR_TYPE_SCENE_OBSERVER_CREATE_INFO_MSFT) \
     _(XrSceneCreateInfoMSFT, XR_TYPE_SCENE_CREATE_INFO_MSFT) \
@@ -2318,11 +2756,39 @@ XR_ENUM_STR(XrResult);
     _(XrSerializedSceneFragmentDataGetInfoMSFT, XR_TYPE_SERIALIZED_SCENE_FRAGMENT_DATA_GET_INFO_MSFT) \
     _(XrSceneDeserializeInfoMSFT, XR_TYPE_SCENE_DESERIALIZE_INFO_MSFT) \
     _(XrEventDataDisplayRefreshRateChangedFB, XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB) \
+    _(XrViveTrackerPathsHTCX, XR_TYPE_VIVE_TRACKER_PATHS_HTCX) \
+    _(XrEventDataViveTrackerConnectedHTCX, XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX) \
     _(XrSystemColorSpacePropertiesFB, XR_TYPE_SYSTEM_COLOR_SPACE_PROPERTIES_FB) \
+    _(XrHandTrackingMeshFB, XR_TYPE_HAND_TRACKING_MESH_FB) \
+    _(XrHandTrackingScaleFB, XR_TYPE_HAND_TRACKING_SCALE_FB) \
+    _(XrHandTrackingAimStateFB, XR_TYPE_HAND_TRACKING_AIM_STATE_FB) \
+    _(XrHandTrackingCapsulesStateFB, XR_TYPE_HAND_TRACKING_CAPSULES_STATE_FB) \
+    _(XrFoveationProfileCreateInfoFB, XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB) \
+    _(XrSwapchainCreateInfoFoveationFB, XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB) \
+    _(XrSwapchainStateFoveationFB, XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB) \
+    _(XrFoveationLevelProfileCreateInfoFB, XR_TYPE_FOVEATION_LEVEL_PROFILE_CREATE_INFO_FB) \
+    _(XrTriangleMeshCreateInfoFB, XR_TYPE_TRIANGLE_MESH_CREATE_INFO_FB) \
+    _(XrSystemPassthroughPropertiesFB, XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES_FB) \
+    _(XrPassthroughCreateInfoFB, XR_TYPE_PASSTHROUGH_CREATE_INFO_FB) \
+    _(XrPassthroughLayerCreateInfoFB, XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB) \
+    _(XrCompositionLayerPassthroughFB, XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB) \
+    _(XrGeometryInstanceCreateInfoFB, XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB) \
+    _(XrGeometryInstanceTransformFB, XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB) \
+    _(XrPassthroughStyleFB, XR_TYPE_PASSTHROUGH_STYLE_FB) \
+    _(XrPassthroughColorMapMonoToRgbaFB, XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB) \
+    _(XrPassthroughColorMapMonoToMonoFB, XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB) \
+    _(XrEventDataPassthroughStateChangedFB, XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB) \
     _(XrViewLocateFoveatedRenderingVARJO, XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO) \
     _(XrFoveatedViewConfigurationViewVARJO, XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO) \
     _(XrSystemFoveatedRenderingPropertiesVARJO, XR_TYPE_SYSTEM_FOVEATED_RENDERING_PROPERTIES_VARJO) \
     _(XrCompositionLayerDepthTestVARJO, XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_VARJO) \
+    _(XrSystemMarkerTrackingPropertiesVARJO, XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_VARJO) \
+    _(XrEventDataMarkerTrackingUpdateVARJO, XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO) \
+    _(XrMarkerSpaceCreateInfoVARJO, XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO) \
+    _(XrSpatialAnchorPersistenceInfoMSFT, XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT) \
+    _(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT, XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT) \
+    _(XrCompositionLayerSpaceWarpInfoFB, XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB) \
+    _(XrSystemSpaceWarpPropertiesFB, XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB) \
 
 
 
@@ -2424,6 +2890,7 @@ XR_ENUM_STR(XrResult);
     _(XrVulkanInstanceCreateInfoKHR, XR_TYPE_VULKAN_INSTANCE_CREATE_INFO_KHR) \
     _(XrVulkanDeviceCreateInfoKHR, XR_TYPE_VULKAN_DEVICE_CREATE_INFO_KHR) \
     _(XrVulkanGraphicsDeviceGetInfoKHR, XR_TYPE_VULKAN_GRAPHICS_DEVICE_GET_INFO_KHR) \
+    _(XrSwapchainImageFoveationVulkanFB, XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB) \
     _(XrSwapchainStateSamplerVulkanFB, XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB) \
 
 
@@ -2481,12 +2948,537 @@ XR_ENUM_STR(XrResult);
 
 
 #define XR_LIST_BASE_STRUCTS(_) \
+    _(XrEventDataBaseHeader) \
+    _(XrLoaderInitInfoBaseHeaderKHR) \
+    _(XrSwapchainStateBaseHeaderFB) \
+    _(XrSwapchainImageBaseHeader) \
     _(XrCompositionLayerBaseHeader) \
     _(XrHapticBaseHeader) \
-    _(XrSwapchainImageBaseHeader) \
-    _(XrSwapchainStateBaseHeaderFB) \
-    _(XrLoaderInitInfoBaseHeaderKHR) \
-    _(XrEventDataBaseHeader) \
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrEventDataBaseHeader(_) \
+    _(XrEventDataEventsLost, XR_TYPE_EVENT_DATA_EVENTS_LOST) \
+    _(XrEventDataInstanceLossPending, XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING) \
+    _(XrEventDataSessionStateChanged, XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) \
+    _(XrEventDataReferenceSpaceChangePending, XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING) \
+    _(XrEventDataInteractionProfileChanged, XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED) \
+    _(XrEventDataVisibilityMaskChangedKHR, XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR) \
+    _(XrEventDataPerfSettingsEXT, XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT) \
+    _(XrEventDataMainSessionVisibilityChangedEXTX, XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX) \
+    _(XrEventDataDisplayRefreshRateChangedFB, XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB) \
+    _(XrEventDataViveTrackerConnectedHTCX, XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX) \
+    _(XrEventDataMarkerTrackingUpdateVARJO, XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO) \
+
+
+#if defined(XR_USE_GRAPHICS_API_D3D11)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_VULKAN)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_EGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader(_) \
+    XR_LIST_BASE_STRUCT_TYPES_CORE_XrEventDataBaseHeader(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_) \
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrLoaderInitInfoBaseHeaderKHR(_) \
+
+
+#if defined(XR_USE_GRAPHICS_API_D3D11)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_VULKAN)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_) \
+    _(XrLoaderInitInfoAndroidKHR, XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_EGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR(_) \
+    XR_LIST_BASE_STRUCT_TYPES_CORE_XrLoaderInitInfoBaseHeaderKHR(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_) \
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainStateBaseHeaderFB(_) \
+    _(XrSwapchainStateFoveationFB, XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB) \
+
+
+#if defined(XR_USE_GRAPHICS_API_D3D11)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    _(XrSwapchainStateSamplerOpenGLESFB, XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_VULKAN)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_) \
+    _(XrSwapchainStateSamplerVulkanFB, XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_) \
+    _(XrSwapchainStateAndroidSurfaceDimensionsFB, XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_EGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainStateBaseHeaderFB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_) \
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainImageBaseHeader(_) \
+
+
+#if defined(XR_USE_GRAPHICS_API_D3D11)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
+    _(XrSwapchainImageD3D11KHR, XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
+    _(XrSwapchainImageD3D12KHR, XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
+    _(XrSwapchainImageOpenGLKHR, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    _(XrSwapchainImageOpenGLESKHR, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_VULKAN)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
+    _(XrSwapchainImageVulkanKHR, XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_ANDROID)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_EGL)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_)
+#endif
+
+#if defined(XR_USE_PLATFORM_WIN32)
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_) \
+
+
+#else
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_)
+#endif
+
+
+
+#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader(_) \
+    XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainImageBaseHeader(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_) \
+    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_) \
 
 
 #define XR_LIST_BASE_STRUCT_TYPES_CORE_XrCompositionLayerBaseHeader(_) \
@@ -2748,528 +3740,6 @@ XR_ENUM_STR(XrResult);
     XR_LIST_BASE_STRUCT_TYPES_XrHapticBaseHeader_XR_USE_PLATFORM_WIN32(_) \
 
 
-#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainImageBaseHeader(_) \
-
-
-#if defined(XR_USE_GRAPHICS_API_D3D11)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
-    _(XrSwapchainImageD3D11KHR, XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_D3D12)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
-    _(XrSwapchainImageD3D12KHR, XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
-    _(XrSwapchainImageOpenGLKHR, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    _(XrSwapchainImageOpenGLESKHR, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_VULKAN)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
-    _(XrSwapchainImageVulkanKHR, XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_EGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader(_) \
-    XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainImageBaseHeader(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_EGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainImageBaseHeader_XR_USE_PLATFORM_WIN32(_) \
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainStateBaseHeaderFB(_) \
-
-
-#if defined(XR_USE_GRAPHICS_API_D3D11)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_D3D12)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    _(XrSwapchainStateSamplerOpenGLESFB, XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_VULKAN)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_) \
-    _(XrSwapchainStateSamplerVulkanFB, XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_) \
-    _(XrSwapchainStateAndroidSurfaceDimensionsFB, XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_EGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_CORE_XrSwapchainStateBaseHeaderFB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D11(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_D3D12(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_GRAPHICS_API_VULKAN(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_EGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrSwapchainStateBaseHeaderFB_XR_USE_PLATFORM_WIN32(_) \
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrLoaderInitInfoBaseHeaderKHR(_) \
-
-
-#if defined(XR_USE_GRAPHICS_API_D3D11)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_D3D12)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_VULKAN)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_) \
-    _(XrLoaderInitInfoAndroidKHR, XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_EGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR(_) \
-    XR_LIST_BASE_STRUCT_TYPES_CORE_XrLoaderInitInfoBaseHeaderKHR(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D11(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_D3D12(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_GRAPHICS_API_VULKAN(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_EGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrLoaderInitInfoBaseHeaderKHR_XR_USE_PLATFORM_WIN32(_) \
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_CORE_XrEventDataBaseHeader(_) \
-    _(XrEventDataEventsLost, XR_TYPE_EVENT_DATA_EVENTS_LOST) \
-    _(XrEventDataInstanceLossPending, XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING) \
-    _(XrEventDataSessionStateChanged, XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) \
-    _(XrEventDataReferenceSpaceChangePending, XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING) \
-    _(XrEventDataInteractionProfileChanged, XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED) \
-    _(XrEventDataVisibilityMaskChangedKHR, XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR) \
-    _(XrEventDataPerfSettingsEXT, XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT) \
-    _(XrEventDataMainSessionVisibilityChangedEXTX, XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX) \
-    _(XrEventDataDisplayRefreshRateChangedFB, XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB) \
-
-
-#if defined(XR_USE_GRAPHICS_API_D3D11)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_D3D12)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WAYLAND)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XCB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL) && defined(XR_USE_PLATFORM_XLIB)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_OPENGL_ES) && defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_GRAPHICS_API_VULKAN)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_ANDROID)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_EGL)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_)
-#endif
-
-#if defined(XR_USE_PLATFORM_WIN32)
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_) \
-
-
-#else
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_)
-#endif
-
-
-
-#define XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader(_) \
-    XR_LIST_BASE_STRUCT_TYPES_CORE_XrEventDataBaseHeader(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D11(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_D3D12(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WAYLAND(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_WIN32(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XCB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_XR_USE_PLATFORM_XLIB(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_OPENGL_ES_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_GRAPHICS_API_VULKAN(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_ANDROID(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_EGL(_) \
-    XR_LIST_BASE_STRUCT_TYPES_XrEventDataBaseHeader_XR_USE_PLATFORM_WIN32(_) \
-
-
 
 
 
@@ -3311,6 +3781,9 @@ XR_ENUM_STR(XrResult);
     _(XrScenePlaneMSFT) \
     _(XrSceneMeshMSFT) \
     _(XrDeserializeSceneFragmentMSFT) \
+    _(XrVector4sFB) \
+    _(XrHandCapsuleFB) \
+    _(XrSpatialAnchorPersistenceNameMSFT) \
 
 
 #define XR_LIST_EXTENSIONS(_) \
@@ -3339,6 +3812,8 @@ XR_ENUM_STR(XrResult);
     _(XR_VARJO_quad_views, 38) \
     _(XR_MSFT_unbounded_reference_space, 39) \
     _(XR_MSFT_spatial_anchor, 40) \
+    _(XR_FB_composition_layer_image_layout, 41) \
+    _(XR_FB_composition_layer_alpha_blend, 42) \
     _(XR_MND_headless, 43) \
     _(XR_OCULUS_android_session_state_enable, 45) \
     _(XR_EXT_view_configuration_depth_range, 47) \
@@ -3359,6 +3834,7 @@ XR_ENUM_STR(XrResult);
     _(XR_HUAWEI_controller_interaction, 70) \
     _(XR_FB_android_surface_swapchain_create, 71) \
     _(XR_FB_swapchain_update_state, 72) \
+    _(XR_FB_composition_layer_secure_content, 73) \
     _(XR_VALVE_analog_threshold, 80) \
     _(XR_EXT_hand_joints_motion_range, 81) \
     _(XR_KHR_loader_init, 89) \
@@ -3372,15 +3848,28 @@ XR_ENUM_STR(XrResult);
     _(XR_MSFT_scene_understanding_serialization, 99) \
     _(XR_FB_display_refresh_rate, 102) \
     _(XR_HTC_vive_cosmos_controller_interaction, 103) \
+    _(XR_HTCX_vive_tracker_interaction, 104) \
     _(XR_FB_color_space, 109) \
+    _(XR_FB_hand_tracking_mesh, 111) \
+    _(XR_FB_hand_tracking_aim, 112) \
+    _(XR_FB_hand_tracking_capsules, 113) \
+    _(XR_FB_foveation, 115) \
+    _(XR_FB_foveation_configuration, 116) \
+    _(XR_FB_triangle_mesh, 118) \
+    _(XR_FB_passthrough, 119) \
     _(XR_KHR_binding_modification, 121) \
     _(XR_VARJO_foveated_rendering, 122) \
     _(XR_VARJO_composition_layer_depth_test, 123) \
     _(XR_VARJO_environment_depth_estimation, 124) \
+    _(XR_VARJO_marker_tracking, 125) \
+    _(XR_MSFT_spatial_anchor_persistence, 143) \
     _(XR_OCULUS_audio_device_guid, 160) \
+    _(XR_FB_foveation_vulkan, 161) \
     _(XR_FB_swapchain_update_state_android_surface, 162) \
     _(XR_FB_swapchain_update_state_opengl_es, 163) \
     _(XR_FB_swapchain_update_state_vulkan, 164) \
+    _(XR_KHR_swapchain_usage_input_attachment_bit, 166) \
+    _(XR_FB_space_warp, 172) \
 
 
 
@@ -3487,9 +3976,44 @@ XR_ENUM_STR(XrResult);
     _(xrEnumerateDisplayRefreshRatesFB,     XrSession session,     uint32_t displayRefreshRateCapacityInput,     uint32_t* displayRefreshRateCountOutput,     float* displayRefreshRates) \
     _(xrGetDisplayRefreshRateFB,     XrSession session,     float* displayRefreshRate) \
     _(xrRequestDisplayRefreshRateFB,     XrSession session,     float displayRefreshRate) \
+    _(xrEnumerateViveTrackerPathsHTCX,     XrInstance instance,     uint32_t pathCapacityInput,     uint32_t* pathCountOutput,     XrViveTrackerPathsHTCX* paths) \
     _(xrEnumerateColorSpacesFB,     XrSession session,     uint32_t colorSpaceCapacityInput,     uint32_t* colorSpaceCountOutput,     XrColorSpaceFB* colorSpaces) \
     _(xrSetColorSpaceFB,     XrSession session,     const XrColorSpaceFB colorspace) \
+    _(xrGetHandMeshFB,     XrHandTrackerEXT handTracker,     XrHandTrackingMeshFB* mesh) \
+    _(xrCreateFoveationProfileFB,     XrSession session,     const XrFoveationProfileCreateInfoFB* createInfo,     XrFoveationProfileFB* profile) \
+    _(xrDestroyFoveationProfileFB,     XrFoveationProfileFB profile) \
+    _(xrCreateTriangleMeshFB,     XrSession session,     const XrTriangleMeshCreateInfoFB* createInfo,     XrTriangleMeshFB* outTriangleMesh) \
+    _(xrDestroyTriangleMeshFB,     XrTriangleMeshFB mesh) \
+    _(xrTriangleMeshGetIndexBufferFB,     XrTriangleMeshFB mesh,     uint32_t** outIndexBuffer) \
+    _(xrTriangleMeshBeginUpdateFB,     XrTriangleMeshFB mesh) \
+    _(xrTriangleMeshEndUpdateFB,     XrTriangleMeshFB mesh,     uint32_t vertexCount,     uint32_t triangleCount) \
+    _(xrTriangleMeshBeginVertexBufferUpdateFB,     XrTriangleMeshFB mesh,     uint32_t* outVertexCount) \
+    _(xrTriangleMeshEndVertexBufferUpdateFB,     XrTriangleMeshFB mesh) \
+    _(xrCreatePassthroughFB,     XrSession session,     const XrPassthroughCreateInfoFB* createInfo,     XrPassthroughFB* outPassthrough) \
+    _(xrDestroyPassthroughFB,     XrPassthroughFB passthrough) \
+    _(xrPassthroughStartFB,     XrPassthroughFB passthrough) \
+    _(xrPassthroughPauseFB,     XrPassthroughFB passthrough) \
+    _(xrCreatePassthroughLayerFB,     XrSession session,     const XrPassthroughLayerCreateInfoFB* createInfo,     XrPassthroughLayerFB* outLayer) \
+    _(xrDestroyPassthroughLayerFB,     XrPassthroughLayerFB layer) \
+    _(xrPassthroughLayerPauseFB,     XrPassthroughLayerFB layer) \
+    _(xrPassthroughLayerResumeFB,     XrPassthroughLayerFB layer) \
+    _(xrPassthroughLayerSetStyleFB,     XrPassthroughLayerFB layer,     const XrPassthroughStyleFB* style) \
+    _(xrCreateGeometryInstanceFB,     XrSession session,     const XrGeometryInstanceCreateInfoFB* createInfo,     XrGeometryInstanceFB* outGeometryInstance) \
+    _(xrDestroyGeometryInstanceFB,     XrGeometryInstanceFB instance) \
+    _(xrGeometryInstanceSetTransformFB,     XrGeometryInstanceFB instance,     const XrGeometryInstanceTransformFB* transformation) \
     _(xrSetEnvironmentDepthEstimationVARJO,     XrSession session,     XrBool32 enabled) \
+    _(xrSetMarkerTrackingVARJO,     XrSession session,     XrBool32 enabled) \
+    _(xrSetMarkerTrackingTimeoutVARJO,     XrSession session,     uint64_t markerId,     XrDuration timeout) \
+    _(xrSetMarkerTrackingPredictionVARJO,     XrSession session,     uint64_t markerId,     XrBool32 enabled) \
+    _(xrGetMarkerSizeVARJO,     XrSession session,     uint64_t markerId,     XrExtent2Df* size) \
+    _(xrCreateMarkerSpaceVARJO,     XrSession session,     const XrMarkerSpaceCreateInfoVARJO* createInfo,     XrSpace* space) \
+    _(xrCreateSpatialAnchorStoreConnectionMSFT,     XrSession session,     XrSpatialAnchorStoreConnectionMSFT* spatialAnchorStore) \
+    _(xrDestroySpatialAnchorStoreConnectionMSFT,     XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore) \
+    _(xrPersistSpatialAnchorMSFT,     XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore,     const XrSpatialAnchorPersistenceInfoMSFT* spatialAnchorPersistenceInfo) \
+    _(xrEnumeratePersistedSpatialAnchorNamesMSFT,     XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore,     uint32_t spatialAnchorNamesCapacityInput,     uint32_t* spatialAnchorNamesCountOutput,     XrSpatialAnchorPersistenceNameMSFT* persistedAnchorNames) \
+    _(xrCreateSpatialAnchorFromPersistedNameMSFT,     XrSession session,     const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo,     XrSpatialAnchorMSFT* spatialAnchor) \
+    _(xrUnpersistSpatialAnchorMSFT,     XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore,     const XrSpatialAnchorPersistenceNameMSFT* spatialAnchorPersistenceName) \
+    _(xrClearSpatialAnchorStoreMSFT,     XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore) \
 
 
 
@@ -3536,7 +4060,7 @@ XR_ENUM_STR(XrResult);
     _(xrGetVulkanDeviceExtensionsKHR,     XrInstance instance,     XrSystemId systemId,     uint32_t bufferCapacityInput,     uint32_t* bufferCountOutput,     char* buffer) \
     _(xrGetVulkanGraphicsDeviceKHR,     XrInstance instance,     XrSystemId systemId,     VkInstance vkInstance,     VkPhysicalDevice* vkPhysicalDevice) \
     _(xrGetVulkanGraphicsRequirementsKHR,     XrInstance instance,     XrSystemId systemId,     XrGraphicsRequirementsVulkanKHR* graphicsRequirements) \
-    _(xrCreateVulkanInstanceKHR,     XrInstance instance,     const XrVulkanInstanceCreateInfoKHR*createInfo,     VkInstance* vulkanInstance,     VkResult* vulkanResult) \
+    _(xrCreateVulkanInstanceKHR,     XrInstance instance,     const XrVulkanInstanceCreateInfoKHR* createInfo,     VkInstance* vulkanInstance,     VkResult* vulkanResult) \
     _(xrCreateVulkanDeviceKHR,     XrInstance instance,     const XrVulkanDeviceCreateInfoKHR* createInfo,     VkDevice* vulkanDevice,     VkResult* vulkanResult) \
     _(xrGetVulkanGraphicsDevice2KHR,     XrInstance instance,     const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,     VkPhysicalDevice* vulkanPhysicalDevice) \
 
@@ -4278,6 +4802,12 @@ XR_ENUM_STR(XrResult);
     _(displayRefreshRate) \
 
 
+#define XR_LIST_FUNC_xrEnumerateViveTrackerPathsHTCX(_) \
+    _(instance) \
+    _(pathCapacityInput) \
+    _(pathCountOutput) \
+
+
 #define XR_LIST_FUNC_xrEnumerateColorSpacesFB(_) \
     _(session) \
     _(colorSpaceCapacityInput) \
@@ -4289,9 +4819,183 @@ XR_ENUM_STR(XrResult);
     _(colorspace) \
 
 
+#define XR_LIST_FUNC_xrGetHandMeshFB(_) \
+    _(handTracker) \
+    _(mesh) \
+
+
+#define XR_LIST_FUNC_xrCreateFoveationProfileFB(_) \
+    _(session) \
+    _(createInfo) \
+    _(profile) \
+
+
+#define XR_LIST_FUNC_xrDestroyFoveationProfileFB(_) \
+    _(profile) \
+
+
+#define XR_LIST_FUNC_xrCreateTriangleMeshFB(_) \
+    _(session) \
+    _(createInfo) \
+    _(outTriangleMesh) \
+
+
+#define XR_LIST_FUNC_xrDestroyTriangleMeshFB(_) \
+    _(mesh) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshGetVertexBufferFB(_) \
+    _(mesh) \
+    _(outVertexBuffer) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshGetIndexBufferFB(_) \
+    _(mesh) \
+    _(outIndexBuffer) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshBeginUpdateFB(_) \
+    _(mesh) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshEndUpdateFB(_) \
+    _(mesh) \
+    _(vertexCount) \
+    _(triangleCount) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshBeginVertexBufferUpdateFB(_) \
+    _(mesh) \
+    _(outVertexCount) \
+
+
+#define XR_LIST_FUNC_xrTriangleMeshEndVertexBufferUpdateFB(_) \
+    _(mesh) \
+
+
+#define XR_LIST_FUNC_xrCreatePassthroughFB(_) \
+    _(session) \
+    _(createInfo) \
+    _(outPassthrough) \
+
+
+#define XR_LIST_FUNC_xrDestroyPassthroughFB(_) \
+    _(passthrough) \
+
+
+#define XR_LIST_FUNC_xrPassthroughStartFB(_) \
+    _(passthrough) \
+
+
+#define XR_LIST_FUNC_xrPassthroughPauseFB(_) \
+    _(passthrough) \
+
+
+#define XR_LIST_FUNC_xrCreatePassthroughLayerFB(_) \
+    _(session) \
+    _(createInfo) \
+    _(outLayer) \
+
+
+#define XR_LIST_FUNC_xrDestroyPassthroughLayerFB(_) \
+    _(layer) \
+
+
+#define XR_LIST_FUNC_xrPassthroughLayerPauseFB(_) \
+    _(layer) \
+
+
+#define XR_LIST_FUNC_xrPassthroughLayerResumeFB(_) \
+    _(layer) \
+
+
+#define XR_LIST_FUNC_xrPassthroughLayerSetStyleFB(_) \
+    _(layer) \
+    _(style) \
+
+
+#define XR_LIST_FUNC_xrCreateGeometryInstanceFB(_) \
+    _(session) \
+    _(createInfo) \
+    _(outGeometryInstance) \
+
+
+#define XR_LIST_FUNC_xrDestroyGeometryInstanceFB(_) \
+    _(instance) \
+
+
+#define XR_LIST_FUNC_xrGeometryInstanceSetTransformFB(_) \
+    _(instance) \
+    _(transformation) \
+
+
 #define XR_LIST_FUNC_xrSetEnvironmentDepthEstimationVARJO(_) \
     _(session) \
     _(enabled) \
+
+
+#define XR_LIST_FUNC_xrSetMarkerTrackingVARJO(_) \
+    _(session) \
+    _(enabled) \
+
+
+#define XR_LIST_FUNC_xrSetMarkerTrackingTimeoutVARJO(_) \
+    _(session) \
+    _(markerId) \
+    _(timeout) \
+
+
+#define XR_LIST_FUNC_xrSetMarkerTrackingPredictionVARJO(_) \
+    _(session) \
+    _(markerId) \
+    _(enabled) \
+
+
+#define XR_LIST_FUNC_xrGetMarkerSizeVARJO(_) \
+    _(session) \
+    _(markerId) \
+    _(size) \
+
+
+#define XR_LIST_FUNC_xrCreateMarkerSpaceVARJO(_) \
+    _(session) \
+    _(createInfo) \
+    _(space) \
+
+
+#define XR_LIST_FUNC_xrCreateSpatialAnchorStoreConnectionMSFT(_) \
+    _(session) \
+    _(spatialAnchorStore) \
+
+
+#define XR_LIST_FUNC_xrDestroySpatialAnchorStoreConnectionMSFT(_) \
+    _(spatialAnchorStore) \
+
+
+#define XR_LIST_FUNC_xrPersistSpatialAnchorMSFT(_) \
+    _(spatialAnchorStore) \
+    _(spatialAnchorPersistenceInfo) \
+
+
+#define XR_LIST_FUNC_xrEnumeratePersistedSpatialAnchorNamesMSFT(_) \
+    _(spatialAnchorStore) \
+    _(spatialAnchorNamesCapacityInput) \
+    _(spatialAnchorNamesCountOutput) \
+
+
+#define XR_LIST_FUNC_xrCreateSpatialAnchorFromPersistedNameMSFT(_) \
+    _(session) \
+    _(spatialAnchorCreateInfo) \
+    _(spatialAnchor) \
+
+
+#define XR_LIST_FUNC_xrUnpersistSpatialAnchorMSFT(_) \
+    _(spatialAnchorStore) \
+    _(spatialAnchorPersistenceName) \
+
+
+#define XR_LIST_FUNC_xrClearSpatialAnchorStoreMSFT(_) \
+    _(spatialAnchorStore) \
 
 
 #define XR_LIST_FUNC_xrGetAudioOutputDeviceGuidOculus(_) \
@@ -4675,6 +5379,10 @@ XR_ENUM_STR(XrResult);
 #define XR_LIST_FUNC_ARRAYS_xrRequestDisplayRefreshRateFB(_) \
 
 
+#define XR_LIST_FUNC_ARRAYS_xrEnumerateViveTrackerPathsHTCX(_) \
+    _(paths, pathCapacityInput) \
+
+
 #define XR_LIST_FUNC_ARRAYS_xrEnumerateColorSpacesFB(_) \
     _(colorSpaces, colorSpaceCapacityInput) \
 
@@ -4682,7 +5390,113 @@ XR_ENUM_STR(XrResult);
 #define XR_LIST_FUNC_ARRAYS_xrSetColorSpaceFB(_) \
 
 
+#define XR_LIST_FUNC_ARRAYS_xrGetHandMeshFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateFoveationProfileFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroyFoveationProfileFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateTriangleMeshFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroyTriangleMeshFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshGetVertexBufferFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshGetIndexBufferFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshBeginUpdateFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshEndUpdateFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshBeginVertexBufferUpdateFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrTriangleMeshEndVertexBufferUpdateFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreatePassthroughFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroyPassthroughFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPassthroughStartFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPassthroughPauseFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreatePassthroughLayerFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroyPassthroughLayerFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPassthroughLayerPauseFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPassthroughLayerResumeFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPassthroughLayerSetStyleFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateGeometryInstanceFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroyGeometryInstanceFB(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrGeometryInstanceSetTransformFB(_) \
+
+
 #define XR_LIST_FUNC_ARRAYS_xrSetEnvironmentDepthEstimationVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrSetMarkerTrackingVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrSetMarkerTrackingTimeoutVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrSetMarkerTrackingPredictionVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrGetMarkerSizeVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateMarkerSpaceVARJO(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateSpatialAnchorStoreConnectionMSFT(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrDestroySpatialAnchorStoreConnectionMSFT(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrPersistSpatialAnchorMSFT(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrEnumeratePersistedSpatialAnchorNamesMSFT(_) \
+    _(persistedAnchorNames, spatialAnchorNamesCapacityInput) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrCreateSpatialAnchorFromPersistedNameMSFT(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrUnpersistSpatialAnchorMSFT(_) \
+
+
+#define XR_LIST_FUNC_ARRAYS_xrClearSpatialAnchorStoreMSFT(_) \
 
 
 #define XR_LIST_FUNC_ARRAYS_xrGetAudioOutputDeviceGuidOculus(_) \
@@ -5286,6 +6100,11 @@ XR_ENUM_STR(XrResult);
 
 
 
+#define XR_LIST_FUNC_PARAM_NAMES_xrEnumerateViveTrackerPathsHTCX(_) \
+    _(instance, pathCapacityInput, pathCountOutput, paths) \
+
+
+
 #define XR_LIST_FUNC_PARAM_NAMES_xrEnumerateColorSpacesFB(_) \
     _(session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces) \
 
@@ -5296,8 +6115,183 @@ XR_ENUM_STR(XrResult);
 
 
 
+#define XR_LIST_FUNC_PARAM_NAMES_xrGetHandMeshFB(_) \
+    _(handTracker, mesh) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateFoveationProfileFB(_) \
+    _(session, createInfo, profile) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroyFoveationProfileFB(_) \
+    _(profile) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateTriangleMeshFB(_) \
+    _(session, createInfo, outTriangleMesh) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroyTriangleMeshFB(_) \
+    _(mesh) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshGetVertexBufferFB(_) \
+    _(mesh, outVertexBuffer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshGetIndexBufferFB(_) \
+    _(mesh, outIndexBuffer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshBeginUpdateFB(_) \
+    _(mesh) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshEndUpdateFB(_) \
+    _(mesh, vertexCount, triangleCount) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshBeginVertexBufferUpdateFB(_) \
+    _(mesh, outVertexCount) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrTriangleMeshEndVertexBufferUpdateFB(_) \
+    _(mesh) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreatePassthroughFB(_) \
+    _(session, createInfo, outPassthrough) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroyPassthroughFB(_) \
+    _(passthrough) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPassthroughStartFB(_) \
+    _(passthrough) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPassthroughPauseFB(_) \
+    _(passthrough) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreatePassthroughLayerFB(_) \
+    _(session, createInfo, outLayer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroyPassthroughLayerFB(_) \
+    _(layer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPassthroughLayerPauseFB(_) \
+    _(layer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPassthroughLayerResumeFB(_) \
+    _(layer) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPassthroughLayerSetStyleFB(_) \
+    _(layer, style) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateGeometryInstanceFB(_) \
+    _(session, createInfo, outGeometryInstance) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroyGeometryInstanceFB(_) \
+    _(instance) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrGeometryInstanceSetTransformFB(_) \
+    _(instance, transformation) \
+
+
+
 #define XR_LIST_FUNC_PARAM_NAMES_xrSetEnvironmentDepthEstimationVARJO(_) \
     _(session, enabled) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrSetMarkerTrackingVARJO(_) \
+    _(session, enabled) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrSetMarkerTrackingTimeoutVARJO(_) \
+    _(session, markerId, timeout) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrSetMarkerTrackingPredictionVARJO(_) \
+    _(session, markerId, enabled) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrGetMarkerSizeVARJO(_) \
+    _(session, markerId, size) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateMarkerSpaceVARJO(_) \
+    _(session, createInfo, space) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateSpatialAnchorStoreConnectionMSFT(_) \
+    _(session, spatialAnchorStore) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrDestroySpatialAnchorStoreConnectionMSFT(_) \
+    _(spatialAnchorStore) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrPersistSpatialAnchorMSFT(_) \
+    _(spatialAnchorStore, spatialAnchorPersistenceInfo) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrEnumeratePersistedSpatialAnchorNamesMSFT(_) \
+    _(spatialAnchorStore, spatialAnchorNamesCapacityInput, spatialAnchorNamesCountOutput, persistedAnchorNames) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrCreateSpatialAnchorFromPersistedNameMSFT(_) \
+    _(session, spatialAnchorCreateInfo, spatialAnchor) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrUnpersistSpatialAnchorMSFT(_) \
+    _(spatialAnchorStore, spatialAnchorPersistenceName) \
+
+
+
+#define XR_LIST_FUNC_PARAM_NAMES_xrClearSpatialAnchorStoreMSFT(_) \
+    _(spatialAnchorStore) \
 
 
 
