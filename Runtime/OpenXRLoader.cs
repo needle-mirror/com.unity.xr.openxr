@@ -106,6 +106,7 @@ namespace UnityEngine.XR.OpenXR
 #endif
 
         OpenXRFeature.NativeEvent currentOpenXRState;
+        private bool actionSetsAttached;
 
         /// <summary>
         /// Reference to the current display subsystem if the loader is initialized, or null if the loader is not initialized.
@@ -342,7 +343,11 @@ namespace UnityEngine.XR.OpenXR
             // calls xrBeginSession
             Internal_BeginSession();
 
-            OpenXRInput.AttachActionSets();
+            if (!actionSetsAttached)
+            {
+                OpenXRInput.AttachActionSets();
+                actionSetsAttached = true;
+            }
 
             // Note: Display has to be started before Input so that Input can have access to the Session object
             StartSubsystem<XRDisplaySubsystem>();
@@ -376,8 +381,6 @@ namespace UnityEngine.XR.OpenXR
             if (ShouldExitEarly()) return false;
 #endif
 
-            Internal_RequestExitSession();
-
             StopInternal();
 
             currentLoaderState = LoaderState.Stopped;
@@ -387,12 +390,16 @@ namespace UnityEngine.XR.OpenXR
 
         private void StopInternal()
         {
-            OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStop);
+            var inputRunning = inputSubsystem?.running ?? false;
+            var displayRunning = displaySubsystem?.running ?? false;
 
-            if(inputSubsystem?.running ?? false)
+            if (inputRunning || displayRunning)
+                OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStop);
+
+            if (inputRunning)
                 StopSubsystem<XRInputSubsystem>();
 
-            if(displaySubsystem?.running ?? false)
+            if (displayRunning)
                 StopSubsystem<XRDisplaySubsystem>();
 
             Internal_EndSession();
@@ -424,6 +431,8 @@ namespace UnityEngine.XR.OpenXR
                 if (Instance == null)
                     Instance = this;
 #endif
+                Internal_RequestExitSession();
+
                 Application.onBeforeRender -= ProcessOpenXRMessageLoop;
 
                 ProcessOpenXRMessageLoop(); // Drain any remaining events.
@@ -442,6 +451,7 @@ namespace UnityEngine.XR.OpenXR
                 Internal_UnloadOpenXRLibrary();
 
                 currentLoaderState = LoaderState.Uninitialized;
+                actionSetsAttached = false;
 
                 if (unhandledExceptionHandler != null)
                 {
@@ -595,6 +605,10 @@ namespace UnityEngine.XR.OpenXR
                     DiagnosticReport.DumpReport("System Startup Completed");
                     break;
 
+                case OpenXRFeature.NativeEvent.XrStopping:
+                    loader.StopInternal();
+                    break;
+
                 default:
                     break;
             }
@@ -606,10 +620,6 @@ namespace UnityEngine.XR.OpenXR
 
             switch (e)
             {
-                case OpenXRFeature.NativeEvent.XrStopping:
-                    loader.StopInternal();
-                    break;
-
                 case OpenXRFeature.NativeEvent.XrExiting:
                     OpenXRRestarter.Instance.Shutdown();
                     break;

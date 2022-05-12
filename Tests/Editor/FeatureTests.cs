@@ -81,7 +81,8 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.AreEqual(0, validationIssues.Count);
 
             // Close the validation window ...
-            OpenXRProjectValidationWindow.CloseWindow();
+            OpenXRProjectValidationRulesSetup.CloseWindow();
+
         }
 
         [Test]

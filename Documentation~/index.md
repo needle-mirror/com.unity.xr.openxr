@@ -40,47 +40,16 @@ To enable OpenXR in your project, follow the steps below:
 1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**), and select **XR Plug-in Management**.
 2. Enable the **OpenXR** option and any **Feature Groups** for the runtimes you intend to target.
 3. In the **OpenXR > Features** tab, select the interaction profile of the device you are testing with.
-4. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Per-platform setttings](#per-platform-settings) section on this page for more information.
+4. In the **OpenXR** tab, make sure the current active runtime is set to the hardware you are testing with. See the [Choose an OpenXR runtime to use in Play mode](xref:openxr-project-config#openxr-runtime) for more information.
+
+See [Project configuration](xref:openxr-project-config) for additional information about setting up your project to use an OpenXR plug-in.
 
 
 ## Project validation
 
-![feature-validation](images/feature-validation.png)
+Project validation is a feature OpenXR has to assess configuration correctness of your project depending on the platform you are planning to build for. Unity will raise errors and warnings at build time if your project is not compatible with OpenXR.
 
-Unity raises errors and warnings at build time if your project is not compatible with OpenXR. Make sure that your project conforms to the following rules and standards:
-
-* If using OpenGLES the **Color Space** must be set to Linear in the Player settings (menu: **Edit &gt; Project Settings &gt; Player**, then select your platform and change this setting under **Other Settings &gt; Rendering**). OpenXR does not support Gamma **Color Space** rendering with OpenGLES in Unity.
-
-* You must select at least one interaction profile in the **OpenXR** tab. Unity's OpenXR plug-in includes several interaction profiles, and you can add more from the **Features** tab. For more information on interaction profiles, see the [OpenXR input](./input.md) page. 
-
-Features might introduce new validation steps. For more information, refer to specific feature documentation. Unity does not write or maintain documentation for third-party features, nor does Unity guarantee that any third-party documentation is correct or complete. 
-
-Unity reports validation issues in the following locations:
-
-* XR Plug-in Management window: Icon next to the OpenXR loader.
-* Features pane: Icon next to the feature group containing the feature that is reporting a validation issue.
-* Features pane: Icon next to each feature that is reporting a validation issue.
-* Console window, as the result of a build: Validation errors cause the build to terminate. Validation warnings do not terminate the build.
-
-The Validation window can also be opened manually from the menu (**Window &gt; XR &gt; OpenXR &gt; Project Validation**).
-
-### Validation issues reported in XR Plug-in Management
-
-![loader-with-issues](images/loader-with-issues.png)
-
-Clicking on either the validation warning or the error icon brings up the Validation window.
-
-### Validation issues reported in features pane  
-
-![features-with-issues](images/features-with-issues.png)
-
-Clicking on either the validation warning or the error icon brings up the Validation window.
-
-### Validation issues reported in build  
-
-![build-with-issues](images/build-with-issues.png)
-
-Double-clicking on build warnings or errors from validation brings up the Validation window.
+For more information on how project validation works in OpenXR, see [Project validation](xref:openxr-project-config#project-validation).
 
 ## Troubleshooting
 
@@ -136,65 +105,15 @@ The core steps to upgrade a project to use OpenXR are the setup instructions at 
 
 See [OpenXR Input Documentation](./input.md).
 
-### Generic OpenXR Settings
-
-![openxr-settings-ui](images/openxr-settings.png)
-
-#### Settings supported on all platforms
-The following settings are general across all platforms in OpenXR:
-
-**Render Mode** - Sets the requested render mode for a given platform. You can choose from the following:
-
-|**Option**|**Description**|
-|---|---|
-|**Multi Pass**|When rendering, the engine will do a complete render pass (culling and rendering) for each eye.|
-|**Single Pass Instanced**|When rendering, the engine will do simultaneous renders to each eye using shared culling and a single render pass.|
-
-**Depth Submission Mode** - Sets the requested depth submission mode for a given platform. You can choose from the following:
-
-|**Option**|**Description**|
-|---|---|
-|**None**|No depth submission support. No depth based stability or re-projection support that the platform my provide will be available.|
-|**Depth 16 bit**|A shared depth buffer using 16 bits per pixel will be used.|
-|**Depth 24 bit**|A shared depth buffer using 24 bits per pixel will be used.|
-
-#### Per-platform settings
-
-Standalone:
-
-![openxr-active-runtime](images/openxr-active-runtime.png)
-
-**Active OpenXR Runtime** - Sets the OpenXR runtime to be used when running your app in Play mode. This setting is only active for the current running instance of the Editor that you are using. You can choose from the following:
-
-|**Option**|**Description**|
-|---|---|
-|**System Default**|The currently set OpenXR runtime.|
-|**Windows Mixed Reality**|If available, sets the current OpenXR runtime to the Microsoft OpenXR runtime for Windows Mixed Reality.|
-|**SteamVR**|If available, sets the current OpenXR runtime to the SteamVR OpenXR runtime.|
-|**Oculus**|If available, sets the current OpenXR runtime to the Oculus OpenXR runtime.|
-|**Other**|Allows you to navigate to and select the `json` file for a specific runtime. Useful when you want to use an OpenXR runtime that Unity might not directly support or detect automatically.|
-
+<a name="openxr-features"></a>
 ### OpenXR features
 
 Features allow third parties to extend Unity's base support for OpenXR. They bring the functionality of OpenXR spec extensions to the Unity ecosystem, but Unity is not involved in their development.
 
-Features might integrate into the [Unity XR Plug-in framework](https://docs.unity3d.com/2020.1/Documentation/Manual/XRPluginArchitecture.html) to provide data to other XR subsystems (for example, providing meshing or plane data for AR use cases which are not yet standardized in OpenXR 1.0).
+Features might integrate into the [Unity XR Plug-in framework](xref:XRPluginArchitecture) to provide data to other XR subsystems (for example, providing meshing or plane data for AR use cases which are not yet standardized in OpenXR 1.0).
 
 Features are a collection of Unity Assets that can be distributed through the Package Manager, Asset Store, or any other mechanism.
 
-#### Feature selection and configuration
-
-![openxr-features-ui](images/openxr-features.png)
-
-You can enable, disable, and configure features from the **XR Plug-in Management &gt; OpenXR** window. There are two main sections: **Interaction Profiles** and **Feature Groups** .
-
-**Interaction Profiles** are a specific type of feature that provide support for various controllers and input devices within OpenXR.  Generally you would add **Interaction Profiles** for each device that you are able to test with and intend to support.
-
-Feature groups are a grouping of features that a provider defines. Use them to easily select and group a number of features. Selecting group in the left pane filters the set of features on the right to only the features that the set contains. You can then enable or disable these features individually.
-
-Some features will will have links to documentation following their name as well as a gear icon to the right for additional configuration. 
-
-### OpenXR core features
 
 #### General features
 

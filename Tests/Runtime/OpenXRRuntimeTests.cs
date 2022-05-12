@@ -468,31 +468,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(containsMockExt);
         }
 
-
-        [UnityTest]
-        public IEnumerator CheckDisplayRestartAfterStopSendRestartEvent()
-        {
-            // Initialize and make sure the frame loop is running
-            InitializeAndStart();
-            yield return new WaitForXrFrame();
-
-            // Stop the session and make sure xrEndSession is called
-            var endSessionCalled = false;
-            MockRuntime.SetFunctionCallback("xrEndSession", (func, result) => endSessionCalled = true);
-
-            Stop();
-
-            Assert.IsTrue(endSessionCalled);
-
-            // Restart the display subsystem which should force a restart
-            loader.displaySubsystem.Start();
-
-            // Wait for the restart to finish and then wait for a single Xr Frame, if things restarted
-            // properly then the frame loop should be back up and running
-            yield return new WaitForLoaderRestart();
-            yield return new WaitForXrFrame();
-        }
-
         [UnityTest]
         public IEnumerator SimulatePause ()
         {
@@ -500,17 +475,32 @@ namespace UnityEngine.XR.OpenXR.Tests
             InitializeAndStart();
             yield return new WaitForXrFrame();
 
-            // Pause..
+            // Pause will stop the loaders directly
             loader.displaySubsystem.Stop();
             loader.inputSubsystem.Stop();
 
             yield return null;
+
+            // Runtime will transition to idle
+            MockRuntime.TransitionToState(XrSessionState.Visible, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Synchronized, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Stopping, false);
+            yield return null;
+            MockRuntime.TransitionToState(XrSessionState.Idle, false);
             yield return null;
 
-            // Unpause
+            yield return null;
+
+            // Unpause will start the loaders directly
             loader.displaySubsystem.Start();
             loader.inputSubsystem.Start();
 
+            yield return null;
+
+            // And then transition to ready
+            MockRuntime.TransitionToState(XrSessionState.Ready, false);
             yield return new WaitForXrFrame();
         }
 
@@ -689,7 +679,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         public IEnumerator ThirdPersonObserver()
         {
             AddExtension("XR_MSFT_secondary_view_configuration");
-            AddExtension("XR_MSFT_internal_third_person_observer");
+            AddExtension("XR_MSFT_third_person_observer_private");
             base.InitializeAndStart();
 
             MockRuntime.ActivateSecondaryView(XrViewConfigurationType.SecondaryMonoThirdPersonObserver, true);

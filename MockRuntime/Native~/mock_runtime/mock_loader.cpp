@@ -82,8 +82,8 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
-        XR_MSFT_INTERNAL_THIRD_PERSON_OBSERVER_EXTENSION_NAME,
-        XR_MSFT_internal_third_person_observer_SPEC_VERSION
+        XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME,
+        XR_MSFT_third_person_observer_private_SPEC_VERSION
     }
 #if defined(XR_USE_GRAPHICS_API_VULKAN)    
     ,{
@@ -220,7 +220,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             continue;
         }
 
-        if (strncmp(XR_MSFT_INTERNAL_THIRD_PERSON_OBSERVER_EXTENSION_NAME, extension, sizeof(XR_MSFT_INTERNAL_THIRD_PERSON_OBSERVER_EXTENSION_NAME)) == 0)
+        if (strncmp(XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME, extension, sizeof(XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT;
             continue;

@@ -1,3 +1,7 @@
+---
+uid: openxr-input
+---
+
 # Input in Unity OpenXR
 
 This page details how to use and configure OpenXR input within unity. 
@@ -33,13 +37,12 @@ This adds a `Samples` folder to your project with a Scene named `ControllerSampl
 
 ### Locking input to the game window
 
-Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view.  To work around this issue, use the [Unity OpenXR Project Validator](./index.md#project-validation) or follow these steps:
+Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view.  To work around this issue, use the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or follow these steps:
 
 * Access the Input System Debugger window (menu: **Window &gt; Analysis &gt; Input Debugger**).
 * In the **Options** section, enable the **Lock Input to the Game Window** option.
 
-Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](./index.md#project-validation) or the Input System Debugger window
-
+Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or the Input System Debugger window
 
 ![lock-input-to-game-view](images/lock-input-to-game-view.png)
 
@@ -99,6 +102,8 @@ Selecting an Interaction Profile from the features menu will add that device to 
 
 ![XR Controller Menu](images/xr-controller-input-menu.png)
 
+See [Set the interaction profile](xref:openxr-project-config#interaction-profile) for instructions on setting a profile.
+
 ### Mapping between OpenXR paths and Unity bindings
 
 The OpenXR specification details a number of `Interaction Profiles` that you can use to suggest bindings to the OpenXR runtime. Unity uses its own existing XRSDK naming scheme to identify controls and devices and map OpenXR action data to them. 
@@ -133,7 +138,7 @@ Which controls are available on which devices is covered in the specific device 
 |`/input/y/click` | secondaryButton | Boolean |
 |`/input/y/touch` | secondaryTouched | Boolean |
 
-the Unity control `touchpad` and `trackpad` are used interchangably, as are `joystick` and `thumbstick`.
+the Unity control `touchpad` and `trackpad` are used interchangeably, as are `joystick` and `thumbstick`.
 
 ### Pose data
 

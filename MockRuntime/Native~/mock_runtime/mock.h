@@ -32,7 +32,7 @@ extern IUnityXRTrace* s_Trace;
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
 #include <openxr/openxr_reflection.h>
-#include <openxr/xr_msft_internal_third_person_observer.h>
+#include <openxr/xr_msft_third_person_observer_private.h>
 
 #include "XR/IUnityXRTrace.h"
 

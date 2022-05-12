@@ -237,6 +237,9 @@ XrResult MockRuntime::BeginSession(const XrSessionBeginInfo* beginInfo)
 
 XrResult MockRuntime::EndSession()
 {
+    if (!IsSessionState(XR_SESSION_STATE_STOPPING))
+        return XR_ERROR_SESSION_NOT_STOPPING;
+
     isRunning = false;
     ChangeSessionStateFrom(XR_SESSION_STATE_STOPPING, XR_SESSION_STATE_IDLE);
 

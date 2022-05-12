@@ -360,8 +360,17 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #if UNITY_EDITOR
         protected internal override void GetValidationChecks(List<ValidationRule> results, BuildTargetGroup target)
         {
-            if (ignoreValidationErrors)
-                results.Clear();
+            foreach (var res in results)
+            {
+                var check = res.checkPredicate;
+                res.checkPredicate = () =>
+                {
+                    if (enabled && ignoreValidationErrors)
+                        return true;
+                    return check();
+                };
+            }
+
             TestCallback(MethodBase.GetCurrentMethod().Name, results);
         }
 #endif

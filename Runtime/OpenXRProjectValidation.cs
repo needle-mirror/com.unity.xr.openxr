@@ -27,6 +27,7 @@ namespace UnityEditor.XR.OpenXR
                 fixIt = RequireRestart,
                 error = true,
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
 
             new OpenXRFeature.ValidationRule()
@@ -61,11 +62,12 @@ namespace UnityEditor.XR.OpenXR
                 fixItMessage = "Set PlayerSettings.colorSpace to ColorSpace.Linear",
                 error = true,
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Android,
             },
             new OpenXRFeature.ValidationRule()
             {
                 message = "At least one interaction profile must be added.  Please select which controllers you will be testing against in the Features menu.",
-                checkPredicate = () => OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
+                checkPredicate = () => OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup).GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
                 fixIt = OpenProjectSettings,
                 fixItAutomatic = false,
                 fixItMessage = "Open Project Settings to select one or more interaction profiles."
@@ -81,6 +83,7 @@ namespace UnityEditor.XR.OpenXR
                 },
                 fixItMessage = "Change android build to arm64 and enable il2cpp.",
                 error = true,
+                buildTargetGroup = BuildTargetGroup.Android,
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -90,6 +93,7 @@ namespace UnityEditor.XR.OpenXR
                 fixItMessage = "Switch active build target to StandaloneWindows64.",
                 error = true,
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -112,6 +116,7 @@ namespace UnityEditor.XR.OpenXR
                     prop.SetValue(null, true);
                 },
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -170,6 +175,7 @@ namespace UnityEditor.XR.OpenXR
                 },
                 fixItMessage = "Change Run In Background to True.",
                 error = false,
+                buildTargetGroup = BuildTargetGroup.WSA,
             },
         };
 
@@ -180,6 +186,13 @@ namespace UnityEditor.XR.OpenXR
         /// </summary>
         internal static void OpenProjectSettings() => SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");
 
+        internal static void GetAllValidationIssues(List<OpenXRFeature.ValidationRule> issues, BuildTargetGroup buildTargetGroup)
+        {
+            issues.Clear();
+            issues.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
+            OpenXRFeature.GetFullValidationList(issues, buildTargetGroup);
+        }
+
         /// <summary>
         /// Gathers and evaluates validation issues and adds them to a list.
         /// </summary>
@@ -188,7 +201,7 @@ namespace UnityEditor.XR.OpenXR
         public static void GetCurrentValidationIssues(List<OpenXRFeature.ValidationRule> issues, BuildTargetGroup buildTargetGroup)
         {
             CachedValidationList.Clear();
-            CachedValidationList.AddRange(BuiltinValidationRules);
+            CachedValidationList.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
             OpenXRFeature.GetValidationList(CachedValidationList, buildTargetGroup);
 
             issues.Clear();

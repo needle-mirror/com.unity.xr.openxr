@@ -1,4 +1,5 @@
 * [About Unity OpenXR](index.md)
+  * [Project Configuration](project-configuration.md)
 * [OpenXR Features](features.md)
     * [Oculus Quest Support](features/oculusquest.md)
 * [OpenXR Input](input.md)

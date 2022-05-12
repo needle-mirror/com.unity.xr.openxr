@@ -158,7 +158,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     (fieldRect, rect) = TakeFromFrontOfRect(rect, size.x);
                     if (GUI.Button(fieldRect, icon, EditorStyles.label))
                     {
-                        OpenXRProjectValidationWindow.ShowWindow(activeBuildTarget);
+                        OpenXRProjectValidationRulesSetup.ShowWindow(activeBuildTarget);
                     }
                 }
             };
@@ -357,7 +357,7 @@ namespace UnityEditor.XR.OpenXR.Features
                                 GUIContent icon = (typeOfIssues == IssueType.Error) ? CommonContent.k_ValidationErrorIcon : CommonContent.k_ValidationWarningIcon;
                                 if (GUILayout.Button(icon, EditorStyles.label, GUILayout.Width(Styles.k_IconWidth), GUILayout.Height(lineHeight)))
                                 {
-                                    OpenXRProjectValidationWindow.ShowWindow(activeBuildTarget);
+                                    OpenXRProjectValidationRulesSetup.ShowWindow(activeBuildTarget);
                                 }
                             }
 
@@ -406,7 +406,7 @@ namespace UnityEditor.XR.OpenXR.Features
                                     GUIContent icon = (typeOfIssue == IssueType.Error) ? CommonContent.k_ValidationErrorIcon : CommonContent.k_ValidationWarningIcon;
                                     if (GUILayout.Button(icon, EditorStyles.label, GUILayout.Width(Styles.k_IconWidth)))
                                     {
-                                        OpenXRProjectValidationWindow.ShowWindow(activeBuildTarget);
+                                        OpenXRProjectValidationRulesSetup.ShowWindow(activeBuildTarget);
                                     }
                                 }
 

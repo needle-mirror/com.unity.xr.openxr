@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2022-05-12
+### Fixed
+* Fixed unnecessary destroying session on pause and resume.
+
 ## [1.4.1] - 2022-04-13
 ### Fixed
 * Fixed an issue that would cause failure to load OpenXR loader when non-ascii characters in project path.

@@ -374,6 +374,8 @@ namespace UnityEngine.XR.OpenXR.Features
             public string helpLink;
 
             internal OpenXRFeature feature;
+
+            internal BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown;
         }
 
         /// <summary>
@@ -384,6 +386,26 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <param name="targetGroup">Build target group these validation rules will be evaluated for.</param>
         protected internal virtual void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
         {
+        }
+
+        internal static void GetFullValidationList(List<ValidationRule> rules, BuildTargetGroup targetGroup)
+        {
+            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+            if (openXrSettings == null)
+            {
+                return;
+            }
+
+            var tempList = new List<ValidationRule>();
+            foreach (var feature in openXrSettings.features)
+            {
+                if (feature != null)
+                {
+                    feature.GetValidationChecks(tempList, targetGroup);
+                    rules.AddRange(tempList);
+                    tempList.Clear();
+                }
+            }
         }
 
         internal static void GetValidationList(List<ValidationRule> rules, BuildTargetGroup targetGroup)

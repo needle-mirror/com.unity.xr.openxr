@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Build;
@@ -10,12 +9,136 @@ using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
+#if PROJECT_VALIDATION_AVAILABLE
+using System;
+using Unity.XR.CoreUtils.Editor;
+#endif
+
 namespace UnityEditor.XR.OpenXR
 {
-    [InitializeOnLoad]
-    internal class OpenXRProjectValidationWindow : EditorWindow
+#if PROJECT_VALIDATION_AVAILABLE
+    internal class OpenXRProjectValidationRulesSetup
     {
-        static OpenXRProjectValidationWindow()
+        static BuildTargetGroup[] s_BuildTargetGroups =
+            ((BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup))).Distinct().ToArray();
+
+        static BuildTargetGroup s_SelectedBuildTargetGroup = BuildTargetGroup.Unknown;
+
+        internal const string OpenXRProjectValidationSettingsPath = "Project/XR Plug-in Management/Project Validation";
+
+        [InitializeOnLoadMethod]
+        static void OpenXRProjectValidationCheck()
+        {
+            UnityEditor.PackageManager.Events.registeredPackages += (packageRegistrationEventArgs) =>
+            {
+                // In the Player Settings UI we have to delay the call one frame to let OpenXRSettings constructor to get initialized
+                EditorApplication.delayCall += () => {
+                    if (HasXRPackageVersionChanged(packageRegistrationEventArgs))
+                    {
+                        ShowWindowIfIssuesExist();
+                    }
+                };
+            };
+
+            AddOpenXRValidationRules();
+        }
+
+        private static bool HasXRPackageVersionChanged(PackageRegistrationEventArgs packageRegistrationEventArgs)
+        {
+            bool packageChanged = packageRegistrationEventArgs.changedTo.Any(p => p.name.Equals(OpenXRManagementSettings.PackageId));
+            OpenXRSettings.Instance.versionChanged = packageChanged;
+            return packageRegistrationEventArgs.added.Any(p => p.name.Equals(OpenXRManagementSettings.PackageId)) || packageChanged;
+        }
+
+        private static void ShowWindowIfIssuesExist()
+        {
+            List<OpenXRFeature.ValidationRule> failures = new List<OpenXRFeature.ValidationRule>();
+            BuildTargetGroup activeBuildTargetGroup = BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget);
+            OpenXRProjectValidation.GetCurrentValidationIssues(failures, activeBuildTargetGroup);
+
+            if (failures.Count > 0)
+            {
+                ShowWindow();
+            }
+        }
+
+        static void AddOpenXRValidationRules()
+        {
+            foreach (var buildTargetGroup in s_BuildTargetGroups)
+            {
+                var issues = new List<OpenXRFeature.ValidationRule>();
+                OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
+
+                var coreIssues = new List<BuildValidationRule>();
+                foreach (var issue in issues)
+                {
+
+                    var rule = new BuildValidationRule
+                    {
+                        // This will hide the rules given a condition so that when you click "Show all" it doesn't show up as passed
+                        IsRuleEnabled = () =>
+                        {
+                            // If OpenXR isn't enabled, no need to show the rule
+                            if (!BuildHelperUtils.HasLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
+                                return false;
+
+                            // If the feature isn't enabled, don't show this rule
+                            if (issue.feature != null && !issue.feature.enabled)
+                                return false;
+
+                            return true;
+                        },
+                        CheckPredicate = issue.checkPredicate,
+                        Error = issue.error,
+                        FixIt = issue.fixIt,
+                        FixItAutomatic = issue.fixItAutomatic,
+                        FixItMessage = issue.fixItMessage,
+                        HelpLink = issue.helpLink,
+                        HelpText = issue.helpText,
+                        Message = issue.message,
+                        Category = issue.feature != null ? issue.feature.nameUi : "OpenXR",
+                        SceneOnlyValidation = false
+                    };
+
+                    coreIssues.Add(rule);
+                }
+
+                BuildValidator.AddRules(buildTargetGroup, coreIssues);
+            }
+        }
+
+        [MenuItem("Window/XR/OpenXR/Project Validation")]
+        private static void MenuItem()
+        {
+            ShowWindow();
+        }
+
+        internal static void SetSelectedBuildTargetGroup(BuildTargetGroup buildTargetGroup)
+        {
+            if (s_SelectedBuildTargetGroup == buildTargetGroup)
+                return;
+
+            s_SelectedBuildTargetGroup = buildTargetGroup;
+        }
+
+        internal static void ShowWindow(BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown)
+        {
+            // Delay opening the window since sometimes other settings in the player settings provider redirect to the
+            // project validation window causing serialized objects to be nullified
+            EditorApplication.delayCall += () =>
+            {
+                SetSelectedBuildTargetGroup(buildTargetGroup);
+                SettingsService.OpenProjectSettings(OpenXRProjectValidationSettingsPath);
+            };
+        }
+
+        internal static void CloseWindow(){}
+    }
+#else // !PROJECT_VALIDATION_AVAILABLE just display the original editor window
+    [InitializeOnLoad]
+    internal class OpenXRProjectValidationRulesSetup : EditorWindow
+    {
+        static OpenXRProjectValidationRulesSetup()
         {
             UnityEditor.PackageManager.Events.registeredPackages += (packageRegistrationEventArgs) =>
             {
@@ -111,7 +234,7 @@ namespace UnityEditor.XR.OpenXR
         {
             SetSelectedBuildTargetGroup(buildTargetGroup);
 
-            var window = (OpenXRProjectValidationWindow) GetWindow(typeof(OpenXRProjectValidationWindow));
+            var window = (OpenXRProjectValidationRulesSetup) GetWindow(typeof(OpenXRProjectValidationRulesSetup));
             window.titleContent = Content.k_Title;
             window.minSize = new Vector2(500.0f, 300.0f);
             window.UpdateIssues();
@@ -120,7 +243,7 @@ namespace UnityEditor.XR.OpenXR
 
         internal static void CloseWindow()
         {
-            var window = (OpenXRProjectValidationWindow) GetWindow(typeof(OpenXRProjectValidationWindow));
+            var window = (OpenXRProjectValidationRulesSetup) GetWindow(typeof(OpenXRProjectValidationRulesSetup));
             window.Close();
         }
 
@@ -301,16 +424,16 @@ namespace UnityEditor.XR.OpenXR
             EditorGUILayout.EndVertical();
         }
     }
-
+#endif //PROJECT_VALIDATION_AVAILABLE
     internal class OpenXRProjectValidationBuildStep : IPreprocessBuildWithReport
     {
-        [OnOpenAsset()]
+        [OnOpenAsset(0)]
         static bool ConsoleErrorDoubleClicked(int instanceId, int line)
         {
             var objName = EditorUtility.InstanceIDToObject(instanceId).name;
             if (objName == "OpenXRProjectValidation")
             {
-                OpenXRProjectValidationWindow.ShowWindow();
+                OpenXRProjectValidationRulesSetup.ShowWindow();
                 return true;
             }
 

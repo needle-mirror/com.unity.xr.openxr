@@ -69,7 +69,7 @@ namespace UnityEditor.XR.OpenXR
         public override void OnInspectorGUI()
         {
             var buildTargetGroup = EditorGUILayout.BeginBuildTargetSelectionGrouping();
-            OpenXRProjectValidationWindow.SetSelectedBuildTargetGroup(buildTargetGroup);
+            OpenXRProjectValidationRulesSetup.SetSelectedBuildTargetGroup(buildTargetGroup);
 
             OpenXRPackageSettings settings = serializedObject.targetObject as OpenXRPackageSettings;
 
