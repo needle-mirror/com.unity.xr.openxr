@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using UnityEngine.Scripting;
-using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.Scripting;
+using UnityEngine.XR.OpenXR.Input;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +13,7 @@ using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
-    /// This <see cref="OpenXRInteractionFeature"/> enables the use of eye gaze interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">XR_EXT_eye_gaze_interaction</see> in the underyling runtime.
+    /// This <see cref="OpenXRInteractionFeature"/> enables the use of eye gaze interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">XR_EXT_eye_gaze_interaction</see> in the underlying runtime.
     /// This creates a new <see cref="InputDevice"/> with the <see cref="InputDeviceCharacteristics.EyeTracking"/> characteristic. This new device has both <see cref="EyeTrackingUsages.gazePosition"/> and <see cref="EyeTrackingUsages.gazeRotation"/> input features, as well as <see cref="CommonUsages.isTracked"/> and <see cref="CommonUsages.trackingState"/> usages to determine if the gaze is available.
     /// </summary>
 #if UNITY_EDITOR
@@ -102,6 +102,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void RegisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RegisterLayout(typeof(EyeGazeDevice),
                         "EyeGaze",
                         matches: new InputDeviceMatcher()
@@ -114,6 +118,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RemoveLayout("EyeGaze");
         }
 

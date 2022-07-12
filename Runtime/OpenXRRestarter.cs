@@ -17,12 +17,27 @@ namespace UnityEngine.XR.OpenXR
         internal Action onQuit;
         internal Action onAfterCoroutine;
 
+
+        static OpenXRRestarter()
+        {
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged += (state) =>
+            {
+                if (state == PlayModeStateChange.EnteredPlayMode)
+                    m_pauseAndRestartAttempts = 0;
+            };
+#endif
+            TimeBetweenRestartAttempts = 5.0f;
+        }
+
+
         public void ResetCallbacks ()
         {
             onAfterRestart = null;
             onAfterShutdown = null;
             onAfterCoroutine = null;
             onQuit = null;
+            m_pauseAndRestartAttempts = 0;
         }
 
         /// <summary>
@@ -33,6 +48,24 @@ namespace UnityEngine.XR.OpenXR
         private static OpenXRRestarter s_Instance = null;
 
         private Coroutine m_Coroutine;
+
+        private Coroutine m_pauseAndRestartCoroutine;
+
+        private static int m_pauseAndRestartAttempts = 0;
+
+        public static float TimeBetweenRestartAttempts
+        {
+            get;
+            set;
+        }
+
+        public static int PauseAndRestartAttempts
+        {
+            get
+            {
+                return m_pauseAndRestartAttempts;
+            }
+        }
 
         public static OpenXRRestarter Instance
         {
@@ -87,6 +120,47 @@ namespace UnityEngine.XR.OpenXR
             m_Coroutine = StartCoroutine(RestartCoroutine(true));
         }
 
+        /// <summary>
+        /// Pause and then restart.
+        /// If the restart triggers another restart, the pause adds some delay between restarts.
+        /// </summary>
+        public void PauseAndRestart()
+        {
+            if (OpenXRLoader.Instance == null)
+                return;
+
+            if (m_pauseAndRestartCoroutine != null)
+            {
+                Debug.LogError("Only one pause then shutdown/restart can be executed at a time");
+                return;
+            }
+
+            Debug.Log("Please make sure the device is connected. Will try to restart xr periodically.");
+            m_pauseAndRestartCoroutine = StartCoroutine(PauseAndRestartCoroutine(TimeBetweenRestartAttempts));
+        }
+
+        public IEnumerator PauseAndRestartCoroutine(float pauseTimeInSeconds)
+        {
+            try
+            {
+                yield return new WaitForSeconds(pauseTimeInSeconds);
+                m_pauseAndRestartAttempts += 1;
+                if (m_Coroutine == null)
+                {
+                    m_Coroutine = StartCoroutine(RestartCoroutine(true));
+                }
+                else
+                {
+                    Debug.LogError(String.Format("Restart/Shutdown already in progress so skipping this attempt."));
+                }
+            }
+            finally
+            {
+                m_pauseAndRestartCoroutine = null;
+                onAfterCoroutine?.Invoke();
+            }
+        }
+
         private IEnumerator RestartCoroutine (bool shouldRestart)
         {
             try
@@ -107,7 +181,14 @@ namespace UnityEngine.XR.OpenXR
                     XRGeneralSettings.Instance.Manager.StartSubsystems();
 
                     if (XRGeneralSettings.Instance.Manager.activeLoader == null)
+                    {
                         Debug.LogError("Failure to restart OpenXRLoader after shutdown.");
+                    }
+                    else
+                    {
+                        Debug.Log("OpenXRLoader restart successful.");
+                        m_pauseAndRestartAttempts = 0;
+                    }
 
                     onAfterRestart?.Invoke();
                 }

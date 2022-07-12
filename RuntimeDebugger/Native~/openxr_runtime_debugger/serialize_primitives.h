@@ -83,3 +83,53 @@ void SendToCSharp<char* const>(const char* fieldname, char* const t)
     else
         SendString(fieldname, "nullptr");
 }
+
+#if XR_TYPE_SAFE_HANDLES
+template <>
+void SendToCSharp<XrPath>(const char* fieldname, XrPath t)
+{
+    SendXrPath(fieldname, t);
+}
+
+template <>
+void SendToCSharp<XrPath*>(const char* fieldname, XrPath* t)
+{
+    SendXrPath(fieldname, *t);
+}
+
+template <>
+void SendToCSharp<XrAction>(const char* fieldname, XrAction t)
+{
+    SendXrAction(fieldname, t);
+}
+
+template <>
+void SendToCSharp<XrAction*>(const char* fieldname, XrAction* t)
+{
+    SendXrAction(fieldname, *t);
+}
+
+template <>
+void SendToCSharp<XrActionSet>(const char* fieldname, XrActionSet t)
+{
+    SendXrActionSet(fieldname, t);
+}
+
+template <>
+void SendToCSharp<XrActionSet*>(const char* fieldname, XrActionSet* t)
+{
+    SendXrActionSet(fieldname, *t);
+}
+
+template <>
+void SendToCSharp<XrSpace>(const char* fieldname, XrSpace t)
+{
+    SendXrSpace(fieldname, t);
+}
+
+template <>
+void SendToCSharp<XrSpace*>(const char* fieldname, XrSpace* t)
+{
+    SendXrSpace(fieldname, *t);
+}
+#endif

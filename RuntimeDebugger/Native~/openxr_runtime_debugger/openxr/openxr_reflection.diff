@@ -1,8 +1,8 @@
 diff --git a/specification/scripts/creflectiongenerator.py b/specification/scripts/creflectiongenerator.py
-index b1d62c7d..183eb0a0 100644
+index aa1b697..9584979 100644
 --- a/specification/scripts/creflectiongenerator.py
 +++ b/specification/scripts/creflectiongenerator.py
-@@ -9,16 +9,19 @@ import re
+@@ -13,16 +13,19 @@ import re
  from generator import OutputGenerator, write
  from jinja_helpers import JinjaTemplate, make_jinja_environment
  from spec_tools.util import getElemName, getElemType
@@ -23,7 +23,7 @@ index b1d62c7d..183eb0a0 100644
  
      @property
      def protect_value(self):
-@@ -41,12 +44,42 @@ class CBitmask:
+@@ -45,12 +48,42 @@ class CBitmask:
  class CEnum:
      """Represents a OpenXR group enum type"""
  
@@ -34,7 +34,7 @@ index b1d62c7d..183eb0a0 100644
          self.typeNameSuffix = typeNameSuffix
          self.enumTuples = enumTuples
 +        self.protect = protect
-+
+ 
 +    @property
 +    def protect_value(self):
 +        return self.protect is not None
@@ -59,7 +59,7 @@ index b1d62c7d..183eb0a0 100644
 +    @property
 +    def protect_value(self):
 +        return self.protect is not None
- 
++
 +    @property
 +    def protect_string(self):
 +        if self.protect:
@@ -67,7 +67,7 @@ index b1d62c7d..183eb0a0 100644
  
  class CReflectionOutputGenerator(OutputGenerator):
      """Generate specified API interfaces in a specific style, such as a C header"""
-@@ -57,6 +90,8 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -61,6 +94,8 @@ class CReflectionOutputGenerator(OutputGenerator):
          self.structs = []
          self.enums = []
          self.bitmasks = []
@@ -76,7 +76,7 @@ index b1d62c7d..183eb0a0 100644
          self.protects = set()
  
      def beginFile(self, genOpts):
-@@ -67,12 +102,33 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -71,12 +106,33 @@ class CReflectionOutputGenerator(OutputGenerator):
          return [x for x in self.structs
                  if x.protect == protect and x.structTypeName is not None]
  
@@ -92,7 +92,7 @@ index b1d62c7d..183eb0a0 100644
          file_data = ''
  
 +        # UNITY: specialization filter
-+        self.cmds = [x for x in self.cmds if x.cmdName not in ('xrGetInstanceProcAddr', 'xrLoadControllerModelMSFT')]
++        self.cmds = [x for x in self.cmds if x.cmdName not in ('xrGetInstanceProcAddr')]
 +        self.structs = [x for x in self.structs if x.typeName not in ('XrBaseInStructure', 'XrBaseOutStructure', 'XrEventDataBuffer', 'XrDebugUtilsMessengerCreateInfoEXT', 'XrSpatialGraphNodeSpaceCreateInfoMSFT', 'XrInteractionProfileAnalogThresholdVALVE')]
 +
          unprotected_structs = self.getStructsForProtect()
@@ -110,7 +110,7 @@ index b1d62c7d..183eb0a0 100644
  
          extensions = list(
              ((name, data) for name, data in self.registry.extdict.items()
-@@ -84,7 +140,15 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -88,7 +144,15 @@ class CReflectionOutputGenerator(OutputGenerator):
              unprotectedStructs=unprotected_structs,
              protectedStructs=protected_structs,
              structs=self.structs,
@@ -126,7 +126,7 @@ index b1d62c7d..183eb0a0 100644
              bitmasks=self.bitmasks,
              extensions=extensions)
          write(file_data, file=self.outFile)
-@@ -96,20 +160,89 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -100,20 +164,89 @@ class CReflectionOutputGenerator(OutputGenerator):
          OutputGenerator.genType(self, typeinfo, name, alias)
          typeElem = typeinfo.elem
  
@@ -216,7 +216,7 @@ index b1d62c7d..183eb0a0 100644
          structTypeName = None
          members = []
          for member in typeinfo.getMembers():
-@@ -118,7 +251,8 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -122,7 +255,8 @@ class CReflectionOutputGenerator(OutputGenerator):
              if self.conventions.is_structure_type_member(memberType, memberName):
                  structTypeName = member.get("values")
  
@@ -226,7 +226,7 @@ index b1d62c7d..183eb0a0 100644
  
          protect = set()
          if self.featureExtraProtect:
-@@ -132,7 +266,9 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -136,7 +270,9 @@ class CReflectionOutputGenerator(OutputGenerator):
          else:
              protect = None
  
@@ -237,7 +237,7 @@ index b1d62c7d..183eb0a0 100644
          if protect:
              self.protects.add(protect)
  
-@@ -172,4 +308,16 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -176,4 +312,16 @@ class CReflectionOutputGenerator(OutputGenerator):
                      continue
                  enumTuples.append((getElemName(elem), strVal))
  
@@ -256,7 +256,7 @@ index b1d62c7d..183eb0a0 100644
 +
 +            self.enums.append(CEnum(groupName, expandPrefix, expandSuffix, enumTuples, protect))
 diff --git a/specification/scripts/template_openxr_reflection.h b/specification/scripts/template_openxr_reflection.h
-index 1aa23bdd..ca2899c3 100644
+index e60f9fe..954a483 100644
 --- a/specification/scripts/template_openxr_reflection.h
 +++ b/specification/scripts/template_openxr_reflection.h
 @@ -12,7 +12,7 @@
@@ -410,7 +410,7 @@ index 1aa23bdd..ca2899c3 100644
  #define XR_LIST_EXTENSIONS(_) \
  //# for extname, extdata in extensions
      _(/*{extname}*/, /*{extdata.number}*/) \
-@@ -100,4 +205,70 @@ XR_ENUM_STR(XrResult);
+@@ -100,4 +205,82 @@ XR_ENUM_STR(XrResult);
  
  //## Preceding line intentionally left blank to absorb the trailing backslash
  
@@ -479,5 +479,17 @@ index 1aa23bdd..ca2899c3 100644
 +//## Preceding line intentionally left blank to absorb the trailing backslash
 +
 +//# endfor
++
++//# for cmd in cmds
++#define XR_BEFORE_/*{cmd.cmdName}*/(funcName)
++//#endfor
++
++//## Preceding line intentionally left blank
++
++//# for cmd in cmds
++#define XR_AFTER_/*{cmd.cmdName}*/(funcName)
++//#endfor
++
++//## Preceding line intentionally left blank
 +
  #endif

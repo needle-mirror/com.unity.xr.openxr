@@ -31,9 +31,9 @@ namespace UnityEditor.XR.OpenXR.Tests
                 Assert.AreEqual(0, String.Compare(version, tag));
                 return;
             }
-            //check for non-release build package version number supposed to be x.x.x-preview.x
-            System.Text.RegularExpressions.Regex PreviewVersion = new System.Text.RegularExpressions.Regex(@"^(\d+\.\d+\.\d+\-preview\.\d+)$");
-            Assert.IsTrue(PreviewVersion.IsMatch(version), "Wrong package version format! Non-release branch should follow x.x.x-preview.x");
+            //check for non-release build package version number supposed to be x.x.x-pre.x(pre-release) or x.x.x-exp.x(experimental)
+            System.Text.RegularExpressions.Regex PreviewVersion = new System.Text.RegularExpressions.Regex(@"^(\d+\.\d+\.\d+\-\w+\.\d+)$");
+            Assert.IsTrue(PreviewVersion.IsMatch(version), "Wrong package version format! Non-release branch should follow x.x.x-pre.x(pre-release) or x.x.x-exp.x(experimental)");
         }
     }
 }

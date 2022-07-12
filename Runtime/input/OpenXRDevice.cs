@@ -1,15 +1,13 @@
 ﻿using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
-using TrackingState = UnityEngine.XR.InputTrackingState;
 
 namespace UnityEngine.XR.OpenXR.Input
 {
     /// <summary>
     /// OpenXR Input System device
-    ///
-    /// <seealso cref="UnityEngine.InputSystem.InputDevice"/>
     /// </summary>
+    /// <seealso cref="UnityEngine.InputSystem.InputDevice"/>
     [Preserve, InputControlLayout(displayName = "OpenXR Action Map")]
     public abstract class OpenXRDevice : UnityEngine.InputSystem.InputDevice
     {

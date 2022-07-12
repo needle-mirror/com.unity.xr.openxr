@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Input;
@@ -163,6 +163,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void RegisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RegisterLayout(typeof(KHRSimpleController),
                         matches: new InputDeviceMatcher()
                         .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
@@ -170,10 +174,14 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         }
 
         /// <summary>
-        /// Unregisters the <see cref="KHRSimpleControllerProfile"/> layout from the Input System.
+        /// Removes the <see cref="KHRSimpleController"/> layout from the Input System.
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RemoveLayout(typeof(KHRSimpleController).Name);
         }
 

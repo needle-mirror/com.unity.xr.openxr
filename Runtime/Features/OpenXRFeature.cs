@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.XR.OpenXR.Input;
+using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR;
@@ -249,7 +250,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Notification to the feature implementer that the environment blend mode has changed.
         /// </summary>
         /// <param name="xrEnvironmentBlendMode">New environment blend mode value</param>
-        protected internal virtual void OnEnvironmentBlendModeChange (int xrEnvironmentBlendMode) {}
+        protected internal virtual void OnEnvironmentBlendModeChange (XrEnvironmentBlendMode xrEnvironmentBlendMode) {}
 
         /// <summary>
         /// Called when the enabled state of a feature changes
@@ -304,6 +305,20 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <returns>viewConfigurationType for certain renderPass. Return 0 if invalid renderPass.</returns>
         protected static int GetViewConfigurationTypeForRenderPass(int renderPassIndex) =>
             Internal_GetViewTypeFromRenderIndex(renderPassIndex);
+
+        /// <summary>
+        /// Set the current XR Environment Blend Mode if it is supported by the active runtime. If not supported, fall back to the runtime preference.
+        /// </summary>
+        /// <param name="xrEnvironmentBlendMode">Environment Blend Mode (e.g.: Opaque = 1, Additive = 2, AlphaBlend = 3)</param>
+        protected static void SetEnvironmentBlendMode(XrEnvironmentBlendMode xrEnvironmentBlendMode) =>
+            Internal_SetEnvironmentBlendMode(xrEnvironmentBlendMode);
+
+        /// <summary>
+        /// Returns the current XR Environment Blend Mode.
+        /// </summary>
+        /// <returns>Current XR Environment Blend Mode</returns>
+        protected static XrEnvironmentBlendMode GetEnvironmentBlendMode() =>
+            Internal_GetEnvironmentBlendMode();
 
 #if UNITY_EDITOR
         /// <summary>
@@ -583,6 +598,7 @@ namespace UnityEngine.XR.OpenXR.Features
             XrLossPending,
             XrInstanceLossPending,
             XrRestartRequested,
+            XrRequestRestartLoop,
         };
 
         internal static void ReceiveNativeEvent(NativeEvent e, ulong payload)

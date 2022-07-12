@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Input;
-using UnityEngine.InputSystem.Layouts;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.InputSystem.XR;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -300,18 +300,30 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "Oculus Touch Controller OpenXR";
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Registers the <see cref="OculusTouchController"/> layout with the Input System.
+        /// </summary>
         protected override void RegisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RegisterLayout(typeof(OculusTouchController),
                         matches: new InputDeviceMatcher()
                         .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                         .WithProduct(kDeviceLocalizedName));
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Removes the <see cref="OculusTouchController"/> layout from the Input System.
+        /// </summary>
         protected override void UnregisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RemoveLayout(nameof(OculusTouchController));
         }
 

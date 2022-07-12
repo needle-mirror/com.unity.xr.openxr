@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEditor;
 
@@ -135,7 +135,7 @@ namespace UnityEngine.XR.OpenXR.Input
         }
 #endif
 
-        internal static void RegisterLayouts ()
+        internal static void RegisterLayouts()
         {
             InputSystem.InputSystem.RegisterLayout<HapticControl>("Haptic");
             InputSystem.InputSystem.RegisterLayout<PoseControl>("Pose");
@@ -151,7 +151,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <summary>
         /// Validates a given ActionMapConfig to ensure that it is generally set up correctly.
         /// </summary>
-        /// <param name="interactionFeature">InteractionFeature the ActionMapConfig belogns to</param>
+        /// <param name="interactionFeature">InteractionFeature the ActionMapConfig belongs to</param>
         /// <param name="actionMapConfig">ActionMapConfig to validate</param>
         /// <returns>True if the action map config is valid</returns>
         private static bool ValidateActionMapConfig(OpenXRInteractionFeature interactionFeature, OpenXRInteractionFeature.ActionMapConfig actionMapConfig)

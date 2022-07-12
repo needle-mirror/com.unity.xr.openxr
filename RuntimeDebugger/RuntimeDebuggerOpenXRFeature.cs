@@ -38,6 +38,8 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
         /// </summary>
         public UInt32 perThreadCacheSize=50*1024;
 
+        private UInt32 lutOffset = 0;
+
         /// <inheritdoc/>
         protected override IntPtr HookGetInstanceProcAddr(IntPtr func)
         {
@@ -48,6 +50,7 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
             // Reset
             Native_StartDataAccess();
             Native_EndDataAccess();
+            lutOffset = 0;
 
             return Native_HookGetInstanceProcAddr(func, cacheSize, perThreadCacheSize);
         }
@@ -55,6 +58,15 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
         internal void RecvMsg(MessageEventArgs args)
         {
             Native_StartDataAccess();
+
+            // LUT for actions / handles
+            Native_GetLUTData(out var lutPtr, out var lutSize, lutOffset);
+            byte[] lutData = new Byte[lutSize];
+            if (lutSize > 0)
+            {
+                lutOffset = lutSize;
+                Marshal.Copy(lutPtr, lutData, 0, (int) lutSize);
+            }
 
             // ring buffer on native side, so might get two chunks of data
             Native_GetDataForRead(out var ptr1, out var size1);
@@ -68,8 +80,10 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
             Native_EndDataAccess();
 
             #if !UNITY_EDITOR
+            PlayerConnection.instance.Send(kPlayerToEditorSendDebuggerOutput, lutData);
             PlayerConnection.instance.Send(kPlayerToEditorSendDebuggerOutput, data);
             #else
+            DebuggerState.OnMessageEvent(new MessageEventArgs() {playerId = 0, data = lutData});
             DebuggerState.OnMessageEvent(new MessageEventArgs() { playerId = 0, data = data});
             #endif
         }
@@ -80,6 +94,9 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
 
         [DllImport(Library, EntryPoint = "GetDataForRead")]
         private static extern bool Native_GetDataForRead(out IntPtr ptr, out UInt32 size);
+
+        [DllImport(Library, EntryPoint = "GetLUTData")]
+        private static extern void Native_GetLUTData(out IntPtr ptr, out UInt32 size, UInt32 offset);
 
         [DllImport(Library, EntryPoint = "StartDataAccess")]
         private static extern void Native_StartDataAccess();

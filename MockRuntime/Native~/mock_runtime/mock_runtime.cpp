@@ -231,6 +231,7 @@ XrResult MockRuntime::BeginSession(const XrSessionBeginInfo* beginInfo)
     XrResult result = XR_SUCCESS;
     if ((createFlags & MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT) != 0)
         result = MSFTSecondaryViewConfiguration_BeginSession(beginInfo);
+    primaryViewConfiguration = beginInfo->primaryViewConfigurationType;
 
     return result;
 }
@@ -328,11 +329,6 @@ bool MockRuntime::IsStateTransitionValid(XrSessionState newState) const
     default:
         return false;
     }
-}
-
-void MockRuntime::SetEnvironmentBlendMode(XrEnvironmentBlendMode blendMode)
-{
-    this->blendMode = blendMode;
 }
 
 void MockRuntime::SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpace, XrExtent2Df extents)
@@ -476,6 +472,11 @@ XrResult MockRuntime::LocateViews(const XrViewLocateInfo* viewLocateInfo, XrView
 
     // OpenXR 1.0: The runtime must return error XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED if the given viewConfigurationType is not one of the supported type reported by xrEnumerateViewConfigurations.
     MockViewConfiguration* mockViewConfiguration = GetMockViewConfiguration(viewLocateInfo->viewConfigurationType);
+
+    // Emulate varjo runtime failure where xrBeginSession's primary view configuration influences viewCountOutput.
+    if (viewLocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO && primaryViewConfiguration != XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO)
+        mockViewConfiguration = GetMockViewConfiguration(primaryViewConfiguration);
+
     if (nullptr == mockViewConfiguration)
         return XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED;
 
@@ -1646,16 +1647,16 @@ XrResult MockRuntime::EnumerateEnvironmentBlendModes(XrSystemId systemId, XrView
     if (nullptr == mockViewConfig)
         return XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED;
 
-    *environmentBlendModeCountOutput = 1;
+    *environmentBlendModeCountOutput = 2;
 
     if (environmentBlendModeCapacityInput == 0)
         return XR_SUCCESS;
 
     if (environmentBlendModeCapacityInput < *environmentBlendModeCountOutput)
         return XR_ERROR_VALIDATION_FAILURE;
-
-    environmentBlendModes[0] = blendMode;
-
+    //Mock runtime supporting multiple environment blend modes.
+    environmentBlendModes[0] = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+    environmentBlendModes[1] = XR_ENVIRONMENT_BLEND_MODE_ADDITIVE;
     return XR_SUCCESS;
 }
 

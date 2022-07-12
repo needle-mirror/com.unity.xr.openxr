@@ -4,6 +4,28 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0-exp.1] - 2022-07-12
+### Fixed
+* Fixed compilation errors on Game Core platforms where `ENABLE_VR` is not currently defined. Requires Input System 1.4.0 or newer.
+* Fixed an issue that was causing Oculus Android Vulkan builds rendering broken after sleep / awake HMD.
+* Fixed Oculus controllers tracking issues when both OpenXR package and Oculus package are installed in the project.
+* Fixed an issue in Play Mode OpenXR Runtime selection that `Other` option would be reverted to `System Default` after entering and exiting playmode.
+* Fixed a bug in `XR_VARJO_quad_views` support.
+
+### Updated
+* Updated Oculus Android manifest with focusAware, supportedDevices and headTracking tags added. Also added a new validation rule to check if Oculus target devices are selected.
+* Updated OpenXR Loader to 1.0.23.
+* Updated Input System dependency to 1.4.1.
+
+### Added
+* Added **experimental** support for Late Latching Head node when using Vulkan.
+* Added generic Project Validation status in the **Project Settings** window under **XR Plug-in Management** if you have [XR Core Utilities](https://docs.unity3d.com/Packages/com.unity.xr.core-utils@latest) 2.1.0 or later installed. These results include the checks for all XR plug-ins that provide validation rules.
+* Added API `OpenXRFeature.SetEnvironmentBlendMode` to set the current XR Environment Blend Mode if it is supported by the active runtime. If not supported, fall back  to the runtime preference.
+* Added API `OpenXRFeature.GetEnvironmentBlendMode` to return the current XR Environment Blend Mode.
+* Added support for `XR_MSFT_holographic_windown_attachment` extension on UWP so that installing Microsoft Mixed Reality OpenXR Plug-in is no longer required if targeting HoloLens V2 devices. And removed corresponding project validator. 
+* Added support for `XR_FB_foveation`, `XR_FB_foveation_configuration`, `XR_FB_swapchain_update_state`, `XR_FB_foveation_vulkan` and `XR_FB_space_warp` extensions.
+* Added ability to recover the application after Oculus Link was aborted and re-established. Attempt to restart every 5 seconds after Link disconnected.
+
 ## [1.4.2] - 2022-05-12
 ### Fixed
 * Fixed unnecessary destroying session on pause and resume.
@@ -51,8 +73,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added API `OpenXRInput.TryGetInputSourceName`
 * Added event `OpenXRRuntime.wantsToRestart`
 * Added event `OpenXRRuntime.wantsToQuit`
-* Added support for `XR_OCULUS_audio_device_guid
-` extension.
+* Added support for `XR_OCULUS_audio_device_guid` extension.
 * Added `Haptic` control to OpenXR Controller Profile layouts that can be bound to an action and used to trigger haptics using the new `OpenXRInput.SendHapticImpulse` API.
 
 ### Fixed

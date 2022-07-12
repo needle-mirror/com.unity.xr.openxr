@@ -83,12 +83,6 @@ public:
         return exitSessionRequested;
     }
 
-    void SetEnvironmentBlendMode(XrEnvironmentBlendMode blendMode);
-    XrEnvironmentBlendMode GetEnvironmentBlendMode() const
-    {
-        return blendMode;
-    }
-
     void SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpace, XrExtent2Df extents);
     XrResult GetReferenceSpaceBoundsRect(XrReferenceSpaceType referenceSpace, XrExtent2Df* extents);
 
@@ -353,6 +347,7 @@ private:
     XrTime invalidTimeThreshold;
 
     std::map<XrViewConfigurationType, MockViewConfiguration> viewConfigurations;
+    XrViewConfigurationType primaryViewConfiguration;
 
     std::vector<std::string> componentPathStrings;
     std::vector<MockUserPath> userPaths;

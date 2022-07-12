@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.Networking.PlayerConnection;
 using UnityEngine;
@@ -10,23 +13,70 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 {
     internal class DebuggerTreeView : TreeView
     {
-        public DebuggerTreeView(TreeViewState state)
+        private int _mode;
+        public new string searchString { get; set; }
+        private bool deep = false;
+
+        public DebuggerTreeView(TreeViewState state, int mode, string search="")
         : base(state)
         {
+            _mode = mode;
+            searchString = search;
             Reload();
+        }
+
+        public void ReloadDeepSearch()
+        {
+            deep = true;
+            Reload();
+            deep = false;
         }
 
         protected override TreeViewItem BuildRoot()
         {
             var root = new TreeViewItem(0, -1, "Root");
-            foreach (var t in DebuggerState._functionCalls)
+            if (_mode == 0)
             {
-                root.AddChild(t);
+                foreach (var t in DebuggerState._functionCalls)
+                {
+                    if (string.IsNullOrEmpty(searchString) || (deep ? t.ToString() : t.displayName).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0)
+                        root.AddChild(t);
+                }
+            }
+            else
+            {
+                if (DebuggerState.xrLut.TryGetValue((UInt32)_mode - 1, out var lut))
+                {
+                    foreach (var t in lut.Values)
+                    {
+                        if (string.IsNullOrEmpty(searchString) || (deep ? t.ToString() : t.displayName).IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0)
+                            root.AddChild(t);
+                    }
+                }
             }
 
-            SetupDepthsFromParentsAndChildren(root);
+            if (root.hasChildren)
+                SetupDepthsFromParentsAndChildren(root);
+            else
+                root.AddChild(new TreeViewItem(0));
 
             return root;
+        }
+
+        protected override void KeyEvent()
+        {
+            if (Event.current.commandName == "Copy")
+            {
+                StringBuilder copy = new StringBuilder("");
+                foreach (var id in state.selectedIDs)
+                {
+                    copy.Append(FindItem(id, rootItem).ToString());
+                    copy.Append("\n");
+                }
+
+                EditorGUIUtility.systemCopyBuffer = copy.ToString();
+            }
+            base.KeyEvent();
         }
     }
 
@@ -75,8 +125,11 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         }
 
         private Vector2 scrollpos = new Vector2();
-        private TreeViewState treeViewState;
+        private List<TreeViewState> treeViewState = new List<TreeViewState>();
         private DebuggerTreeView treeView;
+        private SearchField searchField = null;
+        private string searchString = "";
+        private int viewMode = 0;
 
         private string _lastRefreshStats;
 
@@ -84,7 +137,8 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             DebuggerState.Clear();
             treeView = null;
-            treeViewState = null;
+            searchField = new SearchField();
+            treeViewState.Clear();
             _lastRefreshStats = "";
             scrollpos = Vector2.zero;
         }
@@ -92,6 +146,8 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         void OnGUI()
         {
             InitStyles();
+            if (searchField == null)
+                searchField = new SearchField();
             var debuggerFeatureInfo = FeatureHelpers.GetFeatureWithIdForActiveBuildTarget("com.unity.openxr.features.runtimedebugger");
 
             if (!debuggerFeatureInfo.enabled)
@@ -117,10 +173,17 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             {
                 DebuggerState.SetDoneCallback(() =>
                 {
-                    if (treeViewState == null)
-                        treeViewState = new TreeViewState();
+                    if (treeViewState.Count != DebuggerState.lutNames.Count)
+                    {
+                        treeViewState.Clear();
+                        for (int i = 0; i < DebuggerState.lutNames.Count; ++i)
+                        {
+                            treeViewState.Add(new TreeViewState());
+                        }
+                    }
 
-                    treeView = new DebuggerTreeView(treeViewState);
+                    treeView = new DebuggerTreeView(treeViewState[viewMode], viewMode, searchString);
+                    searchField = new SearchField();
 
                     var debugger = OpenXRSettings.ActiveBuildTargetInstance.GetFeature<RuntimeDebuggerOpenXRFeature>();
                     if (debugger != null)
@@ -140,7 +203,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 }
                 else
                 {
-                    EditorConnection.instance.Send(RuntimeDebuggerOpenXRFeature.kEditorToPlayerRequestDebuggerOutput, new byte[]{byte.MinValue});
+                    EditorConnection.instance.Send(RuntimeDebuggerOpenXRFeature.kEditorToPlayerRequestDebuggerOutput, new byte[] {byte.MinValue});
                 }
             }
 
@@ -151,7 +214,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("d_SaveAs")))
             {
-                string path = EditorUtility.SaveFilePanel("Save OpenXR Dump", "", state.connectionName,"openxrdump");
+                string path = EditorUtility.SaveFilePanel("Save OpenXR Dump", "", state.connectionName, "openxrdump");
                 if (path.Length != 0)
                 {
                     DebuggerState.SaveToFile(path);
@@ -160,17 +223,23 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("d_FolderOpened Icon")))
             {
-                string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new [] { "OpenXR Dump", "openxrdump" });
+                string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new[] {"OpenXR Dump", "openxrdump"});
                 if (path.Length != 0)
                 {
                     Clear();
 
                     DebuggerState.SetDoneCallback(() =>
                     {
-                        if (treeViewState == null)
-                            treeViewState = new TreeViewState();
+                        if (treeViewState.Count != DebuggerState.lutNames.Count)
+                        {
+                            treeViewState.Clear();
+                            for (int i = 0; i < DebuggerState.lutNames.Count; ++i)
+                            {
+                                treeViewState.Add(new TreeViewState());
+                            }
+                        }
 
-                        treeView = new DebuggerTreeView(treeViewState);
+                        treeView = new DebuggerTreeView(treeViewState[viewMode], viewMode, searchString);
 
                         _lastRefreshStats = $"Last payload size: {DebuggerState._lastPayloadSize} Number of Frames: {DebuggerState._frameCount}";
                     });
@@ -184,15 +253,50 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             GUILayout.Label($"Connections: {EditorConnection.instance.ConnectedPlayers.Count}");
             GUILayout.Label(_lastRefreshStats);
-
-            scrollpos = GUILayout.BeginScrollView(scrollpos);
             if (treeView != null)
             {
-                var treeRect = GUILayoutUtility.GetRect(position.width, treeView.totalHeight);
-                treeView.OnGUI(treeRect);
+                GUILayout.BeginHorizontal();
+                var newSearchString = searchField.OnGUI(treeView.searchString);
+                if (newSearchString != treeView.searchString)
+                {
+                    treeView.searchString = newSearchString;
+                    treeView.Reload();
+                }
+
+                if (searchField.HasFocus())
+                {
+                    if (Event.current.keyCode == KeyCode.Return)
+                    {
+                        treeView.ReloadDeepSearch();
+                    }
+                }
+
+                if (GUILayout.Button("Deep Search"))
+                {
+                    treeView.ReloadDeepSearch();
+                }
+
+                GUILayout.EndHorizontal();
             }
 
-            GUILayout.EndScrollView();
+            int newViewMode = 0;
+            if (DebuggerState.lutNames.Count > 0)
+            {
+                newViewMode = EditorGUILayout.Popup(viewMode, DebuggerState.lutNames.ToArray());
+            }
+            if (newViewMode != viewMode)
+            {
+                viewMode = newViewMode;
+                treeView = new DebuggerTreeView(treeViewState[viewMode], viewMode, searchString);
+                scrollpos = Vector2.zero;
+            }
+
+            var treeViewRect = EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
+            if (treeView != null)
+            {
+                treeView.OnGUI(treeViewRect);
+            }
+            EditorGUILayout.EndVertical();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
 
@@ -177,7 +178,11 @@ class zBuildSamplesYamatoOnly
                 EnableWSAProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D11 });
                 PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
+#else
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
+#endif
                 OpenXRSettings.ActiveBuildTargetInstance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -197,7 +202,11 @@ class zBuildSamplesYamatoOnly
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D12 });
                 QualitySettings.SetQualityLevel(5);
                 QualitySettings.antiAliasing = 4;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
+#else
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
+#endif
                 PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
             },
             outputPostfix = "dx12",
@@ -216,7 +225,11 @@ class zBuildSamplesYamatoOnly
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new []{ GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                 PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                 WriteAndroidInstallerScripts(outputFile, identifier);
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -234,7 +247,11 @@ class zBuildSamplesYamatoOnly
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new []{ GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                 PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                 WriteAndroidInstallerScripts(outputFile, identifier);
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -303,7 +320,11 @@ class zBuildSamplesYamatoOnly
             string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
 
             string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
+#if UNITY_2021_3_OR_NEWER
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
+#else
             PlayerSettings.SetApplicationIdentifier(setup.targetGroup, identifier);
+#endif
             PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
             Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
             string outputFile = Path.Combine(outputDir,

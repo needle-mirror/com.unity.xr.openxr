@@ -606,7 +606,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return new WaitForXrFrame(2);
 
-            if(test.expectLog != null)
+            if (test.expectLog != null)
                 LogAssert.Expect(LogType.Error, test.expectLog);
 
             if (test.expectReport != null)

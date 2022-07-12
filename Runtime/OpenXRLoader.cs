@@ -253,10 +253,10 @@ namespace UnityEngine.XR.OpenXR
 
         private bool CreateSubsystems()
         {
-            // NOTE: This function is only necessary to handle subsystems being lost after domain reload.  If that issue is fixed
+            // NOTE: This function is only necessary to handle subsystems being lost after domain reload. If that issue is fixed
             // at the management level the code below can be folded back into Initialize
-            // NOTE: Below we check to see if a subsystem is already created before creating it.  This is cone because we currently
-            // re-create the subsystems after a domain reload to fix a deficiency in XR Managements handling of domain reload.  To
+            // NOTE: Below we check to see if a subsystem is already created before creating it. This is done because we currently
+            // re-create the subsystems after a domain reload to fix a deficiency in XR Managements handling of domain reload. To
             // ensure we properly handle a fix to that deficiency we first check to make sure the subsystems are not already created.
 
             if (displaySubsystem == null)
@@ -340,6 +340,11 @@ namespace UnityEngine.XR.OpenXR
                 return true;
             }
 
+            // Note: Display has to be started before Input so that Input can have access to the Session object
+            StartSubsystem<XRDisplaySubsystem>();
+            if (!displaySubsystem?.running ?? false)
+                return false;
+
             // calls xrBeginSession
             Internal_BeginSession();
 
@@ -349,18 +354,22 @@ namespace UnityEngine.XR.OpenXR
                 actionSetsAttached = true;
             }
 
-            // Note: Display has to be started before Input so that Input can have access to the Session object
-            StartSubsystem<XRDisplaySubsystem>();
             if (!displaySubsystem?.running ?? false)
-                return false;
+                StartSubsystem<XRDisplaySubsystem>();
 
-            StartSubsystem<XRInputSubsystem>();
             if (!inputSubsystem?.running ?? false)
-                return false;
+                StartSubsystem<XRInputSubsystem>();
 
-            OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStart);
+            var inputRunning = inputSubsystem?.running ?? false;
+            var displayRunning = displaySubsystem?.running ?? false;
 
-            return true;
+            if (inputRunning && displayRunning)
+            {
+                OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStart);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -381,15 +390,6 @@ namespace UnityEngine.XR.OpenXR
             if (ShouldExitEarly()) return false;
 #endif
 
-            StopInternal();
-
-            currentLoaderState = LoaderState.Stopped;
-
-            return true;
-        }
-
-        private void StopInternal()
-        {
             var inputRunning = inputSubsystem?.running ?? false;
             var displayRunning = displaySubsystem?.running ?? false;
 
@@ -401,7 +401,15 @@ namespace UnityEngine.XR.OpenXR
 
             if (displayRunning)
                 StopSubsystem<XRDisplaySubsystem>();
+            StopInternal();
 
+            currentLoaderState = LoaderState.Stopped;
+
+            return true;
+        }
+
+        private void StopInternal()
+        {
             Internal_EndSession();
 
             ProcessOpenXRMessageLoop();
@@ -603,6 +611,10 @@ namespace UnityEngine.XR.OpenXR
 
                 case OpenXRFeature.NativeEvent.XrFocused:
                     DiagnosticReport.DumpReport("System Startup Completed");
+                    break;
+
+                case OpenXRFeature.NativeEvent.XrRequestRestartLoop:
+                    OpenXRRestarter.Instance.PauseAndRestart();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrStopping:

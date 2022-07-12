@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEditor;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
@@ -9,6 +8,10 @@ using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Input;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 
@@ -93,6 +96,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// </summary>
         public ActionMapConfig actionMapConfig { get; set; }
 
+        /// <summary>
+        /// Registers the <see cref="MockController"/> layout with the Input System.
+        /// </summary>
         protected override void RegisterDeviceLayout()
         {
             InputSystem.InputSystem.RegisterLayout(typeof(MockController),
@@ -101,6 +107,9 @@ namespace UnityEngine.XR.OpenXR.Tests
                     .WithProduct(kDeviceLocalizedName));
         }
 
+        /// <summary>
+        /// Removes the <see cref="MockController"/> layout from the Input System.
+        /// </summary>
         protected override void UnregisterDeviceLayout()
         {
             InputSystem.InputSystem.RemoveLayout(nameof(MockController));

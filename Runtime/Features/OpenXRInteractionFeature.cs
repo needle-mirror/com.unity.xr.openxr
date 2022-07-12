@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine.XR.OpenXR.Input;
-
 #if UNITY_EDITOR
 using System.Linq;
+using UnityEditor;
+using UnityEditor.XR.Management;
+using UnityEngine.XR.Management;
 #endif
 
 namespace UnityEngine.XR.OpenXR.Features
@@ -134,7 +135,7 @@ namespace UnityEngine.XR.OpenXR.Features
 
         /// <summary>
         /// Common OpenXR user path definitions.
-        /// See the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#semantic-path-user) for more intformation.
+        /// See the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#semantic-path-user) for more information.
         /// </summary>
         public static class UserPaths
         {
@@ -189,7 +190,7 @@ namespace UnityEngine.XR.OpenXR.Features
         }
 
         /// <inheritdoc/>
-        protected internal override bool OnInstanceCreate (ulong xrSession)
+        protected internal override bool OnInstanceCreate(ulong xrSession)
         {
             RegisterDeviceLayout();
             return true;
@@ -262,5 +263,24 @@ namespace UnityEngine.XR.OpenXR.Features
                     ((OpenXRInteractionFeature) feature).RegisterDeviceLayout();
 #endif
         }
+
+#if UNITY_EDITOR
+        internal static bool OpenXRLoaderEnabledForEditorPlayMode()
+        {
+            var settings = XRGeneralSettings.Instance?.AssignedSettings ?? (XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Standalone)?.AssignedSettings);
+            if (!settings)
+                return false;
+            bool loaderFound = false;
+            foreach (var activeLoader in settings.activeLoaders)
+            {
+                if (activeLoader as OpenXRLoader != null)
+                {
+                    loaderFound = true;
+                    break;
+                }
+            }
+            return loaderFound;
+        }
+#endif
     }
 }

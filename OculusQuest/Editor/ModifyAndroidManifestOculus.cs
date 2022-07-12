@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
 using UnityEditor.Build.Reporting;
+
+using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.OculusQuestSupport;
 
 namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
@@ -83,11 +86,15 @@ namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
         {
             private readonly XmlElement ApplicationElement;
             private readonly XmlElement ActivityIntentFilterElement;
+            private readonly XmlElement ActivityElement;
+            private readonly XmlElement ManifestElement;
 
             public AndroidManifest(string path) : base(path)
             {
                 ApplicationElement = SelectSingleNode("/manifest/application") as XmlElement;
                 ActivityIntentFilterElement = SelectSingleNode("/manifest/application/activity/intent-filter") as XmlElement;
+                ActivityElement = SelectSingleNode("manifest/application/activity") as XmlElement;
+                ManifestElement = SelectSingleNode("/manifest") as XmlElement;
             }
 
             private XmlAttribute CreateAndroidAttribute(string key, string value)
@@ -97,32 +104,96 @@ namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
                 return attr;
             }
 
-            private void UpdateOrCreateAttribute(XmlElement xmlParentElement, string tag, string key, string value)
+            private void UpdateOrCreateAttribute(XmlElement xmlParentElement, string tag, string name, params (string name, string value)[] attributes)
             {
-                // Get all child nodes that match the tag and see if value already exists
                 var xmlNodeList = xmlParentElement.SelectNodes(tag);
+                XmlElement targetNode = null;
+
+                // Check all XmlNodes to see if a node with matching name already exists.
                 foreach (XmlNode node in xmlNodeList)
                 {
-                    foreach (XmlAttribute attrib in node.Attributes)
+                    XmlAttribute nameAttr = (XmlAttribute)node.Attributes.GetNamedItem("name", AndroidXmlNamespace);
+                    if (nameAttr != null && nameAttr.Value.Equals(name))
                     {
-                        if (attrib.Value == value)
-                        {
-                            return;
-                        }
+                        targetNode = (XmlElement)node;
+                        break;
                     }
                 }
 
-                XmlElement newElement = CreateElement(tag);
-                newElement.SetAttribute(key, AndroidXmlNamespace, value);
-                xmlParentElement.AppendChild(newElement);
+                // If node exists, update the attribute values if they are present or create new ones as requested. Else, create new XmlElement.
+                if (targetNode != null)
+                {
+                    for (int i = 0; i < attributes.Length; i++)
+                    {
+                        XmlAttribute attr = (XmlAttribute)targetNode.Attributes.GetNamedItem(attributes[i].name, AndroidXmlNamespace);
+                        if (attr != null)
+                        {
+                            attr.Value = attributes[i].value;
+                        }
+                        else
+                        {
+                            targetNode.SetAttribute(attributes[i].name, AndroidXmlNamespace, attributes[i].value);
+                        }
+                    }
+                }
+                else
+                {
+                    XmlElement newElement = CreateElement(tag);
+                    newElement.SetAttribute("name", AndroidXmlNamespace, name);
+                    for (int i = 0; i < attributes.Length; i++)
+                        newElement.SetAttribute(attributes[i].name, AndroidXmlNamespace, attributes[i].value);
+                    xmlParentElement.AppendChild(newElement);
+                }
             }
 
             internal void AddOculusMetaData()
             {
+                OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+                var questFeature = androidOpenXRSettings.GetFeature<OculusQuestFeature>();
+
+                string supportedDevices = "quest|quest2";
+                if (questFeature != null)
+                {
+                    List<string> deviceList = new List<string>();
+                    if (questFeature.targetQuest)
+                        deviceList.Add("quest");
+                    if (questFeature.targetQuest2)
+                        deviceList.Add("quest2");
+
+                    if (deviceList.Count > 0)
+                    {
+                        supportedDevices = String.Join("|", deviceList.ToArray());
+                    }
+                    else
+                    {
+                        supportedDevices = null;
+                        UnityEngine.Debug.LogWarning("No target devices selected in Oculus Quest Support Feature. No devices will be listed as supported in the application Android manifest.");
+                    }
+                }
+
                 UpdateOrCreateAttribute(ActivityIntentFilterElement,
-                    "category",
-                    "name",
-                    "com.oculus.intent.category.VR");
+                    "category", "com.oculus.intent.category.VR"
+                    );
+
+                UpdateOrCreateAttribute(ActivityElement,
+                    "meta-data", "com.oculus.vr.focusaware",
+                    new (string name, string value)[] {
+                        ("value", "true")
+                    });
+
+                UpdateOrCreateAttribute(ApplicationElement,
+                    "meta-data", "com.oculus.supportedDevices",
+                    new (string name, string value)[] {
+                        ("value", supportedDevices)
+                    });
+
+                UpdateOrCreateAttribute(ManifestElement,
+                    "uses-feature", "android.hardware.vr.headtracking",
+                    new (string name, string value)[] {
+                        ("required", "true"),
+                        ("version", "1")
+                    });
+
             }
         }
     }

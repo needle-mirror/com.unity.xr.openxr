@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.XR.Management;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.Management;
@@ -78,7 +79,11 @@ namespace UnityEditor.XR.OpenXR
                 checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || (PlayerSettings.Android.targetArchitectures == AndroidArchitecture.ARM64),
                 fixIt = () =>
                 {
+#if UNITY_2021_3_OR_NEWER
+                    PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 },
                 fixItMessage = "Change android build to arm64 and enable il2cpp.",
@@ -144,38 +149,6 @@ namespace UnityEditor.XR.OpenXR
                 },
                 error = true,
                 errorEnteringPlaymode = true,
-            },
-            new OpenXRFeature.ValidationRule()
-            {
-                message = "If targeting HoloLens V2 devices either Run In Background should be enabled or you should install the Microsoft Mixed Reality OpenXR Plug-in and enable the Mixed Reality Features group.",
-                checkPredicate = () =>
-                {
-#if MICROSOFT_OPENXR_PACKAGE
-                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
-                    foreach (var hlf in hololensFeatures)
-                    {
-                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
-                            return hlf.enabled;
-                    }
-#endif //MICROSOFT_OPENXR_PACKAGE
-
-                    return EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer || PlayerSettings.runInBackground;
-                },
-                fixIt = () =>
-                {
-#if MICROSOFT_OPENXR_PACKAGE
-                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
-                    foreach (var hlf in hololensFeatures)
-                    {
-                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
-                            hlf.enabled = true;
-                    }
-#endif //MICROSOFT_OPENXR_PACKAGE
-                    PlayerSettings.runInBackground = true;
-                },
-                fixItMessage = "Change Run In Background to True.",
-                error = false,
-                buildTargetGroup = BuildTargetGroup.WSA,
             },
         };
 

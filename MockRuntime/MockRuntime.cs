@@ -327,7 +327,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             TestCallback(MethodBase.GetCurrentMethod().Name, xrFormFactor);
         }
 
-        protected internal override void OnEnvironmentBlendModeChange(int xrEnvironmentBlendMode)
+        protected internal override void OnEnvironmentBlendModeChange(XrEnvironmentBlendMode xrEnvironmentBlendMode)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrEnvironmentBlendMode);
         }
@@ -355,6 +355,16 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
                 return false;
 
             return Internal_TransitionToState(state, forceTransition);
+        }
+
+        public static void ChooseEnvironmentBlendMode(XrEnvironmentBlendMode mode)
+        {
+            SetEnvironmentBlendMode(mode);
+        }
+
+        public static XrEnvironmentBlendMode GetXrEnvironmentBlendMode()
+        {
+            return GetEnvironmentBlendMode();
         }
 
 #if UNITY_EDITOR
@@ -404,9 +414,6 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         [DllImport(extLib, EntryPoint = "MockRuntime_CauseInstanceLoss")]
         public static extern void CauseInstanceLoss();
-
-        [DllImport(extLib, EntryPoint = "MockRuntime_SetEnvironmentBlendMode")]
-        public static extern void SetEnvironmentBlendMode(XrEnvironmentBlendMode environmentBlendMode);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpaceBounds")]
         internal static extern void SetReferenceSpaceBounds (XrReferenceSpaceType referenceSpace, Vector2 bounds);

@@ -222,7 +222,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
                 {
-                    MockRuntime.SetEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
+                    MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
                 }
 
                 return true;
@@ -245,6 +245,28 @@ namespace UnityEngine.XR.OpenXR.Tests
             var displays = new List<XRDisplaySubsystem>();
             SubsystemManager.GetInstances(displays);
             Assert.AreEqual(true, displays[0].displayOpaque);
+        }
+
+        [UnityTest]
+        public IEnumerator MultipleEnvironmentBlendModes()
+        {
+            //Mock available environmentBlendModes are Opaque and Additive in mock_runtime.cpp EnumerateEnvironmentBlendModes.
+            AddExtension(MockRuntime.XR_UNITY_mock_test);
+            base.InitializeAndStart();
+            yield return null;
+
+            //check default mode is Opaque.
+            Assert.AreEqual(XrEnvironmentBlendMode.Opaque, MockRuntime.GetXrEnvironmentBlendMode());
+
+            //Switch to another supported mode - Additive.
+            MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
+            yield return new WaitForXrFrame(2);
+            Assert.AreEqual(XrEnvironmentBlendMode.Additive, MockRuntime.GetXrEnvironmentBlendMode());
+
+            //Set to unsupported mode - Alpha_blend
+            MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.AlphaBlend);
+            yield return new WaitForXrFrame(2);
+            Assert.AreNotEqual(XrEnvironmentBlendMode.AlphaBlend, MockRuntime.GetXrEnvironmentBlendMode());
         }
 
         [UnityTest]

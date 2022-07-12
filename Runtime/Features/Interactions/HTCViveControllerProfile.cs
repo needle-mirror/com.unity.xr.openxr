@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Input;
-using UnityEngine.InputSystem.Layouts;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.InputSystem.XR;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -231,6 +231,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void RegisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RegisterLayout(typeof(ViveController),
                         matches: new InputDeviceMatcher()
                         .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
@@ -242,6 +246,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         protected override void UnregisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RemoveLayout(nameof(ViveController));
         }
 

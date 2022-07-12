@@ -30,6 +30,15 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.oculusquest";
 
+        /// <summary>
+        /// Adds a Quest entry to the supported devices list in the Android manifest.
+        /// </summary>
+        public bool targetQuest = true;
+        /// <summary>
+        /// Adds a Quest 2 entry to the supported devices list in the Android manifest.
+        /// </summary>
+        public bool targetQuest2 = true;
+
 #if UNITY_EDITOR
         protected override void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
         {
@@ -69,6 +78,41 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
                 },
                 error = true,
             });
+
+            rules.Add(new ValidationRule(this)
+            {
+                message = "No Oculus target devices selected.",
+                checkPredicate = () =>
+                {
+                    return targetQuest || targetQuest2;
+                },
+                fixIt = () =>
+                {
+                    var window = OculusQuestFeatureEditorWindow.Create(this);
+                    window.ShowPopup();
+                },
+                error = true,
+                fixItAutomatic = false,
+            });
+        }
+
+        internal class OculusQuestFeatureEditorWindow : EditorWindow
+        {
+            private Object feature;
+            private Editor featureEditor;
+
+            public static EditorWindow Create(Object feature)
+            {
+                var window = EditorWindow.GetWindow<OculusQuestFeatureEditorWindow>(true, "Oculus Quest Feature Configuration", true);
+                window.feature = feature;
+                window.featureEditor = Editor.CreateEditor(feature);
+                return window;
+            }
+
+            private void OnGUI()
+            {
+                featureEditor.OnInspectorGUI();
+            }
         }
 #endif
     }

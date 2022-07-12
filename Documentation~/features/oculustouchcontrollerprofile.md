@@ -8,7 +8,7 @@ For more information about the Oculus Touch interaction profile, see the [OpenXR
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
-|`/input/thumbstick`| tumbstick | Vector2 |
+|`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/squeeze/value`| grip | Float |
 |`/input/squeeze/value`| gripPressed | Float ( float cast to boolean) |
 |`/input/menu/click`| menu (Left Hand Only)| Boolean | 
@@ -17,7 +17,7 @@ For more information about the Oculus Touch interaction profile, see the [OpenXR
 |`/input/a/touch`| primaryTouched (Right Hand Only) | Boolean | 
 |`/input/b/click`| secondaryButton (Right Hand Only) | Boolean | 
 |`/input/b/touch`| secondaryTouched (Right Hand Only) | Boolean | 
-|`/input/x/click`| primaryButton (Right Hand Only) | Boolean | 
+|`/input/x/click`| primaryButton (Left Hand Only) | Boolean | 
 |`/input/x/touch`| primaryTouched (Left Hand Only) | Boolean | 
 |`/input/y/click`| secondaryButton (Left Hand Only) | Boolean | 
 |`/input/y/touch`| secondaryTouched (Left Hand Only) | Boolean | 

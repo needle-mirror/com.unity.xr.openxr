@@ -78,14 +78,6 @@ extern "C" void UNITY_INTERFACE_EXPORT MockRuntime_CauseInstanceLoss()
     s_runtime->CauseInstanceLoss();
 }
 
-extern "C" void UNITY_INTERFACE_EXPORT MockRuntime_SetEnvironmentBlendMode(XrEnvironmentBlendMode environmentBlendMode)
-{
-    if (nullptr == s_runtime)
-        return;
-
-    s_runtime->SetEnvironmentBlendMode(environmentBlendMode);
-}
-
 extern "C" void UNITY_INTERFACE_EXPORT MockRuntime_SetReferenceSpaceBounds(XrReferenceSpaceType referenceSpaceType, XrExtent2Df bounds)
 {
     if (nullptr == s_runtime)

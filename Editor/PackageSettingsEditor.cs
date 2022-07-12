@@ -10,7 +10,6 @@ namespace UnityEditor.XR.OpenXR
     internal class PackageSettingsEditor : UnityEditor.Editor
     {
         OpenXRFeatureEditor m_FeatureEditor = null;
-        OpenXRRuntimeSelector m_RuntimeSelector = new OpenXRRuntimeSelector();
         Vector2 scrollPos = Vector2.zero;
 
 #if XR_MGMT_4_1_0_OR_OLDER
@@ -63,7 +62,7 @@ namespace UnityEditor.XR.OpenXR
 
         public void OnEnable()
         {
-            m_RuntimeSelector.RefreshRuntimeDetectorList();
+            OpenXRRuntimeSelector.RefreshRuntimeDetectorList();
         }
 
         public override void OnInspectorGUI()
@@ -112,7 +111,7 @@ namespace UnityEditor.XR.OpenXR
             if (buildTargetGroup == BuildTargetGroup.Standalone)
             {
                 EditorGUILayout.Space();
-                m_RuntimeSelector.DrawSelector();
+                OpenXRRuntimeSelector.DrawSelector();
             }
 
             EditorGUILayout.EndVertical();

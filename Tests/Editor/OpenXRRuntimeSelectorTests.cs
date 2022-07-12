@@ -83,5 +83,60 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsTrue(detectedJsons.Contains(enabledRuntime));
             Assert.IsFalse(detectedJsons.Contains(disabledRuntime));
         }
+
+        [Test]
+        public void TestSelectOtherRuntime()
+        {
+            // Get the OtherRuntime choice (verify that it's the last detector)
+            var runtimeDetector = OpenXRRuntimeSelector.RuntimeDetectors[OpenXRRuntimeSelector.RuntimeDetectors.Count - 1];
+            OpenXRRuntimeSelector.OtherRuntime otherRuntime = runtimeDetector as OpenXRRuntimeSelector.OtherRuntime;
+            Assert.IsTrue(otherRuntime != null);
+
+            // Save data that this test will modify to restore state after the test finishes.
+            string previousOtherJsonPath = otherRuntime.jsonPath;
+            string previousActiveRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.RuntimeDetector.k_RuntimeEnvKey);
+            string previousSelectedRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.k_SelectedRuntimeEnvKey);
+
+            try
+            {
+                // Set the other runtime value and set this as the selected runtime.
+                string jsonPath = "testJsonPath";
+                otherRuntime.SetOtherRuntimeJsonPath(jsonPath);
+                OpenXRRuntimeSelector.SetSelectedRuntime(jsonPath);
+
+                // Exit Edit Mode. Active runtime and Selected runtime should have the json path.
+                OpenXRRuntimeSelector.ActivateOrDeactivateRuntime(PlayModeStateChange.ExitingEditMode);
+                string activeRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.RuntimeDetector.k_RuntimeEnvKey);
+                string selectedRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.k_SelectedRuntimeEnvKey);
+                Assert.AreEqual(activeRuntime, jsonPath);
+                Assert.AreEqual(selectedRuntime, jsonPath);
+
+                // Simulate a refresh of the runtime detectors when entering play mode.
+                // The OtherRuntime should still have the jsonPath from before.
+                OpenXRRuntimeSelector.RefreshRuntimeDetectorList();
+                runtimeDetector = OpenXRRuntimeSelector.RuntimeDetectors[OpenXRRuntimeSelector.RuntimeDetectors.Count - 1];
+                otherRuntime = runtimeDetector as OpenXRRuntimeSelector.OtherRuntime;
+                Assert.AreEqual(otherRuntime.jsonPath, jsonPath);
+
+                // Enter Edit Mode. Active runtime should be cleared, selected runtime should still have the json path.
+                OpenXRRuntimeSelector.ActivateOrDeactivateRuntime(PlayModeStateChange.EnteredEditMode);
+                activeRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.RuntimeDetector.k_RuntimeEnvKey);
+                selectedRuntime = Environment.GetEnvironmentVariable(OpenXRRuntimeSelector.k_SelectedRuntimeEnvKey);
+                Assert.AreNotEqual(activeRuntime, jsonPath);
+                Assert.AreEqual(selectedRuntime, jsonPath);
+
+                // Refresh again. OtherRuntime and selected runtime should still have the json path.
+                OpenXRRuntimeSelector.RefreshRuntimeDetectorList();
+                runtimeDetector = OpenXRRuntimeSelector.RuntimeDetectors[OpenXRRuntimeSelector.RuntimeDetectors.Count - 1];
+                otherRuntime = runtimeDetector as OpenXRRuntimeSelector.OtherRuntime;
+                Assert.AreEqual(otherRuntime.jsonPath, jsonPath);
+            }
+            finally
+            {
+                otherRuntime.SetOtherRuntimeJsonPath(previousOtherJsonPath);
+                Environment.SetEnvironmentVariable(OpenXRRuntimeSelector.RuntimeDetector.k_RuntimeEnvKey, previousActiveRuntime);
+                Environment.SetEnvironmentVariable(OpenXRRuntimeSelector.k_SelectedRuntimeEnvKey, previousSelectedRuntime);
+            }
+        }
     }
 }

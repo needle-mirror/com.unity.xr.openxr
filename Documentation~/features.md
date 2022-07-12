@@ -114,7 +114,7 @@ The initialize sequence allows features to initialize Unity subsystems in the Lo
 
 #### Start
 
-`OnSessionBegin => OnFormFactorChange => OnEnvironmentBlendModeChange => OnViewConfigurationTypeChange => OnAppSpaceChange => OnSubsystemStart`
+`OnFormFactorChange => OnEnvironmentBlendModeChange => OnViewConfigurationTypeChange => OnSessionBegin =>  OnAppSpaceChange => OnSubsystemStart`
 
 The Start sequence allows features to start Unity subsystems in the Loader callbacks and execute them when the session is created.
 
