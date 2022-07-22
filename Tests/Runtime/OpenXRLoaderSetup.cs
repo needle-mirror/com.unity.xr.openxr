@@ -174,7 +174,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             EnableMockRuntime(false);
             MockRuntime.Instance.TestCallback = (methodName, param) => true;
 
-            // Replace the features with the saved fatures
+            // Replace the features with the saved features
             OpenXRSettings.Instance.features = savedFeatures;
         }
 

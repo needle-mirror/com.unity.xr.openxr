@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.5.0-exp.1",
+  "version": "1.5.0",
   "unity": "2020.3",
   "unityRelease": "0b14",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
@@ -34,14 +34,14 @@
     }
   ],
   "_upm": {
-    "changelog": "### Fixed\n* Fixed compilation errors on Game Core platforms where `ENABLE_VR` is not currently defined. Requires Input System 1.4.0 or newer.\n* Fixed an issue that was causing Oculus Android Vulkan builds rendering broken after sleep / awake HMD.\n* Fixed Oculus controllers tracking issues when both OpenXR package and Oculus package are installed in the project.\n* Fixed an issue in Play Mode OpenXR Runtime selection that `Other` option would be reverted to `System Default` after entering and exiting playmode.\n* Fixed a bug in `XR_VARJO_quad_views` support.\n\n### Updated\n* Updated Oculus Android manifest with focusAware, supportedDevices and headTracking tags added. Also added a new validation rule to check if Oculus target devices are selected.\n* Updated OpenXR Loader to 1.0.23.\n* Updated Input System dependency to 1.4.1.\n\n### Added\n* Added **experimental** support for Late Latching Head node when using Vulkan.\n* Added generic Project Validation status in the **Project Settings** window under **XR Plug-in Management** if you have [XR Core Utilities](https://docs.unity3d.com/Packages/com.unity.xr.core-utils@latest) 2.1.0 or later installed. These results include the checks for all XR plug-ins that provide validation rules.\n* Added API `OpenXRFeature.SetEnvironmentBlendMode` to set the current XR Environment Blend Mode if it is supported by the active runtime. If not supported, fall back  to the runtime preference.\n* Added API `OpenXRFeature.GetEnvironmentBlendMode` to return the current XR Environment Blend Mode.\n* Added support for `XR_MSFT_holographic_windown_attachment` extension on UWP so that installing Microsoft Mixed Reality OpenXR Plug-in is no longer required if targeting HoloLens V2 devices. And removed corresponding project validator. \n* Added support for `XR_FB_foveation`, `XR_FB_foveation_configuration`, `XR_FB_swapchain_update_state`, `XR_FB_foveation_vulkan` and `XR_FB_space_warp` extensions.\n* Added ability to recover the application after Oculus Link was aborted and re-established. Attempt to restart every 5 seconds after Link disconnected."
+    "changelog": "### Fixed\n* Fixed compilation errors on Game Core platforms where `ENABLE_VR` is not currently defined. Requires Input System 1.4.0 or newer.\n* Fixed an issue that was causing Oculus Android Vulkan builds rendering broken after sleep / awake HMD.\n* Fixed Oculus controllers tracking issues when both OpenXR package and Oculus package are installed in the project.\n* Fixed an issue in Play Mode OpenXR Runtime selection that `Other` option would be reverted to `System Default` after entering and exiting playmode.\n* Fixed a bug in `XR_VARJO_quad_views` support.\n\n### Updated\n* Updated Oculus Android manifest with focusAware, supportedDevices and headTracking tags added. Also added a new validation rule to check if Oculus target devices are selected.\n* Updated OpenXR Loader to 1.0.23.\n* Updated Input System dependency to 1.4.1.\n\n### Added\n* Added generic Project Validation status in the **Project Settings** window under **XR Plug-in Management** if you have [XR Core Utilities](https://docs.unity3d.com/Packages/com.unity.xr.core-utils@latest) 2.1.0 or later installed. These results include the checks for all XR plug-ins that provide validation rules.\n* Added API `OpenXRFeature.SetEnvironmentBlendMode` to set the current XR Environment Blend Mode if it is supported by the active runtime. If not supported, fall back  to the runtime preference.\n* Added API `OpenXRFeature.GetEnvironmentBlendMode` to return the current XR Environment Blend Mode.\n* Added support for `XR_MSFT_holographic_windown_attachment` extension on UWP so that installing Microsoft Mixed Reality OpenXR Plug-in is no longer required if targeting HoloLens V2 devices. And removed corresponding project validator. \n* Added support for `XR_FB_foveation`, `XR_FB_foveation_configuration`, `XR_FB_swapchain_update_state`, `XR_FB_foveation_vulkan` and `XR_FB_space_warp` extensions.\n* Added ability to recover the application after Oculus Link was aborted and re-established. Attempt to restart every 5 seconds after Link disconnected.\n* Added validation rule for duplicate settings in OpenXRPackageSettings.asset."
   },
   "upmCi": {
-    "footprint": "c41f8a946020c665c643f256629853f7417ab8b1"
+    "footprint": "4fe36d6817faf2a05782290f56de00fa4ecbfe73"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "4d9896e51d41b2e51eb5ca89f28e8f3bba273ea9"
+    "revision": "c326785d153255c6c85bfec8282ae96733d270bd"
   }
 }

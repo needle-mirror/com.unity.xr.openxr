@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.XR.Management;
@@ -24,13 +25,20 @@ namespace UnityEditor.XR.OpenXR
             new OpenXRFeature.ValidationRule
             {
                 message = "The OpenXR package has been updated and Unity must be restarted to complete the update.",
-                checkPredicate = () => (!OpenXRSettings.Instance.versionChanged),
+                checkPredicate = () => OpenXRSettings.Instance == null || (!OpenXRSettings.Instance.versionChanged),
                 fixIt = RequireRestart,
                 error = true,
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
-
+            new OpenXRFeature.ValidationRule
+            {
+                message = "The OpenXR Package Settings asset has duplicate settings and must be regenerated.",
+                checkPredicate = AssetHasNoDuplicates,
+                fixIt = RegenerateXRPackageSettingsAsset,
+                error = false,
+                errorEnteringPlaymode = false
+            },
             new OpenXRFeature.ValidationRule()
             {
                 message = "Gamma Color Space is not supported when using OpenGLES.",
@@ -68,7 +76,11 @@ namespace UnityEditor.XR.OpenXR
             new OpenXRFeature.ValidationRule()
             {
                 message = "At least one interaction profile must be added.  Please select which controllers you will be testing against in the Features menu.",
-                checkPredicate = () => OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup).GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
+                checkPredicate = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    return settings == null || settings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled);
+                },
                 fixIt = OpenProjectSettings,
                 fixItAutomatic = false,
                 fixItMessage = "Open Project Settings to select one or more interaction profiles."
@@ -153,6 +165,61 @@ namespace UnityEditor.XR.OpenXR
         };
 
         private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);
+
+        internal static bool AssetHasNoDuplicates()
+        {
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (packageSettings == null)
+            {
+                return true;
+            }
+
+            string path = packageSettings.PackageSettingsAssetPath();
+            var loadedAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+            if (loadedAssets == null)
+            {
+                return true;
+            }
+
+            // Check for duplicate "full" feature name (Feature class type name + Feature name (contains BuildTargetGroup))
+            HashSet<string> fullFeatureNames = new HashSet<string>();
+            foreach (var loadedAsset in loadedAssets)
+            {
+                OpenXRFeature individualFeature = loadedAsset as OpenXRFeature;
+                if (individualFeature != null)
+                {
+                    Type type = individualFeature.GetType();
+                    string featureName = individualFeature.name;
+                    string fullFeatureName = type.FullName + "\\" + featureName;
+
+                    if (fullFeatureNames.Contains(fullFeatureName))
+                        return false;
+                    fullFeatureNames.Add(fullFeatureName);
+                }
+            }
+
+            return true;
+        }
+
+        internal static void RegenerateXRPackageSettingsAsset()
+        {
+            // Deleting the OpenXR PackageSettings asset also destroys the OpenXRPackageSettings object.
+            // Need to get the static method to create the new asset and object before deleting the asset.
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (packageSettings == null)
+            {
+                return;
+            }
+
+            string path = packageSettings.PackageSettingsAssetPath();
+
+            Action createAssetCallback = packageSettings.RefreshFeatureSets;
+            AssetDatabase.DeleteAsset(path);
+
+            EditorBuildSettings.RemoveConfigObject(Constants.k_SettingsKey);
+
+            createAssetCallback();
+        }
 
         /// <summary>
         /// Open the OpenXR project settings

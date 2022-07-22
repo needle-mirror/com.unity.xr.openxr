@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEditor.IMGUI.Controls;
-using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.Networking.PlayerConnection;
 using CompressionLevel = System.IO.Compression.CompressionLevel;

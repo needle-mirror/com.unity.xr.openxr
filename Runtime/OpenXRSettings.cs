@@ -20,6 +20,10 @@ namespace UnityEngine.XR.OpenXR
         /// <typeparam name="T">Feature type</typeparam>
         /// <returns>All known features of the given type within the package settings</returns>
         public IEnumerable<(BuildTargetGroup buildTargetGroup, T feature)> GetFeatures<T>() where T : OpenXRFeature;
+
+        internal void RefreshFeatureSets();
+
+        internal string PackageSettingsAssetPath();
     }
 #endif
 
