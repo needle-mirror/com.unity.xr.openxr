@@ -4,7 +4,7 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2022-07-22
+## [1.5.1] - 2022-08-11
 ### Fixed
 * Fixed compilation errors on Game Core platforms where `ENABLE_VR` is not currently defined. Requires Input System 1.4.0 or newer.
 * Fixed an issue that was causing Oculus Android Vulkan builds rendering broken after sleep / awake HMD.
