@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Mock Interaction Feature",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android },
         Company = "Unity",
         Desc = "Mock interaction feature used for testing interactions",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/khrsimplecontrollerprofile.html",

@@ -7,6 +7,7 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
+using UnityEditor.Build;
 #endif
 
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
@@ -15,12 +16,14 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 {
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Mock Runtime",
-        BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone},
+        BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone, UnityEditor.BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Mock runtime extension for automated testing.",
         DocumentationLink = Constants.k_DocumentationURL,
-        CustomRuntimeLoaderBuildTargets = new [] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX },
-        OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx,
+#if !OPENXR_USE_KHRONOS_LOADER
+        CustomRuntimeLoaderBuildTargets = new [] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX, UnityEditor.BuildTarget.Android },
+#endif
+        OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx + " " + XR_UNITY_android_present,
         Version = "0.0.2",
         FeatureId = featureId)]
 #endif
@@ -212,11 +215,16 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #if UNITY_INCLUDE_TESTS
             TestCallback(MethodBase.GetCurrentMethod().Name, instance);
             XrInstance = 0ul;
-#endif
 
-            // When the mock runtime instance shuts down we remove any callbacks that
-            // were set up to ensure they do not linger around for the next usage of the mock runtime.
-            ClearFunctionCallbacks();
+            if (!KeepFunctionCallbacks)
+            {
+#endif
+                // When the mock runtime instance shuts down we remove any callbacks that
+                // were set up to ensure they do not linger around for the next usage of the mock runtime.
+                ClearFunctionCallbacks();
+#if UNITY_INCLUDE_TESTS
+            }
+#endif
         }
 
 
@@ -227,9 +235,26 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         public const string XR_UNITY_null_gfx = "XR_UNITY_null_gfx";
 
+        public const string XR_UNITY_android_present = "XR_UNITY_android_present";
+
         public ulong XrInstance { get; private set; } = 0ul;
 
         public ulong XrSession { get; private set; } = 0ul;
+
+        private static bool s_KeepFunctionCallbacks;
+
+        internal static bool KeepFunctionCallbacks
+        {
+            get
+            {
+                return s_KeepFunctionCallbacks;
+            }
+            set
+            {
+                s_KeepFunctionCallbacks = value;
+                SetKeepFunctionCallbacks(value);
+            }
+        }
 
         /// <summary>
         /// Return the current session state of the MockRuntime
@@ -240,8 +265,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         {
             var ret = TestCallback(MethodBase.GetCurrentMethod().Name, func);
             if (!(ret is IntPtr))
-                return func;
-            return (IntPtr)ret;
+                return HookCreateInstance(func);
+            return HookCreateInstance((IntPtr)ret);
         }
 
         protected internal override void OnSystemChange(ulong xrSystem)
@@ -386,7 +411,13 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #endif
 #endif
 
-        const string extLib = "mock_runtime";
+        const string extLib = "mock_api";
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_HookCreateInstance")]
+        public static extern IntPtr HookCreateInstance(IntPtr func);
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_SetKeepFunctionCallbacks")]
+        public static extern void SetKeepFunctionCallbacks(bool value);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_SetView")]
         public static extern void SetViewPose(XrViewConfigurationType viewConfigurationType, int viewIndex, Vector3 position, Quaternion orientation, Vector4 fov);
@@ -426,5 +457,22 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterFunctionCallbacks")]
         private static extern void MockRuntime_RegisterFunctionCallbacks(BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);
+
+        #if UNITY_EDITOR
+        static void UseGenericLoaderAndroid()
+        {
+#if UNITY_2021_3_OR_NEWER
+            var defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android);
+#else
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+#endif
+            defines += ";OPENXR_USE_KHRONOS_LOADER";
+#if UNITY_2021_3_OR_NEWER
+            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, defines);
+#else
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, defines);
+#endif
+        }
+        #endif
     }
 }

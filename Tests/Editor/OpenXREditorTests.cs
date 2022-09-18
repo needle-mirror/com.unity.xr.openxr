@@ -28,7 +28,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             if (ReleaseVersion.IsMatch(version))
             {
                 var tag = OpenXRRuntime.pluginVersion;
-                Assert.AreEqual(0, String.Compare(version, tag));
+                Assert.AreEqual(0, String.Compare(version, tag), "Tag in github must match the package version number.");
                 return;
             }
             //check for non-release build package version number supposed to be x.x.x-pre.x(pre-release) or x.x.x-exp.x(experimental)

@@ -51,6 +51,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsNull(activeLoader);
 
+            #if !OPENXR_USE_KHRONOS_LOADER
             Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", "");
             EnableMockRuntime();
 
@@ -61,6 +62,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsNotNull(activeLoader);
 
             Assert.AreEqual(OpenXRRuntime.name, "Unity Mock Runtime");
+            #endif
         }
     }
 }

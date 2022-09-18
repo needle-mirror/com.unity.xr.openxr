@@ -10,7 +10,7 @@ For information on how to configure Unity to use OpenXR input, see the [Getting 
 
 ## Overview
 
-Initially, Unity will provide a controller-based approach to interfacing with OpenXR. This will allow existing games and applications that are using the Unity's [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) or the [Feature API](https://docs.unity3d.com/Manual/xr_input.html) to continue to use their existing input mechanisms.
+Initially, Unity will provide a controller-based approach to interfacing with OpenXR. This will allow existing games and applications that are using Unity's [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) or the [Feature API](https://docs.unity3d.com/Manual/xr_input.html) to continue to use their existing input mechanisms.
 
 The Unity OpenXR package provides a set of controller layouts for various devices that you can bind to your actions when using the Unity Input System. For more information, see the [Interaction profile features](./index.md#interaction-profile-features) section.
 
@@ -195,7 +195,7 @@ The HMD position reported by Unity when using OpenXR is calculated from the curr
 The Unity `Device Tracking Origin` is mapped to `Local Space`.
 The Unity `Floor Tracking Origin` is mapped to `Stage Space`.
 
-By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Rig` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package. 
+By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Origin` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package. 
 
 ### Interaction bindings
 

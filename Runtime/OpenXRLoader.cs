@@ -501,7 +501,7 @@ namespace UnityEngine.XR.OpenXR
             Internal_SetApplicationInfo(Application.productName, Application.version, applicationVersionHash, Application.unityVersion);
         }
 
-        private byte[] StringToWCHAR_T(string s)
+        internal static byte[] StringToWCHAR_T(string s)
         {
             var encoding = Environment.OSVersion.Platform == PlatformID.Unix ? Encoding.UTF32 : Encoding.Unicode;
             return encoding.GetBytes(s + '\0');

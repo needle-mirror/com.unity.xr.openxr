@@ -48,13 +48,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public AxisControl select { get; private set; }
 
             /// <summary>
-            /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftHandInteraction.trigger"/> OpenXR binding.
+            /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftHandInteraction.select"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "Primary", "selectbutton" }, usages = new[] { "PrimaryButton" })]
             public ButtonControl selectPressed { get; private set; }
 
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftHandInteraction.select"/> OpenXR binding.
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftHandInteraction.squeeze"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(alias = "Secondary", usage = "Grip")]
             public AxisControl squeeze { get; private set; }

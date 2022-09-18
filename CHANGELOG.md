@@ -4,6 +4,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2022-09-18
+### Fixed
+* Fixed `XRInputSubsystem.TryGetBoundaryPoints` returning inaccurate values. If you have guardian/boundary setup in the headset, `TryGetBoundaryPoints` will return a List<Vector3> of size 4 representing the four vertices of the Play Area rectangle, which is centered at the origin and edges corresponding to the X and Z axes of the provided space. Not all systems or spaces may support boundaries.
+* Fixed an issue that controllers position not getting updated and stuck to the floor level when Oculus Integration Asset installed in the project.
+* Fixed an issue that OpenXR libraries were included in build when OpenXR SDK is not enabled.
+* Improved domain reload performance by removing unnecessary checks when entering Playmode.
+
+### Updated
+* Updated Input System dependency to 1.4.2.
+
+### Added
+* Added support for Android cross-vendor loader.
+
 ## [1.5.1] - 2022-08-11
 ### Fixed
 * Fixed compilation errors on Game Core platforms where `ENABLE_VR` is not currently defined. Requires Input System 1.4.0 or newer.

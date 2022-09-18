@@ -12,6 +12,9 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
 #define XR_UNITY_null_gfx_SPEC_VERSION 1
 #define XR_UNITY_NULL_GFX_EXTENSION_NAME "XR_UNITY_null_gfx"
 
+#define XR_UNITY_android_present_SPEC_VERSION 1
+#define XR_UNITY_ANDROID_PRESENT_EXTENSION_NAME "XR_UNITY_android_present"
+
 #define ENUM_TO_STR(name, val)                                 \
     case val:                                                  \
         strncpy(buffer, #name, XR_MAX_RESULT_STRING_SIZE - 1); \
@@ -30,6 +33,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_UNITY_NULL_GFX_EXTENSION_NAME,
         XR_UNITY_null_gfx_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_UNITY_ANDROID_PRESENT_EXTENSION_NAME,
+        XR_UNITY_android_present_SPEC_VERSION
     },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
@@ -763,6 +772,9 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetInstanceProcAddr(XrIns
     GET_PROC_ADDRESS(xrApplyHapticFeedback)
     GET_PROC_ADDRESS(xrStopHapticFeedback)
     GET_PROC_ADDRESS(xrGetVisibilityMaskKHR)
+
+    if (XR_SUCCEEDED(GetProcAddrMockAPI(instance, name, function)))
+        return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

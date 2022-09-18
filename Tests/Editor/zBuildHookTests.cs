@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEditor.Build.Reporting;
+using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Tests;
 using Assert = UnityEngine.Assertions.Assert;
 
@@ -62,6 +65,87 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             Assert.IsTrue(preprocessCalled);
             Assert.IsTrue(postprocessCalled);
+        }
+
+        [Test]
+        public void NoBuildCallbacksFeatureDisabled()
+        {
+            bool preprocessCalled = false;
+            bool postprocessCalled = false;
+
+            BuildCallbacks.TestCallback = (methodName, param) =>
+            {
+                if (methodName == "OnPreprocessBuildExt")
+                {
+                    preprocessCalled = true;
+                }
+
+                if (methodName == "OnPostprocessBuildExt")
+                {
+                    postprocessCalled = true;
+                }
+
+                return true;
+            };
+
+            // Disable mock runtime, no callbacks should occur during build
+            EnableFeature<MockRuntime>(false);
+            BuildMockPlayer();
+            Assert.IsFalse(preprocessCalled);
+            Assert.IsFalse(postprocessCalled);
+        }
+
+        [Test]
+        public void NoBuildCallbacksOpenXRDisabled()
+        {
+            bool preprocessCalled = false;
+            bool postprocessCalled = false;
+
+            BuildCallbacks.TestCallback = (methodName, param) =>
+            {
+                if (methodName == "OnPreprocessBuildExt")
+                {
+                    preprocessCalled = true;
+                }
+
+                if (methodName == "OnPostprocessBuildExt")
+                {
+                    postprocessCalled = true;
+                }
+
+                return true;
+            };
+
+            // Remove OpenXR Loader, no callbacks should occur during build
+            var loaders = XRGeneralSettings.Instance.Manager.activeLoaders;
+            XRGeneralSettings.Instance.Manager.TrySetLoaders(new List<XRLoader>());
+            BuildMockPlayer();
+            XRGeneralSettings.Instance.Manager.TrySetLoaders(new List<XRLoader>(loaders));
+            Assert.IsFalse(preprocessCalled);
+            Assert.IsFalse(postprocessCalled);
+        }
+
+        private bool HasOpenXRLibraries(BuildReport report)
+        {
+            var path = Path.GetDirectoryName(report.summary.outputPath);
+            var dir = new DirectoryInfo(path);
+            var dlls = dir.EnumerateFiles("*.dll", SearchOption.AllDirectories).Select(s => s.Name).ToList();
+            return dlls.Contains("openxr_loader.dll") || dlls.Contains("UnityOpenXR.dll");
+        }
+
+        [Test]
+        public void VerifyBuildOutputLibraries()
+        {
+            var resultWithOpenXR = BuildMockPlayer();
+            // Disable this test if we're not running our openxr yamato infrastructure
+            if (resultWithOpenXR.summary.result != BuildResult.Succeeded && Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") != "1")
+                return;
+            Assert.IsTrue(HasOpenXRLibraries(resultWithOpenXR));
+
+            // Remove OpenXR Loader
+            XRGeneralSettings.Instance.Manager.TrySetLoaders(new List<XRLoader>());
+            var resultWithoutOpenXR = BuildMockPlayer();
+            Assert.IsFalse(HasOpenXRLibraries(resultWithoutOpenXR));
         }
 
         internal class BuildCallbacks : OpenXRFeatureBuildHooks

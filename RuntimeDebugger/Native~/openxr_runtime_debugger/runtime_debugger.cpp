@@ -19,6 +19,7 @@
 
 #include "openxr/openxr_reflection_full.h"
 
+#include <cstdio>
 #include <cstring>
 #include <set>
 #include <type_traits>
@@ -34,6 +35,18 @@ void SendToCSharp(const char* fieldname, T t)
 #if !CATCH_MISSING_TEMPLATES
 {
     SendString(fieldname, "<Unknown>");
+}
+#else
+    ;
+#endif
+
+template <typename T>
+void SendToCSharp(const char* fieldname, T* t)
+#if !CATCH_MISSING_TEMPLATES
+{
+    char buf[32];
+    snprintf(buf, 32, "0x%p", t);
+    SendString(fieldname, buf);
 }
 #else
     ;
@@ -56,6 +69,7 @@ bool SendToCSharpBaseStructArray(const char* fieldname, structType t, int lenPar
 #include "serialize_handles.h"
 #include "serialize_atoms.h"
 #include "serialize_nextptr.h"
+#include "serialize_external.h"
 #include "serialize_structs.h"
 #include "serialize_todo.h"
 #include "serialize_nextptr_impl.h"

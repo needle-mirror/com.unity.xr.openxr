@@ -74,6 +74,7 @@ namespace UnityEngine.XR.TestTooling
 
             xrGeneralSettings.Manager = testManager;
             buildTargetSettings.SetSettingsForBuildTarget(BuildTargetGroup.Standalone, xrGeneralSettings);
+            buildTargetSettings.SetSettingsForBuildTarget(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget), xrGeneralSettings);
 
             AssetDatabase.CreateAsset(xrGeneralSettings, testPathToSettings);
             AssetDatabase.AddObjectToAsset(testManager, xrGeneralSettings);

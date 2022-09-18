@@ -7,6 +7,14 @@
 #include <windows.h>
 #endif
 
+#ifdef XR_USE_PLATFORM_ANDROID
+#include <jni.h>
+#endif
+
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+#include <EGL/egl.h>
+#endif
+
 #include <vulkan/vulkan.h>
 
 #define XR_NO_PROTOTYPES

@@ -35,11 +35,13 @@ namespace UnityEngine.XR.OpenXR.Tests
         protected static readonly (Type featureType, Type layoutType, string layoutNameOverride) [] s_InteractionFeatureLayouts = {
             (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController), null),
             (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice), "EyeGaze"),
-            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
             (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand), null),
-            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController), null),
             (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController), null),
+#if !UNITY_ANDROID
+            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
+            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController), null),
             (typeof(ValveIndexControllerProfile), typeof(ValveIndexControllerProfile.ValveIndexController), null)
+#endif
         };
 
         /// <summary>

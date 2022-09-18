@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
+using UnityEditor;
+#if UNITY_EDITOR
+using UnityEditor.XR.OpenXR.Features;
+#endif
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.XR.Management;
@@ -15,7 +20,7 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using Assert = UnityEngine.Assertions.Assert;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
-[assembly:UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor)]
+[assembly:UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor, RuntimePlatform.Android)]
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -31,7 +36,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="featureType">Feature type</param>
         /// <returns>Reference to the requested feature or null if not found</returns>
         protected OpenXRFeature GetFeature(Type featureType) =>
-            OpenXRSettings.Instance.GetFeature(featureType);
+            OpenXRSettings.ActiveBuildTargetInstance.GetFeature(featureType);
 
         /// <summary>
         /// Helper method to return a feature of the given type
@@ -70,7 +75,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return true;
 
             feature.enabled = enable;
-            feature.openxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx;
+            feature.openxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx + " " + MockRuntime.XR_UNITY_android_present;
             feature.priority = 0;
             feature.required = false;
             feature.ignoreValidationErrors = true;
@@ -85,7 +90,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         private void DisableAllFeatures()
         {
-            foreach (var ext in OpenXRSettings.Instance.features)
+            foreach (var ext in OpenXRSettings.ActiveBuildTargetInstance.features)
             {
                 ext.enabled = false;
             }
@@ -101,14 +106,15 @@ namespace UnityEngine.XR.OpenXR.Tests
             base.SetupTest();
 
 #if UNITY_EDITOR
-            UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(UnityEditor.BuildTargetGroup.Standalone);
+            UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
+            UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget));
 #endif
 
             // Enable all build features
             var featureTypes = new List<Type>();
             QueryBuildFeatures(featureTypes);
             featureTypes.Add(typeof(MockRuntime));
-            foreach (var feature in featureTypes.Select(featureType => OpenXRSettings.Instance.GetFeature(featureType)).Where(feature => null != feature))
+            foreach (var feature in featureTypes.Select(featureType => OpenXRSettings.ActiveBuildTargetInstance.GetFeature(featureType)).Where(feature => null != feature))
             {
                 feature.enabled = true;
             }
@@ -128,11 +134,11 @@ namespace UnityEngine.XR.OpenXR.Tests
         public virtual void BeforeTest()
         {
             // Make sure we are not running
-            if(OpenXRLoaderBase.Instance != null)
+            if (OpenXRLoaderBase.Instance != null)
                 StopAndShutdown();
 
             // Cache off the features before we start
-            savedFeatures = (OpenXRFeature[])OpenXRSettings.Instance.features.Clone();
+            savedFeatures = (OpenXRFeature[])OpenXRSettings.ActiveBuildTargetInstance.features.Clone();
 
             // Disable all features to make sure the feature list is clean before tests start.
             DisableAllFeatures();
@@ -141,11 +147,23 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(EnableMockRuntime());
             MockRuntime.ResetDefaults();
             OpenXRRuntime.ClearEvents();
-            OpenXRRestarter.Instance.ResetCallbacks ();
+            OpenXRRestarter.Instance.ResetCallbacks();
 
 #pragma warning disable CS0618
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
 #pragma warning restore CS0618
+
+            #if UNITY_EDITOR && OPENXR_USE_KHRONOS_LOADER
+            var features = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
+            foreach (var f in features.Features)
+            {
+                if (f.Feature.nameUi == "Mock Runtime")
+                {
+                    var path = Path.GetFullPath(f.PluginPath + "/unity-mock-runtime.json");
+                    Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", path);
+                }
+            }
+            #endif
         }
 
         [UnityTearDown]
@@ -166,16 +184,21 @@ namespace UnityEngine.XR.OpenXR.Tests
         public virtual void AfterTest()
         {
 #pragma warning disable CS0618
-            loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
+            var curLoader = XRGeneralSettings.Instance?.Manager?.activeLoader;
+            // Restore the original loader if it got removed during the test
+            if (curLoader == null)
+                XRGeneralSettings.Instance?.Manager?.TryAddLoader(loader);
 #pragma warning restore CS0618
 
             OpenXRRestarter.Instance.ResetCallbacks();
             StopAndShutdown();
             EnableMockRuntime(false);
             MockRuntime.Instance.TestCallback = (methodName, param) => true;
+            MockRuntime.KeepFunctionCallbacks = false;
+            MockRuntime.ClearFunctionCallbacks();
 
             // Replace the features with the saved features
-            OpenXRSettings.Instance.features = savedFeatures;
+            OpenXRSettings.ActiveBuildTargetInstance.features = savedFeatures;
         }
 
         public override void Setup()

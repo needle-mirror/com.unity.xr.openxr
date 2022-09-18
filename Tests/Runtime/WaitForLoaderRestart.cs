@@ -13,19 +13,33 @@ namespace UnityEngine.XR.OpenXR.Tests
         private float m_Timeout = 0;
         private Action m_OldAfterRestart;
         private Action m_OldAfterCoroutine;
-        private bool m_Restarted;
+        private Action m_OldAfterSuccessfulRestart;
         private bool m_Done;
 
-        public WaitForLoaderRestart(float timeout = 5.0f)
+        public WaitForLoaderRestart(float timeout = 5.0f, bool mustBeSuccessfulRestart = false)
         {
             m_Timeout = Time.realtimeSinceStartup + timeout;
 
             var restarter = OpenXRRestarter.Instance;
             m_OldAfterRestart = restarter.onAfterRestart;
             m_OldAfterCoroutine = restarter.onAfterCoroutine;
+            m_OldAfterSuccessfulRestart = restarter.onAfterSuccessfulRestart;
 
-            restarter.onAfterRestart = () => m_Restarted = true;
-            restarter.onAfterCoroutine = () => m_Done = true;
+            if (mustBeSuccessfulRestart)
+            {
+                // Wait for a successful restart, then wait for that particular coroutine to finish.
+                restarter.onAfterSuccessfulRestart = () =>
+                {
+                    restarter.onAfterCoroutine = () => m_Done = true;
+                };
+            }
+            else
+            {
+                restarter.onAfterRestart = () =>
+                {
+                    restarter.onAfterCoroutine = () => m_Done = true;
+                };
+            }
         }
 
         private void RestoreCallbacks ()
@@ -33,6 +47,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var restarter = OpenXRRestarter.Instance;
             restarter.onAfterRestart = m_OldAfterRestart;
             restarter.onAfterCoroutine = m_OldAfterCoroutine;
+            restarter.onAfterSuccessfulRestart = m_OldAfterSuccessfulRestart;
         }
 
         public override bool keepWaiting
@@ -43,12 +58,6 @@ namespace UnityEngine.XR.OpenXR.Tests
                 if (m_Done)
                 {
                     RestoreCallbacks();
-
-                    if (!m_Restarted)
-                    {
-                        Assert.Fail("WaitForLoaderRestart: Coroutine finished without restarting");
-                    }
-
                     return false;
                 }
 

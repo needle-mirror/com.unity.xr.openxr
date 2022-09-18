@@ -217,7 +217,7 @@ static void SendXrPath(const char* fieldName, XrPath t)
 }
 
 template <>
-void SendToCSharp<const XrActionCreateInfo*>(const char*, const XrActionCreateInfo*);
+void SendToCSharp<>(const char*, const XrActionCreateInfo*);
 static void SendXrActionCreate(const char* funcName, XrAction action, const XrActionCreateInfo* createInfo)
 {
     s_ThreadLocalDataStore.Reset();
@@ -240,7 +240,7 @@ static void SendXrAction(const char* fieldName, XrAction t)
 }
 
 template <>
-void SendToCSharp<const XrActionSetCreateInfo*>(const char*, const XrActionSetCreateInfo*);
+void SendToCSharp<>(const char*, const XrActionSetCreateInfo*);
 static void SendXrActionSetCreate(const char* funcName, XrActionSet actionSet, const XrActionSetCreateInfo* createInfo)
 {
     s_ThreadLocalDataStore.Reset();
@@ -263,7 +263,7 @@ static void SendXrActionSet(const char* fieldName, XrActionSet t)
 }
 
 template <>
-void SendToCSharp<const XrActionSpaceCreateInfo*>(const char*, const XrActionSpaceCreateInfo*);
+void SendToCSharp<>(const char*, const XrActionSpaceCreateInfo*);
 static void SendXrActionSpaceCreate(const char* funcName, const XrActionSpaceCreateInfo* createInfo, XrSpace* space)
 {
     s_ThreadLocalDataStore.Reset();
@@ -291,7 +291,7 @@ static const char* GetReferenceSpaceString(XrReferenceSpaceType t)
 }
 
 template <>
-void SendToCSharp<const XrReferenceSpaceCreateInfo*>(const char*, const XrReferenceSpaceCreateInfo*);
+void SendToCSharp<>(const char*, const XrReferenceSpaceCreateInfo*);
 static void SendXrReferenceSpaceCreate(const char* funcName, const XrReferenceSpaceCreateInfo* createInfo, XrSpace* space)
 {
     s_ThreadLocalDataStore.Reset();

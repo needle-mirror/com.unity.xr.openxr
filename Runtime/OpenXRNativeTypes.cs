@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace UnityEngine.XR.OpenXR.NativeTypes
 {
     /// <summary>
-    /// Runtime XR Environment Blend Mode. <see cref="OpenXRFeature.SetEnvironmentBlendMode"/>
+    /// Runtime XR Environment Blend Mode. <see cref="Features.OpenXRFeature.SetEnvironmentBlendMode"/>
     /// </summary>
     public enum XrEnvironmentBlendMode
     {

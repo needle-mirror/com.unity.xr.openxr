@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine.XR.OpenXR;
 
 namespace UnityEditor.XR.OpenXR.Features
 {
@@ -72,6 +73,8 @@ namespace UnityEditor.XR.OpenXR.Features
 
         public void OnPreprocessBuild(BuildReport report)
         {
+            var enabled = BuildHelperUtils.HasLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase));
+
             var extensions = FeatureHelpersInternal.GetAllFeatureInfo(report.summary.platformGroup);
 
             // Keep set of seen plugins, only disable plugins that haven't been seen.
@@ -83,12 +86,19 @@ namespace UnityEditor.XR.OpenXR.Features
             {
                 if (!importer.GetCompatibleWithPlatform(report.summary.platform))
                     continue;
+                bool loader = false;
                 if (importer.assetPath.Contains("openxr_loader"))
                 {
+                    loader = true;
                     if (extensions.CustomLoaderBuildTargets?.Contains(report.summary.platform) ?? false)
                         importer.SetIncludeInBuildDelegate(path => false);
                     else
-                        importer.SetIncludeInBuildDelegate(path => true);
+                        importer.SetIncludeInBuildDelegate(path => enabled);
+                }
+
+                if (importer.assetPath.Contains("UnityOpenXR"))
+                {
+                    importer.SetIncludeInBuildDelegate(path => enabled);
                 }
 
                 var root = Path.GetDirectoryName(importer.assetPath);
@@ -96,9 +106,10 @@ namespace UnityEditor.XR.OpenXR.Features
                 {
                     if (root != null && root.Contains(extInfo.PluginPath))
                     {
-                        if (extInfo.Feature.enabled)
+                        if (extInfo.Feature.enabled &&
+                            (!loader || (extInfo.Attribute.CustomRuntimeLoaderBuildTargets?.Contains(report.summary.platform) ?? false)))
                         {
-                            importer.SetIncludeInBuildDelegate(path => true);
+                            importer.SetIncludeInBuildDelegate(path => enabled);
                         }
                         else if (!seenPlugins.Contains(importer.assetPath))
                         {

@@ -38,24 +38,19 @@ namespace UnityEditor.XR.OpenXR
             {
                 string searchText = "t:XRGeneralSettings";
                 string[] assets = AssetDatabase.FindAssets(searchText);
-                if (assets.Length > 0)
+                for (int i = 0; i < assets.Length; ++i)
                 {
-                    string path = AssetDatabase.GUIDToAssetPath(assets[0]);
+                    string path = AssetDatabase.GUIDToAssetPath(assets[i]);
                     var allSettings = AssetDatabase.LoadAssetAtPath(path, typeof(XRGeneralSettingsPerBuildTarget)) as XRGeneralSettingsPerBuildTarget;
-                    EditorBuildSettings.AddConfigObject(XRGeneralSettings.k_SettingsKey, allSettings, true);
+                    if (allSettings != null)
+                    {
+                        EditorBuildSettings.AddConfigObject(XRGeneralSettings.k_SettingsKey, allSettings, true);
+                        break;
+                    }
                 }
             }
 
             return settings;
-        }
-
-        static BuildHelperUtils()
-        {
-            EditorApplication.playModeStateChanged += (state) =>
-            {
-                if (state == PlayModeStateChange.ExitingEditMode)
-                    MakeSureXRGeneralSettingsExists(BuildTargetGroup.Standalone);
-            };
         }
     }
 }

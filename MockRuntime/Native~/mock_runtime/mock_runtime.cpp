@@ -1254,7 +1254,7 @@ XrResult MockRuntime::GetActionStateFloat(const XrActionStateGetInfo* getInfo, X
 
         // OpenXR 1.0: The current state must be the state of the input with the largest absolute value
         float bindingValue = binding->GetFloat();
-        if (abs(bindingValue) > abs(value))
+        if (std::abs(bindingValue) > std::abs(value))
             value = bindingValue;
     }
 

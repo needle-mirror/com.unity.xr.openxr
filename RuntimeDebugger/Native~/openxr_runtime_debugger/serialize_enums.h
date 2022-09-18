@@ -7,7 +7,7 @@
 
 #define SEND_TO_CSHARP_ENUMS(enumname)                                                                            \
     template <>                                                                                                   \
-    void SendToCSharp<enumname>(const char* fieldname, enumname t)                                                \
+    void SendToCSharp<>(const char* fieldname, enumname t)                                                        \
     {                                                                                                             \
         switch (t)                                                                                                \
         {                                                                                                         \
@@ -19,7 +19,7 @@ XR_LIST_ENUM_TYPES(SEND_TO_CSHARP_ENUMS)
 
 #define SEND_TO_CSHARP_ENUMS_PTR(enumname)                                                                        \
     template <>                                                                                                   \
-    void SendToCSharp<enumname*>(const char* fieldname, enumname* t)                                              \
+    void SendToCSharp<>(const char* fieldname, enumname* t)                                                       \
     {                                                                                                             \
         switch (*t)                                                                                               \
         {                                                                                                         \

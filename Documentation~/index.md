@@ -86,7 +86,7 @@ The most important part of the diagnostic log is the section marked `==== OpenXR
 ## Known issues
 
 * For projects targeting HoloLens 2 that are using Out of the Box Unity OpenXR support, **Project Settings - &gt; Player - &gt; Resolution and Presentation - &gt; Run in Background** must be enabled. For projects that are using the Microsoft OpenXR extended support package this is not required.
-* An issue with an invalid stage space during startup may cause problems with the XR Rig component from the `com.unity.xr.interaction.toolkit` package, or the camera offset component in the `com.unity.xr.legacyinputhelpers` package. These packages will be updated shortly to contain fixes for this issue. Until then the workaround is to use the `Floor` Device Tracking Option setting. 
+* An issue with an invalid stage space during startup may cause problems with the XR Origin component from the `com.unity.xr.interaction.toolkit` package, or the camera offset component in the `com.unity.xr.legacyinputhelpers` package. These packages will be updated shortly to contain fixes for this issue. Until then the workaround is to use the `Floor` Device Tracking Option setting. 
 
 ## Upgrading a project to use OpenXR
 

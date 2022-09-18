@@ -297,10 +297,10 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             var comparer = new Vector3EqualityComparer(10e-6f);
 
-            Assert.That(points[0], Is.EqualTo(new Vector3 {x = -1.0f, y = 0.0f, z = -3.0f}).Using(comparer));
-            Assert.That(points[1], Is.EqualTo(new Vector3 {x = -1.0f, y = 0.0f, z = 3.0f}).Using(comparer));
-            Assert.That(points[2], Is.EqualTo(new Vector3 {x = 1.0f, y = 0.0f, z = 3.0f}).Using(comparer));
-            Assert.That(points[3], Is.EqualTo(new Vector3 {x = 1.0f, y = 0.0f, z = -3.0f}).Using(comparer));
+            Assert.That(points[0], Is.EqualTo(new Vector3 {x = -0.5f, y = 0.0f, z = -1.5f}).Using(comparer));
+            Assert.That(points[1], Is.EqualTo(new Vector3 {x = -0.5f, y = 0.0f, z = 1.5f}).Using(comparer));
+            Assert.That(points[2], Is.EqualTo(new Vector3 {x = 0.5f, y = 0.0f, z = 1.5f}).Using(comparer));
+            Assert.That(points[3], Is.EqualTo(new Vector3 {x = 0.5f, y = 0.0f, z = -1.5f}).Using(comparer));
         }
 
         [UnityTest]

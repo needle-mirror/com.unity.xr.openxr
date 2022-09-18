@@ -352,7 +352,7 @@ private:
     std::vector<std::string> componentPathStrings;
     std::vector<MockUserPath> userPaths;
 
-    std::chrono::steady_clock::time_point startTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
     bool instanceIsLost;
     bool nullGfx;

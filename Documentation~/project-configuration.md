@@ -35,7 +35,7 @@ The **XR Plug-in Management** settings page displays a tab for each platform bui
 
 To enable OpenXR:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Select **XR Plug-in Management** to view the plug-in management settings.
 3. Select the tab for a platform build target to view the settings for that target.
 4. Enable the **OpenXR** option in the **Plug-in Providers** list.
@@ -55,7 +55,7 @@ Some features are organized as a *feature group*. You can enable a feature group
 
 To enable an OpenXR feature:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
 4. Select the tab for a platform build target to view the features for that target.
@@ -83,7 +83,7 @@ The **Render Mode** determines how OpenXR renders stereo graphics. Different plu
 
 To set the render mode:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
 4. Select the tab for a platform build target to view the features for that target.
@@ -116,7 +116,7 @@ A reasonable rule of thumb to use when choosing a setting is:
 
 To set the depth submission mode:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
 4. Select the tab for a platform build target to view the features for that target.
@@ -134,7 +134,7 @@ By default, Unity uses the OpenXR runtime that is setup as the active runtime fo
 
 To set the OpenXR runtime to use in Play mode:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
 4. Select the Mac, Windows, Linux settings (PC) tab.
@@ -160,7 +160,7 @@ When using an OpenXR plug-in, you must specify which interaction profile to use.
 
 To add an OpenXR interaction profile:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
 4. In the **Interaction Profiles** section, click the **+** button to add a profile. 
@@ -177,7 +177,7 @@ When you use the OpenGL graphics API, you must set the Unity Editor to use the l
 
 To change the color space:
 
-1. Open the **Player Settings** window (menu: **Edit &gt; Player Settings**).
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Select the **Player** settings category.
 3. Scroll to the **Other Settings** section. (Click **Other Settings** to open the section, if necessary.)
 4. Under the **Rendering** area, choose a **Color Space**.

@@ -16,7 +16,7 @@ namespace UnityEngine.XR.OpenXR
         internal Action onAfterShutdown;
         internal Action onQuit;
         internal Action onAfterCoroutine;
-
+        internal Action onAfterSuccessfulRestart;
 
         static OpenXRRestarter()
         {
@@ -34,6 +34,7 @@ namespace UnityEngine.XR.OpenXR
         public void ResetCallbacks ()
         {
             onAfterRestart = null;
+            onAfterSuccessfulRestart = null;
             onAfterShutdown = null;
             onAfterCoroutine = null;
             onQuit = null;
@@ -188,6 +189,7 @@ namespace UnityEngine.XR.OpenXR
                     {
                         Debug.Log("OpenXRLoader restart successful.");
                         m_pauseAndRestartAttempts = 0;
+                        onAfterSuccessfulRestart?.Invoke();
                     }
 
                     onAfterRestart?.Invoke();
