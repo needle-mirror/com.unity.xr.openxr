@@ -1672,11 +1672,6 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
         return XR_SUCCESS;
 #endif
 
-#if defined(_WIN32)
-    if (XR_SUCCESS == MockWin32ConvertPerformanceCounterTime_GetInstanceProcAddr(name, function))
-        return XR_SUCCESS;
-#endif
-
     if (IsConformanceAutomationEnabled() && XR_SUCCESS == ConformanceAutomation_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 

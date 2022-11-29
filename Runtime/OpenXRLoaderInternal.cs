@@ -44,6 +44,9 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "messagepump_PumpMessageLoop")]
         static extern void Internal_PumpMessageLoop();
 
+        [DllImport(LibraryName, EntryPoint = "session_SetSuccessfullyInitialized")]
+        internal static extern void Internal_SetSuccessfullyInitialized(bool value);
+
         [DllImport(LibraryName, EntryPoint = "unity_ext_RequestEnableExtensionString", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
         internal static extern bool Internal_RequestEnableExtensionString(string extensionString);

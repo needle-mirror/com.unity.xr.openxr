@@ -830,6 +830,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 int resetAttempts = 0;
                 MockRuntime.SetFunctionCallback("xrGetSystem", (name) =>
                 {
+                    OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(true);
                     MockRuntime.KeepFunctionCallbacks = true;
                     resetAttempts += 1;
                     if (resetAttempts <= 2)
@@ -856,6 +857,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 MockRuntime.KeepFunctionCallbacks = initialKeepFunctionCallbacks;
                 MockRuntime.SetFunctionCallback("xrGetSystem", initialXRGetSystemCallback);
                 OpenXRRestarter.TimeBetweenRestartAttempts = initialTimeBetweenRestarts;
+                OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
             }
         }
 
@@ -880,7 +882,11 @@ namespace UnityEngine.XR.OpenXR.Tests
                 OpenXRRestarter.TimeBetweenRestartAttempts = timeBetweenRestarts;
 
                 // Trigger initialize, which should throw the form factor unavailable error.
-                MockRuntime.SetFunctionCallback("xrGetSystem", (name) => XrResult.FormFactorUnavailable);
+                MockRuntime.SetFunctionCallback("xrGetSystem", (name) =>
+                {
+                    OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(true);
+                    return XrResult.FormFactorUnavailable;
+                });
                 base.InitializeAndStart();
 
                 // This retry attempt should not succeed since we manually set wantsToRestart = false.
@@ -893,6 +899,46 @@ namespace UnityEngine.XR.OpenXR.Tests
                 OpenXRRuntime.wantsToRestart -= () => false;
                 OpenXRRuntime.wantsToQuit -= () => true;
                 MockRuntime.SetFunctionCallback("xrGetSystem", initialXRGetSystemCallback);
+                OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator RestartLoopDisabledBeforeInitializationTest()
+        {
+            OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
+            float initialTimeBetweenRestarts = OpenXRRestarter.TimeBetweenRestartAttempts;
+            var initialXRGetSystemCallback = MockRuntime.GetBeforeFunctionCallback("xrGetSystem");
+            try
+            {
+                float timeBetweenRestarts = 1.0f;
+
+                yield return null;
+
+                // Reduce the time between restarts to reduce the time of this test.
+                OpenXRRestarter.TimeBetweenRestartAttempts = timeBetweenRestarts;
+
+                // When XRGetSystem is called, start listening for a null OpenXRLoader since initialization has
+                // already started.
+                WaitForNullXRLoader nullLoaderYieldInstruction = new WaitForNullXRLoader();
+                MockRuntime.SetFunctionCallback("xrGetSystem", (name) =>
+                {
+                    Debug.Log("Calling XRGetSystem");
+                    nullLoaderYieldInstruction.StartListening();
+                    return XrResult.FormFactorUnavailable;
+                });
+
+                // Trigger initialize, which should throw the form factor unavailable error.
+                base.InitializeAndStart();
+
+                yield return nullLoaderYieldInstruction;
+                Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be initialized");
+            }
+            finally
+            {
+                OpenXRRestarter.TimeBetweenRestartAttempts = initialTimeBetweenRestarts;
+                MockRuntime.SetFunctionCallback("xrGetSystem", initialXRGetSystemCallback);
+                OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
             }
         }
 
@@ -1010,6 +1056,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CreateSwapChainSessionLostError()
         {
+            OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(true);
             float initialTimeBetweenRestarts = OpenXRRestarter.TimeBetweenRestartAttempts;
             var initialXRCreateSwapchainCallback = MockRuntime.GetBeforeFunctionCallback("xrCreateSwapchain");
             try
@@ -1031,6 +1078,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 OpenXRRestarter.TimeBetweenRestartAttempts = initialTimeBetweenRestarts;
                 MockRuntime.SetFunctionCallback("xrCreateSwapchain", initialXRCreateSwapchainCallback);
+                OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
             }
         }
 

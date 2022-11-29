@@ -23,6 +23,11 @@
             "name": "com.microsoft.mixedreality.openxr",
             "expression": "1.0.0",
             "define": "MICROSOFT_OPENXR_PACKAGE"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.4.2",
+            "define": "INPUT_SYSTEM_POSE_VALID"
         }
     ],
     "noEngineReferences": false

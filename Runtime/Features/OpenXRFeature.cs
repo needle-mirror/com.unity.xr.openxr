@@ -13,6 +13,7 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEditor;
 using UnityEditor.XR.OpenXR;
 using UnityEditor.XR.OpenXR.Features;
+using System.Linq;
 #endif
 
 [assembly:InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
@@ -431,7 +432,10 @@ namespace UnityEngine.XR.OpenXR.Features
                 return;
             }
 
-            foreach (var feature in openXrSettings.features)
+            var features = openXrSettings.features.Where(f => f != null)
+                .OrderByDescending(f => f.priority)
+                .ThenBy(f => f.nameUi);
+            foreach (var feature in features)
             {
                 if (feature != null && feature.enabled)
                     feature.GetValidationChecks(rules, targetGroup);

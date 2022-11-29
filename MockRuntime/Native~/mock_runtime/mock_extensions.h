@@ -11,12 +11,6 @@ XrResult ConformanceAutomation_GetInstanceProcAddr(const char* name, PFN_xrVoidF
 XrResult ConformanceAutomation_GetInputState(MockInputState* state);
 bool ConformanceAutomation_IsActive(XrPath interactionProfile, XrPath userPath, bool defaultValue = true);
 
-// XR_KHR_win32_convert_performance_counter_time
-
-#if defined(XR_USE_PLATFORM_WIN32)
-XrResult MockWin32ConvertPerformanceCounterTime_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function);
-#endif
-
 // XR_KHR_VULKAN_ENABLE2
 
 #if defined(XR_USE_GRAPHICS_API_VULKAN)

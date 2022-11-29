@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
+using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
 #endif
 
 namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
@@ -20,9 +22,11 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
         Version = "1.0.0",
         BuildTargetGroups = new []{BuildTargetGroup.Android},
         CustomRuntimeLoaderBuildTargets = new []{BuildTarget.Android},
-        FeatureId = featureId
+        FeatureId = featureId,
+        Hidden = true
     )]
 #endif
+    [Obsolete("OpenXR.Features.OculusQuestSupport.OculusQuestFeature is deprecated. Please use OpenXR.Features.MetaQuestSupport.MetaQuestFeature instead.", false)]
     public class OculusQuestFeature : OpenXRFeature
     {
         /// <summary>
@@ -44,58 +48,45 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
         {
             rules.Add(new ValidationRule(this)
             {
-                message = "Only the Oculus Touch Interaction Profile is supported right now.",
-                checkPredicate = () =>
-                {
-                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
-                    if (null == settings)
-                        return false;
-
-                    bool touchFeatureEnabled = false;
-                    bool otherInteractionFeatureEnabled = false;
-                    foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
-                    {
-                        if (feature.enabled)
-                        {
-                            if (feature is OculusTouchControllerProfile)
-                                touchFeatureEnabled = true;
-                            else
-                                otherInteractionFeatureEnabled = true;
-                        }
-                    }
-                    return touchFeatureEnabled && !otherInteractionFeatureEnabled;
-                },
+                message = "Oculus Quest Feature for Android platform is deprecated, please enable Meta Quest Feature instead.",
+                checkPredicate = () => !this.enabled,
+                error = true,
+                errorEnteringPlaymode = true,
                 fixIt = () =>
                 {
                     var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                     if (null == settings)
                         return;
-
-                    foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
+                    this.enabled = false;
+                    var metaQuestFeature = settings.GetFeature<MetaQuestFeature>();
+                    if (metaQuestFeature != null)
                     {
-                        feature.enabled = (feature is OculusTouchControllerProfile);
+                        metaQuestFeature.enabled = true;
+                        if (metaQuestFeature.targetDevices.Count == 0)
+                        {
+                            MetaQuestFeature.TargetDevice questDevice = new MetaQuestFeature.TargetDevice { manifestName = "quest", visibleName = "Quest", enabled = this.targetQuest, active = true};
+                            metaQuestFeature.targetDevices.Add(questDevice);
+                            MetaQuestFeature.TargetDevice quest2Device = new MetaQuestFeature.TargetDevice { manifestName = "quest2", visibleName = "Quest 2", enabled = this.targetQuest2, active = true};
+                            metaQuestFeature.targetDevices.Add(quest2Device);
+                            return;
+                        }
+                        for (var i = 0; i < metaQuestFeature.targetDevices.Count; i++)
+                        {
+                            if (metaQuestFeature.targetDevices[i].manifestName == "quest")
+                            {
+                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice(){manifestName = "quest", visibleName = "Quest", enabled = this.targetQuest, active = true};
+                            }
+                            if (metaQuestFeature.targetDevices[i].manifestName == "quest2")
+                            {
+                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice(){manifestName = "quest2", visibleName = "Quest 2", enabled = this.targetQuest2, active = true};
+                            }
+                        }
                     }
-                },
-                error = true,
-            });
-
-            rules.Add(new ValidationRule(this)
-            {
-                message = "No Oculus target devices selected.",
-                checkPredicate = () =>
-                {
-                    return targetQuest || targetQuest2;
-                },
-                fixIt = () =>
-                {
-                    var window = OculusQuestFeatureEditorWindow.Create(this);
-                    window.ShowPopup();
-                },
-                error = true,
-                fixItAutomatic = false,
+                }
             });
         }
 
+        [Obsolete("OpenXR.Features.OculusQuestSupport.OculusQuestFeatureEditorWindow is deprecated.", false)]
         internal class OculusQuestFeatureEditorWindow : EditorWindow
         {
             private Object feature;

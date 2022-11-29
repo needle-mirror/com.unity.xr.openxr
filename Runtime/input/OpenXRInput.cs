@@ -138,7 +138,13 @@ namespace UnityEngine.XR.OpenXR.Input
         internal static void RegisterLayouts()
         {
             InputSystem.InputSystem.RegisterLayout<HapticControl>("Haptic");
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+#if UNITY_FORCE_INPUTSYSTEM_XR_OFF
+            InputSystem.InputSystem.RegisterLayout<UnityEngine.InputSystem.XR.PoseControl>("Pose");
+#endif //UNITY_FORCE_INPUTSYSTEM_XR_OFF
+#else
             InputSystem.InputSystem.RegisterLayout<PoseControl>("Pose");
+#endif //USE_INPUT_SYSTEM_POSE_CONTROL
             InputSystem.InputSystem.RegisterLayout<OpenXRDevice>();
             InputSystem.InputSystem.RegisterLayout<OpenXRHmd>(matches: new InputDeviceMatcher()
                 .WithInterface(XRUtilities.InterfaceMatchAnyVersion)

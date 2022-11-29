@@ -37,7 +37,8 @@ public:
     XrVector3f GetLinearVelocity() const;
 
 private:
-    union {
+    union
+    {
         XrBool32 boolValue;
         float floatValue;
         XrVector2f vectorValue;

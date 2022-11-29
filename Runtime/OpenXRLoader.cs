@@ -204,6 +204,7 @@ namespace UnityEngine.XR.OpenXR
 #if TEST_SUPPORT
             if (ShouldExitEarly()) return false;
 #endif
+            OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
 
             OpenXRInput.RegisterLayouts();
 

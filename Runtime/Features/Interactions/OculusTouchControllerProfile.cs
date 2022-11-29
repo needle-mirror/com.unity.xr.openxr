@@ -8,8 +8,11 @@ using UnityEngine.XR.OpenXR.Input;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
+#else
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
@@ -119,6 +122,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public ButtonControl thumbstickTouched { get; private set; }
 
             /// <summary>
+            /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.thumbrest"/> OpenXR binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "ThumbrestTouch")]
+            public ButtonControl thumbrestTouched { get; private set; }
+
+            /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="OculusTouchControllerProfile.grip"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
@@ -191,6 +200,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 secondaryTouched = GetChildControl<ButtonControl>("secondaryTouched");
                 thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
                 thumbstickTouched = GetChildControl<ButtonControl>("thumbstickTouched");
+                thumbrestTouched = GetChildControl<ButtonControl>("thumbrestTouched");
 
                 devicePose = GetChildControl<PoseControl>("devicePose");
                 pointer = GetChildControl<PoseControl>("pointer");
@@ -630,6 +640,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             new ActionBinding()
                             {
                                 interactionPath = thumbstickTouch,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    //Thumbrest Touched
+                    new ActionConfig()
+                    {
+                        name = "thumbrestTouched",
+                        localizedName = "Thumbrest Touched",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
+                        {
+                            "ThumbrestTouch"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = thumbrest,
                                 interactionProfileName = profile,
                             }
                         }

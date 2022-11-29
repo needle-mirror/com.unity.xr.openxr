@@ -244,7 +244,7 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/left/input/thumbstick/touch", XR_ACTION_TYPE_BOOLEAN_INPUT, "Thumbstick Touch"},
             {"/user/hand/left/input/thumbstick", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
             // Rift S and Quest controllers lack thumbrests
-            // {"/user/hand/left/input/thumbrest/touch", XR_ACTION_TYPE_BOOLEAN_INPUT},
+            {"/user/hand/left/input/thumbrest/touch", XR_ACTION_TYPE_BOOLEAN_INPUT},
             {"/user/hand/left/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
             {"/user/hand/left/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
             {"/user/hand/left/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"},
@@ -263,7 +263,7 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/right/input/thumbstick/touch", XR_ACTION_TYPE_BOOLEAN_INPUT, "Thumbstick Touch"},
             {"/user/hand/right/input/thumbstick", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
             // Rift S and Quest controllers lack thumbrests
-            // {"/user/hand/right/input/thumbrest/touch", XR_ACTION_TYPE_BOOLEAN_INPUT},
+            {"/user/hand/right/input/thumbrest/touch", XR_ACTION_TYPE_BOOLEAN_INPUT},
             {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
             {"/user/hand/right/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
             {"/user/hand/right/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"},

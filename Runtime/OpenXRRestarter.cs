@@ -30,7 +30,6 @@ namespace UnityEngine.XR.OpenXR
             TimeBetweenRestartAttempts = 5.0f;
         }
 
-
         public void ResetCallbacks ()
         {
             onAfterRestart = null;

@@ -162,9 +162,46 @@ namespace UnityEditor.XR.OpenXR
                 error = true,
                 errorEnteringPlaymode = true,
             },
+            new OpenXRFeature.ValidationRule()
+            {
+                message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",
+                checkPredicate = () =>
+                {
+#if !USE_INPUT_SYSTEM_POSE_CONTROL && INPUT_SYSTEM_POSE_VALID
+                    return false;
+#else
+                    return true;
+#endif
+                },
+                fixIt = EnableInputSystemPoseControlDefine,
+                error = false,
+                errorEnteringPlaymode = false,
+            }
         };
 
         private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);
+
+        internal static void EnableInputSystemPoseControlDefine()
+        {
+#if UNITY_2021_3_OR_NEWER
+            NamedBuildTarget[] targets = {NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps};
+            for (var index = 0; index < targets.Length; index++)
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbols(targets[index]);
+                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                PlayerSettings.SetScriptingDefineSymbols(targets[index], defines);
+            }
+
+#else
+            BuildTargetGroup[] buildTargets = {BuildTargetGroup.Android, BuildTargetGroup.Standalone, BuildTargetGroup.WSA};
+            for (var index = 0; index < buildTargets.Length; index++)
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargets[index]);
+                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargets[index], defines);
+            }
+#endif
+        }
 
         internal static bool AssetHasNoDuplicates()
         {

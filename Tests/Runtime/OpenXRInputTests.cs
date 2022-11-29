@@ -15,6 +15,11 @@ using UnityEngine.XR.OpenXR.Features.ConformanceAutomation;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseStruct = UnityEngine.InputSystem.XR.PoseState;
+#else
+using PoseStruct = UnityEngine.XR.OpenXR.Input.Pose;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -163,7 +168,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="expected">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, OpenXR.Input.Pose expected)
+        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, PoseStruct expected)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetPose(userPath, interactionPath, expected.position, expected.rotation);
             ConformanceAutomationFeature.ConformanceAutomationSetVelocity(
@@ -208,7 +213,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
                 case "Pose":
                 {
-                    var received = inputAction.ReadValue<Input.Pose>();
+                    var received = inputAction.ReadValue<PoseStruct>();
                     Assert.IsTrue(received.isTracked == expected.isTracked, $"Action '{inputAction.bindings[0].path}/isTracked' bound to '{interactionPath}' expected '{expected.isTracked}' but received '{received.isTracked}'");
                     Assert.IsTrue(received.trackingState == expected.trackingState, $"Action '{inputAction.bindings[0].path}/trackingState' bound to '{interactionPath}' expected '{expected.trackingState}' but received '{received.trackingState}'");
 
@@ -219,13 +224,9 @@ namespace UnityEngine.XR.OpenXR.Tests
 
                         if((received.trackingState & InputTrackingState.Velocity ) == InputTrackingState.Velocity)
                             Assert.IsTrue(received.velocity == expected.velocity, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{expected.velocity}' but received '{received.velocity}'");
-                        else
-                            Assert.IsTrue(received.velocity == Vector3.zero, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{Vector3.zero}' but received '{received.velocity}'");
 
                         if((received.trackingState & InputTrackingState.AngularVelocity) == InputTrackingState.AngularVelocity)
                             Assert.IsTrue(received.angularVelocity == expected.angularVelocity, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{expected.angularVelocity}' but received '{received.angularVelocity}'");
-                        else
-                            Assert.IsTrue(received.angularVelocity == Vector3.zero, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{Vector3.zero}' but received '{received.angularVelocity}'");
                     }
                     break;
                 }
@@ -356,7 +357,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
                 case "Pose":
                 {
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.one,
                         rotation = Quaternion.identity,
@@ -364,7 +365,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation
                     });
 
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.identity,
@@ -372,7 +373,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                         trackingState = InputTrackingState.None
                     });
 
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.Euler(90,0,0),
@@ -381,7 +382,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                     });
 
                     // Velocity only
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.identity,
@@ -391,7 +392,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                     });
 
                     // AngularVelocity only
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.Euler(90,0,0),
@@ -401,7 +402,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                     });
 
                     // Velocity and AngularVelocity
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.Euler(90,0,0),

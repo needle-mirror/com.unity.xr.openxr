@@ -101,15 +101,6 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME,
         XR_KHR_vulkan_enable2_SPEC_VERSION        
     }
-#endif    
-
-#if defined(XR_USE_PLATFORM_WIN32)
-    ,{
-        XR_TYPE_EXTENSION_PROPERTIES,
-        nullptr,
-        XR_KHR_WIN32_CONVERT_PERFORMANCE_COUNTER_TIME_EXTENSION_NAME,
-        XR_KHR_win32_convert_performance_counter_time_SPEC_VERSION        
-    }
 #endif
 
 #if defined(XR_USE_GRAPHICS_API_D3D11)

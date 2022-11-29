@@ -48,7 +48,7 @@ class zBuildSamplesYamatoOnly
     {
         foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
-            if (feature.nameUi.Contains("Oculus Quest"))
+            if (feature.nameUi.Contains("Meta Quest"))
             {
                 Console.WriteLine($"Enable: {feature.nameUi}");
                 feature.enabled = true;

@@ -9,11 +9,14 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Input;
 
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
+#else
+using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
+#endif
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
-using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {

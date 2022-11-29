@@ -10,6 +10,7 @@ using UnityEngine.XR.OpenXR.Features.OculusQuestSupport;
 
 namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
 {
+    [Obsolete("OpenXR.Features.OculusQuestSupport.ModifyAndroidManifestOculus is deprecated. Please use OpenXR.Features.MetaQuestSupport.ModifyAndroidManifestMeta instead.", false)]
     internal class ModifyAndroidManifestOculus : OpenXRFeatureBuildHooks
     {
         public override int callbackOrder => 1;

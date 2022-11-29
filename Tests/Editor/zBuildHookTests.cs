@@ -13,6 +13,9 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    // If you change this file, be sure to run the "no players" tests on yamato.
+    // APV jobs don't include "players" such as standalone, so `BuildMockPlayer()`
+    // will fail during APV.  The "no players" job on yamato will catch this.
     internal class zBuildHookTests : OpenXRLoaderSetup
     {
         internal static BuildReport BuildMockPlayer()
@@ -137,9 +140,11 @@ namespace UnityEditor.XR.OpenXR.Tests
         public void VerifyBuildOutputLibraries()
         {
             var resultWithOpenXR = BuildMockPlayer();
+
             // Disable this test if we're not running our openxr yamato infrastructure
             if (resultWithOpenXR.summary.result != BuildResult.Succeeded && Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") != "1")
                 return;
+
             Assert.IsTrue(HasOpenXRLibraries(resultWithOpenXR));
 
             // Remove OpenXR Loader

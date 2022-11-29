@@ -4,7 +4,24 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5.3] - 2022-09-18
+## [1.6.0] - 2022-11-29
+### Fixed
+* Fixed black game window issue when building a URP project.
+* Fixed `InputDevice.TryGetHapticCapabilities` always return True with OpenXR.
+* Fixed repeated warnings for failed to restart OpenXR when no HMD is attached.
+* Fixed invalid pose values got populated when tracked flags are invalid.
+* Fixed XR_SPACE_BOUNDS_UNAVAILABLE return code marked as Error in the log.
+
+### Updated
+* Updated Input System dependency to 1.4.4.
+
+### Added
+* Added `Meta Quest Feature` support for Android and deprecated previous `Oculus Quest Feature`. Also added a new validation rule to support new Meta Quest Feature migration.
+* Added API `MetaQuestFeature.AddTargetDevice` to add additional target devices to the devices list in the MetaQuestFeatureEditor.
+* Added Thumbrest Touch support in Oculus Touch Controller Interaction Profile.
+* Added a new optional validation rule to switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which fixed PoseControl conflicts in InputSystem.XR and OpenXR.Input. Note: If opt in to use InputSystem.XR.PoseControl, `USE_INPUT_SYSTEM_POSE_CONTROL` will be added in Scripting Define Symbols under Player settings.
+
+## [1.5.2] - 2022-09-08
 ### Fixed
 * Fixed `XRInputSubsystem.TryGetBoundaryPoints` returning inaccurate values. If you have guardian/boundary setup in the headset, `TryGetBoundaryPoints` will return a List<Vector3> of size 4 representing the four vertices of the Play Area rectangle, which is centered at the origin and edges corresponding to the X and Z axes of the provided space. Not all systems or spaces may support boundaries.
 * Fixed an issue that controllers position not getting updated and stuck to the floor level when Oculus Integration Asset installed in the project.

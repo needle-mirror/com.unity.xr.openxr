@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 using UnityEngine.XR.OpenXR.Features.OculusQuestSupport;
@@ -5,6 +6,7 @@ using UnityEngine.XR.OpenXR.Features.OculusQuestSupport;
 namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
 {
     [CustomEditor(typeof(OculusQuestFeature))]
+    [Obsolete("OpenXR.Features.OculusQuestSupport.OculusQuestFeatureEditor is deprecated. Please use OpenXR.Features.MetaQuestSupport.MetaQuestFeatureEditor instead.", false)]
     internal class OculusQuestFeatureEditor : Editor
     {
         private SerializedProperty targetQuest;
