@@ -42,6 +42,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice), "EyeGaze"),
             (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand), null),
             (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController), null),
+            (typeof(MetaQuestTouchProControllerProfile), typeof(MetaQuestTouchProControllerProfile.QuestProTouchController), null),
 #if !UNITY_ANDROID
             (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
             (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController), null),

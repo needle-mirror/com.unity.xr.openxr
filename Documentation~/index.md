@@ -17,7 +17,7 @@ Unity's OpenXR plug-in should work with any device that supports conformant Open
 |Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
 |HoloLens 2|UWP arm64|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
 |Oculus PC + Link|Windows 64-bit|DX11|HMD + Controllers|Oculus Integration package features not available|
-|Oculus Quest|Android arm64|Vulkan|HMD + Controllers via [Oculus Quest Support Feature](./features/oculusquest.md)|Oculus Integration package features not available<br><br>Not yet recommended for production.|
+|Meta Quest|Android arm64|Vulkan|HMD + Controllers via [Meta Quest Support Feature](./features/metaquest.md)|
 |All other conformant runtimes (eg. SteamVR)|Windows 64-bit|DX11|HMD + Controllers|Given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally.<br><br>SteamVR Plugin features not available|
 
 To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
-
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;

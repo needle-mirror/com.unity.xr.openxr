@@ -49,8 +49,6 @@ namespace UnityEngine.XR.OpenXR
 
         private Coroutine m_Coroutine;
 
-        private Coroutine m_pauseAndRestartCoroutine;
-
         private static int m_pauseAndRestartAttempts = 0;
 
         public static float TimeBetweenRestartAttempts
@@ -100,7 +98,7 @@ namespace UnityEngine.XR.OpenXR
                 return;
             }
 
-            m_Coroutine = StartCoroutine(RestartCoroutine(false));
+            m_Coroutine = StartCoroutine(RestartCoroutine(false, true));
         }
 
         /// <summary>
@@ -117,76 +115,101 @@ namespace UnityEngine.XR.OpenXR
                 return;
             }
 
-            m_Coroutine = StartCoroutine(RestartCoroutine(true));
+            m_Coroutine = StartCoroutine(RestartCoroutine(true, true));
         }
 
         /// <summary>
-        /// Pause and then restart.
-        /// If the restart triggers another restart, the pause adds some delay between restarts.
+        /// Start a coroutine that will pause, then shut xr down, then re-initialize xr.
         /// </summary>
-        public void PauseAndRestart()
+        public void PauseAndShutdownAndRestart()
         {
             if (OpenXRLoader.Instance == null)
-                return;
-
-            if (m_pauseAndRestartCoroutine != null)
             {
-                Debug.LogError("Only one pause then shutdown/restart can be executed at a time");
                 return;
             }
 
-            Debug.Log("Please make sure the device is connected. Will try to restart xr periodically.");
-            m_pauseAndRestartCoroutine = StartCoroutine(PauseAndRestartCoroutine(TimeBetweenRestartAttempts));
+            StartCoroutine(PauseAndShutdownAndRestartCoroutine(TimeBetweenRestartAttempts));
         }
 
-        public IEnumerator PauseAndRestartCoroutine(float pauseTimeInSeconds)
+        /// <summary>
+        /// Start a coroutine that will pause, then re-initialize xr if xr hasn't already succeeded.
+        /// </summary>
+        public void PauseAndRetryInitialization()
+        {
+            if (OpenXRLoader.Instance == null)
+            {
+                return;
+            }
+
+            StartCoroutine(PauseAndRetryInitializationCoroutine(TimeBetweenRestartAttempts));
+        }
+
+        public IEnumerator PauseAndShutdownAndRestartCoroutine(float pauseTimeInSeconds)
         {
             try
             {
+                // Wait a few seconds to add delay between restart requests in a restart loop.
                 yield return new WaitForSeconds(pauseTimeInSeconds);
+
+                yield return new WaitForRestartFinish();
+
                 m_pauseAndRestartAttempts += 1;
-                if (m_Coroutine == null)
-                {
-                    m_Coroutine = StartCoroutine(RestartCoroutine(true));
-                }
-                else
-                {
-                    Debug.LogError(String.Format("Restart/Shutdown already in progress so skipping this attempt."));
-                }
+                m_Coroutine = StartCoroutine(RestartCoroutine(true, true));
             }
             finally
             {
-                m_pauseAndRestartCoroutine = null;
                 onAfterCoroutine?.Invoke();
             }
         }
 
-        private IEnumerator RestartCoroutine (bool shouldRestart)
+        public IEnumerator PauseAndRetryInitializationCoroutine(float pauseTimeInSeconds)
         {
             try
             {
-                yield return null;
+                // Wait a few seconds to add delay between restart requests in a restart loop.
+                yield return new WaitForSeconds(pauseTimeInSeconds);
 
-                // Always shutdown the loader
-                XRGeneralSettings.Instance.Manager.DeinitializeLoader();
-                yield return null;
+                yield return new WaitForRestartFinish();
 
-                onAfterShutdown?.Invoke();
+                bool shouldSkipRestart = XRGeneralSettings.Instance.Manager.activeLoader != null;
+                if (!shouldSkipRestart)
+                {
+                    m_pauseAndRestartAttempts += 1;
+                    m_Coroutine = StartCoroutine(RestartCoroutine(true, false));
+                }
+            }
+            finally
+            {
+                onAfterCoroutine?.Invoke();
+            }
+        }
+
+        private IEnumerator RestartCoroutine (bool shouldRestart, bool shouldShutdown)
+        {
+            try
+            {
+                if (shouldShutdown)
+                {
+                    Debug.Log("Shutting down OpenXR.");
+                    yield return null;
+
+                    // Always shutdown the loader
+                    XRGeneralSettings.Instance.Manager.DeinitializeLoader();
+                    yield return null;
+
+                    onAfterShutdown?.Invoke();
+                }
 
                 // Restart?
                 if (shouldRestart && OpenXRRuntime.ShouldRestart())
                 {
+                    Debug.Log("Initializing OpenXR.");
                     yield return XRGeneralSettings.Instance.Manager.InitializeLoader();
 
                     XRGeneralSettings.Instance.Manager.StartSubsystems();
 
-                    if (XRGeneralSettings.Instance.Manager.activeLoader == null)
+                    if (XRGeneralSettings.Instance.Manager.activeLoader != null)
                     {
-                        Debug.LogError("Failure to restart OpenXRLoader after shutdown.");
-                    }
-                    else
-                    {
-                        Debug.Log("OpenXRLoader restart successful.");
                         m_pauseAndRestartAttempts = 0;
                         onAfterSuccessfulRestart?.Invoke();
                     }

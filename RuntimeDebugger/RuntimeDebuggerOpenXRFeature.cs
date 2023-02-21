@@ -73,7 +73,8 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
             Native_GetDataForRead(out var ptr2, out var size2);
 
             byte[] data = new byte[size1 + size2];
-            Marshal.Copy(ptr1, data, 0, (int)size1);
+            if(size1 > 0)
+                Marshal.Copy(ptr1, data, 0, (int)size1);
             if (size2 > 0)
                 Marshal.Copy(ptr2, data, (int)size1, (int)size2);
 

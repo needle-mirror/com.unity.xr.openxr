@@ -530,6 +530,11 @@ namespace UnityEngine.XR.OpenXR.Features
             // Virtual for future expansion and to match OnEnable
         }
 
+        /// <inheritdoc />
+        protected virtual void Awake()
+        {
+        }
+
         internal enum LoaderEvent
         {
             SubsystemCreate,
@@ -603,6 +608,7 @@ namespace UnityEngine.XR.OpenXR.Features
             XrInstanceLossPending,
             XrRestartRequested,
             XrRequestRestartLoop,
+            XrRequestGetSystemLoop,
         };
 
         internal static void ReceiveNativeEvent(NativeEvent e, ulong payload)

@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "unity": "2020.3",
   "unityRelease": "0b14",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
@@ -33,13 +33,16 @@
       "path": "Samples~/InterceptFeature"
     }
   ],
-  "upmCi": {
-    "footprint": "0307ba2a0127885fc426b598c4b292b6e9d11a60"
+  "_upm": {
+    "changelog": "### Fixed\n* Fixed - Meta builds now don't include Bluetooth permissions in Android manifest by default when using Microphone class in script code.\n* Fixed crash in OpenXR runtime debugger when cache size is set to 0.\n* Fixed OpenXR project validation to check for correct versions of OpenGLES in Unity 2023 and up.\n* Fixed crash when runtime reports an invalid view configuration from xrWaitFrame.\n* Fixed - OpenXR plugin will only look up functions from supported and enabled extensions.\n* Fixed GPU selection in multi-GPU scenarios.\n\n### Updated\n* Updated documentation for the Meta Quest feature.\n\n### Added\n* Added API `OpenXRRuntime.retryInitializationOnFormFactorErrors` to retry xrGetSystem during initialization if xrGetSystem returns a form factor error.\n* Enable XR_META_performance_metrics. This enables performance stats for Meta Quest devices on OpenXR. \n* Add class MetaQuestTouchProControllerProfile.QuestProTouchController new interaction profile to support Meta Quest pro controllers.\n* Added ability for OpenXRFeature derived classes to add Awake() functions.\n* Added API `OpenXRInput.GetActionIsActive` to check whether an InputAction has any bindings which are currently active.\n* Added API `OpenXRInput.GetActionHandle` to get the action handle of an InputAction and returns 0 if not found."
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.6/manual/index.html",
+  "upmCi": {
+    "footprint": "cbe9b1c244e0898ca817801a74902e4497ea0892"
+  },
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.7/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "e0ea9b26e3d27a43f8e54b4d93d561b0aa739d58"
+    "revision": "6a1990de9658294dd93a1f786585fe9878eac1eb"
   }
 }

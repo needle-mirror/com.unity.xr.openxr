@@ -458,6 +458,9 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterFunctionCallbacks")]
         private static extern void MockRuntime_RegisterFunctionCallbacks(BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);
 
+        [DllImport(extLib, EntryPoint = "MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float")]
+        internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(string xrPathString, float value, uint unit);
+
         #if UNITY_EDITOR
         static void UseGenericLoaderAndroid()
         {

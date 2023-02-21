@@ -65,7 +65,12 @@ namespace UnityEditor.XR.OpenXR
 
                             return manager.activeLoaders.OfType<OpenXRLoader>().Any();
                         })
+#if UNITY_2023_1_OR_NEWER
+                        .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES3));
+#else
+                        // Keeping OpenGL ES 2 support for 2022 and older versions.
                         .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES2 || g == GraphicsDeviceType.OpenGLES3));
+#endif
                 },
                 fixIt = () => PlayerSettings.colorSpace = ColorSpace.Linear,
                 fixItMessage = "Set PlayerSettings.colorSpace to ColorSpace.Linear",

@@ -146,6 +146,24 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 }
             }
 
+            void RemoveNameValueElementInTag(string parentPath, string tag, string name, string value)
+            {
+                var xmlNodeList = this.SelectNodes(parentPath + "/" + tag);
+
+                foreach (XmlNode node in xmlNodeList)
+                {
+                    var attributeList = ((XmlElement)node).Attributes;
+
+                    foreach (XmlAttribute attrib in attributeList)
+                    {
+                        if (attrib.Name == name && attrib.Value == value)
+                        {
+                            node.ParentNode?.RemoveChild(node);
+                        }
+                    }
+                }
+            }
+
             internal void AddMetaData()
             {
                 OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
@@ -195,6 +213,10 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                         ("version", "1")
                     });
 
+                // if the Microphone class is used in a project, the BLUETOOTH permission is automatically added to the manifest
+                // we remove it here since it will cause projects to fail Meta cert
+                // this shouldn't affect Bluetooth HID devices, which don't need the permission
+                RemoveNameValueElementInTag("/manifest", "uses-permission", "android:name", "android.permission.BLUETOOTH");
             }
         }
     }

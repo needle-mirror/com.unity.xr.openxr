@@ -615,7 +615,12 @@ namespace UnityEngine.XR.OpenXR
                     break;
 
                 case OpenXRFeature.NativeEvent.XrRequestRestartLoop:
-                    OpenXRRestarter.Instance.PauseAndRestart();
+                    Debug.Log("XR Initialization failed, will try to restart xr periodically.");
+                    OpenXRRestarter.Instance.PauseAndShutdownAndRestart();
+                    break;
+
+                case OpenXRFeature.NativeEvent.XrRequestGetSystemLoop:
+                    OpenXRRestarter.Instance.PauseAndRetryInitialization();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrStopping:

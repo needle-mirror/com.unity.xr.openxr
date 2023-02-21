@@ -123,3 +123,5 @@ bool ConformanceAutomation_IsActive(XrPath interactionProfilePath, XrPath userPa
 
     return (active != s_ext->activeStates.end()) ? active->second : defaultValue;
 }
+
+#undef CHECK_EXT

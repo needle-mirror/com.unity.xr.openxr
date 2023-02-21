@@ -82,6 +82,13 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         XR_MSFT_HAND_INTERACTION_EXTENSION_NAME,
         XR_MSFT_hand_interaction_SPEC_VERSION
     },
+    //To-Do: update to proper ext name when it is released in the openxr spec.
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        "XR_FB_touch_controller_pro",
+        1
+    },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
@@ -93,6 +100,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME,
         XR_MSFT_third_person_observer_private_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_META_PERFORMANCE_METRICS_EXTENSION_NAME,
+        XR_META_performance_metrics_SPEC_VERSION
     }
 #if defined(XR_USE_GRAPHICS_API_VULKAN)    
     ,{
@@ -236,6 +249,17 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         {
             flags |= MR_CREATE_MSFT_HAND_INTERACTION_EXT;
             continue;
+        }
+        //To-Do: update to proper ext name when it is released in the openxr spec.
+        if (strncmp("XR_FB_touch_controller_pro", extension, sizeof("XR_FB_touch_controller_pro")) == 0)
+        {
+            flags |= MR_CREATE_FB_TOUCH_CONTROLLER_PRO;
+            continue;
+        }
+
+        if (strncmp(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME, extension, sizeof(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_META_PERFORMANCE_METRICS_EXT;
         }
     }
 

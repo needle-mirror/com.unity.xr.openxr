@@ -1,7 +1,7 @@
 * [About Unity OpenXR](index.md)
   * [Project Configuration](project-configuration.md)
 * [OpenXR Features](features.md)
-    * [Oculus Quest Support](features/oculusquest.md)
+    * [Meta Quest Support](features/metaquest.md)
 * [OpenXR Input](input.md)
     * [Microsoft Mixed Reality Motion Controller Profile](features/microsoftmotioncontrollerprofile.md)
     * [Oculus Touch Controller Profile](features/oculustouchcontrollerprofile.md)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Extensions/mock_meta_performance_metrics.h"
+
 // XR_EXT_conformance_automation
 
 struct ConformanceAutomation;

@@ -90,7 +90,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         {
             rules.Add(new ValidationRule(this)
             {
-                message = "Only the Oculus Touch Interaction Profile is supported right now.",
+                message = "Only the Oculus Touch Interaction Profile and Meta Quest Pro Touch Interaction Profile are supported right now.",
                 checkPredicate = () =>
                 {
                     var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
@@ -103,7 +103,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                     {
                         if (feature.enabled)
                         {
-                            if (feature is OculusTouchControllerProfile)
+                            if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile))
                                 touchFeatureEnabled = true;
                             else
                                 otherInteractionFeatureEnabled = true;
@@ -111,18 +111,10 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                     }
                     return touchFeatureEnabled && !otherInteractionFeatureEnabled;
                 },
-                fixIt = () =>
-                {
-                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
-                    if (null == settings)
-                        return;
-
-                    foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
-                    {
-                        feature.enabled = (feature is OculusTouchControllerProfile);
-                    }
-                },
                 error = true,
+                fixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");},
+                fixItAutomatic = false,
+                fixItMessage = "Open Project Settings to select Oculus Touch or Meta Quest Pro Touch interaction profiles or select both."
             });
 
             rules.Add(new ValidationRule(this)

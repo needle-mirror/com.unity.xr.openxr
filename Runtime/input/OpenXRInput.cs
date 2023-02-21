@@ -462,6 +462,31 @@ namespace UnityEngine.XR.OpenXR.Input
             return Internal_TryGetInputSourceName(GetDeviceId(inputDevice), actionHandle, (uint) index, (uint) flags, out name);
         }
 
+        /// <summary>
+        /// Return the active state of the given action
+        /// </summary>
+        /// <param name="inputAction">Input Action</param>
+        /// <returns>True if the given action has any bindings that are active</returns>
+        public static bool GetActionIsActive(InputAction inputAction)
+        {
+            if (inputAction != null &&
+                inputAction.controls.Count > 0 &&
+                inputAction.controls[0].device != null)
+            {
+                for (var index = 0; index < inputAction.controls.Count; ++index)
+                {
+                    var deviceId =  GetDeviceId(inputAction.controls[index].device);
+                    if (deviceId == 0)
+                        continue;
+
+                    var controlName = GetActionHandleName(inputAction.controls[index]);
+                    if (Internal_GetActionIsActive(deviceId, controlName))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         [StructLayout(LayoutKind.Explicit, Size = k_Size)]
         private struct GetInternalDeviceIdCommand : IInputDeviceCommandInfo
         {
@@ -484,7 +509,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="inputAction">Source InputAction</param>
         /// <param name="inputDevice">Optional InputDevice to filter by</param>
         /// <returns>OpenXR handle that is associated with the given InputAction or 0 if not found</returns>
-        internal static ulong GetActionHandle(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
+        public static ulong GetActionHandle(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
         {
             if (inputAction == null || inputAction.controls.Count == 0)
                 return 0;
@@ -575,6 +600,9 @@ namespace UnityEngine.XR.OpenXR.Input
             outName = Marshal.PtrToStringAnsi(outNamePtr);
             return true;
         }
+
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIsActive")]
+        private static extern bool Internal_GetActionIsActive(uint deviceId, string name);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_RegisterDeviceDefinition", CharSet = CharSet.Ansi)]
         private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, uint characteristics, string name, string manufacturer, string serialNumber);

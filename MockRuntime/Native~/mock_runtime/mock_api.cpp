@@ -286,6 +286,23 @@ MOCK_API_TRAMPOLINE(bool, false, MockRuntime_TransitionToState,
 }
 #endif
 
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float,
+    (const char* xrPathString, float value, uint32_t unit),
+    (xrPathString, value, unit))
+#if !TRAMPOLINE
+{
+    MockMetaPerformanceMetrics::Instance()->SeedCounterOnce(
+        xrPathString,
+        {XR_SUCCESS,
+            {XR_TYPE_PERFORMANCE_METRICS_COUNTER_META,
+                nullptr,
+                XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META,
+                static_cast<XrPerformanceMetricsCounterUnitMETA>(unit),
+                0,
+                value}});
+}
+#endif
+
 #if !TRAMPOLINE
 XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
@@ -302,6 +319,7 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_RegisterScriptEventCallback)
     GET_PROC_ADDRESS(MockRuntime_RegisterFunctionCallbacks)
     GET_PROC_ADDRESS(MockRuntime_TransitionToState)
+    GET_PROC_ADDRESS(MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float)
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

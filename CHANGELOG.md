@@ -4,12 +4,35 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2023-02-21
+
+### Fixed
+* Fixed - Meta builds now don't include Bluetooth permissions in Android manifest by default when using Microphone class in script code.
+* Fixed crash in OpenXR runtime debugger when cache size is set to 0.
+* Fixed OpenXR project validation to check for correct versions of OpenGLES in Unity 2023 and up.
+* Fixed crash when runtime reports an invalid view configuration from xrWaitFrame.
+* Fixed - OpenXR plugin will only look up functions from supported and enabled extensions.
+* Fixed GPU selection in multi-GPU scenarios.
+
+### Updated
+* Updated documentation for the Meta Quest feature.
+
+### Added
+* Added API `OpenXRRuntime.retryInitializationOnFormFactorErrors` to retry xrGetSystem during initialization if xrGetSystem returns a form factor error.
+* Enable XR_META_performance_metrics. This enables performance stats for Meta Quest devices on OpenXR. 
+* Add class MetaQuestTouchProControllerProfile.QuestProTouchController new interaction profile to support Meta Quest pro controllers.
+* Added ability for OpenXRFeature derived classes to add Awake() functions.
+* Added API `OpenXRInput.GetActionIsActive` to check whether an InputAction has any bindings which are currently active.
+* Added API `OpenXRInput.GetActionHandle` to get the action handle of an InputAction and returns 0 if not found.
+
+## [1.6.1-preview.1] - 2022-12-01
+
 ## [1.6.0] - 2022-11-29
 ### Fixed
-* Fixed black game window issue when building a URP project.
-* Fixed `InputDevice.TryGetHapticCapabilities` always return True with OpenXR.
-* Fixed repeated warnings for failed to restart OpenXR when no HMD is attached.
-* Fixed invalid pose values got populated when tracked flags are invalid.
+* Fixed issue where game window would show as black in URP.
+* Fixed `InputDevice.TryGetHapticCapabilities` always returning True with OpenXR.
+* Fixed repeated "Failed to restart OpenXR" warnings when no HMD is attached.
+* Fixed invalid pose values getting populated when tracked flags are invalid.
 * Fixed XR_SPACE_BOUNDS_UNAVAILABLE return code marked as Error in the log.
 
 ### Updated

@@ -98,6 +98,22 @@ namespace UnityEngine.XR.OpenXR
         public static event Func<bool> wantsToRestart;
 
         /// <summary>
+        /// This bool controls whether or not to retry initialization if the runtime reports a
+        /// FORM_FACTOR_UNAVAILABLE error during initialization.
+        /// </summary>
+        public static bool retryInitializationOnFormFactorErrors
+        {
+            get
+            {
+                return Internal_GetSoftRestartLoopAtInitialization();
+            }
+            set
+            {
+                Internal_SetSoftRestartLoopAtInitialization(value);
+            }
+        }
+
+        /// <summary>
         /// Invokes the given event function and returns true if all invocations return true
         /// </summary>
         /// <param name="func">Event function</param>
@@ -165,6 +181,12 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetEnabledExtensionName", CharSet = CharSet.Ansi)]
         private static extern bool Internal_GetEnabledExtensionNamePtr(uint index, out IntPtr outName);
+
+        [DllImport(LibraryName, EntryPoint = "session_SetSoftRestartLoopAtInitialization")]
+        private static extern void Internal_SetSoftRestartLoopAtInitialization(bool value);
+
+        [DllImport(LibraryName, EntryPoint = "session_GetSoftRestartLoopAtInitialization")]
+        private static extern bool Internal_GetSoftRestartLoopAtInitialization();
 
         private static bool Internal_GetEnabledExtensionName(uint index, out string extensionName)
         {
