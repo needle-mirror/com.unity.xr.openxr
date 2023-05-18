@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 #if UNITY_EDITOR
 using System.Collections.Generic;
@@ -43,6 +43,7 @@ namespace UnityEngine.XR.OpenXR
         {
             s_RuntimeInstance = this;
         }
+
 #endif
         internal void ApplySettings()
         {
@@ -76,7 +77,7 @@ namespace UnityEngine.XR.OpenXR
         public static OpenXRSettings GetSettingsForBuildTargetGroup(BuildTargetGroup buildTargetGroup)
         {
             var packageSettings = GetPackageSettings();
-            if(null == packageSettings)
+            if (null == packageSettings)
                 return null;
 
             return packageSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
@@ -89,6 +90,7 @@ namespace UnityEngine.XR.OpenXR
 
             return null;
         }
+
 #endif
 
         /// <summary>

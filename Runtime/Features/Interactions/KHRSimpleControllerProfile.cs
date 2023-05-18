@@ -53,7 +53,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="KHRSimpleControllerProfile.menu"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" }, usage ="MenuButton")]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menubutton" }, usage = "MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
@@ -172,9 +172,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(KHRSimpleController),
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
         /// <summary>

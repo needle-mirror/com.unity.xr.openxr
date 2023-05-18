@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
@@ -46,13 +46,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="MetaQuestTouchProControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis" )]
+            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis")]
             public Vector2Control thumbstick { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MetaQuestTouchProControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis" , "squeeze"}, usage = "Grip")]
+            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" }, usage = "Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
@@ -112,7 +112,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MetaQuestTouchProControllerProfile.thumbstickClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked"}, usage = "Primary2DAxisClick")]
+            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked" }, usage = "Primary2DAxisClick")]
             public ButtonControl thumbstickClicked { get; private set; }
 
             /// <summary>
@@ -401,11 +401,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected internal override bool OnInstanceCreate(ulong instance)
         {
             // Requires the pro controller extension
-            if(!OpenXRRuntime.IsExtensionEnabled("XR_FB_touch_controller_pro"))
+            if (!OpenXRRuntime.IsExtensionEnabled("XR_FB_touch_controller_pro"))
                 return false;
 
             return base.OnInstanceCreate(instance);
         }
+
         /// <summary>
         /// Registers the <see cref="QuestProTouchController"/> layout with the Input System.
         /// </summary>
@@ -416,9 +417,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(QuestProTouchController),
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
         /// <summary>

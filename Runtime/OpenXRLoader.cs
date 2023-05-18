@@ -21,10 +21,10 @@ using UnityEditor.XR.OpenXR;
 
 [assembly: Preserve]
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
 namespace UnityEngine.XR.OpenXR
 {
     /// <summary>
@@ -45,6 +45,7 @@ namespace UnityEngine.XR.OpenXR
         {
             return "UnityOpenXR";
         }
+
 #endif
     }
 
@@ -83,10 +84,10 @@ namespace UnityEngine.XR.OpenXR
 
         internal LoaderState currentLoaderState { get; private set; } = LoaderState.Uninitialized;
 
-        List<LoaderState> validLoaderInitStates = new List<LoaderState>{LoaderState.Uninitialized, LoaderState.InitializeAttempted};
-        List<LoaderState> validLoaderStartStates = new List<LoaderState>{LoaderState.Initialized, LoaderState.StartAttempted, LoaderState.Stopped};
-        List<LoaderState> validLoaderStopStates = new List<LoaderState>{LoaderState.StartAttempted, LoaderState.Started, LoaderState.StopAttempted};
-        List<LoaderState> validLoaderDeinitStates = new List<LoaderState>{LoaderState.InitializeAttempted, LoaderState.Initialized, LoaderState.Stopped, LoaderState.DeinitializeAttempted};
+        List<LoaderState> validLoaderInitStates = new List<LoaderState> { LoaderState.Uninitialized, LoaderState.InitializeAttempted };
+        List<LoaderState> validLoaderStartStates = new List<LoaderState> { LoaderState.Initialized, LoaderState.StartAttempted, LoaderState.Stopped };
+        List<LoaderState> validLoaderStopStates = new List<LoaderState> { LoaderState.StartAttempted, LoaderState.Started, LoaderState.StopAttempted };
+        List<LoaderState> validLoaderDeinitStates = new List<LoaderState> { LoaderState.InitializeAttempted, LoaderState.Initialized, LoaderState.Stopped, LoaderState.DeinitializeAttempted };
 
         List<LoaderState> runningStates = new List<LoaderState>()
         {
@@ -103,6 +104,7 @@ namespace UnityEngine.XR.OpenXR
         {
             return (currentLoaderState == targetLoaderState);
         }
+
 #endif
 
         OpenXRFeature.NativeEvent currentOpenXRState;
@@ -195,7 +197,7 @@ namespace UnityEngine.XR.OpenXR
             return false;
         }
 
-        private bool InitializeInternal ()
+        private bool InitializeInternal()
         {
             Instance = this;
 
@@ -232,7 +234,7 @@ namespace UnityEngine.XR.OpenXR
             RequestOpenXRFeatures();
             RegisterOpenXRCallbacks();
 
-            if(null != OpenXRSettings.Instance)
+            if (null != OpenXRSettings.Instance)
                 OpenXRSettings.Instance.ApplySettings();
 
             if (!CreateSubsystems())
@@ -326,7 +328,6 @@ namespace UnityEngine.XR.OpenXR
 
             return true;
         }
-
 
         private bool StartInternal()
         {
@@ -513,10 +514,10 @@ namespace UnityEngine.XR.OpenXR
             string loaderPath = "openxr_loader";
 
 #if UNITY_EDITOR_WIN
-            loaderPath ="..\\..\\..\\RuntimeLoaders\\windows\\x64\\openxr_loader";
+            loaderPath = "..\\..\\..\\RuntimeLoaders\\windows\\x64\\openxr_loader";
 #elif UNITY_EDITOR_OSX
             // no loader for osx, use the mock by default
-            loaderPath = "../../../Tests/osx/x64/openxr_loader";
+            loaderPath = $"../../MockRuntime/osx/openxr_loader";
 #endif
 
 #if UNITY_EDITOR
@@ -587,7 +588,7 @@ namespace UnityEngine.XR.OpenXR
 
             var extensions = OpenXRRuntime.GetEnabledExtensions();
             var log = new StringBuilder($"({extensions.Length})\n");
-            foreach(var extension in extensions)
+            foreach (var extension in extensions)
                 log.Append($"  {extension}: Version={OpenXRRuntime.GetExtensionVersion(extension)}\n");
 
             DiagnosticReport.AddSectionEntry(section, "Runtime extensions enabled", log.ToString());
@@ -633,7 +634,7 @@ namespace UnityEngine.XR.OpenXR
 
             OpenXRFeature.ReceiveNativeEvent(e, payload);
 
-            if((loader == null || !loader.isStarted) && e != OpenXRFeature.NativeEvent.XrInstanceChanged)
+            if ((loader == null || !loader.isStarted) && e != OpenXRFeature.NativeEvent.XrInstanceChanged)
                 return;
 
             switch (e)
@@ -707,8 +708,8 @@ namespace UnityEngine.XR.OpenXR
                 Application.onBeforeRender -= ProcessOpenXRMessageLoop;
                 Application.onBeforeRender += ProcessOpenXRMessageLoop;
             }
-
         }
+
 #endif
     }
 }

@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
                 return;
 
             var device = _actionReference.action.controls[0].device;
-            _text.text = $"{device.name}\n{device.deviceId}\n{string.Join(",", device.usages.Select(u=>u.ToString()))}";
+            _text.text = $"{device.name}\n{device.deviceId}\n{string.Join(",", device.usages.Select(u => u.ToString()))}";
         }
     }
 }

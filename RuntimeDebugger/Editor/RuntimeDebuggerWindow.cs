@@ -17,8 +17,8 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         public new string searchString { get; set; }
         private bool deep = false;
 
-        public DebuggerTreeView(TreeViewState state, int mode, string search="")
-        : base(state)
+        public DebuggerTreeView(TreeViewState state, int mode, string search = "")
+            : base(state)
         {
             _mode = mode;
             searchString = search;
@@ -98,7 +98,6 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 alignment = TextAnchor.MiddleLeft,
                 padding = new RectOffset(0, 5, 1, 1)
             };
-
         }
 
         [MenuItem("Window/Analysis/OpenXR Runtime Debugger")]
@@ -203,7 +202,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 }
                 else
                 {
-                    EditorConnection.instance.Send(RuntimeDebuggerOpenXRFeature.kEditorToPlayerRequestDebuggerOutput, new byte[] {byte.MinValue});
+                    EditorConnection.instance.Send(RuntimeDebuggerOpenXRFeature.kEditorToPlayerRequestDebuggerOutput, new byte[] { byte.MinValue });
                 }
             }
 
@@ -223,7 +222,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
             if (GUILayout.Button(EditorGUIUtility.IconContent("d_FolderOpened Icon")))
             {
-                string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new[] {"OpenXR Dump", "openxrdump"});
+                string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new[] { "OpenXR Dump", "openxrdump" });
                 if (path.Length != 0)
                 {
                     Clear();

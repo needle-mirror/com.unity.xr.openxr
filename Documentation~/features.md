@@ -1,3 +1,6 @@
+---
+uid: openxr-features
+---
 # OpenXR Features
 
 OpenXR is an extensible API that can be extended with new features. To facilitate this within the Unity ecosystem, the Unity OpenXR provider offers a feature extension mechanism.

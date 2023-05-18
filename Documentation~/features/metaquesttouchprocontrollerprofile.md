@@ -1,3 +1,6 @@
+---
+uid: openxr-meta-quest-pro-touch-controller-profile
+---
 # Meta Quest Pro Touch Controller Profile
 
 Enables the OpenXR interaction profile for Meta Quest Pro controllers and exposes the `<QuestProTouchController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).  
@@ -8,7 +11,7 @@ Enables the OpenXR interaction profile for Meta Quest Pro controllers and expose
 |----|----|----|
 |`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/squeeze/value`| grip | Float |
-|`/input/squeeze/value`| gripPressed | Float ( float cast to boolean) |
+|`/input/squeeze/value`| gripPressed | Boolean (float cast to boolean) |
 |`/input/menu/click`| menu (Left Hand Only)| Boolean | 
 |`/input/system/click`| menu (Right Hand Only)| Boolean | 
 |`/input/a/click`| primaryButton (Right Hand Only) | Boolean | 

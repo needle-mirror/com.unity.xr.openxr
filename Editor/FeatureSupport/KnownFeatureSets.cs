@@ -28,31 +28,36 @@ namespace UnityEditor.XR.OpenXR.Features
     internal static class KnownFeatureSets
     {
         internal static Dictionary<BuildTargetGroup, OpenXRFeatureSetManager.FeatureSet[]> k_KnownFeatureSets =
-            new Dictionary<BuildTargetGroup, OpenXRFeatureSetManager.FeatureSet[]>(){
-                { BuildTargetGroup.Standalone,
-                    new OpenXRFeatureSetManager.FeatureSet[]{
-                        new OpenXRFeatureSetManager.FeatureSet(){
-                            isEnabled = false,
-                            name = KnownFeatureSetsContent.s_MicrosoftWMRTitle,
-                            featureSetId = KnownFeatureSetsContent.s_MicrosoftFeatureSetId,
-                            description = KnownFeatureSetsContent.s_MicrosoftInformationText,
-                            downloadText = KnownFeatureSetsContent.s_MicrosoftDownloadText,
-                            downloadLink = KnownFeatureSetsContent.s_MicrosoftDownloadLink,
-                        },
-                    }
-                },
-                { BuildTargetGroup.WSA,
-                    new OpenXRFeatureSetManager.FeatureSet[]{
-                        new OpenXRFeatureSetManager.FeatureSet(){
-                            isEnabled = false,
-                            name = KnownFeatureSetsContent.s_MicrosoftHoloLensTitle,
-                            featureSetId = KnownFeatureSetsContent.s_MicrosoftHoloLensFeatureSetId,
-                            description = KnownFeatureSetsContent.s_MicrosoftHoloLensInformationText,
-                            downloadText = KnownFeatureSetsContent.s_MicrosoftDownloadText,
-                            downloadLink = KnownFeatureSetsContent.s_MicrosoftDownloadLink,
-                        },
-                    }
-                },
-            };
+            new Dictionary<BuildTargetGroup, OpenXRFeatureSetManager.FeatureSet[]>()
+        {
+            {
+                BuildTargetGroup.Standalone,
+                new OpenXRFeatureSetManager.FeatureSet[]
+                {
+                    new OpenXRFeatureSetManager.FeatureSet() {
+                        isEnabled = false,
+                        name = KnownFeatureSetsContent.s_MicrosoftWMRTitle,
+                        featureSetId = KnownFeatureSetsContent.s_MicrosoftFeatureSetId,
+                        description = KnownFeatureSetsContent.s_MicrosoftInformationText,
+                        downloadText = KnownFeatureSetsContent.s_MicrosoftDownloadText,
+                        downloadLink = KnownFeatureSetsContent.s_MicrosoftDownloadLink,
+                    },
+                }
+            },
+            {
+                BuildTargetGroup.WSA,
+                new OpenXRFeatureSetManager.FeatureSet[]
+                {
+                    new OpenXRFeatureSetManager.FeatureSet() {
+                        isEnabled = false,
+                        name = KnownFeatureSetsContent.s_MicrosoftHoloLensTitle,
+                        featureSetId = KnownFeatureSetsContent.s_MicrosoftHoloLensFeatureSetId,
+                        description = KnownFeatureSetsContent.s_MicrosoftHoloLensInformationText,
+                        downloadText = KnownFeatureSetsContent.s_MicrosoftDownloadText,
+                        downloadLink = KnownFeatureSetsContent.s_MicrosoftDownloadLink,
+                    },
+                }
+            },
+        };
     }
 }

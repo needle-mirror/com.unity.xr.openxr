@@ -18,7 +18,7 @@ using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
-    /// This <see cref="OpenXRInteractionFeature"/> enables the use of eye gaze interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">XR_MSFT_hand_interaction</see> in the underyling runtime.
+    /// This <see cref="OpenXRInteractionFeature"/> enables the use of Microsoft hand interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">XR_MSFT_hand_interaction</see> in the underyling runtime.
     /// This creates a new <see cref="InputDevice"/> with the <see cref="InputDeviceCharacteristics.HandTracking"/> characteristic.
     /// </summary>
 #if UNITY_EDITOR
@@ -179,9 +179,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(HoloLensHand),
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
         /// <summary>

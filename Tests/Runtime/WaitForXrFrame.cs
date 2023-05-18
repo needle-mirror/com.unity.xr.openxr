@@ -7,7 +7,7 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// <summary>
     /// Custom yield instruction that waits for xrEndFrame to be called within OpenXR
     /// </summary>
-    internal class WaitForXrFrame  : CustomYieldInstruction
+    internal class WaitForXrFrame : CustomYieldInstruction
     {
         private int m_Frames = 0;
         private long m_Timeout;

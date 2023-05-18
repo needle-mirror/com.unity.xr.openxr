@@ -45,7 +45,7 @@ uint32_t s_VisibilityMaskIndicesSizes[2][3] =
         }};
 
 // clang-format off
-XrVector2f s_VisibilityMaskVertices[2][3][99] = 
+XrVector2f s_VisibilityMaskVertices[2][3][99] =
 {
     // first view
     {
@@ -67,7 +67,7 @@ XrVector2f s_VisibilityMaskVertices[2][3][99] =
     }
 };
 
-uint32_t s_VisibilityMaskIndices[2][3][99] = 
+uint32_t s_VisibilityMaskIndices[2][3][99] =
 {
     // first view
     {

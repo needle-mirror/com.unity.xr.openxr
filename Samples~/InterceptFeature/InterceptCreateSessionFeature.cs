@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AOT;
@@ -13,16 +13,16 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
     /// <summary>
     /// Example feature showing how to intercept a single OpenXR function.
     /// </summary>
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [OpenXRFeature(UiName = "Sample: Intercept Create Session",
-        BuildTargetGroups = new []{BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Example feature extension showing how to intercept a single OpenXR function.",
         DocumentationLink = Constants.k_DocumentationURL,
         OpenxrExtensionStrings = "XR_test", // this extension doesn't exist, a log message will be printed that it couldn't be enabled
         Version = "0.0.1",
         FeatureId = featureId)]
-    #endif
+#endif
     public class InterceptCreateSessionFeature : OpenXRFeature
     {
         /// <summary>
@@ -85,7 +85,7 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
         }
 
         /// <inheritdoc />
-        protected override void OnSessionBegin (ulong xrSession)
+        protected override void OnSessionBegin(ulong xrSession)
         {
             Debug.Log($"EXT: xrBeginSession: {xrSession}");
         }
@@ -101,9 +101,9 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
         private static extern IntPtr intercept_xrCreateSession_xrGetInstanceProcAddr(IntPtr func);
 
         [DllImport(ExtLib, EntryPoint = "script_set_message", CharSet = CharSet.Ansi)]
-        private static extern void Internal_SetMessage (string printString);
+        private static extern void Internal_SetMessage(string printString);
 
-        internal delegate void ReceiveMessageDelegate (string message);
+        internal delegate void ReceiveMessageDelegate(string message);
 
         [DllImport(ExtLib, EntryPoint = "script_set_callback")]
         static extern void Internal_SetCallback(ReceiveMessageDelegate callback);

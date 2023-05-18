@@ -1,4 +1,4 @@
-﻿using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
 

@@ -38,7 +38,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 
         protected override void OnActionBound()
         {
-            if(_image != null)
+            if (_image != null)
                 _image.enabled = true;
         }
     }

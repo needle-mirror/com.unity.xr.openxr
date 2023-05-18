@@ -1,4 +1,4 @@
-﻿#if XR_MGMT_3_2_0_OR_NEWER
+#if XR_MGMT_3_2_0_OR_NEWER
 using System.Collections.Generic;
 using UnityEngine.XR.OpenXR;
 using UnityEditor.XR.Management.Metadata;

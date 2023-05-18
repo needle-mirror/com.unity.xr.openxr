@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,7 +20,7 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using Assert = UnityEngine.Assertions.Assert;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
-[assembly:UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor, RuntimePlatform.Android)]
+[assembly: UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor, RuntimePlatform.Android, RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer)]
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -50,7 +50,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// </summary>
         /// <param name="featureType">Type of feature to enable</param>
         /// <returns>Feature that was enabled or null</returns>
-        protected OpenXRFeature EnableFeature(Type featureType, bool enable=true)
+        protected OpenXRFeature EnableFeature(Type featureType, bool enable = true)
         {
             var feature = GetFeature(featureType);
             Assert.IsNotNull(feature);
@@ -63,12 +63,12 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// </summary>
         /// <typeparam name="T">Type of feature to enable</typeparam>
         /// <returns>Feature that was enabled or null</returns>
-        protected T EnableFeature<T>(bool enable=true) where T : OpenXRFeature => EnableFeature(typeof(T), enable) as T;
+        protected T EnableFeature<T>(bool enable = true) where T : OpenXRFeature => EnableFeature(typeof(T), enable) as T;
 
         protected bool EnableMockRuntime(bool enable = true)
         {
             var feature = MockRuntime.Instance;
-            if(null == feature)
+            if (null == feature)
                 return false;
 
             if (feature.enabled == enable)
@@ -153,7 +153,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             loader = XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
 #pragma warning restore CS0618
 
-            #if UNITY_EDITOR && OPENXR_USE_KHRONOS_LOADER
+#if UNITY_EDITOR && OPENXR_USE_KHRONOS_LOADER
             var features = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
             foreach (var f in features.Features)
             {
@@ -163,11 +163,11 @@ namespace UnityEngine.XR.OpenXR.Tests
                     Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", path);
                 }
             }
-            #endif
+#endif
         }
 
         [UnityTearDown]
-        public IEnumerator TearDown ()
+        public IEnumerator TearDown()
         {
             // It is possible that a test may have done something to initiate the OpenXRRestarter.  To ensure
             // that the restarter does not impact other tests we must make sure it finishes before continuing.

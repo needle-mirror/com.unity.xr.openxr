@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine.InputSystem.Controls;
@@ -131,86 +131,86 @@ namespace UnityEngine.XR.OpenXR.Tests
                 serialNumber = "",
                 desiredInteractionProfile = "/interaction_profiles/unity/mock_controller",
                 deviceInfos = new List<DeviceConfig>
+            {
+                new DeviceConfig
                 {
-                    new DeviceConfig
+                    userPath = UserPaths.leftHand,
+                    characteristics = InputDeviceCharacteristics.Left | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller
+                },
+                new DeviceConfig
+                {
+                    userPath = UserPaths.rightHand,
+                    characteristics = InputDeviceCharacteristics.Right | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller
+                }
+            },
+                actions = new List<ActionConfig>
+            {
+                new ActionConfig
+                {
+                    name = nameof(MockController.triggerPressed),
+                    localizedName = "Trigger Pressed",
+                    type = ActionType.Binary,
+                    bindings = new List<ActionBinding>
                     {
-                        userPath = UserPaths.leftHand,
-                        characteristics = InputDeviceCharacteristics.Left | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller
-                    },
-                    new DeviceConfig
-                    {
-                        userPath = UserPaths.rightHand,
-                        characteristics = InputDeviceCharacteristics.Right | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.Controller
+                        new ActionBinding
+                        {
+                            interactionPath = "/input/trigger/click"
+                        }
                     }
                 },
-                actions = new List<ActionConfig>
+                new ActionConfig
                 {
-                    new ActionConfig
+                    name = nameof(MockController.trigger),
+                    localizedName = "Trigger",
+                    type = ActionType.Axis1D,
+                    bindings = new List<ActionBinding>
                     {
-                        name = nameof(MockController.triggerPressed),
-                        localizedName = "Trigger Pressed",
-                        type = ActionType.Binary,
-                        bindings = new List<ActionBinding>
+                        new ActionBinding
                         {
-                            new ActionBinding
-                            {
-                                interactionPath = "/input/trigger/click"
-                            }
+                            interactionPath = "/input/trigger/value"
                         }
-                    },
-                    new ActionConfig
+                    }
+                },
+                new ActionConfig
+                {
+                    name = nameof(MockController.thumbstick),
+                    localizedName = "Thumbstick",
+                    type = ActionType.Axis2D,
+                    bindings = new List<ActionBinding>
                     {
-                        name = nameof(MockController.trigger),
-                        localizedName = "Trigger",
-                        type = ActionType.Axis1D,
-                        bindings = new List<ActionBinding>
+                        new ActionBinding
                         {
-                            new ActionBinding
-                            {
-                                interactionPath = "/input/trigger/value"
-                            }
+                            interactionPath = "/input/thumbstick/value"
                         }
-                    },
-                    new ActionConfig
+                    }
+                },
+                new ActionConfig
+                {
+                    name = nameof(MockController.devicePose),
+                    localizedName = "Grip",
+                    type = ActionType.Pose,
+                    bindings = new List<ActionBinding>
                     {
-                        name = nameof(MockController.thumbstick),
-                        localizedName = "Thumbstick",
-                        type = ActionType.Axis2D,
-                        bindings = new List<ActionBinding>
+                        new ActionBinding
                         {
-                            new ActionBinding
-                            {
-                                interactionPath = "/input/thumbstick/value"
-                            }
+                            interactionPath = "/input/grip/pose"
                         }
-                    },
-                    new ActionConfig
+                    }
+                },
+                new ActionConfig
+                {
+                    name = nameof(MockController.haptic),
+                    localizedName = "Haptic Output",
+                    type = ActionType.Vibrate,
+                    bindings = new List<ActionBinding>
                     {
-                        name = nameof(MockController.devicePose),
-                        localizedName = "Grip",
-                        type = ActionType.Pose,
-                        bindings = new List<ActionBinding>
+                        new ActionBinding
                         {
-                            new ActionBinding
-                            {
-                                interactionPath = "/input/grip/pose"
-                            }
-                        }
-                    },
-                    new ActionConfig
-                    {
-                        name = nameof(MockController.haptic),
-                        localizedName = "Haptic Output",
-                        type = ActionType.Vibrate,
-                        bindings = new List<ActionBinding>
-                        {
-                            new ActionBinding
-                            {
-                                interactionPath = "/output/haptic"
-                            }
+                            interactionPath = "/output/haptic"
                         }
                     }
                 }
+            }
             };
 
         protected override void RegisterActionMapsWithRuntime()

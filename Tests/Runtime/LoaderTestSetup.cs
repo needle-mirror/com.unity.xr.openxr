@@ -24,7 +24,6 @@ namespace UnityEngine.XR.TestTooling
             return XRGeneralSettings.Instance?.Manager?.activeLoader?.GetLoadedSubsystem<T>()?.running ?? false;
         }
 
-
 #if UNITY_EDITOR
         T GetOrCreateAsset<T>(string path) where T : UnityEngine.ScriptableObject
         {
@@ -43,6 +42,7 @@ namespace UnityEngine.XR.TestTooling
 
             return asset as T;
         }
+
 #endif
 
         protected void DestroyLoaderAndSettings()
@@ -129,7 +129,7 @@ namespace UnityEngine.XR.TestTooling
         protected void Start()
         {
             var manager = XRGeneralSettings.Instance?.Manager;
-            if((manager?.activeLoader ?? null) != null)
+            if ((manager?.activeLoader ?? null) != null)
             {
                 manager.StartSubsystems();
             }

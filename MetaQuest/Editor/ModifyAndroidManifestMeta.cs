@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,6 +7,10 @@ using UnityEditor.Build.Reporting;
 
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
+
+#if XR_MGMT_4_4_0_OR_NEWER
+using Unity.XR.Management.AndroidManifest.Editor;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 {
@@ -22,15 +26,135 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         protected override void OnPostGenerateGradleAndroidProjectExt(string path)
         {
+#if !XR_MGMT_4_4_0_OR_NEWER
             var androidManifest = new AndroidManifest(GetManifestPath(path));
             androidManifest.AddMetaData();
             androidManifest.Save();
+#endif
         }
 
         protected override void OnPostprocessBuildExt(BuildReport report)
         {
         }
 
+#if XR_MGMT_4_4_0_OR_NEWER
+        public override ManifestRequirement ProvideManifestRequirement()
+        {
+            var elementsToRemove = new List<ManifestElement>()
+            {
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-permission" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "android.permission.BLUETOOTH" }
+                    }
+                }
+            };
+
+            if (ForceRemoveInternetPermission())
+            {
+                elementsToRemove.Add(new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-permission" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "android.permission.INTERNET" }
+                    }
+                });
+            }
+
+            return new ManifestRequirement
+            {
+                SupportedXRLoaders = new HashSet<Type>()
+                {
+                    typeof(OpenXRLoader)
+                },
+                NewElements = new List<ManifestElement>()
+                {
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "uses-feature" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "android.hardware.vr.headtracking" },
+                            { "required", "true" },
+                            { "version", "1" }
+                        }
+                    },
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "application", "meta-data" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "com.oculus.supportedDevices" },
+                            { "value", GetMetaSupportedDevices() }
+                        }
+                    },
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "application", "activity", "meta-data" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "com.oculus.vr.focusaware" },
+                            { "value", "true" },
+                        }
+                    },
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "application", "activity", "intent-filter", "category" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "com.oculus.intent.category.VR" }
+                        }
+                    },
+                },
+                RemoveElements = elementsToRemove
+            };
+        }
+
+#endif
+
+        private static string GetMetaSupportedDevices()
+        {
+            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
+
+            if (questFeature != null)
+            {
+                List<string> deviceList = new List<string>();
+                foreach (var device in questFeature.targetDevices)
+                {
+                    if (device.active && device.enabled)
+                        deviceList.Add(device.manifestName);
+                }
+
+                if (deviceList.Count > 0)
+                {
+                    return string.Join("|", deviceList.ToArray());
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("No target devices selected in Meta Quest Support Feature. No devices will be listed as supported in the application Android manifest.");
+                    return string.Empty;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static bool ForceRemoveInternetPermission()
+        {
+            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
+
+            if (questFeature == null)
+                return false; // By default the permission is retained
+
+            return questFeature.forceRemoveInternetPermission;
+        }
+
+#if !XR_MGMT_4_4_0_OR_NEWER
         private string _manifestFilePath;
 
         private string GetManifestPath(string basePath)
@@ -166,49 +290,30 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             internal void AddMetaData()
             {
-                OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
-                var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
-
-                string supportedDevices = "";
-                if (questFeature != null)
-                {
-                    List<string> deviceList = new List<string>();
-                    foreach (var device in questFeature.targetDevices)
-                    {
-                        if (device.active && device.enabled)
-                            deviceList.Add(device.manifestName);
-                    }
-
-                    if (deviceList.Count > 0)
-                    {
-                        supportedDevices = String.Join("|", deviceList.ToArray());
-                    }
-                    else
-                    {
-                        supportedDevices = null;
-                        UnityEngine.Debug.LogWarning("No target devices selected in Meta Quest Support Feature. No devices will be listed as supported in the application Android manifest.");
-                    }
-                }
+                string supportedDevices = GetMetaSupportedDevices();
 
                 UpdateOrCreateAttribute(ActivityIntentFilterElement,
                     "category", "com.oculus.intent.category.VR"
-                    );
+                );
 
                 UpdateOrCreateAttribute(ActivityElement,
                     "meta-data", "com.oculus.vr.focusaware",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("value", "true")
                     });
 
                 UpdateOrCreateAttribute(ApplicationElement,
                     "meta-data", "com.oculus.supportedDevices",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("value", supportedDevices)
                     });
 
                 UpdateOrCreateAttribute(ManifestElement,
                     "uses-feature", "android.hardware.vr.headtracking",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("required", "true"),
                         ("version", "1")
                     });
@@ -219,5 +324,6 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 RemoveNameValueElementInTag("/manifest", "uses-permission", "android:name", "android.permission.BLUETOOTH");
             }
         }
+#endif
     }
 }

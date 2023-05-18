@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -10,18 +10,18 @@ using UnityEditor.XR.OpenXR.Features;
 using UnityEditor.Build;
 #endif
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
 namespace UnityEngine.XR.OpenXR.Features.Mock
 {
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Mock Runtime",
-        BuildTargetGroups = new []{UnityEditor.BuildTargetGroup.Standalone, UnityEditor.BuildTargetGroup.Android},
+        BuildTargetGroups = new[] {UnityEditor.BuildTargetGroup.Standalone, UnityEditor.BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Mock runtime extension for automated testing.",
         DocumentationLink = Constants.k_DocumentationURL,
 #if !OPENXR_USE_KHRONOS_LOADER
-        CustomRuntimeLoaderBuildTargets = new [] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX, UnityEditor.BuildTarget.Android },
+        CustomRuntimeLoaderBuildTargets = new[] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX, UnityEditor.BuildTarget.Android },
 #endif
         OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx + " " + XR_UNITY_android_present,
         Version = "0.0.2",
@@ -65,10 +65,10 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         private static void ReceiveScriptEvent(ScriptEvent evt, ulong param) => onScriptEvent?.Invoke(evt, param);
 
         [AOT.MonoPInvokeCallback(typeof(BeforeFunctionDelegate))]
-        private static XrResult BeforeFunctionCallback (string function)
+        private static XrResult BeforeFunctionCallback(string function)
         {
             var callback = GetBeforeFunctionCallback(function);
-            if(null == callback)
+            if (null == callback)
                 return XrResult.Success;
 
             return callback(function);
@@ -188,7 +188,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <summary>
         /// Remove all OpenXR function callbacks
         /// </summary>
-        public static void ClearFunctionCallbacks ()
+        public static void ClearFunctionCallbacks()
         {
             s_BeforeFunctionCallbacks = null;
             s_AfterFunctionCallbacks = null;
@@ -219,11 +219,12 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             if (!KeepFunctionCallbacks)
             {
 #endif
-                // When the mock runtime instance shuts down we remove any callbacks that
-                // were set up to ensure they do not linger around for the next usage of the mock runtime.
-                ClearFunctionCallbacks();
+            // When the mock runtime instance shuts down we remove any callbacks that
+            // were set up to ensure they do not linger around for the next usage of the mock runtime.
+            ClearFunctionCallbacks();
 #if UNITY_INCLUDE_TESTS
-            }
+        }
+
 #endif
         }
 
@@ -291,33 +292,33 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
-        protected internal override void OnSessionBegin (ulong xrSession)
+        protected internal override void OnSessionBegin(ulong xrSession)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
-        protected internal override void OnAppSpaceChange (ulong xrSpace)
+        protected internal override void OnAppSpaceChange(ulong xrSpace)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSpace);
         }
 
-        protected internal override void OnSessionEnd (ulong xrSession)
+        protected internal override void OnSessionEnd(ulong xrSession)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
-        protected internal override void OnSessionDestroy (ulong session)
+        protected internal override void OnSessionDestroy(ulong session)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, session);
             XrSession = 0ul;
         }
 
-        protected internal override void OnSessionLossPending (ulong xrSession)
+        protected internal override void OnSessionLossPending(ulong xrSession)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
-        protected internal override void OnInstanceLossPending (ulong xrInstance)
+        protected internal override void OnInstanceLossPending(ulong xrInstance)
         {
             TestCallback(MethodBase.GetCurrentMethod().Name, xrInstance);
         }
@@ -408,6 +409,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
             TestCallback(MethodBase.GetCurrentMethod().Name, results);
         }
+
 #endif
 #endif
 
@@ -438,7 +440,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         private static extern bool Internal_TransitionToState(XrSessionState state, bool forceTransition);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_GetSessionState")]
-        private static extern XrSessionState Internal_GetSessionState ();
+        private static extern XrSessionState Internal_GetSessionState();
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RequestExitSession")]
         public static extern void RequestExitSession();
@@ -447,7 +449,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         public static extern void CauseInstanceLoss();
 
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpaceBounds")]
-        internal static extern void SetReferenceSpaceBounds (XrReferenceSpaceType referenceSpace, Vector2 bounds);
+        internal static extern void SetReferenceSpaceBounds(XrReferenceSpaceType referenceSpace, Vector2 bounds);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_GetEndFrameStats")]
         internal static extern void GetEndFrameStats(out int primaryLayerCount, out int secondaryLayerCount);
@@ -461,7 +463,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float")]
         internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(string xrPathString, float value, uint unit);
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         static void UseGenericLoaderAndroid()
         {
 #if UNITY_2021_3_OR_NEWER
@@ -475,7 +477,15 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #else
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, defines);
 #endif
+
+#if UNITY_2023_1_OR_NEWER
+            // Use GameActivity if possible so we have test coverage there.
+            // No JNI on main thread when GameActivity is selected.
+            PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
+#endif
         }
-        #endif
+
+#endif
     }
 }

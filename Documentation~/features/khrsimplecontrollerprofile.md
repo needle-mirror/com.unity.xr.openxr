@@ -1,3 +1,6 @@
+---
+uid: openxr-khronos-simple-controller-profile
+---
 # Khronos Simple Controller Profile
 
 Enables the OpenXR interaction profile for the Khronos Simple Controller and exposes the `<SimpleController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
@@ -12,6 +15,7 @@ For more information about the Khronos Simple Controller interaction profile, se
 |`/input/menu/click` | menu | Boolean |
 |`/input/grip/pose` | devicePose | Pose |
 |`/input/aim/pose` | pointer | Pose |
+|`/output/haptic` | haptic | Vibrate |
 | Unity Layout Only  | isTracked | Flag Data |
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |

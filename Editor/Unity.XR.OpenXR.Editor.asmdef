@@ -29,9 +29,9 @@
             "define": "XR_MGMT_4_1_0_OR_OLDER"
         },
         {
-            "name": "com.unity.xr.core-utils",
-            "expression": "2.1.0",
-            "define": "PROJECT_VALIDATION_AVAILABLE"
+            "name": "com.unity.xr.management",
+            "expression": "4.4.0",
+            "define": "XR_MGMT_4_4_0_OR_NEWER"
         }
     ],
     "noEngineReferences": false

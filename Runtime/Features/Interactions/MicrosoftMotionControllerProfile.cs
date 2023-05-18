@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftMotionControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" }, usage ="Grip")]
+            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" }, usage = "Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
@@ -83,13 +83,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.trigger"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(alias="triggerbutton", usage="TriggerButton")]
+            [Preserve, InputControl(alias = "triggerbutton", usage = "TriggerButton")]
             public ButtonControl triggerPressed { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="MicrosoftMotionControllerProfile.thumbstickClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] {"joystickClicked", "thumbstickpressed"}, usage = "Primary2DAxisClick")]
+            [Preserve, InputControl(aliases = new[] { "joystickClicked", "thumbstickpressed" }, usage = "Primary2DAxisClick")]
             public ButtonControl joystickClicked { get; private set; }
 
             /// <summary>
@@ -250,9 +250,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(WMRSpatialController),
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
         /// <summary>
@@ -278,265 +278,265 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 manufacturer = "Microsoft",
                 serialNumber = "",
                 deviceInfos = new List<DeviceConfig>()
-            {
-                new DeviceConfig()
                 {
-                    characteristics = (InputDeviceCharacteristics)(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Left),
-                    userPath = UserPaths.leftHand
+                    new DeviceConfig()
+                    {
+                        characteristics = (InputDeviceCharacteristics)(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Left),
+                        userPath = UserPaths.leftHand
+                    },
+                    new DeviceConfig()
+                    {
+                        characteristics = (InputDeviceCharacteristics)(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right),
+                        userPath = UserPaths.rightHand
+                    }
                 },
-                new DeviceConfig()
-                {
-                    characteristics = (InputDeviceCharacteristics)(InputDeviceCharacteristics.HeldInHand | InputDeviceCharacteristics.TrackedDevice | InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.Right),
-                    userPath = UserPaths.rightHand
-                }
-            },
                 actions = new List<ActionConfig>()
-            {
-                // Joystick
-                new ActionConfig()
                 {
-                    name = "joystick",
-                    localizedName = "Joystick",
-                    type = ActionType.Axis2D,
-                    usages = new List<string>()
+                    // Joystick
+                    new ActionConfig()
                     {
-                        "Primary2DAxis"
-                    },
-                    bindings = new List<ActionBinding>()
-                    {
-                        new ActionBinding()
+                        name = "joystick",
+                        localizedName = "Joystick",
+                        type = ActionType.Axis2D,
+                        usages = new List<string>()
                         {
-                            interactionPath = thumbstick,
-                            interactionProfileName = profile,
+                            "Primary2DAxis"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = thumbstick,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Touchpad
-                new ActionConfig()
-                {
-                    name = "touchpad",
-                    localizedName = "Touchpad",
-                    type = ActionType.Axis2D,
-                    usages = new List<string>()
-                    {
-                        "Secondary2DAxis"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Touchpad
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "touchpad",
+                        localizedName = "Touchpad",
+                        type = ActionType.Axis2D,
+                        usages = new List<string>()
                         {
-                            interactionPath = trackpad,
-                            interactionProfileName = profile,
+                            "Secondary2DAxis"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = trackpad,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Grip
-                new ActionConfig()
-                {
-                    name = "grip",
-                    localizedName = "Grip",
-                    type = ActionType.Axis1D,
-                    usages = new List<string>()
-                    {
-                        "Grip"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Grip
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "grip",
+                        localizedName = "Grip",
+                        type = ActionType.Axis1D,
+                        usages = new List<string>()
                         {
-                            interactionPath = squeeze,
-                            interactionProfileName = profile,
+                            "Grip"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = squeeze,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Grip Pressed
-                new ActionConfig()
-                {
-                    name = "gripPressed",
-                    localizedName = "Grip Pressed",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "GripButton"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Grip Pressed
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "gripPressed",
+                        localizedName = "Grip Pressed",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = squeeze,
-                            interactionProfileName = profile,
+                            "GripButton"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = squeeze,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Menu
-                new ActionConfig()
-                {
-                    name = "menu",
-                    localizedName = "Menu",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "MenuButton"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Menu
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "menu",
+                        localizedName = "Menu",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = menu,
-                            interactionProfileName = profile,
+                            "MenuButton"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = menu,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Trigger
-                new ActionConfig()
-                {
-                    name = "trigger",
-                    localizedName = "Trigger",
-                    type = ActionType.Axis1D,
-                    usages = new List<string>()
-                    {
-                        "Trigger"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Trigger
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "trigger",
+                        localizedName = "Trigger",
+                        type = ActionType.Axis1D,
+                        usages = new List<string>()
                         {
-                            interactionPath = trigger,
-                            interactionProfileName = profile,
+                            "Trigger"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = trigger,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Trigger Pressed
-                new ActionConfig()
-                {
-                    name = "triggerPressed",
-                    localizedName = "Trigger Pressed",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "TriggerButton"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Trigger Pressed
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "triggerPressed",
+                        localizedName = "Trigger Pressed",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = trigger,
-                            interactionProfileName = profile,
+                            "TriggerButton"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = trigger,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                //Joystick Clicked
-                new ActionConfig()
-                {
-                    name = "joystickClicked",
-                    localizedName = "JoystickClicked",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "Primary2DAxisClick"
                     },
-                    bindings = new List<ActionBinding>()
+                    //Joystick Clicked
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "joystickClicked",
+                        localizedName = "JoystickClicked",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = thumbstickClick,
-                            interactionProfileName = profile,
+                            "Primary2DAxisClick"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = thumbstickClick,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                //Touchpad Clicked
-                new ActionConfig()
-                {
-                    name = "touchpadClicked",
-                    localizedName = "Touchpad Clicked",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "Secondary2DAxisClick"
                     },
-                    bindings = new List<ActionBinding>()
+                    //Touchpad Clicked
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "touchpadClicked",
+                        localizedName = "Touchpad Clicked",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = trackpadClick,
-                            interactionProfileName = profile,
+                            "Secondary2DAxisClick"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = trackpadClick,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                //Touchpad Touched
-                new ActionConfig()
-                {
-                    name = "touchpadTouched",
-                    localizedName = "Touchpad Touched",
-                    type = ActionType.Binary,
-                    usages = new List<string>()
-                    {
-                        "Secondary2DAxisTouch"
                     },
-                    bindings = new List<ActionBinding>()
+                    //Touchpad Touched
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "touchpadTouched",
+                        localizedName = "Touchpad Touched",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
                         {
-                            interactionPath = trackpadTouch,
-                            interactionProfileName = profile,
+                            "Secondary2DAxisTouch"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = trackpadTouch,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Device Pose
-                new ActionConfig()
-                {
-                    name = "devicePose",
-                    localizedName = "Device Pose",
-                    type = ActionType.Pose,
-                    usages = new List<string>()
-                    {
-                        "Device"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Device Pose
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "devicePose",
+                        localizedName = "Device Pose",
+                        type = ActionType.Pose,
+                        usages = new List<string>()
                         {
-                            interactionPath = grip,
-                            interactionProfileName = profile,
+                            "Device"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = grip,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Pointer Pose
-                new ActionConfig()
-                {
-                    name = "pointer",
-                    localizedName = "Pointer Pose",
-                    type = ActionType.Pose,
-                    usages = new List<string>()
-                    {
-                        "Pointer"
                     },
-                    bindings = new List<ActionBinding>()
+                    // Pointer Pose
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "pointer",
+                        localizedName = "Pointer Pose",
+                        type = ActionType.Pose,
+                        usages = new List<string>()
                         {
-                            interactionPath = aim,
-                            interactionProfileName = profile,
+                            "Pointer"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = aim,
+                                interactionProfileName = profile,
+                            }
                         }
-                    }
-                },
-                // Haptics
-                new ActionConfig()
-                {
-                    name = "haptic",
-                    localizedName = "Haptic Output",
-                    type = ActionType.Vibrate,
-                    usages = new List<string>() { "Haptic" },
-                    bindings = new List<ActionBinding>()
+                    },
+                    // Haptics
+                    new ActionConfig()
                     {
-                        new ActionBinding()
+                        name = "haptic",
+                        localizedName = "Haptic Output",
+                        type = ActionType.Vibrate,
+                        usages = new List<string>() { "Haptic" },
+                        bindings = new List<ActionBinding>()
                         {
-                            interactionPath = haptic,
-                            interactionProfileName = profile,
+                            new ActionBinding()
+                            {
+                                interactionPath = haptic,
+                                interactionProfileName = profile,
+                            }
                         }
                     }
                 }
-            }
             };
 
             AddActionMap(actionMap);

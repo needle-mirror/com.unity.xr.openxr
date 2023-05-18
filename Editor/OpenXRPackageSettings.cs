@@ -73,7 +73,7 @@ namespace UnityEditor.XR.OpenXR
 
         internal static readonly string s_PackageSettingsAssetName = "OpenXR Package Settings.asset";
 
-        internal static readonly string[] s_PackageSettingsDefaultSettingsPath = {"XR","Settings"};
+        internal static readonly string[] s_PackageSettingsDefaultSettingsPath = { "XR", "Settings" };
 
         string IPackageSettings.PackageSettingsAssetPath()
         {
@@ -91,7 +91,7 @@ namespace UnityEditor.XR.OpenXR
                 return null;
 
             string path = root;
-            foreach( var pc in pathComponents)
+            foreach (var pc in pathComponents)
             {
                 string subFolder = Path.Combine(path, pc);
                 bool shouldCreate = true;
@@ -185,7 +185,7 @@ namespace UnityEditor.XR.OpenXR
         /// </summary>
         /// <typeparam name="T">Feature type to retrieve</typeparam>
         /// <returns>All features and their build target group that match the given feature type.</returns>
-        public IEnumerable<(BuildTargetGroup buildTargetGroup,T feature)> GetFeatures<T>() where T : OpenXRFeature
+        public IEnumerable<(BuildTargetGroup buildTargetGroup, T feature)> GetFeatures<T>() where T : OpenXRFeature
         {
             foreach (var kv in Settings)
             {
@@ -194,7 +194,7 @@ namespace UnityEditor.XR.OpenXR
 
                 foreach (var feature in kv.Value.features)
                 {
-                    if(feature is T featureT)
+                    if (feature is T featureT)
                         yield return (kv.Key, featureT);
                 }
             }

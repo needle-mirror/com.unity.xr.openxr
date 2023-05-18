@@ -80,44 +80,44 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         private readonly Dictionary<string, XrPerformanceMetricsCounterUnitMETA> unitMap =
             new Dictionary<string, XrPerformanceMetricsCounterUnitMETA>()
+        {
             {
-                {
-                    kAppCPUFrametimeStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
-                },
-                {
-                    kAppGPUFrametimeStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
-                },
-                {
-                    kAppMotionToPhotonLatencyStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
-                },
-                {
-                    kCompositorCPUFrametimeStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
-                },
-                {
-                    kCompositorGPUFrametimeStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
-                },
-                {
-                    kCompositorDroppedFrameCountStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META
-                },
-                {
-                    kDeviceCPUUtilizationAvgStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
-                },
-                {
-                    kDeviceCPUUtilizationWorstStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
-                },
-                {
-                    kDeviceGPUUtilizationStr,
-                    XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
-                }
-            };
+                kAppCPUFrametimeStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
+            },
+            {
+                kAppGPUFrametimeStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
+            },
+            {
+                kAppMotionToPhotonLatencyStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
+            },
+            {
+                kCompositorCPUFrametimeStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
+            },
+            {
+                kCompositorGPUFrametimeStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META
+            },
+            {
+                kCompositorDroppedFrameCountStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META
+            },
+            {
+                kDeviceCPUUtilizationAvgStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
+            },
+            {
+                kDeviceCPUUtilizationWorstStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
+            },
+            {
+                kDeviceGPUUtilizationStr,
+                XrPerformanceMetricsCounterUnitMETA.XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META
+            }
+        };
 
         private enum XrPerformanceMetricsCounterUnitMETA
         {
@@ -136,7 +136,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForXrFrame(2);
 
             List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances(displays);
+            SubsystemManager.GetSubsystems(displays);
 
             Assert.That(displays.Count, Is.EqualTo(1));
 
@@ -157,7 +157,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             bool didSync = false;
             for (int i = 0; i < 60; i++)
             {
-                if (ProviderXRStats.TryGetStat(displays[0], kUnityStatsAppCpuTime, out var sync)) {
+                if (ProviderXRStats.TryGetStat(displays[0], kUnityStatsAppCpuTime, out var sync))
+                {
                     if (sync < 0)
                     {
                         didSync = true;

@@ -13,7 +13,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
         Slider slider = null;
 
         Graphic graphic = null;
-        Graphic[] graphics = new Graphic[]{ };
+        Graphic[] graphics = new Graphic[] { };
 
         private void OnEnable()
         {

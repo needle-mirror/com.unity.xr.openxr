@@ -15,6 +15,8 @@ static const MockRuntimeCreateFlags MR_CREATE_MSFT_HAND_INTERACTION_EXT = 0x0000
 static const MockRuntimeCreateFlags MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT = 0x00000800;
 static const MockRuntimeCreateFlags MR_CREATE_FB_TOUCH_CONTROLLER_PRO = 0x00001000;
 static const MockRuntimeCreateFlags MR_CREATE_META_PERFORMANCE_METRICS_EXT = 0x00002000;
+static const MockRuntimeCreateFlags MR_CREATE_HP_REVERB_G2_CONTROLLER = 0x00004000;
+static const MockRuntimeCreateFlags MR_CREATE_HAND_INTERACTION_EXT = 0x00008000;
 
 static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT;
 

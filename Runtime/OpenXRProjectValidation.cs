@@ -1,17 +1,14 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.XR.Management;
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
-
 
 namespace UnityEditor.XR.OpenXR
 {
@@ -52,15 +49,15 @@ namespace UnityEditor.XR.OpenXR
                         .Where(t =>
                         {
                             var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(t);
-                            if(!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, t))
+                            if (!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, t))
                                 return false;
 
                             var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
-                            if(null == settings)
+                            if (null == settings)
                                 return false;
 
                             var manager = settings.Manager;
-                            if(null == manager)
+                            if (null == manager)
                                 return false;
 
                             return manager.activeLoaders.OfType<OpenXRLoader>().Any();
@@ -109,8 +106,8 @@ namespace UnityEditor.XR.OpenXR
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "The only standalone target supported is Windows x64 with OpenXR.  Other architectures and operating systems are not supported at this time.",
-                checkPredicate = () => (BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget) != BuildTargetGroup.Standalone) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64),
+                message = "The only standalone targets supported are Windows x64 and OSX with OpenXR.  Other architectures and operating systems are not supported at this time.",
+                checkPredicate = () => (BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget) != BuildTargetGroup.Standalone) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneOSX),
                 fixIt = () => EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64),
                 fixItMessage = "Switch active build target to StandaloneWindows64.",
                 error = true,
@@ -146,13 +143,13 @@ namespace UnityEditor.XR.OpenXR
                 checkPredicate = () =>
                 {
                     // There is no public way to check if the input handling backend is set correctly .. so resorting to non-public way for now.
-                    var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
                     var newInputEnabledProp = ps?.FindProperty("activeInputHandler");
                     return newInputEnabledProp?.intValue != 0;
                 },
                 fixIt = () =>
                 {
-                    var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
                     if (ps == null)
                         return;
 

@@ -22,6 +22,11 @@ namespace UnityEngine.XR.OpenXR.Features
         private static List<ActionMapConfig> m_CreatedActionMaps = null;
 
         /// <summary>
+        /// Flag that indicates this feature or profile is additive and its binding paths will be added to other non-additive profiles if enabled.
+        /// </summary>
+        internal virtual bool IsAdditive => false;
+
+        /// <summary>
         /// The underlying type of an OpenXR action. This enumeration contains all supported control types within OpenXR. This is used when declaring actions in OpenXR with XrAction/>.
         /// </summary>
         [Serializable]
@@ -77,6 +82,9 @@ namespace UnityEngine.XR.OpenXR.Features
 
             /// <summary>These will be tagged onto <see cref="UnityEngine.XR.InputDevice"/> features. See <seealso cref="UnityEngine.XR.InputDevice.TryGetFeatureValue"/></summary>
             public List<string> usages;
+
+            /// <summary>Tag to determine if certain action is additive and could be added to the existing profiles</summary>
+            public bool isAdditive;
         }
 
         /// <summary>
@@ -224,6 +232,10 @@ namespace UnityEngine.XR.OpenXR.Features
             m_CreatedActionMaps.Add(map);
         }
 
+        internal virtual void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        {
+        }
+
         /// <summary>
         /// Handle enabled state change to register/unregister device layouts as needed
         /// </summary>
@@ -236,7 +248,7 @@ namespace UnityEngine.XR.OpenXR.Features
             // groups has the feature enabled.
             var packageSettings = OpenXRSettings.GetPackageSettings();
             var featureType = GetType();
-            if(null != packageSettings && packageSettings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.feature.enabled && featureType.IsAssignableFrom(f.feature.GetType())))
+            if (null != packageSettings && packageSettings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.feature.enabled && featureType.IsAssignableFrom(f.feature.GetType())))
             {
                 RegisterDeviceLayout();
             }
@@ -258,9 +270,9 @@ namespace UnityEngine.XR.OpenXR.Features
             foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>().Where(f => f.feature.enabled).Select(f => f.feature))
                 feature.OnEnabledChange();
 #else
-            foreach(var feature in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
+            foreach (var feature in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
                 if (feature.enabled)
-                    ((OpenXRInteractionFeature) feature).RegisterDeviceLayout();
+                    ((OpenXRInteractionFeature)feature).RegisterDeviceLayout();
 #endif
         }
 
@@ -281,6 +293,7 @@ namespace UnityEngine.XR.OpenXR.Features
             }
             return loaderFound;
         }
+
 #endif
     }
 }

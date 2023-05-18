@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -174,27 +174,29 @@ namespace UnityEditor.XR.OpenXR.Features.OculusQuestSupport
 
                 UpdateOrCreateAttribute(ActivityIntentFilterElement,
                     "category", "com.oculus.intent.category.VR"
-                    );
+                );
 
                 UpdateOrCreateAttribute(ActivityElement,
                     "meta-data", "com.oculus.vr.focusaware",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("value", "true")
                     });
 
                 UpdateOrCreateAttribute(ApplicationElement,
                     "meta-data", "com.oculus.supportedDevices",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("value", supportedDevices)
                     });
 
                 UpdateOrCreateAttribute(ManifestElement,
                     "uses-feature", "android.hardware.vr.headtracking",
-                    new (string name, string value)[] {
+                    new (string name, string value)[]
+                    {
                         ("required", "true"),
                         ("version", "1")
                     });
-
             }
         }
     }

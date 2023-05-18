@@ -39,7 +39,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     importerPartOfExtension |= extensionContainsLoader;
 
                     bool customRuntimeLoaderOnEditorTarget = extInfo.Attribute.CustomRuntimeLoaderBuildTargets?.Intersect(
-                        new[] {BuildTarget.StandaloneWindows64, BuildTarget.StandaloneOSX, BuildTarget.StandaloneLinux64}).Any() ?? false;
+                        new[] { BuildTarget.StandaloneWindows64, BuildTarget.StandaloneOSX, BuildTarget.StandaloneLinux64 }).Any() ?? false;
 
                     if (extensionContainsLoader &&
                         customRuntimeLoaderOnEditorTarget &&
@@ -122,7 +122,7 @@ namespace UnityEditor.XR.OpenXR.Features
         }
 
         [InitializeOnLoadMethod]
-        static void InitializeOnLoad ()
+        static void InitializeOnLoad()
         {
             var importers = PluginImporter.GetAllImporters();
 

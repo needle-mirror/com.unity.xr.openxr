@@ -17,5 +17,4 @@ namespace UnityEditor.XR.OpenXR.Features
         public static readonly GUIContent k_ValidationErrorIcon = new GUIContent("", CommonContent.k_ErrorIcon.image, k_Validation.text);
         public static readonly GUIContent k_ValidationWarningIcon = new GUIContent("", CommonContent.k_WarningIcon.image, k_Validation.text);
     }
-
 }

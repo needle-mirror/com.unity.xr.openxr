@@ -25,7 +25,6 @@ namespace UnityEditor.XR.OpenXR.Features
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.WSA)]
     internal class OpenXRLoaderUI : IXRCustomLoaderUI
     {
-
         protected bool shouldApplyFeatureSetChanges = false;
 
         protected List<OpenXRFeatureSetManager.FeatureSetInfo> featureSets { get; set; }
@@ -36,10 +35,11 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <inheritdoc/>
         public bool IsLoaderEnabled { get; set; }
 
-        public string[] IncompatibleLoaders => new string[] {
+        public string[] IncompatibleLoaders => new string[]
+        {
             "UnityEngine.XR.WindowsMR.WindowsMRLoader",
             "Unity.XR.Oculus.OculusLoader",
-            };
+        };
 
         /// <inheritdoc/>
         public float RequiredRenderHeight { get; protected set; }
@@ -187,7 +187,6 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             EditorGUIUtility.SetIconSize(oldIconSize);
-
         }
     }
 }

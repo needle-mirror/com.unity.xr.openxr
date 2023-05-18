@@ -14,11 +14,10 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 
         private void OnEnable()
         {
-            if(m_ActionAsset != null)
+            if (m_ActionAsset != null)
             {
                 m_ActionAsset.Enable();
             }
         }
-
     }
 }

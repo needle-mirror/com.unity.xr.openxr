@@ -18,6 +18,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         private List<TargetDeviceProperty> targetDeviceProperties;
         private Dictionary<string, bool> activeTargetDevices;
+        private SerializedProperty forceRemoveInternetPermission;
 
         void InitActiveTargetDevices()
         {
@@ -34,8 +35,12 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 activeTargetDevices.Add(dev.manifestName, dev.active);
             }
         }
+
         void OnEnable()
         {
+            forceRemoveInternetPermission =
+                serializedObject.FindProperty("forceRemoveInternetPermission");
+
             targetDeviceProperties = new List<TargetDeviceProperty>();
             InitActiveTargetDevices();
             if (activeTargetDevices.Count == 0)
@@ -52,7 +57,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                     continue;
                 var propEnabled = targetDeviceProp.FindPropertyRelative("enabled");
                 var propName = targetDeviceProp.FindPropertyRelative("visibleName");
-                TargetDeviceProperty curTarget = new TargetDeviceProperty {property = propEnabled, label = EditorGUIUtility.TrTextContent(propName.stringValue)};
+                TargetDeviceProperty curTarget = new TargetDeviceProperty { property = propEnabled, label = EditorGUIUtility.TrTextContent(propName.stringValue) };
                 targetDeviceProperties.Add(curTarget);
             }
         }
@@ -60,6 +65,9 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            EditorGUILayout.LabelField("Manifest Settings", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(forceRemoveInternetPermission);
+
             EditorGUILayout.LabelField("Target Devices", EditorStyles.boldLabel);
 
             foreach (var device in targetDeviceProperties)

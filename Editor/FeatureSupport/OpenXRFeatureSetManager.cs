@@ -18,7 +18,7 @@ namespace UnityEditor.XR.OpenXR.Features
     public static class OpenXRFeatureSetManager
     {
         [InitializeOnLoadMethod]
-        static void InitializeOnLoad ()
+        static void InitializeOnLoad()
         {
             void OnFirstUpdate()
             {
@@ -137,7 +137,8 @@ namespace UnityEditor.XR.OpenXR.Features
                     List<FeatureSetInfo> knownFeatureSets = new List<FeatureSetInfo>();
                     if (addTestFeatureSet)
                     {
-                        knownFeatureSets.Add(new FeatureSetInfo(){
+                        knownFeatureSets.Add(new FeatureSetInfo()
+                        {
                             isEnabled = false,
                             name = "Known Test",
                             featureSetId = "com.unity.xr.test.featureset",
@@ -158,10 +159,11 @@ namespace UnityEditor.XR.OpenXR.Features
                 List<FeatureSetInfo> knownFeatureSets;
                 if (!s_AllFeatureSets.TryGetValue(kvp.Key, out knownFeatureSets))
                 {
-                    knownFeatureSets= new List<FeatureSetInfo>();
+                    knownFeatureSets = new List<FeatureSetInfo>();
                     foreach (var featureSet in kvp.Value)
                     {
-                        knownFeatureSets.Add(new FeatureSetInfo(){
+                        knownFeatureSets.Add(new FeatureSetInfo()
+                        {
                             isEnabled = false,
                             name = featureSet.name,
                             featureSetId = featureSet.featureSetId,
@@ -222,7 +224,8 @@ namespace UnityEditor.XR.OpenXR.Features
                         }
 
                         var isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(buildTargetGroup, featureSetAttr.FeatureSetId);
-                        var newFeatureSet = new FeatureSetInfo(){
+                        var newFeatureSet = new FeatureSetInfo()
+                        {
                             isEnabled = isEnabled,
                             wasEnabled = isEnabled,
                             name = featureSetAttr.UiName,

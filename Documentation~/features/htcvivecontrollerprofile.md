@@ -1,3 +1,6 @@
+---
+uid: openxr-htc-vive-controller-profile
+---
 # HTC Vive Controller Profile
 
 Enables the OpenXR interaction profile for the HTC Vive Controller and exposes the `<ViveController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).  
@@ -19,12 +22,8 @@ For more information about the HTC Vive interaction profile, see the [OpenXR Spe
 |`/input/trackpad/touch`|trackpadTouched| Boolean |
 |`/input/grip/pose`| devicePose| Pose |
 |`/input/aim/pose`|pointer| Pose |
+|`/output/haptic` | haptic | Vibrate |
 | Unity Layout Only  | isTracked | Flag Data |
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |
 | Unity Layout Only  | deviceRotation | Quaternion |
-
-
-
-
-

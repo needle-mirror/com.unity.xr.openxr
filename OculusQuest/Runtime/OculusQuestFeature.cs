@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 #if UNITY_EDITOR
@@ -14,13 +14,13 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
     /// </summary>
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Oculus Quest Support",
-        Desc="Necessary to deploy an Oculus Quest compatible app.",
+        Desc = "Necessary to deploy an Oculus Quest compatible app.",
         Company = "Unity",
         DocumentationLink = "https://developer.oculus.com/downloads/package/oculus-openxr-mobile-sdk/",
         OpenxrExtensionStrings = "XR_OCULUS_android_initialize_loader",
         Version = "1.0.0",
-        BuildTargetGroups = new []{BuildTargetGroup.Android},
-        CustomRuntimeLoaderBuildTargets = new []{BuildTarget.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Android},
+        CustomRuntimeLoaderBuildTargets = new[] {BuildTarget.Android},
         FeatureId = featureId,
         Hidden = true
     )]
@@ -73,11 +73,11 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
                         {
                             if (metaQuestFeature.targetDevices[i].manifestName == "quest")
                             {
-                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice(){manifestName = "quest", visibleName = "Quest", enabled = this.targetQuest, active = true};
+                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice() {manifestName = "quest", visibleName = "Quest", enabled = this.targetQuest, active = true};
                             }
                             if (metaQuestFeature.targetDevices[i].manifestName == "quest2")
                             {
-                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice(){manifestName = "quest2", visibleName = "Quest 2", enabled = this.targetQuest2, active = true};
+                                metaQuestFeature.targetDevices[i] = new MetaQuestFeature.TargetDevice() {manifestName = "quest2", visibleName = "Quest 2", enabled = this.targetQuest2, active = true};
                             }
                         }
                     }

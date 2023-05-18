@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEditor;
@@ -8,8 +8,8 @@ using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 #endif
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Features.OculusQuestSupport")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Features.MetaQuestSupport.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.OculusQuestSupport")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.MetaQuestSupport.Editor")]
 namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 {
     /// <summary>
@@ -17,13 +17,13 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
     /// </summary>
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Meta Quest Support",
-        Desc="Necessary to deploy a Meta Quest compatible app.",
+        Desc = "Necessary to deploy a Meta Quest compatible app.",
         Company = "Unity",
         DocumentationLink = "https://developer.oculus.com/downloads/package/oculus-openxr-mobile-sdk/",
         OpenxrExtensionStrings = "XR_OCULUS_android_initialize_loader",
         Version = "1.0.0",
-        BuildTargetGroups = new []{BuildTargetGroup.Android},
-        CustomRuntimeLoaderBuildTargets = new []{BuildTarget.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Android},
+        CustomRuntimeLoaderBuildTargets = new[] {BuildTarget.Android},
         FeatureId = featureId
     )]
 #endif
@@ -49,13 +49,22 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         [SerializeField]
         internal List<TargetDevice> targetDevices;
 
+        /// <summary>
+        /// Forces the removal of Internet permissions added to the Android Manifest.
+        /// </summary>
+        [SerializeField]
+        internal bool forceRemoveInternetPermission;
+
         public new void OnEnable()
         {
             // add known devices
             AddTargetDevice("quest", "Quest", true);
             AddTargetDevice("quest2", "Quest 2", true);
             AddTargetDevice("cambria", "Quest Pro", true);
+
+            forceRemoveInternetPermission = true;
         }
+
         /// <summary>
         /// Adds additional target devices to the devices list in the MetaQuestFeatureEditor. Added target devices will
         /// be serialized into the settings asset and will persist across editor sessions, but will only be visible to users

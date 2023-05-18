@@ -24,7 +24,8 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
         0,
         {"/user/hand/left",
             "/user/hand/right"},
-        {{"/user/hand/left/input/trigger/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Button"},
+        {
+            {"/user/hand/left/input/trigger/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Button"},
             {"/user/hand/left/input/trigger/value", XR_ACTION_TYPE_FLOAT_INPUT, "Trigger"},
             {"/user/hand/left/input/thumbstick/value", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
             {"/user/hand/left/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
@@ -33,7 +34,8 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/right/input/trigger/value", XR_ACTION_TYPE_FLOAT_INPUT, "Trigger"},
             {"/user/hand/right/input/thumbstick/value", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
             {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
-            {"/user/hand/right/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"}}},
+            {"/user/hand/right/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"},
+        }},
 
     // KHR Simple controller
     {
@@ -350,6 +352,34 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/right/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
             {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"}}},
 
+    // Hand Interaction extension
+    {
+        "Hand Interaction",
+        "/interaction_profiles/ext/hand_interaction_ext",
+        MR_CREATE_HAND_INTERACTION_EXT,
+        {"/user/hand/left", "/user/hand/right"},
+        {
+            {"/user/hand/left/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
+            {"/user/hand/left/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
+            {"/user/hand/left/input/poke_ext/pose", XR_ACTION_TYPE_POSE_INPUT, "Poke"},
+            {"/user/hand/left/input/pinch_ext/pose", XR_ACTION_TYPE_POSE_INPUT, "Pinch"},
+            {"/user/hand/left/input/pinch_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Pinch Value"},
+            {"/user/hand/left/input/pinch_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pinch Ready"},
+            {"/user/hand/left/input/aim_activate_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Pointer Activate Value"},
+            {"/user/hand/left/input/aim_activate_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pointer Activate Ready"},
+            {"/user/hand/left/input/grasp_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grasp Value"},
+            {"/user/hand/left/input/grasp_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Grasp Ready"},
+            {"/user/hand/right/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
+            {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
+            {"/user/hand/right/input/poke_ext/pose", XR_ACTION_TYPE_POSE_INPUT, "Poke"},
+            {"/user/hand/right/input/pinch_ext/pose", XR_ACTION_TYPE_POSE_INPUT, "Pinch"},
+            {"/user/hand/right/input/pinch_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Pinch Value"},
+            {"/user/hand/right/input/pinch_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pinch Ready"},
+            {"/user/hand/right/input/aim_activate_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Pointer Activate Value"},
+            {"/user/hand/right/input/aim_activate_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pointer Activate Ready"},
+            {"/user/hand/right/input/grasp_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grasp Value"},
+            {"/user/hand/right/input/grasp_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Grasp Ready"},
+        }},
     // Meta Quest Pro Touch Controller Profile
     {
         "Quest Pro Touch Controller",
@@ -410,6 +440,41 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/right/input/thumb_fb/proximity_fb", XR_ACTION_TYPE_BOOLEAN_INPUT, "Thumb Proximity"},
             {"/user/hand/right/output/trigger_haptic_fb", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic Trigger"},
             {"/user/hand/right/output/thumb_haptic_fb", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic Thumb"},
+        }},
+
+    // HP Reverb G2 Controller Profile
+    {
+        "HP Reverb G2 Controller",
+        "/interaction_profiles/hp/mixed_reality_controller",
+        MR_CREATE_HP_REVERB_G2_CONTROLLER,
+        {"/user/hand/left",
+            "/user/hand/right"},
+        {
+            {"/user/hand/left/input/x/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "X"},
+            {"/user/hand/left/input/y/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Y"},
+            {"/user/hand/left/input/menu/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Menu"},
+            {"/user/hand/left/input/squeeze/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grip"},
+            {"/user/hand/left/input/trigger/value", XR_ACTION_TYPE_FLOAT_INPUT, "Trigger"},
+            {"/user/hand/left/input/thumbstick/x", XR_ACTION_TYPE_FLOAT_INPUT, "Thumbstick X"},
+            {"/user/hand/left/input/thumbstick/y", XR_ACTION_TYPE_FLOAT_INPUT, "Thumbstick Y"},
+            {"/user/hand/left/input/thumbstick/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Thumbstick Click"},
+            {"/user/hand/left/input/thumbstick", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
+            {"/user/hand/left/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
+            {"/user/hand/left/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
+            {"/user/hand/left/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"},
+
+            {"/user/hand/right/input/a/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "A"},
+            {"/user/hand/right/input/b/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "B"},
+            {"/user/hand/right/input/menu/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Menu"},
+            {"/user/hand/right/input/squeeze/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grip"},
+            {"/user/hand/right/input/trigger/value", XR_ACTION_TYPE_FLOAT_INPUT, "Trigger"},
+            {"/user/hand/right/input/thumbstick/x", XR_ACTION_TYPE_FLOAT_INPUT, "Thumbstick X"},
+            {"/user/hand/right/input/thumbstick/y", XR_ACTION_TYPE_FLOAT_INPUT, "Thumbstick Y"},
+            {"/user/hand/right/input/thumbstick/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Thumbstick Click"},
+            {"/user/hand/right/input/thumbstick", XR_ACTION_TYPE_VECTOR2F_INPUT, "Thumbstick"},
+            {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
+            {"/user/hand/right/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
+            {"/user/hand/right/output/haptic", XR_ACTION_TYPE_VIBRATION_OUTPUT, "Haptic"},
         }},
 };
 

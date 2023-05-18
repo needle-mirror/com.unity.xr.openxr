@@ -8,7 +8,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
     {
         [SerializeField]
         private InputActionReference m_ActionReference;
-        public InputActionReference actionReference { get => m_ActionReference ; set => m_ActionReference = value; }
+        public InputActionReference actionReference { get => m_ActionReference; set => m_ActionReference = value; }
 
         [SerializeField]
         Color enabledColor = Color.green;
@@ -50,13 +50,13 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
                     typeToUse = lastActiveType;
                 }
 
-                if(typeToUse == typeof(bool))
+                if (typeToUse == typeof(bool))
                 {
                     lastActiveType = typeof(bool);
                     bool value = actionReference.action.ReadValue<bool>();
                     image.color = value ? enabledColor : disabledColor;
                 }
-                else if(typeToUse == typeof(float))
+                else if (typeToUse == typeof(float))
                 {
                     lastActiveType = typeof(float);
                     float value = actionReference.action.ReadValue<float>();
@@ -84,5 +84,4 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
             }
         }
     }
-
 }

@@ -21,7 +21,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
                 StartCoroutine(UpdateVisibility());
         }
 
-        private IEnumerator UpdateVisibility ()
+        private IEnumerator UpdateVisibility()
         {
             while (isActiveAndEnabled)
             {

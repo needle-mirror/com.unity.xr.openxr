@@ -36,7 +36,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             };
         }
 
-        private void RestoreCallbacks ()
+        private void RestoreCallbacks()
         {
             var restarter = OpenXRRestarter.Instance;
             restarter.onAfterShutdown = m_OldAfterShutdown;

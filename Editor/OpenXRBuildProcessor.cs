@@ -1,4 +1,4 @@
-﻿using UnityEditor.XR.Management;
+using UnityEditor.XR.Management;
 using UnityEngine.XR.OpenXR;
 
 namespace UnityEditor.XR.OpenXR

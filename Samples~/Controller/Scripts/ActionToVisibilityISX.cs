@@ -4,7 +4,6 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 {
     public class ActionToVisibilityISX : MonoBehaviour
     {
-
         [SerializeField]
         InputActionProperty m_ActionReference;
         public InputActionProperty actionReference { get => m_ActionReference; set => m_ActionReference = value; }

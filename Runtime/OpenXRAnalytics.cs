@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 #if UNITY_EDITOR
@@ -49,7 +49,7 @@ namespace UnityEngine.XR.OpenXR
             if (!EditorAnalytics.enabled)
                 return false;
 
-            if(AnalyticsResult.Ok != EditorAnalytics.RegisterEventWithLimit(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
+            if (AnalyticsResult.Ok != EditorAnalytics.RegisterEventWithLimit(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
 #else
             if (AnalyticsResult.Ok != Analytics.Analytics.RegisterEvent(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
 #endif //UNITY_EDITOR

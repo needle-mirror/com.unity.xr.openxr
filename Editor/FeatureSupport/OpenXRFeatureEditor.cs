@@ -200,7 +200,6 @@ namespace UnityEditor.XR.OpenXR.Features
             };
         }
 
-
         void UpdateValidationIssues(BuildTargetGroup buildTargetGroup)
         {
             _issues.Clear();
@@ -291,19 +290,18 @@ namespace UnityEditor.XR.OpenXR.Features
                 if (String.IsNullOrEmpty(selectedItem.featureSetId))
                 {
                     filteredListItems = allListItems.
-                                            OrderBy((item) => item.uiName.text).
-                                            ToList();
+                        OrderBy((item) => item.uiName.text).
+                        ToList();
                 }
                 else
                 {
                     filteredListItems = allListItems.
-                                        Where((item) => Array.IndexOf(selectedItem.featureIds, item.featureId) > -1 ).
-                                        OrderBy((item) => item.uiName.text).
-                                        ToList();
+                        Where((item) => Array.IndexOf(selectedItem.featureIds, item.featureId) > -1).
+                        OrderBy((item) => item.uiName.text).
+                        ToList();
                 }
             }
         }
-
 
         void DrawSelectionList()
         {
@@ -379,7 +377,6 @@ namespace UnityEditor.XR.OpenXR.Features
 
                 foreach (var filteredListItem in filteredListItems)
                 {
-
                     EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                     {
                         EditorGUILayout.BeginVertical(Styles.s_Feature, GUILayout.ExpandWidth(false));
@@ -447,7 +444,6 @@ namespace UnityEditor.XR.OpenXR.Features
 
                         EditorGUILayout.EndHorizontal();
                     }
-
                 }
                 EditorGUILayout.EndVertical();
             }
@@ -535,8 +531,8 @@ namespace UnityEditor.XR.OpenXR.Features
             activeBuildTarget = group;
 
             var featureSets = OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(group).
-                                OrderBy((fs) => fs.uiName.text);
-            foreach(var featureSet in featureSets)
+                OrderBy((fs) => fs.uiName.text);
+            foreach (var featureSet in featureSets)
             {
                 bool isKnownUninstalledFeatureSet = featureSet.featureIds == null && OpenXRFeatureSetManager.IsKnownFeatureSet(activeBuildTarget, featureSet.featureSetId);
 
@@ -552,7 +548,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
-            foreach(var _ext in allFeatureInfos.Features)
+            foreach (var _ext in allFeatureInfos.Features)
             {
                 if (_ext.Attribute.Hidden)
                     continue;
@@ -585,11 +581,12 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
-            selectionListItems.Add(new OpenXRFeatureSetManager.FeatureSetInfo() {
-                        uiName = new GUIContent(s_AllFeatures),
-                        featureSetId = string.Empty,
-                        featureIds = allFeatureInfos.Features.Select((e) => e.Attribute.FeatureId).ToArray(),
-                    });
+            selectionListItems.Add(new OpenXRFeatureSetManager.FeatureSetInfo()
+            {
+                uiName = new GUIContent(s_AllFeatures),
+                featureSetId = string.Empty,
+                featureIds = allFeatureInfos.Features.Select((e) => e.Attribute.FeatureId).ToArray(),
+            });
 
             var initialSelectedItem = selectionListItems[selectionListItems.Count - 1];
             if (lastSelectedItemIndex.ContainsKey(activeBuildTarget))
@@ -608,7 +605,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 Styles.s_FeatureSetTitleLable.fontStyle = FontStyle.Bold;
 
                 Styles.s_ListLabel = new GUIStyle(EditorStyles.label);
-                Styles.s_ListLabel.border = new RectOffset(0,0,0,0);
+                Styles.s_ListLabel.border = new RectOffset(0, 0, 0, 0);
                 Styles.s_ListLabel.padding = new RectOffset(5, 0, 0, 0);
                 Styles.s_ListLabel.margin = new RectOffset(2, 2, 2, 2);
 

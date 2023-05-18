@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -190,9 +190,9 @@ namespace UnityEngine.XR.OpenXR.Tests
                 // space and that the handles are deterministic.
                 if (methodName == nameof(OpenXRFeature.OnAppSpaceChange))
                 {
-                    spaceAppSet = (oldSpaceApp == 0 && (ulong) param == 3);
-                    spaceAppRemoved = (oldSpaceApp == 3 && (ulong) param == 0);
-                    oldSpaceApp = (ulong) param;
+                    spaceAppSet = (oldSpaceApp == 0 && (ulong)param == 3);
+                    spaceAppRemoved = (oldSpaceApp == 3 && (ulong)param == 0);
+                    oldSpaceApp = (ulong)param;
                 }
 
                 return true;
@@ -342,8 +342,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 if (methodName == nameof(OpenXRFeature.OnSessionStateChange))
                 {
-                    var oldState = (XrSessionState) ((MockRuntime.XrSessionStateChangedParams) param).OldState;
-                    var newState = (XrSessionState) ((MockRuntime.XrSessionStateChangedParams) param).NewState;
+                    var oldState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams)param).OldState;
+                    var newState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams)param).NewState;
                     CheckValidStateTransition(oldState, newState);
                     states.Add(newState);
                 }
@@ -420,7 +420,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
-        [UnityPlatform(exclude=new[] {RuntimePlatform.Android})] // Vulkan doesn't have depth on earlier versions of unity
+        [UnityPlatform(exclude = new[] { RuntimePlatform.Android })] // Vulkan doesn't have depth on earlier versions of unity
         public IEnumerator CheckDepthSubmissionMode([ValueSource("depthModes")] OpenXRSettings.DepthSubmissionMode depthMode)
         {
             base.InitializeAndStart();
@@ -471,7 +471,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator SimulatePause ()
+        public IEnumerator SimulatePause()
         {
             // Initialize and make sure the frame loop is running
             InitializeAndStart();
@@ -561,6 +561,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.That(XRDevice.refreshRate, Is.EqualTo(60.0f).Within(0.01f));
         }
+
 #endif
 
         [UnityTest]
@@ -595,7 +596,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(initedRealGfxApi, Is.True);
         }
 
-        [UnityPlatform(exclude = new[] {RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer})] // OSX doesn't support single-pass very well, disable for test.
+        [UnityPlatform(exclude = new[] { RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer })] // OSX doesn't support single-pass very well, disable for test.
         [UnityTest]
         public IEnumerator CombinedFrustum()
         {
@@ -608,7 +609,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForXrFrame(2);
 
             var displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances(displays);
+            SubsystemManager.GetSubsystems(displays);
 
             Assert.That(displays.Count, Is.EqualTo(1));
 
@@ -700,7 +701,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
             Assert.IsTrue(secondaryLayerCount == 0);
         }
-
 
         [UnityTest]
         public IEnumerator ThirdPersonObserver()
@@ -1045,7 +1045,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator WantsToRestartTrue ()
+        public IEnumerator WantsToRestartTrue()
         {
             OpenXRRuntime.wantsToRestart += () => true;
             OpenXRRuntime.wantsToRestart += () => true;
@@ -1077,7 +1077,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator WantsToQuitTrue ()
+        public IEnumerator WantsToQuitTrue()
         {
             var onQuit = false;
             OpenXRRuntime.wantsToQuit += () => true;
@@ -1097,7 +1097,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator WantsToQuitFalse ()
+        public IEnumerator WantsToQuitFalse()
         {
             var onQuit = false;
             OpenXRRuntime.wantsToQuit += () => true;
@@ -1113,11 +1113,11 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForLoaderShutdown();
 
             Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be running");
-            Assert.IsFalse (onQuit, "Quit was not called");
+            Assert.IsFalse(onQuit, "Quit was not called");
         }
 
         [UnityTest]
-        public IEnumerator LossPendingCausesRestart ()
+        public IEnumerator LossPendingCausesRestart()
         {
             bool lossPendingReceived = false;
             MockRuntime.Instance.TestCallback = (methodName, param) =>
@@ -1189,7 +1189,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator CreateSessionRuntimeFailure ()
+        public IEnumerator CreateSessionRuntimeFailure()
         {
             MockRuntime.SetFunctionCallback("xrCreateSession", (func) => XrResult.RuntimeFailure);
 
@@ -1202,7 +1202,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator EndFrameRuntimeFailure ()
+        public IEnumerator EndFrameRuntimeFailure()
         {
             InitializeAndStart();
 

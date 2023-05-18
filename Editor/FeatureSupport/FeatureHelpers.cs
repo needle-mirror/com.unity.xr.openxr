@@ -72,7 +72,6 @@ namespace UnityEditor.XR.OpenXR.Features
             return null;
         }
 
-
         /// <summary>
         /// Given an array of feature ids, returns an array of matching <see cref="OpenXRFeature" /> instances that match.
         /// </summary>
@@ -86,7 +85,7 @@ namespace UnityEditor.XR.OpenXR.Features
             if (featureIds == null || featureIds.Length == 0)
                 return ret.ToArray();
 
-            foreach(var featureId in featureIds)
+            foreach (var featureId in featureIds)
             {
                 var feature = GetFeatureWithIdForBuildTarget(buildTargetGroup, featureId);
                 if (feature != null)
@@ -95,7 +94,6 @@ namespace UnityEditor.XR.OpenXR.Features
 
             return ret.ToArray();
         }
-
     }
 
 
@@ -138,7 +136,7 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>feature info</returns>
         public static AllFeatureInfo GetAllFeatureInfo(BuildTargetGroup group)
         {
-            AllFeatureInfo ret = new AllFeatureInfo {Features = new List<FeatureInfo>()};
+            AllFeatureInfo ret = new AllFeatureInfo { Features = new List<FeatureInfo>() };
             var openXrSettings = OpenXRPackageSettings.GetOrCreateInstance().GetSettingsForBuildTargetGroup(group);
             if (openXrSettings == null)
             {
@@ -156,7 +154,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     {
                         if (attr is OpenXRFeatureAttribute)
                         {
-                            var extAttr = (OpenXRFeatureAttribute) attr;
+                            var extAttr = (OpenXRFeatureAttribute)attr;
                             currentExts[extAttr] = ext;
                             break;
                         }
@@ -175,14 +173,14 @@ namespace UnityEditor.XR.OpenXR.Features
                 {
                     if (attr is OpenXRFeatureAttribute)
                     {
-                        var extAttr = (OpenXRFeatureAttribute) attr;
-                        if (extAttr.BuildTargetGroups != null && !((IList) extAttr.BuildTargetGroups).Contains(group))
+                        var extAttr = (OpenXRFeatureAttribute)attr;
+                        if (extAttr.BuildTargetGroups != null && !((IList)extAttr.BuildTargetGroups).Contains(group))
                             continue;
 
                         if (!currentExts.TryGetValue(extAttr, out var extObj))
                         {
                             // Create a new one
-                            extObj = (OpenXRFeature) ScriptableObject.CreateInstance(extType);
+                            extObj = (OpenXRFeature)ScriptableObject.CreateInstance(extType);
                             extObj.name = extType.Name + " " + group;
                             AssetDatabase.AddObjectToAsset(extObj, openXrSettings);
                             AssetDatabase.SaveAssets();
@@ -196,7 +194,7 @@ namespace UnityEditor.XR.OpenXR.Features
                         var path = AssetDatabase.GetAssetPath(ms);
 
                         var dir = "";
-                        if(!String.IsNullOrEmpty(path))
+                        if (!String.IsNullOrEmpty(path))
                             dir = Path.GetDirectoryName(path);
                         ret.Features.Add(new FeatureInfo()
                         {
@@ -208,11 +206,11 @@ namespace UnityEditor.XR.OpenXR.Features
 
                         if (enabled && extAttr.CustomRuntimeLoaderBuildTargets?.Length > 0)
                         {
-                            if (ret.CustomLoaderBuildTargets != null && (bool) extAttr.CustomRuntimeLoaderBuildTargets?.Intersect(ret.CustomLoaderBuildTargets).Any())
+                            if (ret.CustomLoaderBuildTargets != null && (bool)extAttr.CustomRuntimeLoaderBuildTargets?.Intersect(ret.CustomLoaderBuildTargets).Any())
                             {
                                 Debug.LogError($"Only one OpenXR feature may have a custom runtime loader per platform. Disable {customLoaderExtName} or {extAttr.UiName}.");
                             }
-                            ret.CustomLoaderBuildTargets = extAttr.CustomRuntimeLoaderBuildTargets?.Union(ret?.CustomLoaderBuildTargets ?? new BuildTarget[]{}).ToArray();
+                            ret.CustomLoaderBuildTargets = extAttr.CustomRuntimeLoaderBuildTargets?.Union(ret?.CustomLoaderBuildTargets ?? new BuildTarget[] { }).ToArray();
                             customLoaderExtName = extAttr.UiName;
                         }
 

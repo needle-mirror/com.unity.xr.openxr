@@ -30,7 +30,7 @@ namespace UnityEngine.XR.OpenXR
             TimeBetweenRestartAttempts = 5.0f;
         }
 
-        public void ResetCallbacks ()
+        public void ResetCallbacks()
         {
             onAfterRestart = null;
             onAfterSuccessfulRestart = null;
@@ -87,7 +87,7 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// Shutdown the the OpenXR loader and optionally quit the application
         /// </summary>
-        public void Shutdown ()
+        public void Shutdown()
         {
             if (OpenXRLoader.Instance == null)
                 return;
@@ -104,7 +104,7 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// Restart the OpenXR loader
         /// </summary>
-        public void ShutdownAndRestart ()
+        public void ShutdownAndRestart()
         {
             if (OpenXRLoader.Instance == null)
                 return;
@@ -184,7 +184,7 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
-        private IEnumerator RestartCoroutine (bool shouldRestart, bool shouldShutdown)
+        private IEnumerator RestartCoroutine(bool shouldRestart, bool shouldShutdown)
         {
             try
             {

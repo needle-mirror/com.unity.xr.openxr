@@ -86,15 +86,15 @@ PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
     std::wstring lib(libName);
     std::string mbLibName;
 
+    size_t len = std::wcstombs(nullptr, lib.c_str(), lib.size());
+    if (len <= 0)
+        return NULL;
+    mbLibName.resize(len);
+    std::wcstombs(&mbLibName[0], lib.c_str(), lib.size());
+
     if ((lib.size() >= 1 && lib[0] == L'.') ||
         (lib.find(L'/') == std::string::npos && lib.find(L'\\') == std::string::npos))
     {
-        size_t len = std::wcstombs(nullptr, lib.c_str(), lib.size());
-        if (len <= 0)
-            return NULL;
-        mbLibName.resize(len);
-        std::wcstombs(&mbLibName[0], lib.c_str(), lib.size());
-
         Dl_info info;
         if (dladdr((const void*)&Plugin_LoadLibrary, &info) != 0)
         {

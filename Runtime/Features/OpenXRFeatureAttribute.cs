@@ -4,7 +4,6 @@ using UnityEngine.XR.OpenXR;
 #if UNITY_EDITOR
 namespace UnityEditor.XR.OpenXR.Features
 {
-
     public class FeatureCategory
     {
         public const string Default = "";

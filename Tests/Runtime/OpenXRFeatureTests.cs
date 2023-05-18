@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
@@ -11,7 +11,6 @@ namespace UnityEngine.XR.OpenXR.Tests
     {
         private class FakeFeature : OpenXRFeature
         {
-
         }
 
         [Test]
@@ -31,7 +30,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             base.InitializeAndStart();
 
-            Assert.IsTrue(OpenXRSettings.Instance.features[OpenXRSettings.Instance.features.Length-1] == MockRuntime.Instance);
+            Assert.IsTrue(OpenXRSettings.Instance.features[OpenXRSettings.Instance.features.Length - 1] == MockRuntime.Instance);
         }
 
         [Test]
@@ -133,6 +132,5 @@ namespace UnityEngine.XR.OpenXR.Tests
             var features = new List<OpenXRFeature>();
             Assert.IsTrue(OpenXRSettings.Instance.GetFeatures(features) == OpenXRSettings.Instance.featureCount);
         }
-
     }
 }

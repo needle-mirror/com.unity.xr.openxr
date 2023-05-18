@@ -16,8 +16,8 @@ using UnityEditor.XR.OpenXR.Features;
 using System.Linq;
 #endif
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
-[assembly:InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEngine.XR.OpenXR.Features
 {
     /// <summary>
@@ -89,7 +89,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Feature id.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string featureIdInternal  = null;
+        [HideInInspector] [SerializeField] internal string featureIdInternal = null;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
@@ -148,12 +148,12 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Called before the OpenXR loader stops its subsystems.
         /// </summary>
-        protected internal virtual void OnSubsystemStop () { }
+        protected internal virtual void OnSubsystemStop() { }
 
         /// <summary>
         /// Called before the OpenXR loader destroys its subsystems.
         /// </summary>
-        protected internal virtual void OnSubsystemDestroy () { }
+        protected internal virtual void OnSubsystemDestroy() { }
 
         /// <summary>
         /// Called after xrCreateInstance.
@@ -165,7 +165,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Called after xrGetSystem.
         /// </summary>
         /// <param name="xrSystem">Handle of the xrSystemId</param>
-        protected internal virtual void OnSystemChange (ulong xrSystem) { }
+        protected internal virtual void OnSystemChange(ulong xrSystem) { }
 
         /// <summary>
         /// Called after xrCreateSession.
@@ -177,7 +177,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Called when the reference xrSpace for the app changes.
         /// </summary>
         /// <param name="xrSpace">Handle of the xrSpace</param>
-        protected internal virtual void OnAppSpaceChange (ulong xrSpace) { }
+        protected internal virtual void OnAppSpaceChange(ulong xrSpace) { }
 
         /// <summary>
         /// Called when the OpenXR loader receives the XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED event
@@ -191,7 +191,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Called after xrSessionBegin.
         /// </summary>
         /// <param name="xrSession">Handle of the xrSession</param>
-        protected internal virtual void OnSessionBegin (ulong xrSession) { }
+        protected internal virtual void OnSessionBegin(ulong xrSession) { }
 
         /// <summary>
         /// Called before xrEndSession.
@@ -203,19 +203,19 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Called when the runtime transitions to the XR_SESSION_STATE_EXITING state.
         /// </summary>
         /// <param name="xrSession">Handle of the xrSession</param>
-        protected internal virtual void OnSessionExiting (ulong xrSession) { }
+        protected internal virtual void OnSessionExiting(ulong xrSession) { }
 
         /// <summary>
         /// Called before xrDestroySession.
         /// </summary>
         /// <param name="xrSession">Handle of the xrSession</param>
-        protected internal virtual void OnSessionDestroy (ulong xrSession) { }
+        protected internal virtual void OnSessionDestroy(ulong xrSession) { }
 
         /// <summary>
         /// Called before xrDestroyInstance
         /// </summary>
         /// <param name="xrInstance">Handle of the xrInstance</param>
-        protected internal virtual void OnInstanceDestroy (ulong xrInstance) { }
+        protected internal virtual void OnInstanceDestroy(ulong xrInstance) { }
 
         /// <summary>
         /// Called when the runtime transitions to the XR_SESSION_STATE_LOSS_PENDING
@@ -233,25 +233,25 @@ namespace UnityEngine.XR.OpenXR.Features
         /// clean up in preparation for termination.
         /// </summary>
         /// <param name="xrInstance">The instance that is going to be lost</param>
-        protected internal virtual void OnInstanceLossPending (ulong xrInstance) { }
+        protected internal virtual void OnInstanceLossPending(ulong xrInstance) { }
 
         /// <summary>
         /// Notification to the feature implementer that the form factor has changed.
         /// </summary>
         /// <param name="xrFormFactor">New form factor value</param>
-        protected internal virtual void OnFormFactorChange (int xrFormFactor) {}
+        protected internal virtual void OnFormFactorChange(int xrFormFactor) { }
 
         /// <summary>
         /// Notification to the feature implementer that the view configuration type has changed.
         /// </summary>
         /// <param name="xrViewConfigurationType">New view configuration type</param>
-        protected internal virtual void OnViewConfigurationTypeChange (int xrViewConfigurationType) {}
+        protected internal virtual void OnViewConfigurationTypeChange(int xrViewConfigurationType) { }
 
         /// <summary>
         /// Notification to the feature implementer that the environment blend mode has changed.
         /// </summary>
         /// <param name="xrEnvironmentBlendMode">New environment blend mode value</param>
-        protected internal virtual void OnEnvironmentBlendModeChange (XrEnvironmentBlendMode xrEnvironmentBlendMode) {}
+        protected internal virtual void OnEnvironmentBlendModeChange(XrEnvironmentBlendMode xrEnvironmentBlendMode) { }
 
         /// <summary>
         /// Called when the enabled state of a feature changes
@@ -441,6 +441,7 @@ namespace UnityEngine.XR.OpenXR.Features
                     feature.GetValidationChecks(rules, targetGroup);
             }
         }
+
 #endif
 
         /// <summary>
@@ -680,7 +681,7 @@ namespace UnityEngine.XR.OpenXR.Features
                 return;
 
             foreach (var feature in instance.features)
-                if(feature != null)
+                if (feature != null)
                     feature.failedInitialization = false;
         }
 
@@ -693,7 +694,7 @@ namespace UnityEngine.XR.OpenXR.Features
             {
                 // Hook the features in reverse priority order to ensure the highest priority feature is
                 // hooked last.  This will ensure the highest priority feature is called first in the chain.
-                for(var featureIndex=instance.features.Length - 1; featureIndex >= 0; featureIndex--)
+                for (var featureIndex = instance.features.Length - 1; featureIndex >= 0; featureIndex--)
                 {
                     var feature = instance.features[featureIndex];
                     if (feature == null || !feature.enabled)

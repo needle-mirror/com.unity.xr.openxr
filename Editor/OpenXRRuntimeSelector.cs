@@ -72,7 +72,7 @@ namespace UnityEditor.XR.OpenXR
 
             public override string jsonPath => "";
 
-            public override string tooltip => (string) Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
+            public override string tooltip => (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
 
             public override bool detected => true;
 

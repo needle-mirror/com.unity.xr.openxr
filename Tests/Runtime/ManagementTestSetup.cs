@@ -13,7 +13,7 @@ namespace UnityEngine.XR.TestTooling
     internal abstract class ManagementTestSetup
     {
         protected static readonly string[] s_TestGeneralSettings = { "Temp", "Test" };
-        protected static readonly string[] s_TempSettingsPath = {"Temp", "Test", "Settings" };
+        protected static readonly string[] s_TempSettingsPath = { "Temp", "Test", "Settings" };
 
         /// <summary>
         /// When true, AssetDatabase.AddObjectToAsset will not be called to add XRManagerSettings to XRGeneralSettings.
@@ -93,7 +93,7 @@ namespace UnityEngine.XR.TestTooling
             buildTargetSettings = null;
             testManager = null;
             xrGeneralSettings = null;
-            AssetDatabase.DeleteAsset(Path.Combine("Assets","Temp"));
+            AssetDatabase.DeleteAsset(Path.Combine("Assets", "Temp"));
 #endif
         }
 
@@ -104,7 +104,7 @@ namespace UnityEngine.XR.TestTooling
                 return null;
 
             string path = root;
-            foreach( var pc in pathComponents)
+            foreach (var pc in pathComponents)
             {
                 string subFolder = Path.Combine(path, pc);
                 bool shouldCreate = true;
@@ -124,6 +124,7 @@ namespace UnityEngine.XR.TestTooling
 
             return path;
         }
+
 #endif
     }
 }

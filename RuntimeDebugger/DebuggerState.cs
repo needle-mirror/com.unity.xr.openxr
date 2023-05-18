@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking.PlayerConnection;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Features.RuntimeDebugger.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.RuntimeDebugger.Editor")]
 namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 {
     internal class DebuggerState
@@ -206,7 +206,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             protected string fieldname;
 
             protected DebugEvent(string fieldname, string display)
-            : base(idCounter++, 0, display)
+                : base(idCounter++, 0, display)
             {
                 this.fieldname = fieldname;
             }
@@ -247,7 +247,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                         parsedChild = null;
                     }
 
-                    var command = (Command) r.ReadUInt32();
+                    var command = (Command)r.ReadUInt32();
                     switch (command)
                     {
                         case Command.kStartStruct:
@@ -296,7 +296,8 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                } while (!endEvent && r.BaseStream.Position != r.BaseStream.Length);
+                }
+                while (!endEvent && r.BaseStream.Position != r.BaseStream.Length);
             }
 
 //            public IEnumerable<DebugEvent> GetChildren()
@@ -364,7 +365,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public string returnVal { get; set; }
 
             public FunctionCall(string threadId, string displayName)
-            : base("", displayName)
+                : base("", displayName)
             {
                 this.threadId = threadId;
             }

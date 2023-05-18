@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +7,7 @@ using NUnit.Framework;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Tests;
 using Assert = UnityEngine.Assertions.Assert;
@@ -27,7 +28,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             opts.target = BuildTarget.StandaloneOSX;
 #endif
             if (File.Exists("Assets/main.unity"))
-                opts.scenes = new string[] {"Assets/main.unity"};
+                opts.scenes = new string[] { "Assets/main.unity" };
             opts.targetGroup = BuildTargetGroup.Standalone;
             opts.locationPathName = "mocktest/mocktest.exe";
 
@@ -128,12 +129,46 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsFalse(postprocessCalled);
         }
 
+        [Test]
+        public void VerifyBootConfigWrite()
+        {
+            bool preprocessCalled = false;
+            bool postprocessCalled = false;
+
+            BootConfigTests.TestCallback = (methodName, param) =>
+            {
+                if (methodName == "OnPreprocessBuildExt")
+                {
+                    preprocessCalled = true;
+                }
+
+                if (methodName == "OnPostprocessBuildExt")
+                {
+                    postprocessCalled = true;
+                }
+
+                return true;
+            };
+
+            var result = BuildMockPlayer();
+            BuildMockPlayer();
+            Assert.IsFalse(preprocessCalled);
+            Assert.IsFalse(postprocessCalled);
+
+            BootConfigTests.EnsureCleanupFromLastRun();
+        }
+
         private bool HasOpenXRLibraries(BuildReport report)
         {
             var path = Path.GetDirectoryName(report.summary.outputPath);
             var dir = new DirectoryInfo(path);
-            var dlls = dir.EnumerateFiles("*.dll", SearchOption.AllDirectories).Select(s => s.Name).ToList();
-            return dlls.Contains("openxr_loader.dll") || dlls.Contains("UnityOpenXR.dll");
+
+            var ext = "dll";
+            if (Application.platform == RuntimePlatform.OSXEditor)
+                ext = "dylib";
+
+            var dlls = dir.EnumerateFiles($"*.{ext}", SearchOption.AllDirectories).Select(s => s.Name).ToList();
+            return dlls.Contains($"openxr_loader.{ext}") || dlls.Contains($"UnityOpenXR.{ext}");
         }
 
         [Test]
@@ -173,6 +208,88 @@ namespace UnityEditor.XR.OpenXR.Tests
             protected override void OnPostprocessBuildExt(BuildReport report)
             {
                 TestCallback(MethodBase.GetCurrentMethod().Name, report);
+            }
+
+            protected override void OnProcessBootConfigExt(BuildReport report, BootConfigBuilder builder)
+            {
+                TestCallback(MethodBase.GetCurrentMethod().Name, report);
+            }
+        }
+
+        internal class BootConfigTests : OpenXRFeatureBuildHooks
+        {
+            [NonSerialized] internal static Func<string, object, bool> TestCallback = (methodName, param) => true;
+
+            public override int callbackOrder => 1;
+            public override Type featureType => typeof(MockRuntime);
+
+            // For this test, we want to ensure that the last run actually cleans up any settings that we've
+            // stored into the boot settings of the EditorUserBuildSettings. We need the last run BuildReport
+            // in order to check the EditorUserBuildSettings.
+            private static BuildReport s_lastRunBuildReport;
+
+            protected override void OnPreprocessBuildExt(BuildReport report)
+            {
+            }
+
+            protected override void OnPostGenerateGradleAndroidProjectExt(string path)
+            {
+            }
+
+            protected override void OnPostprocessBuildExt(BuildReport report)
+            {
+                // check to see if we've got the boot config written into the UserSettings
+                var bootConfig = new BootConfig(report);
+                bootConfig.ReadBootConfig();
+                Assert.IsTrue(bootConfig.TryGetValue("key-01", out var key01Value));
+                Assert.AreEqual(key01Value, "primary test value");
+                Assert.IsTrue(bootConfig.TryGetValue("key-02", out var key02Value));
+                Assert.AreEqual(key02Value, "secondary test value");
+                Assert.IsTrue(bootConfig.TryGetValue("key-03", out var key03Value));
+                Assert.AreEqual(key03Value, "1");
+                Assert.IsTrue(bootConfig.TryGetValue("key-04", out var key04Value));
+                Assert.AreEqual(key04Value, "0");
+
+                s_lastRunBuildReport = report;
+            }
+
+            protected override void OnProcessBootConfigExt(BuildReport report, BootConfigBuilder builder)
+            {
+                // Now we set some boot config values and check to make sure they're there.
+                builder.SetBootConfigValue("key-01", "primary test value");
+                builder.SetBootConfigValue("key-02", "secondary test value");
+                builder.SetBootConfigBoolean("key-03", true);
+                builder.SetBootConfigBoolean("key-04", false);
+                Assert.IsTrue(builder.TryGetBootConfigValue("key-01", out var result01));
+                Assert.AreEqual(result01, "primary test value");
+                Assert.IsTrue(builder.TryGetBootConfigValue("key-02", out var result02));
+                Assert.AreEqual(result02, "secondary test value");
+                Assert.IsTrue(builder.TryGetBootConfigBoolean("key-03", out var result03));
+                Assert.IsTrue(result03);
+                Assert.IsTrue(builder.TryGetBootConfigBoolean("key-04", out var result04));
+                Assert.IsFalse(result04);
+                builder.SetBootConfigValue("key-05", "remove-me");
+                Assert.IsTrue(builder.TryRemoveBootConfigEntry("key-05"));
+                Assert.IsFalse(builder.TryGetBootConfigValue("key-05", out var result05));
+                Assert.IsFalse(builder.TryGetBootConfigBoolean("key-999", out var result06));
+                Assert.IsFalse(result06);
+            }
+
+            public static void EnsureCleanupFromLastRun()
+            {
+                // make sure that the UserSettings doesn't hold any additional configs we've previously written
+                if (s_lastRunBuildReport == null)
+                    return;
+
+                var bootConfig = new BootConfig(s_lastRunBuildReport);
+                bootConfig.ReadBootConfig();
+                Assert.IsFalse(bootConfig.TryGetValue("key-01", out var key01Value));
+                Assert.IsFalse(bootConfig.TryGetValue("key-02", out var key02Value));
+                Assert.IsFalse(bootConfig.TryGetValue("key-03", out var key03Value));
+                Assert.IsFalse(bootConfig.TryGetValue("key-04", out var key04Value));
+                Assert.IsFalse(bootConfig.TryGetValue("key-05", out var key05Value));
+
+                s_lastRunBuildReport = null;
             }
         }
     }

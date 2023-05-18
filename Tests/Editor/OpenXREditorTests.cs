@@ -11,7 +11,7 @@ namespace UnityEditor.XR.OpenXR.Tests
     internal class OpenXREditorTests
     {
         [Test]
-        public void DocumentationVersion ()
+        public void DocumentationVersion()
         {
             var version = PackageManager.PackageInfo.FindForAssembly(typeof(OpenXREditorTests).Assembly)?.version;
             var majorminor = "@" + OpenXRFeatureAttribute.k_PackageVersionRegex.Match(version).Groups[1].Value + "/";
@@ -37,4 +37,3 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
     }
 }
-

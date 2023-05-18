@@ -10,14 +10,15 @@ using UnityEditor.XR.OpenXR.Features;
 namespace UnityEngine.XR.OpenXR.Features.Mock
 {
     [OpenXRFeatureSet(
-        FeatureIds = new string[] {
+        FeatureIds = new string[]
+        {
             MockRuntime.featureId,
             Interactions.KHRSimpleControllerProfile.featureId,
-            },
+        },
         UiName = "Mock Runtime",
         Description = "Mock Runtime Feature set support. Enabling this will override any current OpenXR runtime selection.",
         FeatureSetId = "com.unity.openxr.featureset.mockruntime",
-        SupportedBuildTargets = new BuildTargetGroup[]{ BuildTargetGroup.Standalone }
+        SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone }
     )]
     sealed class MockRuntimeFeatureSets {}
 }

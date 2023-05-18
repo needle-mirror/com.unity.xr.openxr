@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
@@ -41,6 +41,7 @@ namespace UnityEditor.XR.OpenXR.Samples.InterceptFeature
             if (!string.IsNullOrEmpty(source))
                 AssetDatabase.DeleteAsset(source);
         }
+
 #endif
     }
 }

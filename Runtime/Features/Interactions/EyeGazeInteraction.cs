@@ -47,7 +47,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A <see cref="PoseControl"/> representing the <see cref="EyeGazeInteraction.pose"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0, usages = new [] {"Device", "gaze"})]
+            [Preserve, InputControl(offset = 0, usages = new[] { "Device", "gaze" })]
             public PoseControl pose { get; private set; }
 
             /// <inheritdoc/>
@@ -81,21 +81,22 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         {
             if (target == BuildTargetGroup.WSA)
             {
-                results.Add( new ValidationRule(this){
+                results.Add(new ValidationRule(this){
                     message = "Eye Gaze support requires the Gaze Input capability.",
                     error = false,
                     checkPredicate = () => PlayerSettings.WSA.GetCapability(PlayerSettings.WSACapability.GazeInput),
                     fixIt = () => PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true)
-                } );
+                });
             }
         }
+
 #endif
 
         /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)
         {
             // Requires the eye tracking extension
-            if(!OpenXRRuntime.IsExtensionEnabled(extensionString))
+            if (!OpenXRRuntime.IsExtensionEnabled(extensionString))
                 return false;
 
             return base.OnInstanceCreate(instance);
@@ -111,10 +112,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(EyeGazeDevice),
-                        "EyeGaze",
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                "EyeGaze",
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
         /// <summary>
