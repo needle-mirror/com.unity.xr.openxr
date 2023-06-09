@@ -443,6 +443,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests all controls of all interaction features to ensure data flows through properly.
         /// </summary>
         [UnityTest]
+        [UnityPlatform(exclude = new[] { RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer })] // These tests time out on 2022+ on the Mac Editor CI machines
         public IEnumerator ValidateControls([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
             // Enable the needed features

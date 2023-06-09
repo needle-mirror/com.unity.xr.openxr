@@ -10,7 +10,7 @@ When updating the Changelog, please ensure we follow the standards for ordering 
 Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 ```
 
-## [1.8.0] - 2023-05-18
+## [1.8.1] - 2023-06-09
 
 ### Added
 * Added functionality in `OpenXRFeatureBuildHooks` exposing the BootConfig for reading/writing.
