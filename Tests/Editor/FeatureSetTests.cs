@@ -177,10 +177,10 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             string[] expectedFeatureSets = new string[]
             {
-                KnownFeatureSetsContent.s_MicrosoftFeatureSetId
+                KnownFeatureSetsContent.s_MicrosoftHoloLensFeatureSetId
             };
 
-            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.Standalone);
+            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.WSA);
             Assert.IsNotNull(featureSets);
             Assert.AreEqual(expectedFeatureSets.Length, featureSets.Count);
 

@@ -5,6 +5,7 @@ using UnityEditor;
 
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
+using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 #endif
 
@@ -22,8 +23,8 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         DocumentationLink = "https://developer.oculus.com/downloads/package/oculus-openxr-mobile-sdk/",
         OpenxrExtensionStrings = "XR_OCULUS_android_initialize_loader",
         Version = "1.0.0",
-        BuildTargetGroups = new[] {BuildTargetGroup.Android},
-        CustomRuntimeLoaderBuildTargets = new[] {BuildTarget.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Android },
+        CustomRuntimeLoaderBuildTargets = new[] { BuildTarget.Android },
         FeatureId = featureId
     )]
 #endif
@@ -42,6 +43,12 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.metaquest";
 
+        /// <summary>
+        /// The name of the ambient occlusion render feature script.
+        /// Used for validation regarding ambient occlusion on meta quest devices.
+        /// </summary>
+        private const string ambientOcclusionScriptName = "ScreenSpaceAmbientOcclusion";
+
 #if UNITY_EDITOR
         /// <summary>
         /// Adds devices to the supported devices list in the Android manifest.
@@ -54,6 +61,11 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// </summary>
         [SerializeField]
         internal bool forceRemoveInternetPermission;
+
+        /// <summary>
+        /// Caches validation rules for each build target group requested by <see cref="GetValidationChecks="/>.
+        /// </summary>
+        private Dictionary<BuildTargetGroup, ValidationRule[]> validationRules = new Dictionary<BuildTargetGroup, ValidationRule[]>();
 
         public new void OnEnable()
         {
@@ -97,57 +109,90 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
         protected override void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
         {
-            rules.Add(new ValidationRule(this)
-            {
-                message = "Only the Oculus Touch Interaction Profile and Meta Quest Pro Touch Interaction Profile are supported right now.",
-                checkPredicate = () =>
-                {
-                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
-                    if (null == settings)
-                        return false;
+            if (!validationRules.ContainsKey(targetGroup))
+                validationRules.Add(targetGroup, CreateValidationRules(targetGroup));
 
-                    bool touchFeatureEnabled = false;
-                    bool otherInteractionFeatureEnabled = false;
-                    foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
-                    {
-                        if (feature.enabled)
-                        {
-                            if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile))
-                                touchFeatureEnabled = true;
-                            else
-                                otherInteractionFeatureEnabled = true;
-                        }
-                    }
-                    return touchFeatureEnabled && !otherInteractionFeatureEnabled;
-                },
-                error = true,
-                fixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");},
-                fixItAutomatic = false,
-                fixItMessage = "Open Project Settings to select Oculus Touch or Meta Quest Pro Touch interaction profiles or select both."
-            });
-
-            rules.Add(new ValidationRule(this)
-            {
-                message = "No Quest target devices selected.",
-                checkPredicate = () =>
-                {
-                    foreach (var device in targetDevices)
-                    {
-                        if (device.enabled)
-                            return true;
-                    }
-
-                    return false;
-                },
-                fixIt = () =>
-                {
-                    var window = MetaQuestFeatureEditorWindow.Create(this);
-                    window.ShowPopup();
-                },
-                error = true,
-                fixItAutomatic = false,
-            });
+            rules.AddRange(validationRules[targetGroup]);
         }
+
+        private ValidationRule[] CreateValidationRules(BuildTargetGroup targetGroup) =>
+
+            new ValidationRule[]
+            {
+                    new ValidationRule(this)
+                    {
+                        message = "Only the Oculus Touch Interaction Profile and Meta Quest Pro Touch Interaction Profile are supported right now.",
+                        checkPredicate = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            if (null == settings)
+                                return false;
+
+                            bool touchFeatureEnabled = false;
+                            bool otherInteractionFeatureEnabled = false;
+                            foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
+                            {
+                                if (feature.enabled)
+                                {
+                                    if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile))
+                                        touchFeatureEnabled = true;
+                                    else
+                                        otherInteractionFeatureEnabled = true;
+                                }
+                            }
+                            return touchFeatureEnabled && !otherInteractionFeatureEnabled;
+                        },
+                        error = true,
+                        fixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR"); },
+                        fixItAutomatic = false,
+                        fixItMessage = "Open Project Settings to select Oculus Touch or Meta Quest Pro Touch interaction profiles or select both."
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "No Quest target devices selected.",
+                        checkPredicate = () =>
+                        {
+                            foreach (var device in targetDevices)
+                            {
+                                if (device.enabled)
+                                    return true;
+                            }
+
+                            return false;
+                        },
+                        fixIt = () =>
+                        {
+                            var window = MetaQuestFeatureEditorWindow.Create(this);
+                            window.ShowPopup();
+                        },
+                        error = true,
+                        fixItAutomatic = false,
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Using the Screen Space Ambient Occlusion render feature results in significant performance overhead when the application is running natively on device. Disabling or removing that render feature is recommended.",
+                        helpText = "Only removing the Screen Space Ambient Occlusion render feature from all UniversalRenderer assets that may be used will make this warning go away, but just disabling the render feature will still prevent the performance overhead.",
+                        checkPredicate = () =>
+                        {
+
+                            // Checks the dependencies of all configured render pipeline assets.
+                            foreach(var renderPipeline in GraphicsSettings.allConfiguredRenderPipelines)
+                            {
+                                var dependencies = AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(renderPipeline));
+                                foreach(var dependency in dependencies)
+                                {
+                                    if (dependency.Contains(ambientOcclusionScriptName))
+                                        return false;
+                                }
+                            }
+
+                            return true;
+                        },
+                        fixItAutomatic = false,
+                    }
+            };
 
         internal class MetaQuestFeatureEditorWindow : EditorWindow
         {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.XR.Management;
 using UnityEngine.XR.OpenXR;
 
 namespace UnityEditor.XR.OpenXR
@@ -28,6 +29,9 @@ namespace UnityEditor.XR.OpenXR
 
             var bootConfig = new BootConfig(report);
             bootConfig.ReadBootConfig();
+
+            var initXRManagerOnStart = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.WSA).InitManagerOnStart;
+            BootVars["vr-enabled"] = initXRManagerOnStart ? "1" : "0";
 
             // MixedRealityBuildProcessor may skip setting `force-primary-window-holographic` in certain cases:
             //

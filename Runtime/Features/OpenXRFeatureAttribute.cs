@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.XR.OpenXR;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || PACKAGE_DOCS_GENERATION
 namespace UnityEditor.XR.OpenXR.Features
 {
     public class FeatureCategory

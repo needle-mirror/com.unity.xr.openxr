@@ -10,6 +10,22 @@ When updating the Changelog, please ensure we follow the standards for ordering 
 Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 ```
 
+## [1.8.2] - 2023-07-18
+
+### Added
+* Added a new optional validation rule to recommend disabling Screen Space Ambient Occlusion render feature in UniversalRenderer assets to avoid significant performance overhead.
+
+### Changed
+* Removed `Windows Mixed Reality feature group` from Windows build target.
+
+### Fixed
+* Fixed issue that UWP player tries to initialize XR when "Initialize XR on Startup" is unchecked.
+* Fixed `SetOutput Failed.` and `SetInput Failed.` log spamming issue when audio sources is not available.
+* Fixed performance drop after headset becomes inactive.
+* Fixed Hand Common Poses Interaction Profile and Palm Pose feature documentation links broken.
+* Fixed Mock Runtime option toggles on accidentally after entering Play Mode.
+* Fixed hand tracking position and rotation not being tracked with XR Hand device.
+
 ## [1.8.1] - 2023-06-09
 
 ### Added

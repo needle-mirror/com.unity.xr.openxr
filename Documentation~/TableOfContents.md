@@ -15,4 +15,4 @@
     * [Hand Interaction Profile](features/handinteractionprofile.md)
     * [DPad Interaction](features/dpadinteraction.md)
     * [Palm Pose Interaction](features/palmposeinteraction.md)
-    * [Hand Common Poses Interaction](features/handcommomposeinteraction.md)
+    * [Hand Common Poses Interaction](features/handcommonposesinteraction.md)

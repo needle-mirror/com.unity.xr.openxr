@@ -27,7 +27,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Add Palm pose feature and if enabled, extra palm pose path /input/palm_ext/pose will be added to regular interaction profile.",
-        DocumentationLink = Constants.k_DocumentationManualURL + "features/palmposeinteractionprofile.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/palmposeinteraction.html",
         OpenxrExtensionStrings = extensionString,
         Version = "0.0.1",
         FeatureId = featureId)]

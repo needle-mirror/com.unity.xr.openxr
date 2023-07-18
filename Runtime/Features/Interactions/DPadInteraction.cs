@@ -21,7 +21,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Add DPad feature support and if enabled, extra dpad paths will be added to any controller profiles with a thumbstick or trackpad.",
-        DocumentationLink = Constants.k_DocumentationManualURL + "features/dpadinteractionprofile.html",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/dpadinteraction.html",
         OpenxrExtensionStrings = "XR_KHR_binding_modification XR_EXT_dpad_binding",
         Version = "0.0.1",
         FeatureId = featureId)]

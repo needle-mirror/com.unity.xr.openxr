@@ -34,7 +34,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             string settingsFilePath = OpenXRPackageSettings.OpenXRPackageSettingsAssetPath();
             string metaFilePath = settingsFilePath + ".meta";
 
-            string testAssetName = "OpenXR Package Settings With Duplicates.asset";
+            string testAssetName = "OpenXR Package Settings With Duplicates.testasset";
             string testAssetPath = Path.Combine(openXRFolder, "Tests", "Editor", testAssetName);
             string testMetaAssetPath = testAssetPath + ".meta";
 
