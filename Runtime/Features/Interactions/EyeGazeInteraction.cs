@@ -76,6 +76,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// <summary>The OpenXR Extension string. This is used by OpenXR to check if this extension is available or enabled. See <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">eye gaze interaction extension</see> documentation for more information on this OpenXR extension.</summary>
         public const string extensionString = "XR_EXT_eye_gaze_interaction";
 
+        private const string layoutName = "EyeGaze";
+
 #if UNITY_EDITOR
         protected internal override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup target)
         {
@@ -108,11 +110,11 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void RegisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(EyeGazeDevice),
-                "EyeGaze",
+                layoutName,
                 matches: new InputDeviceMatcher()
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                     .WithProduct(kDeviceLocalizedName));
@@ -124,10 +126,28 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void UnregisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
-            InputSystem.InputSystem.RemoveLayout("EyeGaze");
+            InputSystem.InputSystem.RemoveLayout(layoutName);
+        }
+
+        /// <summary>
+        /// Return interaction profile type. EyeGaze profile is Device type.
+        /// </summary>
+        /// <returns>Interaction profile type.</returns>
+        protected override InteractionProfileType GetInteractionProfileType()
+        {
+            return typeof(EyeGazeDevice).IsSubclassOf(typeof(XRController)) ? InteractionProfileType.XRController : InteractionProfileType.Device;
+        }
+
+        /// <summary>
+        /// Return device layer out string used for registering device EyeGaze in InputSystem.
+        /// </summary>
+        /// <returns>Device layout string.</returns>
+        protected override string GetDeviceLayoutName()
+        {
+            return layoutName;
         }
 
         /// <inheritdoc/>

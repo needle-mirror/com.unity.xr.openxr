@@ -14,10 +14,13 @@ namespace UnityEditor.XR.OpenXR
         private readonly Dictionary<string, string> bootConfigSettings;
         private readonly string buildTargetName;
 
-        public BootConfig(BuildReport report)
+        public BootConfig(BuildReport report) : this(report.summary.platform)
+        { }
+
+        public BootConfig(BuildTarget target)
         {
             bootConfigSettings = new Dictionary<string, string>();
-            buildTargetName = BuildPipeline.GetBuildTargetName(report.summary.platform);
+            buildTargetName = BuildPipeline.GetBuildTargetName(target);
         }
 
         public void ReadBootConfig()
@@ -53,6 +56,13 @@ namespace UnityEditor.XR.OpenXR
             {
                 bootConfigSettings.Remove(key);
             }
+        }
+
+        public bool CheckValuePairExists(string key, string value)
+        {
+            var foundKey = bootConfigSettings.TryGetValue(key, out string result);
+
+            return foundKey && value.Equals(result);
         }
 
         public void WriteBootConfig()

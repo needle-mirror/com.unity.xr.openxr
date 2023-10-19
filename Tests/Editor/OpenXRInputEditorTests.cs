@@ -16,6 +16,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// Tests whether or not the device layout for an interaction feature is registered/unregistered
         /// when the feature is enabled/disabled
         /// </summary>
+#if !INPUT_SYSTEM_BINDING_VALIDATOR
         [Test]
         public void DeviceLayoutRegistration([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
@@ -75,5 +76,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             features[1].enabled = false;
             NUnit.Framework.Assert.Throws(typeof(ArgumentException), () => UnityEngine.InputSystem.InputSystem.LoadLayout<OculusTouchControllerProfile.OculusTouchController>());
         }
+#endif
     }
 }

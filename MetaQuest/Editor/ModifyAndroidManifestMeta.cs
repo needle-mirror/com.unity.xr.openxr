@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using UnityEditor.Build.Reporting;
-
+using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
 
@@ -26,6 +26,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         protected override void OnPostGenerateGradleAndroidProjectExt(string path)
         {
+            ProcessSystemSplashScreen(path);
+
 #if !XR_MGMT_4_4_0_OR_NEWER
             var androidManifest = new AndroidManifest(GetManifestPath(path));
             androidManifest.AddMetaData();
@@ -64,51 +66,66 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 });
             }
 
+            var elementsToAdd = new List<ManifestElement>()
+            {
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-feature" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "android.hardware.vr.headtracking" },
+                        { "required", "true" },
+                        { "version", "1" }
+                    }
+                },
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "application", "meta-data" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.supportedDevices" },
+                        { "value", GetMetaSupportedDevices() }
+                    }
+                },
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "application", "activity", "meta-data" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.vr.focusaware" },
+                        { "value", "true" }
+                    }
+                },
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "application", "activity", "intent-filter", "category" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.intent.category.VR" }
+                    }
+                }
+            };
+
+            if (SystemSplashScreen() != null)
+            {
+                elementsToAdd.Add(new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "application", "meta-data" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.ossplash" },
+                        { "value", "true" }
+                    }
+                });
+            }
+
             return new ManifestRequirement
             {
                 SupportedXRLoaders = new HashSet<Type>()
                 {
                     typeof(OpenXRLoader)
                 },
-                NewElements = new List<ManifestElement>()
-                {
-                    new ManifestElement()
-                    {
-                        ElementPath = new List<string> { "manifest", "uses-feature" },
-                        Attributes = new Dictionary<string, string>
-                        {
-                            { "name", "android.hardware.vr.headtracking" },
-                            { "required", "true" },
-                            { "version", "1" }
-                        }
-                    },
-                    new ManifestElement()
-                    {
-                        ElementPath = new List<string> { "manifest", "application", "meta-data" },
-                        Attributes = new Dictionary<string, string>
-                        {
-                            { "name", "com.oculus.supportedDevices" },
-                            { "value", GetMetaSupportedDevices() }
-                        }
-                    },
-                    new ManifestElement()
-                    {
-                        ElementPath = new List<string> { "manifest", "application", "activity", "meta-data" },
-                        Attributes = new Dictionary<string, string>
-                        {
-                            { "name", "com.oculus.vr.focusaware" },
-                            { "value", "true" },
-                        }
-                    },
-                    new ManifestElement()
-                    {
-                        ElementPath = new List<string> { "manifest", "application", "activity", "intent-filter", "category" },
-                        Attributes = new Dictionary<string, string>
-                        {
-                            { "name", "com.oculus.intent.category.VR" }
-                        }
-                    },
-                },
+                NewElements = elementsToAdd,
                 RemoveElements = elementsToRemove
             };
         }
@@ -148,10 +165,38 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
             var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
 
-            if (questFeature == null)
+            if (questFeature == null || !questFeature.enabled)
                 return false; // By default the permission is retained
 
             return questFeature.forceRemoveInternetPermission;
+        }
+
+        private static Texture2D SystemSplashScreen()
+        {
+            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
+
+            if (questFeature == null || !questFeature.enabled)
+                return null;
+
+            return questFeature.systemSplashScreen;
+        }
+
+        private static void ProcessSystemSplashScreen(string gradlePath)
+        {
+            var systemSplashScreen = SystemSplashScreen();
+            if (systemSplashScreen == null)
+                return;
+
+            string splashScreenAssetPath = AssetDatabase.GetAssetPath(systemSplashScreen);
+            string sourcePath = splashScreenAssetPath;
+            string targetFolder = Path.Combine(gradlePath, "src/main/assets");
+            string targetPath = targetFolder + "/vr_splash.png";
+
+            // copy the splash over into the gradle folder and make sure it's not read only
+            FileUtil.ReplaceFile(sourcePath, targetPath);
+            FileInfo targetInfo = new FileInfo(targetPath);
+            targetInfo.IsReadOnly = false;
         }
 
 #if !XR_MGMT_4_4_0_OR_NEWER
@@ -317,6 +362,16 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                         ("required", "true"),
                         ("version", "1")
                     });
+
+                if (SystemSplashScreen() != null)
+                {
+                    UpdateOrCreateAttribute(ApplicationElement,
+                        "meta-data", "com.oculus.ossplash",
+                        new (string name, string value)[]
+                        {
+                            ("value", "true")
+                        });
+                }
 
                 // if the Microphone class is used in a project, the BLUETOOTH permission is automatically added to the manifest
                 // we remove it here since it will cause projects to fail Meta cert

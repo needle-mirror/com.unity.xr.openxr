@@ -247,7 +247,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void RegisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(ReverbG2Controller),
@@ -262,10 +262,19 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void UnregisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RemoveLayout(nameof(ReverbG2Controller));
+        }
+
+        /// <summary>
+        /// Return device layout string that used for registering device for Input System.
+        /// </summary>
+        /// <returns>Device layout string.</returns>
+        protected override string GetDeviceLayoutName()
+        {
+            return nameof(ReverbG2Controller);
         }
 
         /// <inheritdoc/>

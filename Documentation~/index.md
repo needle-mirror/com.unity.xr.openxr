@@ -25,6 +25,14 @@ Unity's OpenXR plug-in should work with any device that supports conformant Open
 
 To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.
 
+## OpenXR Loader
+
+Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
+
+This release is linked against the OpenXR-SDK version [1.0.29](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.0.29).
+
+Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
+
 ## Considerations before porting to OpenXR
 
 Unity does not yet provide out-of-the-box solutions to the following when using OpenXR, however there may be platform-specific plugins (eg. [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)) or third party solutions available:

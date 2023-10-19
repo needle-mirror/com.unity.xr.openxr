@@ -165,7 +165,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void RegisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(HandInteractionPoses),
@@ -180,10 +180,28 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void UnregisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RemoveLayout(nameof(HandInteractionPoses));
+        }
+
+        /// <summary>
+        /// Return Interaction profile type. Hand common poses profile is Device type.
+        /// </summary>
+        /// <returns>Interaction profile type.</returns>
+        protected override InteractionProfileType GetInteractionProfileType()
+        {
+            return typeof(HandInteractionPoses).IsSubclassOf(typeof(XRController)) ? InteractionProfileType.XRController : InteractionProfileType.Device;
+        }
+
+        /// <summary>
+        /// Return device layout string that used to register device in InputSystem.
+        /// </summary>
+        /// <returns>Device layout string.</returns>
+        protected override string GetDeviceLayoutName()
+        {
+            return nameof(HandInteractionPoses);
         }
 
         /// <inheritdoc/>

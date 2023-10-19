@@ -26,9 +26,9 @@ namespace UnityEngine.XR.OpenXR
 
         [Serializable]
         private struct InitializeEvent
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_2023_2_OR_NEWER && UNITY_ANALYTICS
             : IAnalytic.IData
-#endif
+#endif //UNITY_2023_2_OR_NEWER && UNITY_ANALYTICS
         {
             public bool success;
             public string runtime;
@@ -41,7 +41,7 @@ namespace UnityEngine.XR.OpenXR
             public string[] failed_features;
         }
 
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_2023_2_OR_NEWER && UNITY_ANALYTICS
         [AnalyticInfo(eventName: kEventInitialize, vendorKey: kVendorKey, maxEventsPerHour: kMaxEventsPerHour, maxNumberOfElements: kMaxNumberOfElements)]
         private class XrInitializeAnalytic : IAnalytic
         {
@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR
                 return data != null;
             }
         }
-#endif
+#endif //UNITY_2023_2_OR_NEWER && UNITY_ANALYTICS
 
         private static bool Initialize()
         {
@@ -127,7 +127,8 @@ namespace UnityEngine.XR.OpenXR
             };
         }
 
-#if UNITY_EDITOR
+
+#if UNITY_EDITOR && UNITY_ANALYTICS
         private static void SendEditorAnalytics(InitializeEvent data)
         {
 #if UNITY_2023_2_OR_NEWER
@@ -135,8 +136,8 @@ namespace UnityEngine.XR.OpenXR
 #else
             EditorAnalytics.SendEventWithLimit(kEventInitialize, data);
 #endif //UNITY_2023_2_OR_NEWER
-        }
-#else
+       }
+#elif UNITY_ANALYTICS
         private static void SendPlayerAnalytics(InitializeEvent data)
         {
             Analytics.Analytics.SendEvent(kEventInitialize, data);

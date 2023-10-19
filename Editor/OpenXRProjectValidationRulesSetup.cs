@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
@@ -11,6 +12,7 @@ using UnityEngine.XR.OpenXR.Features;
 using System;
 using Unity.XR.CoreUtils.Editor;
 
+[assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEditor.XR.OpenXR
 {
     internal class OpenXRProjectValidationRulesSetup
@@ -59,6 +61,50 @@ namespace UnityEditor.XR.OpenXR
             }
         }
 
+        internal static BuildValidationRule ConvertRuleToBuildValidationRule(OpenXRFeature.ValidationRule rule, BuildTargetGroup buildTargetGroup)
+        {
+            Type featureType = null;
+            if (rule.feature != null)
+            {
+                featureType = rule.feature.GetType();
+            }
+
+            return new BuildValidationRule
+            {
+                // This will hide the rules given a condition so that when you click "Show all" it doesn't show up as passed
+                IsRuleEnabled = () =>
+                {
+                    // If OpenXR isn't enabled, no need to show the rule
+                    if (!BuildHelperUtils.HasLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
+                        return false;
+
+                    // If a  rule specific feature isn't enabled, don't show this rule
+                    if (featureType != null)
+                    {
+                        OpenXRSettings openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+                        if (openXrSettings == null)
+                            return false;
+
+                        OpenXRFeature feature = openXrSettings.GetFeature(featureType);
+                        if (feature == null || !feature.enabled)
+                            return false;
+                    }
+
+                    return true;
+                },
+                CheckPredicate = rule.checkPredicate,
+                Error = rule.error,
+                FixIt = rule.fixIt,
+                FixItAutomatic = rule.fixItAutomatic,
+                FixItMessage = rule.fixItMessage,
+                HelpLink = rule.helpLink,
+                HelpText = rule.helpText,
+                Message = rule.message,
+                Category = rule.feature != null ? rule.feature.nameUi : "OpenXR",
+                SceneOnlyValidation = false
+            };
+        }
+
         static void AddOpenXRValidationRules()
         {
             foreach (var buildTargetGroup in s_BuildTargetGroups)
@@ -69,34 +115,7 @@ namespace UnityEditor.XR.OpenXR
                 var coreIssues = new List<BuildValidationRule>();
                 foreach (var issue in issues)
                 {
-                    var rule = new BuildValidationRule
-                    {
-                        // This will hide the rules given a condition so that when you click "Show all" it doesn't show up as passed
-                        IsRuleEnabled = () =>
-                        {
-                            // If OpenXR isn't enabled, no need to show the rule
-                            if (!BuildHelperUtils.HasLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
-                                return false;
-
-                            // If the feature isn't enabled, don't show this rule
-                            if (issue.feature != null && !issue.feature.enabled)
-                                return false;
-
-                            return true;
-                        },
-                        CheckPredicate = issue.checkPredicate,
-                        Error = issue.error,
-                        FixIt = issue.fixIt,
-                        FixItAutomatic = issue.fixItAutomatic,
-                        FixItMessage = issue.fixItMessage,
-                        HelpLink = issue.helpLink,
-                        HelpText = issue.helpText,
-                        Message = issue.message,
-                        Category = issue.feature != null ? issue.feature.nameUi : "OpenXR",
-                        SceneOnlyValidation = false
-                    };
-
-                    coreIssues.Add(rule);
+                    coreIssues.Add(ConvertRuleToBuildValidationRule(issue, buildTargetGroup));
                 }
 
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);

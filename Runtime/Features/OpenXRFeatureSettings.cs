@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.Serialization;
 
+[assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEngine.XR.OpenXR
 {
     public partial class OpenXRSettings

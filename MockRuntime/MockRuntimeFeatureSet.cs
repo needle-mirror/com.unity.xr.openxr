@@ -20,7 +20,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         FeatureSetId = "com.unity.openxr.featureset.mockruntime",
         SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone }
     )]
-    sealed class MockRuntimeFeatureSets {}
+    public sealed class MockRuntimeFeatureSets {}
 }
 
 #endif //UNITY_EDITOR

@@ -10,6 +10,30 @@ When updating the Changelog, please ensure we follow the standards for ordering 
 Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 ```
 
+## [1.9.1] - 2023-10-19
+
+### Added
+* Implemented `InputSystem.customBindingPathValidators` interface to show UI warnings in the `InputAsset` Editor when added bindings to a disabled interaction profile and when none of the controller type interaction profiles are enabled, but added bindings using generic XRController.
+* Added APIs `GetInteractionProfileType` and `GetDeviceLayoutName` to support binding path validator feature.
+* Added API `TrySetControllerLateLatchAction` to support controller late latching. Also added MarkLateLatchNode.cs in Controller Sample for usages example.
+* Added support for Meta XR feature `Symmetric Projection`, `Space Warp`, and `Eye Tracked Foveation`.
+* Added the option to enable `Subsampled Layout` when creating a Vulkan swapchain.
+* Added support for recentering Floor tracking origin using new API, `OpenXRSettings.SetAllowRecentering`. This static method allows the app to recenter the tracking origin space when requested by the runtime. Note that calling the method won't trigger a recenter event.
+* Added support for Meta XR feature `System Splash Screen`.
+* Added public API for MetaQuestFeature.forceRemoveInternetPermission
+
+### Changed
+* Updated Input System package dependency to 1.6.3.
+* Updated XR management dependency to 4.4.0.
+* Updated OpenXR loader to 1.0.29.
+* Changed MockRuntime and its FeatureSet to public.
+
+### Fixed
+* Fixed incorect XR Validation rules after regenerating the OpenXR package settings asset.
+* Fixed analytics code being called when disabled.
+* Fixed latency issue with controller poses.
+* Fixed an XR_ERROR_SESSION_NOT_RUNNING error if xrRequestExitSession is called when the session is not running.
+
 ## [1.8.2] - 2023-07-18
 
 ### Added

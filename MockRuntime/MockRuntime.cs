@@ -27,23 +27,65 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         Version = "0.0.2",
         FeatureId = featureId)]
 #endif
-    internal class MockRuntime : OpenXRFeature
+
+    /// <summary>
+    /// OpenXR Mock Runtime
+    /// </summary>
+    public class MockRuntime : OpenXRFeature
     {
+        /// <summary>
+        /// Script events that are possible to subscribe to.
+        /// </summary>
         public enum ScriptEvent
         {
+            /// <summary>
+            /// Dummy script event.
+            /// </summary>
             Unknown,
+
+            /// <summary>
+            /// EndFrame script event.
+            /// </summary>
             EndFrame,
+
+            /// <summary>
+            /// HapticImpulse script event.
+            /// </summary>
             HapticImpulse,
+
+            /// <summary>
+            /// HapticStop script event.
+            /// </summary>
             HapticStop
         }
 
+        /// <summary>
+        /// Delegate invoked on ScriptEvents
+        /// </summary>
+        /// <param name="evt">ScriptEvent invoked.</param>
+        /// <param name="param">Parameters of the script event.</param>
         public delegate void ScriptEventDelegate(ScriptEvent evt, ulong param);
+
+        /// <summary>
+        /// Delegate invoked before function calls.
+        /// </summary>
+        /// <param name="functionName">The OpenXR function name.</param>
+        /// <returns>The XrResult of the callback.</returns>
         public delegate XrResult BeforeFunctionDelegate(string functionName);
+
+        /// <summary>
+        /// Delegate invoked after function calls.
+        /// </summary>
+        /// <param name="functionName">The OpenXR function name.</param>
+        /// <param name="result">The XrResult of the function.</param>
         public delegate void AfterFunctionDelegate(string functionName, XrResult result);
 
         private static Dictionary<string, AfterFunctionDelegate> s_AfterFunctionCallbacks = null;
         private static Dictionary<string, BeforeFunctionDelegate> s_BeforeFunctionCallbacks = null;
 
+        /// <summary>
+        /// Subscribe delegates to ScriptEvents.
+        /// </summary>
         public static event ScriptEventDelegate onScriptEvent;
 
         /// <summary>
@@ -415,21 +457,57 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         const string extLib = "mock_api";
 
+        /// <summary>
+        /// Called to hook xrGetInstanceProcAddr.
+        /// </summary>
+        /// <param name="func">xrGetInstanceProcAddr native function pointer</param>
+        /// <returns>Function pointer that Unity will use to look up XR native functions.</returns>
         [DllImport(extLib, EntryPoint = "MockRuntime_HookCreateInstance")]
         public static extern IntPtr HookCreateInstance(IntPtr func);
 
+        /// <summary>
+        /// Keep function callbacks when resetting MockRuntime.
+        /// </summary>
+        /// <param name="value">True to keep callbacks.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetKeepFunctionCallbacks")]
-        public static extern void SetKeepFunctionCallbacks(bool value);
+        public static extern void SetKeepFunctionCallbacks([MarshalAs(UnmanagedType.I1)] bool value);
 
+        /// <summary>
+        /// Set the runtime ViewPose.
+        /// </summary>
+        /// <param name="viewConfigurationType">The XrViewConfigurationType to use.</param>
+        /// <param name="viewIndex">The indexed view being set.</param>
+        /// <param name="position">Position of the view.</param>
+        /// <param name="orientation">Orientation of the view.</param>
+        /// <param name="fov">Field of View.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetView")]
         public static extern void SetViewPose(XrViewConfigurationType viewConfigurationType, int viewIndex, Vector3 position, Quaternion orientation, Vector4 fov);
 
+        /// <summary>
+        /// Set the runtime ViewState.
+        /// </summary>
+        /// <param name="viewConfigurationType">The XrViewConfigurationType to use.</param>
+        /// <param name="viewStateFlags">The XrViewStateFlags to set.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetViewState")]
         public static extern void SetViewState(XrViewConfigurationType viewConfigurationType, XrViewStateFlags viewStateFlags);
 
+        /// <summary>
+        /// Set the reference space to use at Runtime.
+        /// </summary>
+        /// <param name="referenceSpace">The type of reference space being set.</param>
+        /// <param name="position">Position of the space.</param>
+        /// <param name="orientation">Orientation of the space.</param>
+        /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpace")]
         public static extern void SetSpace(XrReferenceSpaceType referenceSpace, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
 
+        /// <summary>
+        /// Set the reference space to use for input actions.
+        /// </summary>
+        /// <param name="actionHandle">Handle to the input action.</param>
+        /// <param name="position">Position of the space.</param>
+        /// <param name="orientation">Orientation of the space.</param>
+        /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetActionSpace")]
         public static extern void SetSpace(ulong actionHandle, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
 
@@ -437,14 +515,21 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         private static extern XrResult Internal_RegisterScriptEventCallback(ScriptEventDelegate callback);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_TransitionToState")]
-        private static extern bool Internal_TransitionToState(XrSessionState state, bool forceTransition);
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool Internal_TransitionToState(XrSessionState state, [MarshalAs(UnmanagedType.I1)] bool forceTransition);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_GetSessionState")]
         private static extern XrSessionState Internal_GetSessionState();
 
+        /// <summary>
+        /// Request to exit the runtime session.
+        /// </summary>
         [DllImport(extLib, EntryPoint = "MockRuntime_RequestExitSession")]
         public static extern void RequestExitSession();
 
+        /// <summary>
+        /// Force MockRuntime instance loss.
+        /// </summary>
         [DllImport(extLib, EntryPoint = "MockRuntime_CauseInstanceLoss")]
         public static extern void CauseInstanceLoss();
 
@@ -455,7 +540,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         internal static extern void GetEndFrameStats(out int primaryLayerCount, out int secondaryLayerCount);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_ActivateSecondaryView")]
-        internal static extern void ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, bool activate);
+        internal static extern void ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, [MarshalAs(UnmanagedType.I1)] bool activate);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterFunctionCallbacks")]
         private static extern void MockRuntime_RegisterFunctionCallbacks(BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);

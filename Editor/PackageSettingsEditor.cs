@@ -101,7 +101,7 @@ namespace UnityEditor.XR.OpenXR
 
             GUILayout.EndHorizontal();
 
-            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode");
+            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode", "m_symmetricProjection");
 
             EditorGUIUtility.labelWidth = 0;
 
