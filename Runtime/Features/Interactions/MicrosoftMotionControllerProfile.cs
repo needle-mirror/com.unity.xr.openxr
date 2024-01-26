@@ -15,6 +15,12 @@ using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 #endif
 
+#if USE_STICK_CONTROL_THUMBSTICKS
+using ThumbstickControl = UnityEngine.InputSystem.Controls.StickControl; // If replaced, make sure the control extends Vector2Control
+#else
+using ThumbstickControl = UnityEngine.InputSystem.Controls.Vector2Control;
+#endif
+
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
@@ -45,16 +51,16 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public class WMRSpatialController : XRControllerWithRumble
         {
             /// <summary>
-            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="MicrosoftMotionControllerProfile.thumbstick"/> OpenXR binding.
+            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control)/[StickControl](xref:UnityEngine.InputSystem.Controls.StickControl) that represents the <see cref="MicrosoftMotionControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "thumbstickaxes", "thumbstick" }, usage = "Primary2DAxis")]
-            public Vector2Control joystick { get; private set; }
+            public ThumbstickControl joystick { get; private set; }
 
             /// <summary>
-            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="MicrosoftMotionControllerProfile.trackpad"/> OpenXR binding.
+            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control)/[StickControl](xref:UnityEngine.InputSystem.Controls.StickControl) that represents the <see cref="MicrosoftMotionControllerProfile.trackpad"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "Secondary2DAxis", "touchpadaxes", "trackpad" }, usage = "Secondary2DAxis")]
-            public Vector2Control touchpad { get; private set; }
+            public ThumbstickControl touchpad { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="MicrosoftMotionControllerProfile.squeeze"/> OpenXR binding.
@@ -164,9 +170,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             protected override void FinishSetup()
             {
                 base.FinishSetup();
-                joystick = GetChildControl<Vector2Control>("joystick");
+                joystick = GetChildControl<StickControl>("joystick");
                 trigger = GetChildControl<AxisControl>("trigger");
-                touchpad = GetChildControl<Vector2Control>("touchpad");
+                touchpad = GetChildControl<StickControl>("touchpad");
                 grip = GetChildControl<AxisControl>("grip");
                 gripPressed = GetChildControl<ButtonControl>("gripPressed");
                 menu = GetChildControl<ButtonControl>("menu");

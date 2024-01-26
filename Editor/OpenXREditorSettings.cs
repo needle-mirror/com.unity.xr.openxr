@@ -103,6 +103,23 @@ namespace UnityEditor.XR.OpenXR
         Dictionary<BuildTargetGroup, BuildTargetFeatureSets> selectedFeatureSets = new Dictionary<BuildTargetGroup, BuildTargetFeatureSets>();
 
 
+        [SerializeField] bool m_vulkanAdditionalGraphicsQueue = false;
+
+        /// <summary>
+        /// If enabled, when the application begins it will request an additional Vulkan graphics queue.
+        /// </summary>
+        public bool VulkanAdditionalGraphicsQueue
+        {
+            get
+            {
+                return m_vulkanAdditionalGraphicsQueue;
+            }
+            set
+            {
+                m_vulkanAdditionalGraphicsQueue = value;
+            }
+        }
+
         public void OnBeforeSerialize()
         {
             Keys.Clear();

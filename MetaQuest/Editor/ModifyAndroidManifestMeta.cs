@@ -40,7 +40,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         }
 
 #if XR_MGMT_4_4_0_OR_NEWER
-        public override ManifestRequirement ProvideManifestRequirement()
+        protected override ManifestRequirement ProvideManifestRequirementExt()
         {
             var elementsToRemove = new List<ManifestElement>()
             {

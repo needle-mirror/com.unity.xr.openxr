@@ -21,6 +21,12 @@ XR_LIST_ENUM_TYPES(SEND_TO_CSHARP_ENUMS)
     template <>                                                                                                   \
     void SendToCSharp<>(const char* fieldname, enumname* t)                                                       \
     {                                                                                                             \
+        if (t == nullptr)                                                                                         \
+        {                                                                                                         \
+            SendToCSharpNullPtr(fieldname);                                                                       \
+            return;                                                                                               \
+        }                                                                                                         \
+                                                                                                                  \
         switch (*t)                                                                                               \
         {                                                                                                         \
             XR_LIST_ENUM_##enumname(SEND_TO_CSHARP_ENUM_INDIVIDUAL) default : SendToCSharp(fieldname, "UNKNOWN"); \

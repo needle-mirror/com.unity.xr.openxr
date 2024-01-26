@@ -85,6 +85,12 @@ XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCT_CONST_PTR)
     template <>                                                            \
     void SendToCSharp<>(const char* fieldname, structname* t)              \
     {                                                                      \
+        if (t == nullptr)                                                  \
+        {                                                                  \
+            SendToCSharpNullPtr(fieldname);                                \
+            return;                                                        \
+        }                                                                  \
+                                                                           \
         StartStruct(fieldname, #structname);                               \
         XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS_PTR); \
         XR_LIST_STRUCT_ARRAYS_##structname(SEND_TO_CSHARP_ARRAYS_PTR);     \
@@ -95,6 +101,12 @@ XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCT_CONST_PTR)
     template <>                                                            \
     void SendToCSharp<>(const char* fieldname, const structname* t)        \
     {                                                                      \
+        if (t == nullptr)                                                  \
+        {                                                                  \
+            SendToCSharpNullPtr(fieldname);                                \
+            return;                                                        \
+        }                                                                  \
+                                                                           \
         StartStruct(fieldname, #structname);                               \
         XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS_PTR); \
         XR_LIST_STRUCT_ARRAYS_##structname(SEND_TO_CSHARP_ARRAYS_PTR);     \

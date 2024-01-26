@@ -59,6 +59,12 @@ bool SendToCSharpBaseStructArray(const char* fieldname, structType t, int lenPar
     return false;
 }
 
+// Nullptrs
+void SendToCSharpNullPtr(const char* fieldname)
+{
+    SendString(fieldname, "nullptr");
+}
+
 // These includes are order-sensitive
 // clang-format off
 #include "serialize_data.h"

@@ -94,11 +94,32 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
+        [SerializeField] private bool m_optimizeBufferDiscards = false;
+
+        /// <summary>
+        /// Optimization that allows 4x MSAA textures to be memoryless on Vulkan
+        /// </summary>
+        public bool optimizeBufferDiscards
+        {
+            get
+            {
+                return m_optimizeBufferDiscards;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetOptimizeBufferDiscards(value);
+                else
+                    m_optimizeBufferDiscards = value;
+            }
+        }
+
         private void ApplyRenderSettings()
         {
             Internal_SetSymmetricProjection(m_symmetricProjection);
             Internal_SetRenderMode(m_renderMode);
             Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
+            Internal_SetOptimizeBufferDiscards(m_optimizeBufferDiscards);
         }
 
         [SerializeField] private bool m_symmetricProjection = false;
@@ -138,5 +159,8 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSymmetricProjection")]
         private static extern void Internal_SetSymmetricProjection(bool enabled);
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeBufferDiscards")]
+        private static extern void Internal_SetOptimizeBufferDiscards(bool enabled);
     }
 }

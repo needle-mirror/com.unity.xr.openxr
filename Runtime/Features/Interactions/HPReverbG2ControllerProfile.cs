@@ -15,6 +15,12 @@ using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 #endif
 
+#if USE_STICK_CONTROL_THUMBSTICKS
+using ThumbstickControl = UnityEngine.InputSystem.Controls.StickControl; // If replaced, make sure the control extends Vector2Control
+#else
+using ThumbstickControl = UnityEngine.InputSystem.Controls.Vector2Control;
+#endif
+
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
@@ -87,10 +93,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public ButtonControl triggerPressed { get; private set; }
 
             /// <summary>
-            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="HPReverbG2ControllerProfile.thumbstick"/> OpenXR binding.
+            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control)/[StickControl](xref:UnityEngine.InputSystem.Controls.StickControl) that represents the <see cref="HPReverbG2ControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis")]
-            public Vector2Control thumbstick { get; private set; }
+            public ThumbstickControl thumbstick { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HPReverbG2ControllerProfile.thumbstickClick"/> OpenXR binding.
@@ -164,7 +170,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 gripPressed = GetChildControl<ButtonControl>("gripPressed");
                 trigger = GetChildControl<AxisControl>("trigger");
                 triggerPressed = GetChildControl<ButtonControl>("triggerPressed");
-                thumbstick = GetChildControl<Vector2Control>("thumbstick");
+                thumbstick = GetChildControl<StickControl>("thumbstick");
                 thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
 
                 devicePose = GetChildControl<PoseControl>("devicePose");

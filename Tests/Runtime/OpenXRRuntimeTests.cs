@@ -39,7 +39,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             foreach (string expectedExtension in expectedExtensions)
             {
-                Assert.IsTrue(extensionsSet.Contains(expectedExtension));
+                Assert.IsTrue(extensionsSet.Contains(expectedExtension), $"extensionsSet missing \"{expectedExtension}\"");
             }
 
             base.StopAndShutdown();

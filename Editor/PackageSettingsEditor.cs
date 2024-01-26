@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEditor.XR.OpenXR.Features;
+using UnityEngine.Rendering;
 
 namespace UnityEditor.XR.OpenXR
 {
@@ -11,6 +12,9 @@ namespace UnityEditor.XR.OpenXR
     {
         OpenXRFeatureEditor m_FeatureEditor = null;
         Vector2 scrollPos = Vector2.zero;
+#if XR_MGMT_3_2_0_OR_NEWER
+        OpenXRManagementSettings managementSettings = new();
+#endif
 
 #if XR_MGMT_4_1_0_OR_OLDER
         static PackageSettingsEditor s_LastPackageSettingsEditor = null;
@@ -21,6 +25,7 @@ namespace UnityEditor.XR.OpenXR
             public const float k_Space = 15.0f;
 
             public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode");
+            public static readonly GUIContent k_vulkanAdditionalGraphicsQueue = new GUIContent("Additional Graphics Queue (Vulkan)");
 
             public static readonly GUIContent[] k_renderModeOptions = new GUIContent[2]
             {
@@ -70,6 +75,14 @@ namespace UnityEditor.XR.OpenXR
             var buildTargetGroup = EditorGUILayout.BeginBuildTargetSelectionGrouping();
             OpenXRProjectValidationRulesSetup.SetSelectedBuildTargetGroup(buildTargetGroup);
 
+#if XR_MGMT_3_2_0_OR_NEWER
+            if (!managementSettings.metadata.loaderMetadata[0].supportedBuildTargets.Contains(buildTargetGroup))
+            {
+                EditorGUILayout.EndBuildTargetSelectionGrouping();
+                return;
+            }
+#endif
+
             OpenXRPackageSettings settings = serializedObject.targetObject as OpenXRPackageSettings;
 
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
@@ -80,6 +93,9 @@ namespace UnityEditor.XR.OpenXR
 
             var openXrSettings = settings.GetSettingsForBuildTargetGroup(buildTargetGroup);
             var serializedOpenXrSettings = new SerializedObject(openXrSettings);
+
+            var openXrEditorSettings = OpenXREditorSettings.Instance;
+            var serializedOpenXrEditorSettings = new SerializedObject(openXrEditorSettings);
 
             EditorGUIUtility.labelWidth = 200;
 
@@ -101,12 +117,19 @@ namespace UnityEditor.XR.OpenXR
 
             GUILayout.EndHorizontal();
 
-            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode", "m_symmetricProjection");
+            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode", "m_symmetricProjection", "m_optimizeBufferDiscards", "m_vulkanAdditionalGraphicsQueue");
+            if (buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.Standalone)
+            {
+                serializedOpenXrEditorSettings.FindProperty("m_vulkanAdditionalGraphicsQueue").boolValue =
+                    EditorGUILayout.Toggle(Content.k_vulkanAdditionalGraphicsQueue, openXrEditorSettings.VulkanAdditionalGraphicsQueue);
+            }
 
             EditorGUIUtility.labelWidth = 0;
 
             if (serializedOpenXrSettings.hasModifiedProperties)
                 serializedOpenXrSettings.ApplyModifiedProperties();
+            if (serializedOpenXrEditorSettings.hasModifiedProperties)
+                serializedOpenXrEditorSettings.ApplyModifiedProperties();
 
             if (buildTargetGroup == BuildTargetGroup.Standalone)
             {

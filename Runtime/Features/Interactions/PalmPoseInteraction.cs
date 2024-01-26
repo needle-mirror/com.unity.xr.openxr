@@ -253,7 +253,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 var validUserPath = actionMap.deviceInfos.Where(d => d.userPath != null && ((String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.leftHand) == 0) ||
                     (String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.rightHand) == 0)));
                 if (!validUserPath.Any())
-                    return;
+                    continue;
 
                 foreach (var additiveAction in additiveMap.actions.Where(a => a.isAdditive))
                 {

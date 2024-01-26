@@ -21,7 +21,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             get
             {
                 // Wait until the restarter is finished
-                if (!OpenXRRestarter.Instance.isRunning)
+                if (!OpenXRRestarter.Instance.isRunning && OpenXRRestarter.PauseAndRestartCoroutineCount == 0)
                 {
                     return false;
                 }

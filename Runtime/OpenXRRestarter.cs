@@ -28,6 +28,7 @@ namespace UnityEngine.XR.OpenXR
             };
 #endif
             TimeBetweenRestartAttempts = 5.0f;
+            DisableApplicationQuit = false;
         }
 
         public void ResetCallbacks()
@@ -49,6 +50,10 @@ namespace UnityEngine.XR.OpenXR
 
         private Coroutine m_Coroutine;
 
+        private static int m_pauseAndRestartCoroutineCount = 0;
+
+        private Object m_PauseAndRestartCoroutineCountLock = new Object();
+
         private static int m_pauseAndRestartAttempts = 0;
 
         public static float TimeBetweenRestartAttempts
@@ -62,6 +67,14 @@ namespace UnityEngine.XR.OpenXR
             get
             {
                 return m_pauseAndRestartAttempts;
+            }
+        }
+
+        internal static int PauseAndRestartCoroutineCount
+        {
+            get
+            {
+                return m_pauseAndRestartCoroutineCount;
             }
         }
 
@@ -82,6 +95,16 @@ namespace UnityEngine.XR.OpenXR
                 }
                 return s_Instance;
             }
+        }
+
+        /// <summary>
+        /// If true, disables the application quitting, even when Quit is called.
+        /// Used in testing, which needs to monitor for Quit to be called.
+        /// </summary>
+        internal static bool DisableApplicationQuit
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -144,8 +167,26 @@ namespace UnityEngine.XR.OpenXR
             StartCoroutine(PauseAndRetryInitializationCoroutine(TimeBetweenRestartAttempts));
         }
 
-        public IEnumerator PauseAndShutdownAndRestartCoroutine(float pauseTimeInSeconds)
+        private void IncrementPauseAndRestartCoroutineCount()
         {
+            lock (m_PauseAndRestartCoroutineCountLock)
+            {
+                m_pauseAndRestartCoroutineCount += 1;
+            }
+        }
+
+        private void DecrementPauseAndRestartCoroutineCount()
+        {
+            lock (m_PauseAndRestartCoroutineCountLock)
+            {
+                m_pauseAndRestartCoroutineCount -= 1;
+            }
+        }
+
+        private IEnumerator PauseAndShutdownAndRestartCoroutine(float pauseTimeInSeconds)
+        {
+            IncrementPauseAndRestartCoroutineCount();
+
             try
             {
                 // Wait a few seconds to add delay between restart requests in a restart loop.
@@ -160,10 +201,14 @@ namespace UnityEngine.XR.OpenXR
             {
                 onAfterCoroutine?.Invoke();
             }
+
+            DecrementPauseAndRestartCoroutineCount();
         }
 
-        public IEnumerator PauseAndRetryInitializationCoroutine(float pauseTimeInSeconds)
+        private IEnumerator PauseAndRetryInitializationCoroutine(float pauseTimeInSeconds)
         {
+            IncrementPauseAndRestartCoroutineCount();
+
             try
             {
                 // Wait a few seconds to add delay between restart requests in a restart loop.
@@ -182,6 +227,8 @@ namespace UnityEngine.XR.OpenXR
             {
                 onAfterCoroutine?.Invoke();
             }
+
+            DecrementPauseAndRestartCoroutineCount();
         }
 
         private IEnumerator RestartCoroutine(bool shouldRestart, bool shouldShutdown)
@@ -220,16 +267,18 @@ namespace UnityEngine.XR.OpenXR
                 else if (OpenXRRuntime.ShouldQuit())
                 {
                     onQuit?.Invoke();
-#if !UNITY_INCLUDE_TESTS
-#if UNITY_EDITOR
-                    if (EditorApplication.isPlaying || EditorApplication.isPaused)
+
+                    if (!DisableApplicationQuit)
                     {
-                        EditorApplication.ExitPlaymode();
-                    }
+#if UNITY_EDITOR
+                        if (EditorApplication.isPlaying || EditorApplication.isPaused)
+                        {
+                            EditorApplication.ExitPlaymode();
+                        }
 #else
-                    Application.Quit();
+                        Application.Quit();
 #endif
-#endif
+                    }
                 }
             }
             finally

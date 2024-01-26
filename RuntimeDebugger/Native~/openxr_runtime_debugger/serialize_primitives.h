@@ -12,7 +12,7 @@ void SendToCSharp<>(const char* fieldname, int32_t* t)
     if (t != nullptr)
         SendInt32(fieldname, *t);
     else
-        SendString(fieldname, "nullptr");
+        SendToCSharpNullPtr(fieldname);
 }
 
 template <>
@@ -33,7 +33,7 @@ void SendToCSharp<>(const char* fieldname, uint32_t* t)
     if (t != nullptr)
         SendUInt32(fieldname, *t);
     else
-        SendString(fieldname, "nullptr");
+        SendToCSharpNullPtr(fieldname);
 }
 
 template <>
@@ -54,7 +54,7 @@ void SendToCSharp<>(const char* fieldname, float* t)
     if (t != nullptr)
         SendFloat(fieldname, *t);
     else
-        SendString(fieldname, "nullptr");
+        SendToCSharpNullPtr(fieldname);
 }
 
 template <>
@@ -63,7 +63,7 @@ void SendToCSharp<>(const char* fieldname, char* t)
     if (t != nullptr)
         SendString(fieldname, t);
     else
-        SendString(fieldname, "nullptr");
+        SendToCSharpNullPtr(fieldname);
 }
 
 template <>
@@ -72,7 +72,7 @@ void SendToCSharp<>(const char* fieldname, char const* t)
     if (t != nullptr)
         SendString(fieldname, t);
     else
-        SendString(fieldname, "nullptr");
+        SendToCSharpNullPtr(fieldname);
 }
 
 #if XR_TYPE_SAFE_HANDLES

@@ -485,7 +485,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 var validUserPath = actionMap.deviceInfos.Where(d => d.userPath != null && ((String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.leftHand) == 0) ||
                     (String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.rightHand) == 0)));
                 if (!validUserPath.Any())
-                    return;
+                    continue;
+
                 //check if interaction profile has thumbstick and/or trackpad
                 bool hasTrackPad = false;
                 bool hasThumbstick = false;

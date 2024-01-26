@@ -64,13 +64,16 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         internal bool forceRemoveInternetPermission = false;
 
         [SerializeField]
-        internal bool symmetricProjection;
+        internal bool symmetricProjection = false;
 
         /// <summary>
         /// Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.
         /// </summary>
         [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
         public Texture2D systemSplashScreen;
+
+        [SerializeField, Tooltip("Optimization that allows 4x MSAA textures to be memoryless on Vulkan")]
+        internal bool optimizeBufferDiscards = true;
 
         /// <summary>
         /// Caches validation rules for each build target group requested by <see cref="GetValidationChecks="/>.
@@ -103,8 +106,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             AddTargetDevice("quest", "Quest", true);
             AddTargetDevice("quest2", "Quest 2", true);
             AddTargetDevice("cambria", "Quest Pro", true);
-
-            symmetricProjection = false;
         }
 
         /// <summary>
@@ -137,6 +138,21 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             targetDevices.Add(targetDevice);
         }
 
+        private bool SettingsUseVulkan()
+        {
+            if (!PlayerSettings.GetUseDefaultGraphicsAPIs(BuildTarget.Android))
+            {
+                GraphicsDeviceType[] apis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
+                if (apis.Length >= 1 && apis[0] == GraphicsDeviceType.Vulkan)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            return true;
+        }
+
         protected override void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
         {
             if (!validationRules.ContainsKey(targetGroup))
@@ -151,7 +167,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             {
                     new ValidationRule(this)
                     {
-                        message = "Only the Oculus Touch Interaction Profile and Meta Quest Pro Touch Interaction Profile are supported right now.",
+                        message = "Select Oculus Touch Interaction Profile or Meta Quest Pro Touch Interaction Profile to pair with.",
                         checkPredicate = () =>
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
@@ -159,20 +175,17 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                                 return false;
 
                             bool touchFeatureEnabled = false;
-                            bool otherInteractionFeatureEnabled = false;
                             foreach (var feature in settings.GetFeatures<OpenXRInteractionFeature>())
                             {
                                 if (feature.enabled)
                                 {
                                     if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile))
                                         touchFeatureEnabled = true;
-                                    else
-                                        otherInteractionFeatureEnabled = true;
                                 }
                             }
-                            return touchFeatureEnabled && !otherInteractionFeatureEnabled;
+                            return touchFeatureEnabled;
                         },
-                        error = true,
+                        error = false,
                         fixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR"); },
                         fixItAutomatic = false,
                         fixItMessage = "Open Project Settings to select Oculus Touch or Meta Quest Pro Touch interaction profiles or select both."
@@ -252,17 +265,9 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Symmetric Projection is only supported on Vulkan graphics API",
                         checkPredicate = () =>
                         {
-                            if (symmetricProjection)
+                            if (symmetricProjection && !SettingsUseVulkan())
                             {
-                                if (!PlayerSettings.GetUseDefaultGraphicsAPIs(BuildTarget.Android))
-                                {
-                                    GraphicsDeviceType[] apis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
-                                    if (apis.Length >= 1 && apis[0] == GraphicsDeviceType.Vulkan)
-                                    {
-                                        return true;
-                                    }
-                                    return false;
-                                }
+                                return false;
                             }
                             return true;
                         },
@@ -299,6 +304,20 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         },
                         error = true,
                         fixItAutomatic = false,
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Optimize Buffer Discards is only supported on Vulkan graphics API",
+                        checkPredicate = () =>
+                        {
+                            if (optimizeBufferDiscards && !SettingsUseVulkan())
+                            {
+                                return false;
+                            }
+
+                            return true;
+                        }
                     }
 #endif
             };

@@ -34,6 +34,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private SerializedProperty m_LateLatchingModeProperty;
         private SerializedProperty m_LateLatchingDebugProperty;
 
+        private SerializedProperty optimizeBufferDiscards;
+
         void InitActiveTargetDevices()
         {
             activeTargetDevices = new Dictionary<string, bool>();
@@ -59,6 +61,9 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             symmetricProjection =
                 serializedObject.FindProperty("symmetricProjection");
+
+            optimizeBufferDiscards =
+                serializedObject.FindProperty("optimizeBufferDiscards");
 
             targetDeviceProperties = new List<TargetDeviceProperty>();
             InitActiveTargetDevices();
@@ -93,6 +98,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             serializedObject.Update();
             EditorGUILayout.LabelField("Rendering Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(symmetricProjection, new GUIContent("Symmetric Projection (Vulkan)"));
+            EditorGUILayout.PropertyField(optimizeBufferDiscards, new GUIContent("Optimize Buffer Discards (Vulkan)"));
 
             EditorGUILayout.Space();
 
@@ -130,6 +136,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             var serializedOpenXrSettings = new SerializedObject(androidOpenXRSettings);
 
             androidOpenXRSettings.symmetricProjection = symmetricProjection.boolValue;
+            androidOpenXRSettings.optimizeBufferDiscards = optimizeBufferDiscards.boolValue;
             serializedOpenXrSettings.ApplyModifiedProperties();
 
             EditorGUIUtility.labelWidth = 0.0f;

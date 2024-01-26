@@ -17,10 +17,11 @@ Unity's OpenXR plug-in should work with any device that supports conformant Open
 
 |**Runtime**|**Build target**|**Preferred Graphics API**|**Feature Parity**|**Known Limitations**|
 |---|---|---|---|---|
-|Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
-|HoloLens 2|UWP arm64|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)||
+|Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/unity-development-wmr-overview)||
+|HoloLens 2|UWP arm64|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/unity-development-overview)||
 |Oculus PC + Link|Windows 64-bit|DX11|HMD + Controllers|Oculus Integration package features not available|
 |Meta Quest|Android arm64|Vulkan|HMD + Controllers via [Meta Quest Support Feature](./features/metaquest.md)|
+|Magic Leap 2|Android x64|Vulkan|Full feature parity via [Magic Leap Unity Overview OpenXR](https://developer-docs.magicleap.cloud/docs/guides/unity/unity-overview-openxr/)||
 |All other conformant runtimes (eg. SteamVR)|Windows 64-bit|DX11|HMD + Controllers|Given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally.<br><br>SteamVR Plugin features not available|
 
 To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.
@@ -35,7 +36,7 @@ Additionally, you can access the current OpenXR Runtime through the scripting AP
 
 ## Considerations before porting to OpenXR
 
-Unity does not yet provide out-of-the-box solutions to the following when using OpenXR, however there may be platform-specific plugins (eg. [Mixed Reality OpenXR Plugin for Unity](https://docs.microsoft.com/en-us/windows/mixed-reality/develop/unity/openxr-getting-started)) or third party solutions available:
+Unity does not yet provide out-of-the-box solutions to the following when using OpenXR, however there may be platform-specific plugins or third party solutions available:
 
 * Controller / hand models
 * Finger tracking
@@ -58,7 +59,7 @@ See [Project configuration](xref:openxr-project-config) for additional informati
 
 ## Project validation
 
-Project validation is a feature OpenXR has to assess configuration correctness of your project depending on the platform you are planning to build for. Unity will raise errors and warnings at build time if your project is not compatible with OpenXR.
+Project validation is a feature the Unity OpenXR package has to assess configuration correctness of your project depending on the platform you are planning to build for. Unity will raise errors and warnings at build time if your project is not compatible with OpenXR.
 
 For more information on how project validation works in OpenXR, see [Project validation](xref:openxr-project-config#project-validation).
 

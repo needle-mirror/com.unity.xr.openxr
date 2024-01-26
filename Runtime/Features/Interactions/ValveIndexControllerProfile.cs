@@ -15,6 +15,12 @@ using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 #endif
 
+#if USE_STICK_CONTROL_THUMBSTICKS
+using ThumbstickControl = UnityEngine.InputSystem.Controls.StickControl; // If replaced, make sure the control extends Vector2Control
+#else
+using ThumbstickControl = UnityEngine.InputSystem.Controls.Vector2Control;
+#endif
+
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
@@ -117,10 +123,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public ButtonControl triggerTouched { get; private set; }
 
             /// <summary>
-            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="ValveIndexControllerProfile.thumbstick"/> OpenXR binding.
+            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control)/[StickControl](xref:UnityEngine.InputSystem.Controls.StickControl) that represents the <see cref="ValveIndexControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "joystick", "Primary2DAxis" }, usage = "Primary2DAxis")]
-            public Vector2Control thumbstick { get; private set; }
+            public ThumbstickControl thumbstick { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="ValveIndexControllerProfile.thumbstickClick"/> OpenXR binding.
@@ -135,10 +141,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             public ButtonControl thumbstickTouched { get; private set; }
 
             /// <summary>
-            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="ValveIndexControllerProfile.trackpad"/> OpenXR binding.
+            /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control)/[StickControl](xref:UnityEngine.InputSystem.Controls.StickControl) that represents the <see cref="ValveIndexControllerProfile.trackpad"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "touchpad", "Secondary2DAxis" }, usage = "Secondary2DAxis")]
-            public Vector2Control trackpad { get; private set; }
+            public ThumbstickControl trackpad { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="ValveIndexControllerProfile.trackpadTouch"/> OpenXR binding.
@@ -222,10 +228,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 trigger = GetChildControl<AxisControl>("trigger");
                 triggerPressed = GetChildControl<ButtonControl>("triggerPressed");
                 triggerTouched = GetChildControl<ButtonControl>("triggerTouched");
-                thumbstick = GetChildControl<Vector2Control>("thumbstick");
+                thumbstick = GetChildControl<StickControl>("thumbstick");
                 thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
                 thumbstickTouched = GetChildControl<ButtonControl>("thumbstickTouched");
-                trackpad = GetChildControl<Vector2Control>("trackpad");
+                trackpad = GetChildControl<StickControl>("trackpad");
                 trackpadTouched = GetChildControl<ButtonControl>("trackpadTouched");
                 trackpadForce = GetChildControl<AxisControl>("trackpadForce");
                 devicePose = GetChildControl<PoseControl>("devicePose");

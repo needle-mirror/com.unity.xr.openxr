@@ -36,6 +36,12 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT)
     template <>                                                       \
     void SendToCSharp<>(const char* fieldname, structType* t)         \
     {                                                                 \
+        if (t == nullptr)                                             \
+        {                                                             \
+            SendToCSharpNullPtr(fieldname);                           \
+            return;                                                   \
+        }                                                             \
+                                                                      \
         switch (t->type)                                              \
         {                                                             \
             XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_PTR); \
@@ -60,6 +66,12 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_PTR)
     template <>                                                             \
     void SendToCSharp<>(const char* fieldname, structType const* t)         \
     {                                                                       \
+        if (t == nullptr)                                                   \
+        {                                                                   \
+            SendToCSharpNullPtr(fieldname);                                 \
+            return;                                                         \
+        }                                                                   \
+                                                                            \
         switch (t->type)                                                    \
         {                                                                   \
             XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_CONST_PTR); \
@@ -90,7 +102,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_CONST_PTR)
     {                                                                                                 \
         if (t == nullptr)                                                                             \
         {                                                                                             \
-            SendToCSharp(fieldname, "nullptr");                                                       \
+            SendToCSharpNullPtr(fieldname);                                                           \
             return true;                                                                              \
         }                                                                                             \
                                                                                                       \
@@ -121,7 +133,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY)
     {                                                                                                   \
         if (t == nullptr || t[0] == nullptr)                                                            \
         {                                                                                               \
-            SendToCSharp(fieldname, "nullptr");                                                         \
+            SendToCSharpNullPtr(fieldname);                                                             \
             return true;                                                                                \
         }                                                                                               \
                                                                                                         \
@@ -155,7 +167,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY_PTR)
     {                                                                                                                           \
         if (t == nullptr || t[0] == nullptr)                                                                                    \
         {                                                                                                                       \
-            SendToCSharp(fieldname, "nullptr");                                                                                 \
+            SendToCSharpNullPtr(fieldname);                                                                                     \
             return true;                                                                                                        \
         }                                                                                                                       \
                                                                                                                                 \

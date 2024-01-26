@@ -188,6 +188,20 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsFalse(HasOpenXRLibraries(resultWithoutOpenXR));
         }
 
+        [Test]
+        public void VerifyBuildWithoutAnalytics()
+        {
+            var packageName = "com.unity.analytics";
+            UnityEditor.PackageManager.Client.Remove(packageName);
+
+            var result = BuildMockPlayer();
+
+            if (Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") == "1")
+                Assert.IsTrue(result.summary.result == BuildResult.Succeeded);
+            else if (result.summary.result != BuildResult.Succeeded)
+                return;
+        }
+
         internal class BuildCallbacks : OpenXRFeatureBuildHooks
         {
             [NonSerialized] internal static Func<string, object, bool> TestCallback = (methodName, param) => true;

@@ -31,6 +31,12 @@ namespace UnityEngine.XR.OpenXR.Tests
         private OpenXRFeature[] savedFeatures = null;
 
         /// <summary>
+        /// Save the previous value of OpenXRRestarter.DisableApplicationQuit.
+        /// We want to set it to true when running the test, and then restore the value after the test.
+        /// </summary>
+        private bool oldDisableApplicationQuit = false;
+
+        /// <summary>
         /// Helper method to return a feature of the given type
         /// </summary>
         /// <param name="featureType">Feature type</param>
@@ -137,6 +143,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             if (OpenXRLoaderBase.Instance != null)
                 StopAndShutdown();
 
+            // Disable quitting the application functionality for all tests (since we don't want to exit play mode during the test)
+            oldDisableApplicationQuit = OpenXRRestarter.DisableApplicationQuit;
+            OpenXRRestarter.DisableApplicationQuit = true;
+
             // Cache off the features before we start
             savedFeatures = (OpenXRFeature[])OpenXRSettings.ActiveBuildTargetInstance.features.Clone();
 
@@ -169,10 +179,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            // It is possible that a test may have done something to initiate the OpenXRRestarter.  To ensure
-            // that the restarter does not impact other tests we must make sure it finishes before continuing.
-            yield return new WaitForRestarter();
-
             AfterTest();
 
             yield return null;
@@ -199,6 +205,20 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             // Replace the features with the saved features
             OpenXRSettings.ActiveBuildTargetInstance.features = savedFeatures;
+
+            // Wait for all shutdowns and restart requests to finish
+            // and then restore the value of OpenXRRestarter.DisableApplicationQuit
+            WaitForRestarterToFinish();
+        }
+
+        private IEnumerable WaitForRestarterToFinish()
+        {
+            // It is possible that a test may have done something to initiate the OpenXRRestarter.  To ensure
+            // that the restarter does not impact other tests we must make sure it finishes before continuing.
+            yield return new WaitForRestarter();
+
+            // Restore the value of DisableApplicationQuit.
+            OpenXRRestarter.DisableApplicationQuit = oldDisableApplicationQuit;
         }
 
         public override void Setup()

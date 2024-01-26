@@ -178,6 +178,21 @@ namespace UnityEditor.XR.OpenXR
                 fixIt = EnableInputSystemPoseControlDefine,
                 error = false,
                 errorEnteringPlaymode = false,
+            },
+            new OpenXRFeature.ValidationRule()
+            {
+                message = "[Optional] Switch to use StickControl thumbsticks instead of Vector2Control, but may break existing projects that have code dependencies to the Vector2Control type. StickControl allows more input options for thumbstick-based control, such as acting as both a combined 2D vector, two independent axes or a four-way Dpad with 4 independent buttons.",
+                checkPredicate = () =>
+                {
+#if USE_STICK_CONTROL_THUMBSTICKS
+                    return true;
+#else
+                    return false;
+#endif
+                },
+                fixIt = EnableStickControlThumbsticksDefine,
+                error = false,
+                errorEnteringPlaymode = false,
             }
         };
 
@@ -185,12 +200,22 @@ namespace UnityEditor.XR.OpenXR
 
         internal static void EnableInputSystemPoseControlDefine()
         {
+            AddDefineToBuildTarget("USE_INPUT_SYSTEM_POSE_CONTROL");
+        }
+
+        internal static void EnableStickControlThumbsticksDefine()
+        {
+            AddDefineToBuildTarget("USE_STICK_CONTROL_THUMBSTICKS");
+        }
+
+        private static void AddDefineToBuildTarget(string defineName)
+        {
 #if UNITY_2021_3_OR_NEWER
-            NamedBuildTarget[] targets = {NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps};
+            NamedBuildTarget[] targets = { NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps };
             for (var index = 0; index < targets.Length; index++)
             {
                 var defines = PlayerSettings.GetScriptingDefineSymbols(targets[index]);
-                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                defines += $";{defineName}";
                 PlayerSettings.SetScriptingDefineSymbols(targets[index], defines);
             }
 
@@ -199,7 +224,7 @@ namespace UnityEditor.XR.OpenXR
             for (var index = 0; index < buildTargets.Length; index++)
             {
                 var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargets[index]);
-                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                defines += $";{defineName}";
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargets[index], defines);
             }
 #endif

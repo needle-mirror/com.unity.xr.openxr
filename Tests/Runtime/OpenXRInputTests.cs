@@ -352,6 +352,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                     break;
                 }
 
+                case "Stick":
                 case "Vector2":
                 {
                     yield return ValidateInputAction(action, userPath, interactionPath, Vector2.one);
@@ -714,7 +715,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Node should be tracked after we start
             InitializeAndStart();
             yield return new WaitForXrFrame(1);
-            Assert.IsTrue(tracked);
+            Assert.IsTrue(tracked, "There's no tracking after initialization and start");
 
             // Clear the space location flags for the node which should switch to the untracked state
             var gripAction = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::Oculus::OculusTouchControllerOpenXR>{LeftHand}/devicePose"));
@@ -722,14 +723,14 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetSpace(gripAction, Vector3.zero, Quaternion.identity, XrSpaceLocationFlags.None);
             MockRuntime.SetSpace(aimAction, Vector3.zero, Quaternion.identity, XrSpaceLocationFlags.None);
             yield return new WaitForXrFrame(2);
-            Assert.IsFalse(tracked);
+            Assert.IsFalse(tracked, "Tracking is kept after clearing space location flags");
 
             // Reset the space location flags to make sure it goes back to tracked state
             var trackedFlags = XrSpaceLocationFlags.PositionValid | XrSpaceLocationFlags.OrientationValid | XrSpaceLocationFlags.PositionTracked | XrSpaceLocationFlags.OrientationTracked;
             MockRuntime.SetSpace(gripAction, Vector3.zero, Quaternion.identity, trackedFlags);
             MockRuntime.SetSpace(aimAction, Vector3.zero, Quaternion.identity, trackedFlags);
             yield return new WaitForXrFrame(2);
-            Assert.IsTrue(tracked);
+            Assert.IsTrue(tracked, "There's no tracking after resetting space location flags");
         }
     }
 }

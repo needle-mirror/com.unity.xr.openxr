@@ -15,7 +15,9 @@ namespace UnityEditor.XR.OpenXR.Features
     /// <summary>
     /// Inherit from this class to get callbacks to hook into the build process when your OpenXR Extension is enabled.
     /// </summary>
+#pragma warning disable 0618
     public abstract class OpenXRFeatureBuildHooks : IPostGenerateGradleAndroidProject, IPostprocessBuildWithReport, IPreprocessBuildWithReport
+#pragma warning restore 0618
 #if XR_MGMT_4_4_0_OR_NEWER
         , IAndroidManifestRequirementProvider
 #endif
@@ -129,13 +131,23 @@ namespace UnityEditor.XR.OpenXR.Features
 
 #if XR_MGMT_4_4_0_OR_NEWER
         /// <summary>
-        /// Called during build process when collecting requirements for Android Manifest. Implement this function to add, override or remove Android manifest entries.
+        /// Post process build step for checking if the hooks' related feature is enabled for Android builds If so, the hook can safely provide its Android manifest requirements.
         /// </summary>
         public virtual ManifestRequirement ProvideManifestRequirement()
         {
-            return null;
+            if (!IsExtensionEnabled(BuildTarget.Android, BuildTargetGroup.Android))
+                return null;
+
+            return ProvideManifestRequirementExt();
         }
 
+        /// <summary>
+        /// Called during build process when collecting requirements for Android Manifest. Implement this function to add, override or remove Android manifest entries.
+        /// </summary>
+        protected virtual ManifestRequirement ProvideManifestRequirementExt()
+        {
+            return null;
+        }
 #endif
     }
 }

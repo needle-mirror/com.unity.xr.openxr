@@ -10,6 +10,9 @@ void SendToCSharp<>(const char* fieldname, XrSystemId t)
 template <>
 void SendToCSharp<>(const char* fieldname, XrSystemId* t)
 {
-    SendToCSharp(fieldname, (uint64_t)*t);
+    if (t == nullptr)
+        SendToCSharpNullPtr(fieldname);
+    else
+        SendToCSharp(fieldname, (uint64_t)*t);
 }
 #endif

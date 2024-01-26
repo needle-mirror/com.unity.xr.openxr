@@ -4,11 +4,29 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-# Notes
-When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically:
-```
-Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
-```
+<!--
+> **Notes**
+> When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
+-->
+
+## [1.10.0] - 2024-01-26
+
+### Added
+* Added `OpenXRSettings.VulkanAdditionalGraphicsQueue` property to request at startup an additional Vulkan graphics queue in devices that require it. The setting can be enabled through the Project settings UI and build code.
+* Added `Optimize Buffer Discards (Vulkan)` feature setting option within MetaQuestFeature.
+* Added a new optional validation rule to switch to use InputSystem.Controls.StickControl instead of Vector2Control for thumbsticks. StickControl allows more input options for thumbstick-based control, such as acting as both a combined 2D vector, two independent axes or a four-way Dpad with 4 independent buttons.
+
+### Changed
+* Updated project validation rule for Meta Quest Feature - "Select Oculus Touch Interaction Profile or Meta Quest Pro Touch Interaction Profile to pair with." from error to warning to allow other interaction profiles to be enabled as well, like eye gaze or palm pose.
+
+### Fixed
+* Fixed Meta XR `Space Warp` feature crashing issue when trying to access the depth swapchain.
+* Fixed Meta XR `Space Warp` depth subimage imageArrayIndex setup wrong issue for multiview render mode.
+* Fixed a bug where Palm Pose won't work if the Eye Gaze Interaction Profile is added to the project.
+* Fixed "The type 'AnalyticsResult' is defined in an assembly that is not referenced" error thrown.
+* Fixed UnitySwapchain destructor to completely destroy swapchains to avoid memory leak.
+* Fixed OpenXR Settings UI to not render settings on platforms that aren't supported.
+* Fixed Android manifest entries were added when the feature was not enabled.
 
 ## [1.9.1] - 2023-10-19
 
@@ -29,7 +47,7 @@ Under ## headers, ### \<type\> headers are listed in this order: Added, Changed,
 * Changed MockRuntime and its FeatureSet to public.
 
 ### Fixed
-* Fixed incorect XR Validation rules after regenerating the OpenXR package settings asset.
+* Fixed incorrect XR Validation rules after regenerating the OpenXR package settings asset.
 * Fixed analytics code being called when disabled.
 * Fixed latency issue with controller poses.
 * Fixed an XR_ERROR_SESSION_NOT_RUNNING error if xrRequestExitSession is called when the session is not running.
