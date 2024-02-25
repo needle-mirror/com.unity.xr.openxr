@@ -1,0 +1,5 @@
+{
+    "displayName": "Custom Composition Layer Feature",
+    "description": "Demonstrates how to add support for customized composition layer types using OpenXR Feature.",
+    "createSeparatePackage": false
+}

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.11.0-exp.1] - 2024-02-25
+
+### Added
+* Added XR Composition Layers support - Experimental. Install Composition Layer Experimental package - com.unity.xr.compositionlayers 0.5.0 to pair with.
+
 ## [1.10.0] - 2024-01-26
 
 ### Added

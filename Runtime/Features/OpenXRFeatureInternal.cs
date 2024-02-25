@@ -37,7 +37,7 @@ namespace UnityEngine.XR.OpenXR.Features
         static extern void Internal_SetEnvironmentBlendMode(XrEnvironmentBlendMode xrEnvironmentBlendMode);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetAppSpace")]
-        static extern bool Internal_GetAppSpace(out ulong appSpace);
+        internal static extern bool Internal_GetAppSpace(out ulong appSpace);
 
         [DllImport(Library, EntryPoint = "NativeConfig_GetProcAddressPtr")]
         internal static extern IntPtr Internal_GetProcAddressPtr(bool loaderDefault);

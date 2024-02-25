@@ -1,0 +1,408 @@
+#if XR_COMPOSITION_LAYERS
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.XR.CompositionLayers.Services;
+using UnityEngine.XR.OpenXR.NativeTypes;
+
+namespace UnityEngine.XR.OpenXR.CompositionLayers
+{
+    /// <summary>
+    /// Provides a base implementation for the <see cref="OpenXRLayerProvider.ILayerHandler"/> interface.
+    /// You can implement the required methods of this abstract class to create a concrete layer handler.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="OpenXRLayerProvider.ILayerHandler"/> methods that this class implements handle adding
+    /// and removing composition layers from native arrays, swap chain creation dispatching and other tasks
+    /// required by the Unity side of the API.
+    ///
+    /// The abstract methods that you must implement handle the custom aspects of your layer. These methods include:
+    ///
+    /// * <see cref="CreateSwapchain(CompositionLayerManager.LayerInfo)"/>
+    /// * <see cref="CreateNativeLayer(CompositionLayerManager.LayerInfo, OpenXRCustomLayerHandler{T}.SwapchainCreatedOutput)"/>
+    /// * <see cref="ModifyNativeLayer(CompositionLayerManager.LayerInfo, ref T)"/>
+    ///
+    /// You are not required to implement a custom layer handler based on this abstract class, but doing so should be
+    /// easier than implementing the <see cref="OpenXRLayerProvider.ILayerHandler"/> interface in its entirety.
+    ///
+    /// You must register your concrete layer handler object with
+    /// <see cref="OpenXRLayerProvider.RegisterLayerHandler(Type, OpenXRLayerProvider.ILayerHandler)"/>.
+    /// </remarks>
+    /// <typeparam name="T">The native OpenXR structure of the composition layer to handle.</typeparam>
+    public abstract class OpenXRCustomLayerHandler<T> : OpenXRLayerProvider.ILayerHandler, IDisposable where T : struct
+    {
+        /// <summary>
+        /// Container for swapchain related information that may be needed during the creation of the native OpenXR composition layer struct.
+        /// </summary>
+        protected struct SwapchainCreatedOutput
+        {
+            /// <summary>
+            /// The handle of the created swapchain.
+            /// Can be used to initialize the swapchain member of a native OpenXR composition layer struct.
+            /// </summary>
+            public ulong handle;
+        }
+
+        /// <summary>
+        /// Initializes and returns an instance of this <c>OpenXRCustomLayerHandler&lt;T&gt;</c> while also setting the singleton instance member.
+        /// </summary>
+        protected OpenXRCustomLayerHandler() => Instance = this;
+
+        /// <summary>
+        /// Singleton instance of this specific handler.
+        /// </summary>
+        protected static OpenXRCustomLayerHandler<T> Instance;
+
+        /// <summary>
+        /// Deinitializes this instance of c>OpenXRCustomLayerHandler&lt;T&gt;</c>.
+        /// </summary>
+        ~OpenXRCustomLayerHandler() => Dispose(false);
+
+        /// <summary>
+        /// Override this method to create the <see cref="XrSwapchainCreateInfo"/> struct that is passed to OpenXR
+        /// to create a swapchain.
+        /// </summary>
+        /// <remarks>
+        /// To add extensions when constructing the <see cref="XrSwapchainCreateInfo"/> struct, initialize
+        /// the <c>Next</c> pointer with
+        /// <see cref="OpenXRLayerUtility.GetExtensionsChain(CompositionLayerManager.LayerInfo, Unity.XR.CompositionLayers.CompositionLayerExtension.ExtensionTarget)"/>.
+        /// </remarks>
+        /// <example>
+        /// Constructs an XrSwapchainCreateInfo struct with some members using component data.
+        /// <code>
+        /// <![CDATA[
+        /// protected override XrSwapchainCreateInfo CreateSwapchain(CompositionLayerManager.LayerInfo layerInfo)
+        /// {
+        ///    var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
+        ///    unsafe
+        ///    {
+        ///        return new XrSwapchainCreateInfo()
+        ///        {
+        ///             Type = 9,
+        ///             Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Swapchain),
+        ///             CreateFlags = 0,
+        ///             UsageFlags = 0x00000020 | 0x00000001,
+        ///             Format = OpenXRLayerUtility.GetDefaultColorFormat(),
+        ///             SampleCount = 1,
+        ///             Width = (uint)texturesExtension.LeftTexture.width,
+        ///             Height = (uint)texturesExtension.LeftTexture.height,
+        ///             FaceCount = 1,
+        ///             ArraySize = 1,
+        ///             MipCount = (uint)texturesExtension.LeftTexture.mipmapCount,
+        ///         };
+        ///     }
+        /// }
+        /// ]]>
+        /// </code>
+        /// </example>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// that was just created.</param>
+        /// <returns> An initialized <c>XrSwapchainCreateInfo</c> object created by the concrete implementation of this method.</returns>
+        protected abstract XrSwapchainCreateInfo CreateSwapchain(CompositionLayerManager.LayerInfo layerInfo);
+
+        /// <summary>
+        /// Override this method to create the native composition layer struct of type T that is passed to OpenXR.
+        /// A swapchain info struct is provided so your layer handler has access to any needed swapchain information.
+        /// </summary>
+        /// <remarks>
+        /// To add extensions when constructing the <see cref="XrSwapchainCreateInfo"/> struct, initialize
+        /// the <c>Next</c> pointer with <see cref="OpenXRLayerUtility.GetExtensionsChain(CompositionLayerManager.LayerInfo, Unity.XR.CompositionLayers.CompositionLayerExtension.ExtensionTarget)"/>.
+        ///
+        /// If your struct needs any XrSpace relative info you can use <see cref="OpenXRLayerUtility.GetCurrentAppSpace"/>
+        /// to get the current app space.
+        /// </remarks>
+        /// <example>
+        /// Constructs an XrCompositionLayerQuad struct with some members using component data.
+        /// <code>
+        /// <![CDATA[
+        /// protected override XrCompositionLayerQuad CreateNativeLayer(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput)
+        /// {
+        ///     var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
+        ///     var transform = layerInfo.Layer.GetComponent<Transform>();
+        ///
+        ///     unsafe
+        ///     {
+        ///         var data = layerInfo.Layer.LayerData as QuadLayerData;
+        ///
+        ///         return new XrCompositionLayerQuad()
+        ///         {
+        ///             Type = 36,
+        ///             Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer),
+        ///             LayerFlags = 0x00000002,
+        ///             Space = OpenXRLayerUtility.GetCurrentAppSpace(),
+        ///             EyeVisibility = 0,
+        ///             SubImage = new SwapchainSubImage()
+        ///             {
+        ///                 Swapchain = swapchainOutput.handle,
+        ///                 ImageRect = new XrRect2Di()
+        ///                 {
+        ///                     offset = new XrOffset2Di() { x = 0, y = 0 },
+        ///                     extent = new XrExtent2Di()
+        ///                     {
+        ///                         width = texturesExtension.LeftTexture.width,
+        ///                         height = texturesExtension.LeftTexture.height
+        ///                     }
+        ///                 },
+        ///                 ImageArrayIndex = 0
+        ///             },
+        ///             Pose = new XrPosef(transform.position, transform.rotation),
+        ///             Size = new XrExtend2Df()
+        ///             {
+        ///                 width = data.GetScaledSize(transform.lossyScale).x,
+        ///                 height = data.GetScaledSize(transform.lossyScale).y
+        ///             }
+        ///         };
+        ///     }
+        /// }
+        /// ]]>
+        /// </code>
+        /// </example>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// that was just created.</param>
+        /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer,
+        /// such as the associated swapchain handle.</param>
+        /// <returns> An initialized object of type T that is created by the concrete implementation of this method.</returns>
+        protected abstract T CreateNativeLayer(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput);
+
+        /// <summary>
+        /// Override this method to modify a native composition layer struct in response to changes on the associated
+        /// <see cref="Unity.XR.CompositionLayers.Layers.LayerData"/> object or any extension components on the
+        /// <see cref="Unity.XR.CompositionLayers.CompositionLayer"/> GameObject.
+        /// </summary>
+        /// <remarks>
+        /// You must reinitialize the Next pointer with <see cref="OpenXRLayerUtility.GetExtensionsChain(CompositionLayerManager.LayerInfo, Unity.XR.CompositionLayers.CompositionLayerExtension.ExtensionTarget)"/>
+        /// to get any potential updates from extension components.
+        /// </remarks>
+        /// <example>
+        /// Modifies an XrCompositionLayerQuad struct with new transform and extension information.
+        /// <code>
+        /// <![CDATA[
+        /// protected override void ModifyNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref XrCompositionLayerQuad nativeLayer)
+        /// {
+        ///     var data = layerInfo.Layer.LayerData as QuadLayerData;
+        ///     var transform = layerInfo.Layer.GetComponent<Transform>();
+        ///
+        ///     nativeLayer.Pose = new XrPosef(transform.position, transform.rotation);
+        ///     nativeLayer.Size = new XrExtend2Df()
+        ///     {
+        ///         width = data.GetScaledSize(transform.lossyScale).x,
+        ///         height = data.GetScaledSize(transform.lossyScale).y
+        ///     };
+        ///
+        ///     unsafe
+        ///     {
+        ///         nativeLayer.Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer);
+        ///     }
+        /// }
+        /// ]]>
+        /// </code>
+        /// </example>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition
+        /// layer that was modified.</param>
+        /// <param name="nativeLayer"> A reference to the native OpenXR structure of the composition layer that was modified.
+        /// The concrete implementation of this method should update the values of the structure as appropriate.</param>
+        protected abstract void ModifyNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref T nativeLayer);
+
+        /// <summary>
+        /// Mapping of instance ids and native layer structs to help determine what layers are currently set to be active.
+        /// </summary>
+        protected Dictionary<int, T> m_nativeLayers = new Dictionary<int, T>();
+
+        /// <summary>
+        /// Thread safe queue used to dispatch callbacks that may come from other threads such as the swapchain creation
+        /// on the graphics thread.
+        /// </summary>
+        protected ConcurrentQueue<Action> actionsForMainThread = new ConcurrentQueue<Action>();
+
+        private Dictionary<int, CompositionLayerManager.LayerInfo> m_layerInfos = new Dictionary<int, CompositionLayerManager.LayerInfo>();
+        private NativeArray<T> m_ActiveNativeLayers;
+        private NativeArray<int> m_ActiveNativeLayerOrders;
+        private int m_ActiveNativeLayerCount;
+
+        /// <summary>
+        /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
+        /// <see cref="OpenXRLayerProvider"/> during the Unity update loop.
+        /// </summary>
+        /// <remarks>
+        /// This implementation carries out two tasks. It dequeues actions for the main thread like dispatch when
+        /// the swapchain has been
+        /// created and it adds all the active layers to the <c>endFrameInfo</c> struct in the native UnityOpenXR lib.
+        /// </remarks>
+        public void OnUpdate()
+        {
+            while (actionsForMainThread.Count > 0)
+            {
+                if (actionsForMainThread.TryDequeue(out Action action))
+                    action();
+            }
+
+            unsafe
+            {
+                if (m_ActiveNativeLayerCount > 0)
+                    OpenXRLayerUtility.AddActiveLayersToEndFrame(m_ActiveNativeLayers.GetUnsafePtr(), m_ActiveNativeLayerOrders.GetUnsafePtr(), m_ActiveNativeLayerCount, UnsafeUtility.SizeOf<T>());
+            }
+
+            m_ActiveNativeLayerCount = 0;
+        }
+
+        /// <summary>
+        /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
+        /// <see cref="OpenXRLayerProvider"/> when a new layer has been created.
+        /// This implementation triggers the creation of a swapchain before the actual native layer struct is created.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// being created.</param>
+        public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            CreateSwapchainAsync(layerInfo);
+        }
+
+        /// <summary>
+        /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
+        /// <see cref="OpenXRLayerProvider"/> when a layer or attached extension has been modified.
+        /// This implementation asks the subclass for any changes that must be made to the layer via
+        /// <see cref="ModifyNativeLayer(CompositionLayerManager.LayerInfo, ref T)"/>
+        /// by sending a reference to the native layer struct.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// that was modified.</param>
+        public virtual void ModifyLayer(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            if (!m_nativeLayers.ContainsKey(layerInfo.Id))
+                return;
+
+            var nativeLayer = m_nativeLayers[layerInfo.Id];
+            ModifyNativeLayer(layerInfo, ref nativeLayer);
+            m_nativeLayers[layerInfo.Id] = nativeLayer;
+        }
+
+        /// <summary>
+        /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
+        /// <see cref="OpenXRLayerProvider"/> when a layer is destroyed or disabled.
+        /// </summary>
+        /// <param name="removedLayerId"> The instance id of the CompositionLayer component that was removed.</param>
+        public virtual void RemoveLayer(int removedLayerId)
+        {
+            if (!m_nativeLayers.ContainsKey(removedLayerId))
+                return;
+
+            m_nativeLayers.Remove(removedLayerId);
+        }
+
+        /// <summary>
+        /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
+        /// <see cref="OpenXRLayerProvider"/> when a layer is considered to be currently active.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// being set to active.</param>
+        public virtual void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            if (!m_nativeLayers.ContainsKey(layerInfo.Id))
+                return;
+
+            OpenXRLayerUtility.SetActiveLayerAndGetTexture(layerInfo);
+            ResizeNativeArrays();
+            m_ActiveNativeLayers[m_ActiveNativeLayerCount] = m_nativeLayers[layerInfo.Id];
+            m_ActiveNativeLayerOrders[m_ActiveNativeLayerCount] = layerInfo.Layer.Order;
+            ++m_ActiveNativeLayerCount;
+        }
+
+        /// <summary>
+        /// Implements method from <see cref="IDisposable"/> that is called by the <see cref="OpenXRLayerProvider"/>
+        /// when this custom layer handler instance is disposed.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Clears all maps and disposes any created native arrays.
+        /// </summary>
+        /// <param name="disposing">Determines if this method was called from the Dispose() method or the finalizer.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                m_layerInfos.Clear();
+                m_nativeLayers.Clear();
+            }
+
+            if (m_ActiveNativeLayers.IsCreated)
+                m_ActiveNativeLayers.Dispose();
+            if (m_ActiveNativeLayerOrders.IsCreated)
+                m_ActiveNativeLayerOrders.Dispose();
+        }
+
+        /// <summary>
+        /// Calls <see cref="CreateSwapchain(CompositionLayerManager.LayerInfo)"/> to create a
+        /// <see cref="XrSwapchainCreateInfo"/> struct that is then passed to the
+        /// UnityOpenXR lib to actually create the swapchain on the graphics thread.
+        /// The static <see cref="OnCreatedSwapchainCallback(int, ulong)"/> method is passed as a callback and invoked when
+        /// the swapchain has been created.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// that was just created.</param>
+        protected virtual void CreateSwapchainAsync(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            m_layerInfos[layerInfo.Id] = layerInfo;
+            var swapChainInfo = CreateSwapchain(layerInfo);
+            OpenXRLayerUtility.CreateSwapchain(layerInfo.Id, swapChainInfo, false, OnCreatedSwapchainCallback);
+        }
+
+        /// <summary>
+        /// This method is dispatched to the main thread inside <see cref="OnCreatedSwapchainCallback(int, ulong)"/>
+        /// and asks this subclass to create the native layer struct by invoking
+        /// <see cref="CreateNativeLayer(CompositionLayerManager.LayerInfo, SwapchainCreatedOutput)"/>.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// that was just created.</param>
+        /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer, such as
+        /// the associated swapchain handle.</param>
+        protected virtual void OnCreatedSwapchain(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput)
+        {
+            m_nativeLayers[layerInfo.Id] = CreateNativeLayer(layerInfo, swapchainOutput);
+        }
+
+        /// <summary>
+        /// Ensures that the native arrays are of the same size as the m_nativeLayers map.
+        /// </summary>
+        protected virtual void ResizeNativeArrays()
+        {
+            if (!m_ActiveNativeLayers.IsCreated && !m_ActiveNativeLayerOrders.IsCreated)
+            {
+                m_ActiveNativeLayers = new NativeArray<T>(m_nativeLayers.Count, Allocator.Persistent);
+                m_ActiveNativeLayerOrders = new NativeArray<int>(m_nativeLayers.Count, Allocator.Persistent);
+                return;
+            }
+
+            Assertions.Assert.AreEqual(m_ActiveNativeLayers.Length, m_ActiveNativeLayerOrders.Length);
+
+            if (m_ActiveNativeLayers.Length < m_nativeLayers.Count)
+            {
+                var newLayerArray = new NativeArray<T>(m_nativeLayers.Count, Allocator.Persistent);
+                NativeArray<T>.Copy(m_ActiveNativeLayers, newLayerArray, m_ActiveNativeLayers.Length);
+                m_ActiveNativeLayers.Dispose();
+                m_ActiveNativeLayers = newLayerArray;
+
+                var newOrderArray = new NativeArray<int>(m_nativeLayers.Count, Allocator.Persistent);
+                NativeArray<int>.Copy(m_ActiveNativeLayerOrders, newOrderArray, m_ActiveNativeLayerOrders.Length);
+                m_ActiveNativeLayerOrders.Dispose();
+                m_ActiveNativeLayerOrders = newOrderArray;
+            }
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.SwapchainCallbackDelegate))]
+        private static void OnCreatedSwapchainCallback(int layerId, ulong swapchainHandle)
+        {
+            if (Instance == null)
+                return;
+
+            Instance.actionsForMainThread.Enqueue(() => { Instance.OnCreatedSwapchain(Instance.m_layerInfos[layerId], new SwapchainCreatedOutput { handle = swapchainHandle }); });
+        }
+    }
+}
+#endif
