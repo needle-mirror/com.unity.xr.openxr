@@ -527,6 +527,28 @@ namespace UnityEngine.XR.OpenXR.Input
             return false;
         }
 
+        /// <summary>
+        /// Set InputAction to be used for controller late latching (Vulkan Only Feature). Only support one inputAction for each left and right controller.
+        /// See Controller Samples MarkLateLatchNode.cs for example code and usages.
+        /// </summary>
+        /// <param name="inputAction">Source InputAction - Pose Type</param>
+        /// <returns>True if the given action is a valid pose action can be late latched</returns>
+        public static bool TrySetControllerLateLatchAction(InputAction inputAction)
+        {
+            //only allow one binding per action for LateLatching
+            if (inputAction == null || inputAction.controls.Count != 1)
+                return false;
+            if (inputAction.controls[0].device == null)
+                return false;
+            var deviceId = GetDeviceId(inputAction.controls[0].device);
+            if (deviceId == 0)
+                return false;
+            var actionHandle = GetActionHandle(inputAction);
+            if (actionHandle == 0)
+                return false;
+            return Internal_TrySetControllerLateLatchAction(deviceId, actionHandle);
+        }
+
         [StructLayout(LayoutKind.Explicit, Size = k_Size)]
         private struct GetInternalDeviceIdCommand : IInputDeviceCommandInfo
         {
@@ -643,6 +665,9 @@ namespace UnityEngine.XR.OpenXR.Input
             outName = Marshal.PtrToStringAnsi(outNamePtr);
             return true;
         }
+
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_TrySetControllerLateLatchAction")]
+        private static extern bool Internal_TrySetControllerLateLatchAction(uint deviceId, ulong actionId);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIsActive")]
         private static extern bool Internal_GetActionIsActive(uint deviceId, string name);

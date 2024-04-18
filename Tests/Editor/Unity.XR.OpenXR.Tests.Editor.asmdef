@@ -9,7 +9,8 @@
         "GUID:e40ba710768534012815d3193fa296cb",
         "GUID:2023fa18bf9504e98b11fe2174802802",
         "GUID:6150739e4dc7bff4d833306fd9d5a4f0",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:4ddd23ea56a3a40f0aa0036d1624a53e"
     ],
     "includePlatforms": [
         "Editor"
@@ -24,6 +25,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+          "name": "com.unity.inputsystem",
+          "expression": "1.6.3",
+          "define": "INPUT_SYSTEM_BINDING_VALIDATOR"
+        }
+    ],
     "noEngineReferences": false
 }

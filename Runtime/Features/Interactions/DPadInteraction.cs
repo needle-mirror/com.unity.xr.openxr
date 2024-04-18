@@ -280,7 +280,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void RegisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(DPad),
@@ -295,10 +295,19 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         protected override void UnregisterDeviceLayout()
         {
 #if UNITY_EDITOR
-            if (!OpenXRLoaderEnabledForEditorPlayMode())
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
             InputSystem.InputSystem.RemoveLayout(nameof(DPad));
+        }
+
+        /// <summary>
+        /// Return device layout string for registering Dpad in InputSystem.
+        /// </summary>
+        /// <returns>Device layout string.</returns>
+        protected override string GetDeviceLayoutName()
+        {
+            return nameof(DPad);
         }
 
         /// <inheritdoc/>

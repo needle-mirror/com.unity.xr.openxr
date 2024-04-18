@@ -82,12 +82,11 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         XR_MSFT_HAND_INTERACTION_EXTENSION_NAME,
         XR_MSFT_hand_interaction_SPEC_VERSION
     },
-    //To-Do: update to proper ext name when hand interaction EXT is released in the openxr spec.
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
-        "XR_EXT_hand_interaction",
-        4
+        XR_EXT_HAND_INTERACTION_EXTENSION_NAME,
+        XR_EXT_hand_interaction_SPEC_VERSION
     },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
@@ -262,8 +261,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             flags |= MR_CREATE_MSFT_HAND_INTERACTION_EXT;
             continue;
         }
-        //To-Do: update to proper ext name when hand interaction EXR is released in the openxr spec.
-        if (strncmp("XR_EXT_hand_interaction", extension, sizeof("XR_EXT_hand_interaction")) == 0)
+        if (strncmp(XR_EXT_HAND_INTERACTION_EXTENSION_NAME, extension, sizeof(XR_EXT_HAND_INTERACTION_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_HAND_INTERACTION_EXT;
             continue;
@@ -410,7 +408,14 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateReferenceSpaces(
     if (!spaceCountOutput)
         return XR_ERROR_VALIDATION_FAILURE;
 
-    *spaceCountOutput = 4;
+    if (s_runtime->IsLocalFloorSpaceEnabled())
+    {
+        *spaceCountOutput = 5;
+    }
+    else
+    {
+        *spaceCountOutput = 4;
+    }
 
     if (spaceCapacityInput == 0)
         return XR_SUCCESS;
@@ -422,6 +427,10 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateReferenceSpaces(
     spaces[1] = XR_REFERENCE_SPACE_TYPE_LOCAL;
     spaces[2] = XR_REFERENCE_SPACE_TYPE_STAGE;
     spaces[3] = XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT;
+    if (s_runtime->IsLocalFloorSpaceEnabled())
+    {
+        spaces[4] = XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT;
+    }
 
     return XR_SUCCESS;
 }

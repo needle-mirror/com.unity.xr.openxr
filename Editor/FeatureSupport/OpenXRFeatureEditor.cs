@@ -72,7 +72,7 @@ namespace UnityEditor.XR.OpenXR.Features
             public static readonly GUIContent k_SettingsIcon = EditorGUIUtility.IconContent("Settings");
 
             public static readonly GUIContent k_Settings = new GUIContent("", k_SettingsIcon.image, "Open settings editor for this feature.");
-            public static readonly GUIContent k_InteractionProfilesTitle = new GUIContent("Interaction Profiles");
+            public static readonly GUIContent k_InteractionProfilesTitle = new GUIContent("Enabled Interaction Profiles");
         }
 
         List<OpenXRFeatureSetManager.FeatureSetInfo> selectionListItems = new List<OpenXRFeatureSetManager.FeatureSetInfo>();
@@ -269,8 +269,19 @@ namespace UnityEditor.XR.OpenXR.Features
             if (interactionItems.Count == 0)
                 return;
 
+            var iconSize = EditorGUIUtility.GetIconSize();
             EditorGUILayout.BeginVertical();
             EditorGUILayout.Space();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUIUtility.SetIconSize(new Vector2(30, 30));
+            GUILayout.Label(EditorGUIUtility.IconContent("console.infoicon"), new GUIStyle(EditorStyles.label));
+            EditorGUIUtility.SetIconSize(iconSize);
+            GUILayout.Label("Only enable interaction profiles that you actually test, to ensure their input bindings are complete. Otherwise, disable that interaction profile, to allow the OpenXR runtime to remap user input from a profile you do test.", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+
             interactionFeaturesList.DoLayoutList();
             EditorGUILayout.EndVertical();
         }

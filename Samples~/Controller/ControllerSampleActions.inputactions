@@ -328,6 +328,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "GripPose",
+                    "type": "Value",
+                    "id": "4f2e03e3-95ea-4ac1-9740-9b1f8cc922d9",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "AimPose",
+                    "type": "Value",
+                    "id": "7081a0c1-4ea9-4864-a36b-a72cd134062d",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -759,6 +777,28 @@
                     "action": "PalmPose",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f816c2ca-6f40-4811-8dfe-147f7969ba3a",
+                    "path": "<XRController>{LeftHand}/devicePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GripPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "53e60c89-4a36-468d-9b46-606b71fc2ced",
+                    "path": "<XRController>{LeftHand}/pointer",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "AimPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -1085,6 +1125,24 @@
                     "name": "PalmPose",
                     "type": "Value",
                     "id": "e610f280-58be-4560-864f-72000a7d4d0f",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GripPose",
+                    "type": "Value",
+                    "id": "3835514f-524f-4b51-87c3-3c981b4a9d9d",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "AimPose",
+                    "type": "Value",
+                    "id": "ffc282a0-cd33-4ecd-aab6-075d869e9472",
                     "expectedControlType": "Pose",
                     "processors": "",
                     "interactions": "",
@@ -1518,6 +1576,28 @@
                     "processors": "",
                     "groups": "XR Usage",
                     "action": "PalmPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "71a57302-985f-431e-ab13-1906ee055f4f",
+                    "path": "<XRController>{RightHand}/devicePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GripPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "19a54083-dd5a-49ec-be72-8f74cf9ac87c",
+                    "path": "<XRController>{RightHand}/pointer",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "AimPose",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

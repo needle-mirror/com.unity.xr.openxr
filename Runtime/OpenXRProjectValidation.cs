@@ -89,8 +89,8 @@ namespace UnityEditor.XR.OpenXR
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "Only arm64 is supported on Android with OpenXR.  Other architectures are not supported.",
-                checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || (PlayerSettings.Android.targetArchitectures == AndroidArchitecture.ARM64),
+                message = "Only arm64 or x86_x64 is supported on Android with OpenXR.  Other architectures are not supported.",
+                checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || ((PlayerSettings.Android.targetArchitectures & (~(AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64))) == 0) && (PlayerSettings.Android.targetArchitectures != AndroidArchitecture.None),
                 fixIt = () =>
                 {
 #if UNITY_2021_3_OR_NEWER
@@ -100,7 +100,7 @@ namespace UnityEditor.XR.OpenXR
 #endif
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 },
-                fixItMessage = "Change android build to arm64 and enable il2cpp.",
+                fixItMessage = "Change android build to arm64 or x86_64 and enable il2cpp.",
                 error = true,
                 buildTargetGroup = BuildTargetGroup.Android,
             },

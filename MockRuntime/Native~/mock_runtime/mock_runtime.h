@@ -17,6 +17,7 @@ static const MockRuntimeCreateFlags MR_CREATE_FB_TOUCH_CONTROLLER_PRO = 0x000010
 static const MockRuntimeCreateFlags MR_CREATE_META_PERFORMANCE_METRICS_EXT = 0x00002000;
 static const MockRuntimeCreateFlags MR_CREATE_HP_REVERB_G2_CONTROLLER = 0x00004000;
 static const MockRuntimeCreateFlags MR_CREATE_HAND_INTERACTION_EXT = 0x00008000;
+static const MockRuntimeCreateFlags MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT = 0x00010000;
 
 static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT;
 
@@ -60,6 +61,11 @@ public:
     bool IsConformanceAutomationEnabled() const
     {
         return (createFlags & MR_CREATE_CONFORMANCE_AUTOMATION_EXT) != 0;
+    }
+
+    bool IsLocalFloorSpaceEnabled() const
+    {
+        return (createFlags & MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT) != 0;
     }
 
     XrResult GetNextEvent(XrEventDataBuffer* eventData);

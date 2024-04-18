@@ -118,6 +118,11 @@ namespace UnityEngine.XR.OpenXR.Tests
             InputSystem.InputSystem.RemoveLayout(nameof(MockController));
         }
 
+        protected override string GetDeviceLayoutName()
+        {
+            return nameof(MockController);
+        }
+
         /// <summary>
         /// Create a default action map config for the controller
         /// </summary>

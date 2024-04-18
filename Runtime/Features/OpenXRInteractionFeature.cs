@@ -20,6 +20,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Temporary static list used for action map creation
         /// </summary>
         private static List<ActionMapConfig> m_CreatedActionMaps = null;
+        private static Dictionary<InteractionProfileType, Dictionary<string, bool>> m_InteractionProfileEnabledMaps = new Dictionary<InteractionProfileType, Dictionary<string, bool>>();
 
         /// <summary>
         /// Flag that indicates this feature or profile is additive and its binding paths will be added to other non-additive profiles if enabled.
@@ -174,6 +175,21 @@ namespace UnityEngine.XR.OpenXR.Features
         }
 
         /// <summary>
+        /// Flags used to indicate Interaction profile type
+        /// </summary>
+        public enum InteractionProfileType
+        {
+            /// <summary>
+            /// Interaction profile derived from InputDevice class
+            /// </summary>
+            Device,
+            /// <summary>
+            /// Interaction profile derived from XRController class
+            /// </summary>
+            XRController
+        }
+
+        /// <summary>
         /// Register a device layout with the Unity Input System.
         /// Called whenever this interaction profile is enabled in the Editor.
         /// </summary>
@@ -203,6 +219,18 @@ namespace UnityEngine.XR.OpenXR.Features
             RegisterDeviceLayout();
             return true;
         }
+
+        /// <summary>
+        /// Return interaction profile type. Default type is XRController. Override this if interactionProfile is not derived from XRController class.
+        /// </summary>
+        /// <returns>Interaction profile type.</returns>
+        protected virtual InteractionProfileType GetInteractionProfileType() => InteractionProfileType.XRController;
+
+        /// <summary>
+        /// Return device layout name string used for register layouts in inputSystem.
+        /// </summary>
+        /// <returns>Device layout string.</returns>
+        protected virtual string GetDeviceLayoutName() => "";
 
         /// <summary>
         /// Request the feature create its action maps
@@ -237,24 +265,23 @@ namespace UnityEngine.XR.OpenXR.Features
         }
 
         /// <summary>
-        /// Handle enabled state change to register/unregister device layouts as needed
+        /// Handle enabled state change
         /// </summary>
         protected internal override void OnEnabledChange()
         {
             base.OnEnabledChange();
+#if UNITY_EDITOR && INPUT_SYSTEM_BINDING_VALIDATOR
+            var packageSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            if (null == packageSettings)
+                return;
 
-#if UNITY_EDITOR
-            // Keep the layouts registered in the editor as long as at least one of the build target
-            // groups has the feature enabled.
-            var packageSettings = OpenXRSettings.GetPackageSettings();
-            var featureType = GetType();
-            if (null != packageSettings && packageSettings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.feature.enabled && featureType.IsAssignableFrom(f.feature.GetType())))
+            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>())
             {
-                RegisterDeviceLayout();
-            }
-            else
-            {
-                UnregisterDeviceLayout();
+                var profileType = ((OpenXRInteractionFeature) feature).GetInteractionProfileType();
+                string deviceLayoutName = ((OpenXRInteractionFeature) feature).GetDeviceLayoutName();
+                deviceLayoutName = "<" + deviceLayoutName + ">";
+                if (m_InteractionProfileEnabledMaps.ContainsKey(profileType) && m_InteractionProfileEnabledMaps[profileType].ContainsKey(deviceLayoutName))
+                    m_InteractionProfileEnabledMaps[profileType][deviceLayoutName] = feature.enabled;
             }
 #endif
         }
@@ -262,38 +289,127 @@ namespace UnityEngine.XR.OpenXR.Features
         internal static void RegisterLayouts()
         {
 #if UNITY_EDITOR
-            // Find all enabled interaction features and force them to register their device layouts
-            var packageSettings = OpenXRSettings.GetPackageSettings();
+            var packageSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             if (null == packageSettings)
                 return;
+#if INPUT_SYSTEM_BINDING_VALIDATOR
+            m_InteractionProfileEnabledMaps.Clear();
+            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>())
+            {
+                //Register all the available profiles
+                ((OpenXRInteractionFeature) feature).RegisterDeviceLayout();
 
-            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>().Where(f => f.feature.enabled).Select(f => f.feature))
-                feature.OnEnabledChange();
+                var profileType = ((OpenXRInteractionFeature) feature).GetInteractionProfileType();
+                string deviceLayoutName = ((OpenXRInteractionFeature) feature).GetDeviceLayoutName();
+                if (String.IsNullOrEmpty(deviceLayoutName))
+                {
+                    Debug.LogWarningFormat("No GetDeviceLayoutName() override detected in {0}. Binding path validator for this interaction profile is not as effective. To fix, add GetDeviceLayoutName and GetInteractionProfileType override in this profile.", feature.nameUi);
+                    continue;
+                }
+                deviceLayoutName = "<" + deviceLayoutName + ">";
+                if (!m_InteractionProfileEnabledMaps.ContainsKey(profileType))
+                    m_InteractionProfileEnabledMaps[profileType] = new Dictionary<string, bool>();
+
+                m_InteractionProfileEnabledMaps[profileType].Add(deviceLayoutName, feature.enabled);
+            }
+            InputSystem.InputSystem.customBindingPathValidators -= PathValidator;
+            InputSystem.InputSystem.customBindingPathValidators += PathValidator;
+#else //#if INPUT_SYSTEM_BINDING_VALIDATOR
+            foreach (var feature in packageSettings.GetFeatures<OpenXRInteractionFeature>())
+            {
+                //Register all the available profiles
+                ((OpenXRInteractionFeature)feature).RegisterDeviceLayout();
+            }
+#endif //#if INPUT_SYSTEM_BINDING_VALIDATOR
 #else
             foreach (var feature in OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>())
                 if (feature.enabled)
                     ((OpenXRInteractionFeature)feature).RegisterDeviceLayout();
-#endif
+#endif //#if UNITY_EDITOR
         }
+
+#if UNITY_EDITOR && INPUT_SYSTEM_BINDING_VALIDATOR
+        internal static Action PathValidator(string bindingPath)
+        {
+            //case1: OpenXR plugin not enabled in XR management
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
+                return null;
+
+            string warningText = null;
+            //case2: current bindingPath maps to XRController.
+            if (bindingPath.StartsWith("<XRController>"))
+            {
+                if (!m_InteractionProfileEnabledMaps.ContainsKey(InteractionProfileType.XRController))
+                    return null;
+                bool controllerProfileEnabled = false;
+                foreach (var profile in m_InteractionProfileEnabledMaps[InteractionProfileType.XRController])
+                {
+                    if (profile.Value)
+                        controllerProfileEnabled = true;
+                }
+                if (controllerProfileEnabled)
+                    return null;
+                warningText = "This binding will be inactive because there are no enabled OpenXR interaction profiles.";
+            }
+            else
+            {
+                //case3: current bindingPath maps to specific OpenXR interaction profile
+                //Only check for bindings that belongs to OpenXRInteractionFeature
+                bool checkXRInteractionBinding = false;
+                bool profileEnabled = false;
+                foreach (var map in m_InteractionProfileEnabledMaps)
+                {
+                    foreach (var profile in map.Value)
+                    {
+                        if (bindingPath.StartsWith(profile.Key, StringComparison.OrdinalIgnoreCase))
+                        {
+                            checkXRInteractionBinding = true;
+                            profileEnabled = profile.Value;
+                            break;
+                        }
+                    }
+                    if (checkXRInteractionBinding)
+                        break;
+                }
+                if (!checkXRInteractionBinding || profileEnabled)
+                    return null;
+
+                warningText = "This binding will be inactive because it refers to a disabled OpenXR interaction profile.";
+            }
+            // Draw the warning information in the Binding Properties panel
+            return () =>
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(EditorGUIUtility.IconContent("Warning@2x"), new GUIStyle(EditorStyles.label));
+                GUILayout.Label(warningText, EditorStyles.wordWrappedLabel);
+                EditorGUILayout.EndHorizontal();
+
+                if(GUILayout.Button("Manage Interaction Profiles"))
+                     SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");
+                EditorGUILayout.Space();
+                EditorGUILayout.EndVertical();
+            };
+        }
+#endif
 
 #if UNITY_EDITOR
-        internal static bool OpenXRLoaderEnabledForEditorPlayMode()
-        {
-            var settings = XRGeneralSettings.Instance?.AssignedSettings ?? (XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Standalone)?.AssignedSettings);
-            if (!settings)
-                return false;
-            bool loaderFound = false;
-            foreach (var activeLoader in settings.activeLoaders)
+            internal static bool OpenXRLoaderEnabledForSelectedBuildTarget(BuildTargetGroup targetGroup)
             {
-                if (activeLoader as OpenXRLoader != null)
+                var settings =XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup)?.AssignedSettings;
+                if (!settings)
+                    return false;
+                bool loaderFound = false;
+                foreach (var activeLoader in settings.activeLoaders)
                 {
-                    loaderFound = true;
-                    break;
+                    if (activeLoader as OpenXRLoader != null)
+                    {
+                        loaderFound = true;
+                        break;
+                    }
                 }
+                return loaderFound;
             }
-            return loaderFound;
-        }
-
 #endif
     }
 }

@@ -28,6 +28,11 @@
             "name": "com.unity.inputsystem",
             "expression": "1.4.2",
             "define": "INPUT_SYSTEM_POSE_VALID"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.6.3",
+            "define": "INPUT_SYSTEM_BINDING_VALIDATOR"
         }
     ],
     "noEngineReferences": false

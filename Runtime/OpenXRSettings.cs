@@ -50,6 +50,14 @@ namespace UnityEngine.XR.OpenXR
             ApplyRenderSettings();
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (Application.isPlaying)
+                ApplySettings();
+        }
+#endif
+
         private static OpenXRSettings GetInstance(bool useActiveBuildTarget)
         {
             OpenXRSettings settings = null;

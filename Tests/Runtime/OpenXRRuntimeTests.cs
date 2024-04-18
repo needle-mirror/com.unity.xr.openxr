@@ -403,7 +403,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CheckSpecExtensionEnabled()
         {
-            MockRuntime.Instance.openxrExtensionStrings = MockRuntime.XR_UNITY_mock_test;
+            AddExtension(MockRuntime.XR_UNITY_mock_test);
 
             base.InitializeAndStart();
 
@@ -603,6 +603,11 @@ namespace UnityEngine.XR.OpenXR.Tests
             var cameraGO = new GameObject("Test Cam");
             var camera = cameraGO.AddComponent<Camera>();
 
+#if UNITY_ANDROID
+            if (!SystemInfo.supportsMultiview)
+                LogAssert.ignoreFailingMessages = true;
+#endif
+
             base.InitializeAndStart();
             OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
 
@@ -629,6 +634,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(cullingParams.stereoProjectionMatrix, Is.Not.EqualTo(renderParam0.projection));
 
             Object.Destroy(cameraGO);
+            LogAssert.ignoreFailingMessages = false;
         }
 
         [UnityTest]

@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEditor;
 
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR.Features.Interactions;
@@ -59,13 +60,42 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// <summary>
         /// Forces the removal of Internet permissions added to the Android Manifest.
         /// </summary>
+        [SerializeField, Tooltip("Forces the removal of Internet permissions added to the Android Manifest.")]
+        internal bool forceRemoveInternetPermission = false;
+
         [SerializeField]
-        internal bool forceRemoveInternetPermission;
+        internal bool symmetricProjection;
+
+        /// <summary>
+        /// Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.
+        /// </summary>
+        [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
+        public Texture2D systemSplashScreen;
 
         /// <summary>
         /// Caches validation rules for each build target group requested by <see cref="GetValidationChecks="/>.
         /// </summary>
         private Dictionary<BuildTargetGroup, ValidationRule[]> validationRules = new Dictionary<BuildTargetGroup, ValidationRule[]>();
+
+        /// Holding the Late Latching mode here for the editor (so we get undo/redo functionality)
+        /// </summary>
+        [SerializeField]
+        internal bool lateLatchingMode;
+
+        /// <summary>
+        /// Holding the Late Latching mode here for the editor (so we get undo/redo functionality)
+        /// </summary>
+        [SerializeField]
+        internal bool lateLatchingDebug;
+
+        /// <summary>
+        /// Forces the removal of Internet permissions added to the Android Manifest.
+        /// </summary>
+        public bool ForceRemoveInternetPermission
+        {
+            get => forceRemoveInternetPermission;
+            set => forceRemoveInternetPermission = value;
+        }
 
         public new void OnEnable()
         {
@@ -74,7 +104,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             AddTargetDevice("quest2", "Quest 2", true);
             AddTargetDevice("cambria", "Quest Pro", true);
 
-            forceRemoveInternetPermission = true;
+            symmetricProjection = false;
         }
 
         /// <summary>
@@ -191,7 +221,86 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             return true;
                         },
                         fixItAutomatic = false,
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "System Splash Screen must be a PNG texture asset.",
+                        checkPredicate = () =>
+                        {
+                            if (systemSplashScreen == null)
+                                return true;
+
+                            string splashScreenAssetPath = AssetDatabase.GetAssetPath(systemSplashScreen);
+                            if (Path.GetExtension(splashScreenAssetPath).ToLower() != ".png")
+                                return false;
+
+                            return true;
+                        },
+                        fixIt = () =>
+                        {
+                            var window = MetaQuestFeatureEditorWindow.Create(this);
+                            window.ShowPopup();
+                        },
+                        error = true,
+                        fixItAutomatic = false,
+                    },
+
+#if UNITY_ANDROID
+                    new ValidationRule(this)
+                    {
+                        message = "Symmetric Projection is only supported on Vulkan graphics API",
+                        checkPredicate = () =>
+                        {
+                            if (symmetricProjection)
+                            {
+                                if (!PlayerSettings.GetUseDefaultGraphicsAPIs(BuildTarget.Android))
+                                {
+                                    GraphicsDeviceType[] apis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
+                                    if (apis.Length >= 1 && apis[0] == GraphicsDeviceType.Vulkan)
+                                    {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            }
+                            return true;
+                        },
+                        fixIt = () =>
+                        {
+                            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan });
+                        },
+                        error = true,
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Vulkan as Graphics API"
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Symmetric Projection is not supported on Quest 1",
+                        checkPredicate = () =>
+                        {
+                            if (symmetricProjection)
+                            {
+                                foreach (var device in targetDevices)
+                                {
+                                    if (device.enabled && device.manifestName == "quest")
+                                    {
+                                        return false;
+                                    }
+                                }
+                            }
+                            return true;
+                        },
+                        fixIt = () =>
+                        {
+                            var window = MetaQuestFeatureEditorWindow.Create(this);
+                            window.ShowPopup();
+                        },
+                        error = true,
+                        fixItAutomatic = false,
                     }
+#endif
             };
 
         internal class MetaQuestFeatureEditorWindow : EditorWindow

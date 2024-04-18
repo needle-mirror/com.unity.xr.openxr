@@ -96,18 +96,31 @@ namespace UnityEngine.XR.OpenXR
 
         private void ApplyRenderSettings()
         {
+            Internal_SetSymmetricProjection(m_symmetricProjection);
             Internal_SetRenderMode(m_renderMode);
             Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
         }
 
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (Application.isPlaying)
-                ApplyRenderSettings();
-        }
+        [SerializeField] private bool m_symmetricProjection = false;
 
-#endif
+        /// <summary>
+        /// If enabled, when the application begins it will create a stereo symmetric view that has the eye buffer resolution change based on the IPD.
+        /// Provides a performance benefit across all IPDs.
+        /// </summary>
+        public bool symmetricProjection
+        {
+            get
+            {
+                return m_symmetricProjection;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetSymmetricProjection(value);
+                else
+                    m_symmetricProjection = value;
+            }
+        }
 
         private const string LibraryName = "UnityOpenXR";
 
@@ -122,5 +135,8 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetDepthSubmissionMode")]
         private static extern DepthSubmissionMode Internal_GetDepthSubmissionMode();
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSymmetricProjection")]
+        private static extern void Internal_SetSymmetricProjection(bool enabled);
     }
 }
