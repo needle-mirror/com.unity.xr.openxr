@@ -1,4 +1,7 @@
-### Microsoft Hand Interaction
+---
+uid: openxr-microsoft-hand-interaction
+---
+# Microsoft Hand Interaction
 
 Unity OpenXR provides support for the Hololens 2 Hand interaction profile. This layout inherits from `<XRController>` so bindings that use XR Controller and are available on this device (for example, `<XRController>/devicePosition`) will bind correctly.
 

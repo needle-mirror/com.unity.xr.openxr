@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -178,10 +178,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(ret);
             yield return null;
             Assert.AreEqual(OpenXRLoader.LoaderState.Uninitialized, Loader.currentLoaderState);
-
         }
-
-
     }
 }
 #endif // TEST_SUPPORT

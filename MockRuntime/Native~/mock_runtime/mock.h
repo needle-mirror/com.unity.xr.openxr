@@ -9,6 +9,29 @@
 #include <windows.h>
 #endif
 
+#ifdef XR_USE_PLATFORM_ANDROID
+#include <jni.h>
+#include <sstream>
+#include <string.h>
+#include <string>
+#include <sys/system_properties.h>
+
+namespace std
+{
+template <typename T>
+std::string to_string(T value)
+{
+    std::ostringstream os;
+    os << value;
+    return os.str();
+}
+} // namespace std
+#endif
+
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+#include <EGL/egl.h>
+#endif
+
 #include <vulkan/vulkan.h>
 
 struct IUnityXRTrace;
@@ -32,6 +55,7 @@ extern IUnityXRTrace* s_Trace;
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
 #include <openxr/openxr_reflection.h>
+#include <openxr/xr_msft_third_person_observer_private.h>
 
 #include "XR/IUnityXRTrace.h"
 
@@ -86,6 +110,8 @@ extern MockRuntime* s_runtime;
 #else
 #define LOG_FUNC()
 #endif
+
+XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFunction* function);
 
 XrResult MockRuntime_BeforeFunction(const char* name);
 void MockRuntime_AfterFunction(const char* name, XrResult result);

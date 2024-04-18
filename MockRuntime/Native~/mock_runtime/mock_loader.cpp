@@ -12,6 +12,9 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
 #define XR_UNITY_null_gfx_SPEC_VERSION 1
 #define XR_UNITY_NULL_GFX_EXTENSION_NAME "XR_UNITY_null_gfx"
 
+#define XR_UNITY_android_present_SPEC_VERSION 1
+#define XR_UNITY_ANDROID_PRESENT_EXTENSION_NAME "XR_UNITY_android_present"
+
 #define ENUM_TO_STR(name, val)                                 \
     case val:                                                  \
         strncpy(buffer, #name, XR_MAX_RESULT_STRING_SIZE - 1); \
@@ -30,6 +33,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_UNITY_NULL_GFX_EXTENSION_NAME,
         XR_UNITY_null_gfx_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_UNITY_ANDROID_PRESENT_EXTENSION_NAME,
+        XR_UNITY_android_present_SPEC_VERSION
     },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
@@ -73,27 +82,49 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         XR_MSFT_HAND_INTERACTION_EXTENSION_NAME,
         XR_MSFT_hand_interaction_SPEC_VERSION
     },
+    //To-Do: update to proper ext name when hand interaction EXT is released in the openxr spec.
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        "XR_EXT_hand_interaction",
+        4
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_FB_TOUCH_CONTROLLER_PRO_EXTENSION_NAME,
+        XR_FB_touch_controller_pro_SPEC_VERSION
+    },
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
         XR_MSFT_FIRST_PERSON_OBSERVER_EXTENSION_NAME,
         XR_MSFT_first_person_observer_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME,
+        XR_MSFT_third_person_observer_private_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_META_PERFORMANCE_METRICS_EXTENSION_NAME,
+        XR_META_performance_metrics_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME,
+        XR_EXT_hp_mixed_reality_controller_SPEC_VERSION
     }
-#if defined(XR_USE_GRAPHICS_API_VULKAN)    
+#if defined(XR_USE_GRAPHICS_API_VULKAN)
     ,{
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
         XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME,
-        XR_KHR_vulkan_enable2_SPEC_VERSION        
-    }
-#endif    
-
-#if defined(XR_USE_PLATFORM_WIN32)
-    ,{
-        XR_TYPE_EXTENSION_PROPERTIES,
-        nullptr,
-        XR_KHR_WIN32_CONVERT_PERFORMANCE_COUNTER_TIME_EXTENSION_NAME,
-        XR_KHR_win32_convert_performance_counter_time_SPEC_VERSION        
+        XR_KHR_vulkan_enable2_SPEC_VERSION
     }
 #endif
 
@@ -214,6 +245,12 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             continue;
         }
 
+        if (strncmp(XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME, extension, sizeof(XR_MSFT_THIRD_PERSON_OBSERVER_PRIVATE_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT;
+            continue;
+        }
+
         if (strncmp(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME, extension, sizeof(XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_EYE_GAZE_INTERACTION_EXT;
@@ -224,6 +261,27 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         {
             flags |= MR_CREATE_MSFT_HAND_INTERACTION_EXT;
             continue;
+        }
+        //To-Do: update to proper ext name when hand interaction EXR is released in the openxr spec.
+        if (strncmp("XR_EXT_hand_interaction", extension, sizeof("XR_EXT_hand_interaction")) == 0)
+        {
+            flags |= MR_CREATE_HAND_INTERACTION_EXT;
+            continue;
+        }
+        if (strncmp(XR_FB_TOUCH_CONTROLLER_PRO_EXTENSION_NAME, extension, sizeof(XR_FB_TOUCH_CONTROLLER_PRO_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_FB_TOUCH_CONTROLLER_PRO;
+            continue;
+        }
+
+        if (strncmp(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME, extension, sizeof(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_META_PERFORMANCE_METRICS_EXT;
+        }
+
+        if (strncmp(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME, extension, sizeof(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_HP_REVERB_G2_CONTROLLER;
         }
     }
 
@@ -751,6 +809,9 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetInstanceProcAddr(XrIns
     GET_PROC_ADDRESS(xrApplyHapticFeedback)
     GET_PROC_ADDRESS(xrStopHapticFeedback)
     GET_PROC_ADDRESS(xrGetVisibilityMaskKHR)
+
+    if (XR_SUCCEEDED(GetProcAddrMockAPI(instance, name, function)))
+        return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

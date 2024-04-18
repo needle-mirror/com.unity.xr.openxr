@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 #if UNITY_EDITOR
@@ -25,6 +26,9 @@ namespace UnityEngine.XR.OpenXR
 
         [Serializable]
         private struct InitializeEvent
+#if UNITY_2023_2_OR_NEWER
+            : IAnalytic.IData
+#endif
         {
             public bool success;
             public string runtime;
@@ -37,10 +41,32 @@ namespace UnityEngine.XR.OpenXR
             public string[] failed_features;
         }
 
+#if UNITY_2023_2_OR_NEWER
+        [AnalyticInfo(eventName: kEventInitialize, vendorKey: kVendorKey, maxEventsPerHour: kMaxEventsPerHour, maxNumberOfElements: kMaxNumberOfElements)]
+        private class XrInitializeAnalytic : IAnalytic
+        {
+            private InitializeEvent? data = null;
+
+            public XrInitializeAnalytic(InitializeEvent data)
+            {
+                this.data = data;
+            }
+
+            public bool TryGatherData(out IAnalytic.IData data, [NotNullWhen(false)] out Exception error)
+            {
+                error = null;
+                data = this.data;
+                return data != null;
+            }
+        }
+#endif
+
         private static bool Initialize()
         {
 #if ENABLE_TEST_SUPPORT || !ENABLE_CLOUD_SERVICES_ANALYTICS || !UNITY_ANALYTICS
             return false;
+#elif UNITY_EDITOR && UNITY_2023_2_OR_NEWER
+            return EditorAnalytics.enabled;
 #else
             if (s_Initialized)
                 return true;
@@ -49,7 +75,7 @@ namespace UnityEngine.XR.OpenXR
             if (!EditorAnalytics.enabled)
                 return false;
 
-            if(AnalyticsResult.Ok != EditorAnalytics.RegisterEventWithLimit(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
+            if (AnalyticsResult.Ok != EditorAnalytics.RegisterEventWithLimit(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
 #else
             if (AnalyticsResult.Ok != Analytics.Analytics.RegisterEvent(kEventInitialize, kMaxEventsPerHour, kMaxNumberOfElements, kVendorKey))
 #endif //UNITY_EDITOR
@@ -67,7 +93,19 @@ namespace UnityEngine.XR.OpenXR
             if (!s_Initialized && !Initialize())
                 return;
 
-            var data = new InitializeEvent
+            var data = CreateInitializeEvent(success);
+
+#if UNITY_EDITOR
+            SendEditorAnalytics(data);
+#else
+            SendPlayerAnalytics(data);
+#endif //UNITY_EDITOR
+#endif //UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
+        }
+
+        private static InitializeEvent CreateInitializeEvent(bool success)
+        {
+            return new InitializeEvent
             {
                 success = success,
                 runtime = OpenXRRuntime.name,
@@ -87,13 +125,22 @@ namespace UnityEngine.XR.OpenXR
                     .Where(f => f != null && f.failedInitialization)
                     .Select(f => $"{f.GetType().FullName}_{f.version}").ToArray()
             };
+        }
 
 #if UNITY_EDITOR
-            EditorAnalytics.SendEventWithLimit(kEventInitialize, data);
+        private static void SendEditorAnalytics(InitializeEvent data)
+        {
+#if UNITY_2023_2_OR_NEWER
+            EditorAnalytics.SendAnalytic(new XrInitializeAnalytic(data));
 #else
-            Analytics.Analytics.SendEvent(kEventInitialize, data);
-#endif //UNITY_EDITOR
-#endif //UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
+            EditorAnalytics.SendEventWithLimit(kEventInitialize, data);
+#endif //UNITY_2023_2_OR_NEWER
         }
+#else
+        private static void SendPlayerAnalytics(InitializeEvent data)
+        {
+            Analytics.Analytics.SendEvent(kEventInitialize, data);
+        }
+#endif //UNITY_EDITOR
     }
 }

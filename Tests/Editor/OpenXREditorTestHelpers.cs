@@ -27,7 +27,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// <summary>
         /// Clear the FeatureInfo cache
         /// </summary>
-        public static void ClearFeatureInfos ()
+        public static void ClearFeatureInfos()
         {
             s_FeatureInfos = null;
         }
@@ -61,7 +61,6 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             return GetFeatureInfos(buildTargetGroup).Where(f => featureIds.Contains(f.Attribute.FeatureId)).ToArray();
         }
-
 
         /// <summary>
         /// Enable or Disable a feature set

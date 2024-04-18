@@ -28,12 +28,15 @@ namespace UnityEngine.XR.OpenXR.Tests
             m_OldAfterRestart = restarter.onAfterRestart;
             m_OldAfterCoroutine = restarter.onAfterCoroutine;
 
-            restarter.onAfterShutdown = () => m_Shutdown = true;
-            restarter.onAfterRestart = () => m_Restarted = true;
-            restarter.onAfterCoroutine = () => m_Done = true;
+            restarter.onAfterShutdown = () =>
+            {
+                m_Shutdown = true;
+                restarter.onAfterRestart = () => m_Restarted = true;
+                restarter.onAfterCoroutine = () => m_Done = true;
+            };
         }
 
-        private void RestoreCallbacks ()
+        private void RestoreCallbacks()
         {
             var restarter = OpenXRRestarter.Instance;
             restarter.onAfterShutdown = m_OldAfterShutdown;

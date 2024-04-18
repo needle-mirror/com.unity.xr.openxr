@@ -20,7 +20,7 @@ namespace UnityEditor.XR.OpenXR
                 return null;
 
             string path = "Assets";
-            foreach( var pc in pathComponents)
+            foreach (var pc in pathComponents)
             {
                 string subFolder = Path.Combine(path, pc);
                 bool shouldCreate = true;
@@ -64,7 +64,7 @@ namespace UnityEditor.XR.OpenXR
         {
             if (s_Instance == null)
             {
-                lock(s_Lock)
+                lock (s_Lock)
                 {
                     if (s_Instance == null)
                     {
@@ -88,7 +88,6 @@ namespace UnityEditor.XR.OpenXR
 
             return s_Instance;
         }
-
 
         [Serializable]
         struct BuildTargetFeatureSets
@@ -163,7 +162,7 @@ namespace UnityEditor.XR.OpenXR
                 dirty = true;
             }
 
-            if(dirty)
+            if (dirty)
                 EditorUtility.SetDirty(this);
 
             return dirty;

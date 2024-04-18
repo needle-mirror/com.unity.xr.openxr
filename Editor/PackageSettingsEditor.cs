@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
-
+using UnityEngine.XR.OpenXR;
 using UnityEditor.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR
@@ -19,6 +19,20 @@ namespace UnityEditor.XR.OpenXR
         static class Content
         {
             public const float k_Space = 15.0f;
+
+            public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode");
+
+            public static readonly GUIContent[] k_renderModeOptions = new GUIContent[2]
+            {
+                new GUIContent("Multi-pass"),
+                new GUIContent("Single Pass Instanced"),
+            };
+
+            public static readonly GUIContent[] k_androidRenderModeOptions = new GUIContent[2]
+            {
+                new GUIContent("Multi-pass"),
+                new GUIContent("Single Pass Instanced \\ Multi-view"),
+            };
         }
 
         private void Awake()
@@ -46,10 +60,15 @@ namespace UnityEditor.XR.OpenXR
             OpenXRFeatureSetManager.onFeatureSetStateChanged -= OnFeatureSetStateChanged;
         }
 
+        public void OnEnable()
+        {
+            OpenXRRuntimeSelector.RefreshRuntimeDetectorList();
+        }
+
         public override void OnInspectorGUI()
         {
             var buildTargetGroup = EditorGUILayout.BeginBuildTargetSelectionGrouping();
-            OpenXRProjectValidationWindow.SetSelectedBuildTargetGroup(buildTargetGroup);
+            OpenXRProjectValidationRulesSetup.SetSelectedBuildTargetGroup(buildTargetGroup);
 
             OpenXRPackageSettings settings = serializedObject.targetObject as OpenXRPackageSettings;
 
@@ -63,7 +82,27 @@ namespace UnityEditor.XR.OpenXR
             var serializedOpenXrSettings = new SerializedObject(openXrSettings);
 
             EditorGUIUtility.labelWidth = 200;
-            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script");
+
+            int newRenderMode;
+            GUILayout.BeginHorizontal();
+            if (buildTargetGroup == BuildTargetGroup.Android)
+            {
+                newRenderMode = EditorGUILayout.Popup(Content.k_renderModeLabel, (int)openXrSettings.renderMode, Content.k_androidRenderModeOptions);
+            }
+            else
+            {
+                newRenderMode = EditorGUILayout.Popup(Content.k_renderModeLabel, (int)openXrSettings.renderMode, Content.k_renderModeOptions);
+            }
+
+            if (newRenderMode != (int)openXrSettings.renderMode)
+            {
+                openXrSettings.renderMode = (OpenXRSettings.RenderMode)newRenderMode;
+            }
+
+            GUILayout.EndHorizontal();
+
+            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode");
+
             EditorGUIUtility.labelWidth = 0;
 
             if (serializedOpenXrSettings.hasModifiedProperties)

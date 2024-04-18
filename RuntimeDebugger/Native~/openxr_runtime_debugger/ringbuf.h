@@ -6,19 +6,28 @@
 // Block-based dynamic allocator via ring-buffer.
 // Ring buffer that stores "blocks" which dynamically grow and wrap.
 // If a section grows large enough that it overlaps another section, the other section is forgotten.
-// 8 byte alignment, bring your own synchronization.
+// 8 bit alignment, bring your own synchronization.
 // Must call Create first, and Destroy when done.  Must create a section before writing.
 // This probably isn't perfect.. some tests are at the bottom and it seems to be stable for the usecase.
 struct RingBuf
 {
+    enum OverflowMode
+    {
+        kOverflowModeWrap,
+        kOverflowModeTruncate,
+        kOverflowModeGrowDouble,
+    };
+
     uint8_t* data;
     uint32_t cacheSize;
+    OverflowMode overflowMode;
 
     // must be pointer because of thread_local compiler bug
     std::deque<uint32_t>* offsets;
 
-    void Create(uint32_t csize)
+    void Create(uint32_t csize, OverflowMode overflowMode)
     {
+        this->overflowMode = overflowMode;
         if (data == nullptr)
         {
             data = (uint8_t*)malloc(csize);
@@ -26,6 +35,11 @@ struct RingBuf
             offsets = new std::deque<uint32_t>();
         }
         Reset();
+    }
+
+    void SetOverflowMode(OverflowMode overflowMode)
+    {
+        this->overflowMode = overflowMode;
     }
 
     void Reset()
@@ -50,14 +64,23 @@ struct RingBuf
 
     void CreateNewBlock()
     {
-        offsets->push_back(offsets->back());
+        if (offsets != nullptr)
+            offsets->push_back(offsets->back());
+    }
+
+    void DropLastBlock()
+    {
+        if (offsets != nullptr)
+            offsets->pop_back();
     }
 
     uint8_t* GetForWrite(uint32_t size)
     {
         uint8_t* ret{nullptr};
 
-        if (size > cacheSize)
+        if (offsets == nullptr)
+            return nullptr;
+        if (size > cacheSize && overflowMode == kOverflowModeWrap)
             return nullptr;
         if (offsets->size() < 2)
             return nullptr;
@@ -69,25 +92,49 @@ struct RingBuf
         // need to wrap
         if (tail + size > cacheSize)
         {
-            // section grew larger than full buffer and overwrote itself, abort.
-            if (offsets->size() == 1)
-                return nullptr;
-
-            if (offsets->back() != tail)
-                offsets->push_back(tail);
-
-            uint32_t front = offsets->front();
-            while (front != 0)
+            if (overflowMode == kOverflowModeWrap)
             {
+                // section grew larger than full buffer and overwrote itself, abort.
+                if (offsets->size() == 1)
+                    return nullptr;
+
+                if (offsets->back() != tail)
+                    offsets->push_back(tail);
+
+                uint32_t front = offsets->front();
+                while (front != 0)
+                {
+                    offsets->pop_front();
+                    front = offsets->front();
+                }
                 offsets->pop_front();
-                front = offsets->front();
+
+                offsets->push_back(0);
+
+                head = offsets->front();
+                tail = offsets->back();
             }
-            offsets->pop_front();
-
-            offsets->push_back(0);
-
-            head = offsets->front();
-            tail = offsets->back();
+            else if (overflowMode == kOverflowModeGrowDouble)
+            {
+                while (tail + size > cacheSize)
+                {
+                    // grow
+                    uint32_t newCacheSize = cacheSize * 2;
+                    uint8_t* newData = (uint8_t*)malloc(newCacheSize);
+                    memcpy(newData, data, cacheSize);
+                    free(data);
+                    data = newData;
+                    cacheSize = newCacheSize;
+                }
+            }
+            else if (overflowMode == kOverflowModeTruncate)
+            {
+                return nullptr;
+            }
+            else
+            {
+                assert(0);
+            }
         }
 
         // need to free space / forget sections
@@ -119,14 +166,21 @@ struct RingBuf
 
     bool HasDataForRead()
     {
-        return offsets->size() > 1 && offsets[0] != offsets[1];
+        return offsets != nullptr && offsets->size() > 1 && offsets[0] != offsets[1];
     }
 
     // returns true if there is more data to read
     // in practice there may be two reads necessary to get all the data, from mid to end and from beginning to mid.
     // reading is a one time operation - data is cleared after read.
-    bool GetForRead(uint8_t** ptr, uint32_t* size)
+    bool GetForReadAndClear(uint8_t** ptr, uint32_t* size)
     {
+        if (offsets == nullptr)
+        {
+            *ptr = nullptr;
+            *size = 0;
+            return false;
+        }
+
         uint32_t head = offsets->front();
         *ptr = &data[head];
 
@@ -150,12 +204,59 @@ struct RingBuf
         return offsets->size() > 1 && size != 0;
     }
 
+    bool GetForRead(uint8_t** ptr, uint32_t* size)
+    {
+        if (overflowMode == kOverflowModeGrowDouble && offsets != nullptr)
+        {
+            *ptr = data;
+            *size = offsets->back();
+            return false;
+        }
+        *ptr = nullptr;
+        *size = 0;
+        return false;
+    }
+
+    bool MoveFrom(RingBuf& other)
+    {
+        if (other.HasDataForRead() && offsets != nullptr)
+        {
+            CreateNewBlock();
+            uint8_t* ptr{};
+            uint32_t size{};
+            bool more = false;
+            do
+            {
+                more = other.GetForReadAndClear(&ptr, &size);
+                uint8_t* dst = GetForWrite(size);
+                if (dst != nullptr)
+                {
+                    memcpy(dst, ptr, size);
+                }
+            } while (more);
+        }
+        else
+        {
+            return false;
+        }
+        return true;
+    }
+
     void Write(Command c)
     {
         uint8_t* wbuf = GetForWrite(sizeof(Command));
         if (wbuf != nullptr)
         {
             *(Command*)wbuf = c;
+        }
+    }
+
+    void Write(LUT l)
+    {
+        uint8_t* wbuf = GetForWrite(sizeof(LUT));
+        if (wbuf != nullptr)
+        {
+            *(LUT*)wbuf = l;
         }
     }
 
@@ -233,7 +334,7 @@ struct RingBuf
 //    uint32_t size;
 //
 //    // Check that starts out empty
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 0);
 //    buf.Reset();
 //
@@ -241,7 +342,7 @@ struct RingBuf
 //    buf.CreateNewBlock();
 //    auto* wbuf = buf.GetForWrite(4);
 //    *(uint32_t*)wbuf = 0x12345678;
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 4);
 //    assert(*(uint32_t*)ptr == 0x12345678);
 //    buf.Reset();
@@ -254,7 +355,7 @@ struct RingBuf
 //    wbuf = buf.GetForWrite(8);
 //    *(uint64_t*)wbuf = 0x123456789abcdef0;
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 12);
 //    assert(*(uint32_t*)ptr == 0x12345678);
 //    assert(*(uint64_t*)(ptr + 4) == 0x123456789abcdef0);
@@ -268,7 +369,7 @@ struct RingBuf
 //    buf.CreateNewBlock();
 //    wbuf = buf.GetForWrite(CACHE_SIZE - 16);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == CACHE_SIZE);
 //    buf.Reset();
 //
@@ -290,13 +391,13 @@ struct RingBuf
 //    for (int i = 0; i < 8; ++i)
 //        wbuf[i] = 4;
 //
-//    assert(buf.GetForRead(&ptr, &size) == true);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == true);
 //    assert(size == CACHE_SIZE - 8);
 //    assert(ptr[0] == 2);
 //    assert(ptr[8] == 3);
 //    assert(ptr[size - 1] == 3);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 8);
 //    assert(ptr[0] == 4);
 //    buf.Reset();
@@ -319,13 +420,13 @@ struct RingBuf
 //    for (int i = 0; i < 8; ++i)
 //        wbuf[i] = 4;
 //
-//    assert(buf.GetForRead(&ptr, &size) == true);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == true);
 //    assert(size == CACHE_SIZE - 12);
 //    assert(ptr[0] == 2);
 //    assert(ptr[8] == 3);
 //    assert(ptr[size - 1] == 3);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 8);
 //    assert(ptr[0] == 4);
 //    buf.Reset();
@@ -352,13 +453,13 @@ struct RingBuf
 //    for (int i = 0; i < 4; ++i)
 //        wbuf[i] = 5;
 //
-//    assert(buf.GetForRead(&ptr, &size) == true);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == true);
 //    assert(size == CACHE_SIZE - 8);
 //    assert(ptr[0] == 2);
 //    assert(ptr[8] == 3);
 //    assert(ptr[size - 1] == 3);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 8);
 //    assert(ptr[0] == 4);
 //    assert(ptr[4] == 5);
@@ -386,12 +487,12 @@ struct RingBuf
 //    for (int i = 0; i < 8; ++i)
 //        wbuf[i] = 5;
 //
-//    assert(buf.GetForRead(&ptr, &size) == true);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == true);
 //    assert(size == CACHE_SIZE - 8 - 8);
 //    assert(ptr[0] == 3);
 //    assert(ptr[size - 1] == 3);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 12);
 //    assert(ptr[0] == 4);
 //    assert(ptr[4] == 5);
@@ -423,7 +524,7 @@ struct RingBuf
 //    for (int i = 0; i < 8; ++i)
 //        wbuf[i] = 6;
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 20);
 //    assert(ptr[0] == 4);
 //    assert(ptr[4] == 5);
@@ -440,7 +541,7 @@ struct RingBuf
 //    for (int i = 0; i < (CACHE_SIZE); ++i)
 //        wbuf[i] = 2;
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == CACHE_SIZE);
 //    assert(ptr[0] == 2);
 //    assert(ptr[CACHE_SIZE - 1] == 2);
@@ -462,12 +563,12 @@ struct RingBuf
 //    for (int i = 0; i < 8; ++i)
 //        wbuf[i] = 2;
 //
-//    assert(buf.GetForRead(&ptr, &size) == true);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == true);
 //    assert(size == CACHE_SIZE - 8);
 //    assert(ptr[0] == 2);
 //    assert(ptr[size - 1] == 2);
 //
-//    assert(buf.GetForRead(&ptr, &size) == false);
+//    assert(buf.GetForReadAndClear(&ptr, &size) == false);
 //    assert(size == 8);
 //    assert(ptr[0] == 2);
 //    buf.Reset();

@@ -1,4 +1,4 @@
-﻿#if XR_MGMT_3_2_0_OR_NEWER
+#if XR_MGMT_3_2_0_OR_NEWER
 using System.Collections.Generic;
 using UnityEngine.XR.OpenXR;
 using UnityEditor.XR.Management.Metadata;
@@ -37,16 +37,8 @@ namespace UnityEditor.XR.OpenXR
                     supportedBuildTargets = new List<BuildTargetGroup>()
                     {
                         BuildTargetGroup.Standalone,
-                        BuildTargetGroup.Android
-                    },
-                },
-                new MyLoaderMetadata()
-                {
-                    loaderName = "OpenXR Loader",
-                    loaderType = "UnityEngine.XR.OpenXR.OpenXRLoaderNoPreInit",
-                    supportedBuildTargets = new List<BuildTargetGroup>()
-                    {
-                        BuildTargetGroup.WSA,
+                        BuildTargetGroup.Android,
+                        BuildTargetGroup.WSA
                     },
                 },
             }
@@ -69,6 +61,8 @@ namespace UnityEditor.XR.OpenXR
         }
 
         public IXRPackageMetadata metadata => s_Metadata;
+
+        internal static string PackageId => s_Metadata.packageId;
     }
 }
 #endif

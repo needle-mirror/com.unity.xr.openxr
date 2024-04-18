@@ -6,7 +6,7 @@
         break;
 
 template <>
-void SendToCSharp<XrBaseOutStructure*>(const char* fieldname, XrBaseOutStructure* t)
+void SendToCSharp<>(const char* fieldname, XrBaseOutStructure* t)
 {
     auto* next = t;
     do
@@ -27,7 +27,7 @@ void SendToCSharp<XrBaseOutStructure*>(const char* fieldname, XrBaseOutStructure
         break;
 
 template <>
-void SendToCSharp<XrBaseInStructure const*>(const char* fieldname, XrBaseInStructure const* t)
+void SendToCSharp<>(const char* fieldname, XrBaseInStructure const* t)
 {
     auto* next = t;
     do

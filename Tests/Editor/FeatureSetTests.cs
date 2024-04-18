@@ -24,73 +24,84 @@ namespace UnityEditor.XR.OpenXR.Tests
         const string k_TestFeatureSetIdFour = "com.unity.xr.test.featureset4";
 
         [OpenXRFeatureSet(
-            FeatureIds = new string[] {
+            FeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId
-                },
+            },
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetId,
             SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone },
-            RequiredFeatureIds = new string[] {
+            RequiredFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId
-                }
+            }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[] {
+            FeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
-                },
+            },
             UiName = k_TestFeatureSetNameHandAndEye,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdTwo,
             SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.WSA },
-            RequiredFeatureIds = new string[] {
+            RequiredFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
-                }
+            }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[] {
+            FeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
-                },
+            },
             UiName = k_TestFeatureSetNameHand,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdThree,
             SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.WSA },
-            RequiredFeatureIds = new string[] {
+            RequiredFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
-                }
+            }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[] {
+            FeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
-                },
+            },
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetId,
             SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Android },
-            RequiredFeatureIds = new string[] {
+            RequiredFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
-                }
+            }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[] {
+            FeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
                 HTCViveControllerProfile.featureId,
                 OculusTouchControllerProfile.featureId,
-                },
+            },
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdFour,
             SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone },
-            RequiredFeatureIds = new string[] {
+            RequiredFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
-                },
-            DefaultFeatureIds = new string[]{
+            },
+            DefaultFeatureIds = new string[]
+            {
                 HTCViveControllerProfile.featureId,
             }
         )]
@@ -133,10 +144,10 @@ namespace UnityEditor.XR.OpenXR.Tests
             }
 
             // If requested with no feature sets then reinitialize
-            if(!addTestFeatures)
+            if (!addTestFeatures)
                 OpenXRFeatureSetManager.InitializeFeatureSets(false);
 
-            foreach(var buildTargetGroup in GetBuildTargetGroups())
+            foreach (var buildTargetGroup in GetBuildTargetGroups())
             {
                 // No feature sets should be enabled for any build target
                 Assert.IsFalse(FeatureSetInfosForBuildTarget(buildTargetGroup).Any(f => f.isEnabled));
@@ -152,7 +163,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             OpenXRFeature.canSetFeatureDisabled = OpenXRFeatureSetManager.CanFeatureBeDisabled;
         }
 
-
         [Test]
         public void NoFeatureSetsReturnsEmptyList()
         {
@@ -165,11 +175,12 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             InitializeFeatureSets(false);
 
-            string[] expectedFeatureSets = new string[] {
-                KnownFeatureSetsContent.s_MicrosoftFeatureSetId
+            string[] expectedFeatureSets = new string[]
+            {
+                KnownFeatureSetsContent.s_MicrosoftHoloLensFeatureSetId
             };
 
-            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.Standalone);
+            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.WSA);
             Assert.IsNotNull(featureSets);
             Assert.AreEqual(expectedFeatureSets.Length, featureSets.Count);
 
@@ -210,7 +221,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void EnableFeatureSetEnablesFeatures()
         {
-            EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, enabled:true);
+            EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, enabled: true);
             AssertOnlyFeatures(BuildTargetGroup.Standalone, new string[] { MicrosoftHandInteraction.featureId }, FeatureEnabled);
         }
 
@@ -232,14 +243,16 @@ namespace UnityEditor.XR.OpenXR.Tests
             // Ensable all WSA feature sets and make sure only the WSA feature set features are enabled
             EnableFeatureSets(BuildTargetGroup.WSA, enabled: true);
 
-            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[] {
+            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
             }, FeatureEnabled);
 
             // Disable the feature seth with both features set as required
             EnableFeatureSet(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo, enabled: false);
-            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[] {
+            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[]
+            {
                 MicrosoftHandInteraction.featureId,
             }, FeatureEnabled);
 
@@ -251,13 +264,15 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void DisableSharedFeaturesLeaveOthersFeaturesEnabled()
         {
-            string[] allFeatureIds = new string[]{
+            string[] allFeatureIds = new string[]
+            {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
                 MicrosoftMotionControllerProfile.featureId,
             };
 
-            string[] otherFeatureIds = new string[] {
+            string[] otherFeatureIds = new string[]
+            {
                 MicrosoftMotionControllerProfile.featureId,
             };
 

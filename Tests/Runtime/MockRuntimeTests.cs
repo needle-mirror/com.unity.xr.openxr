@@ -15,7 +15,7 @@ namespace UnityEngine.XR.OpenXR.Tests
     internal class MockRuntimeTests : OpenXRLoaderSetup
     {
         [UnityTest]
-        public IEnumerator TransitionToState ()
+        public IEnumerator TransitionToState()
         {
             InitializeAndStart();
             yield return new WaitForXrFrame();
@@ -27,7 +27,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator TransitionToStateForced ()
+        public IEnumerator TransitionToStateForced()
         {
             InitializeAndStart();
             yield return new WaitForXrFrame();
@@ -78,7 +78,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 if (methodName == nameof(OpenXRFeature.OnSessionStateChange))
                 {
-                    var newState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams) param).NewState;
+                    var newState = (XrSessionState)((MockRuntime.XrSessionStateChangedParams)param).NewState;
                     states.Add(newState);
                 }
 
@@ -171,10 +171,11 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsTrue(sawSessionDestroy);
         }
+
 #endif
 
         [UnityTest]
-        public IEnumerator RequestExitSession ()
+        public IEnumerator RequestExitSession()
         {
             InitializeAndStart();
 
@@ -222,7 +223,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
                 {
-                    MockRuntime.SetEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
+                    MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
                 }
 
                 return true;
@@ -232,7 +233,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return null;
             var displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances(displays);
+            SubsystemManager.GetSubsystems(displays);
             Assert.AreEqual(false, displays[0].displayOpaque);
         }
 
@@ -243,8 +244,30 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return null;
             var displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetInstances(displays);
+            SubsystemManager.GetSubsystems(displays);
             Assert.AreEqual(true, displays[0].displayOpaque);
+        }
+
+        [UnityTest]
+        public IEnumerator MultipleEnvironmentBlendModes()
+        {
+            //Mock available environmentBlendModes are Opaque and Additive in mock_runtime.cpp EnumerateEnvironmentBlendModes.
+            AddExtension(MockRuntime.XR_UNITY_mock_test);
+            base.InitializeAndStart();
+            yield return null;
+
+            //check default mode is Opaque.
+            Assert.AreEqual(XrEnvironmentBlendMode.Opaque, MockRuntime.GetXrEnvironmentBlendMode());
+
+            //Switch to another supported mode - Additive.
+            MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.Additive);
+            yield return new WaitForXrFrame(2);
+            Assert.AreEqual(XrEnvironmentBlendMode.Additive, MockRuntime.GetXrEnvironmentBlendMode());
+
+            //Set to unsupported mode - Alpha_blend
+            MockRuntime.ChooseEnvironmentBlendMode(XrEnvironmentBlendMode.AlphaBlend);
+            yield return new WaitForXrFrame(2);
+            Assert.AreNotEqual(XrEnvironmentBlendMode.AlphaBlend, MockRuntime.GetXrEnvironmentBlendMode());
         }
 
         [UnityTest]
@@ -258,7 +281,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsTrue(base.IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
 
-            MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 {x = 1.0f, y = 3.0f});
+            MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 { x = 1.0f, y = 3.0f });
 
             yield return null;
 
@@ -275,14 +298,14 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             var comparer = new Vector3EqualityComparer(10e-6f);
 
-            Assert.That(points[0], Is.EqualTo(new Vector3 {x = -1.0f, y = 0.0f, z = -3.0f}).Using(comparer));
-            Assert.That(points[1], Is.EqualTo(new Vector3 {x = -1.0f, y = 0.0f, z = 3.0f}).Using(comparer));
-            Assert.That(points[2], Is.EqualTo(new Vector3 {x = 1.0f, y = 0.0f, z = 3.0f}).Using(comparer));
-            Assert.That(points[3], Is.EqualTo(new Vector3 {x = 1.0f, y = 0.0f, z = -3.0f}).Using(comparer));
+            Assert.That(points[0], Is.EqualTo(new Vector3 { x = -0.5f, y = 0.0f, z = -1.5f }).Using(comparer));
+            Assert.That(points[1], Is.EqualTo(new Vector3 { x = -0.5f, y = 0.0f, z = 1.5f }).Using(comparer));
+            Assert.That(points[2], Is.EqualTo(new Vector3 { x = 0.5f, y = 0.0f, z = 1.5f }).Using(comparer));
+            Assert.That(points[3], Is.EqualTo(new Vector3 { x = 0.5f, y = 0.0f, z = -1.5f }).Using(comparer));
         }
 
         [UnityTest]
-        public IEnumerator NoBoundaryPoints ()
+        public IEnumerator NoBoundaryPoints()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
@@ -315,7 +338,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsTrue(base.IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
 
-            MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 {x = 1.0f, y = 3.0f});
+            MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 { x = 1.0f, y = 3.0f });
 
             yield return null;
 
@@ -358,7 +381,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
-        public void BeforeFunctionCallbackError ()
+        public void BeforeFunctionCallbackError()
         {
             var createInstanceCalled = false;
 
@@ -378,7 +401,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator AfterFunctionCallback ( )
+        public IEnumerator AfterFunctionCallback()
         {
             var createInstanceCalled = false;
             var createInstanceSuccess = false;

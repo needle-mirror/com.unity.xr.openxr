@@ -1,4 +1,3 @@
-﻿
 namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
 {
     /// <summary>
@@ -19,7 +18,6 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
                 textMesh.text = feature.receivedMessage;
                 textMesh.color = Color.white;
             }
-
         }
     }
 }

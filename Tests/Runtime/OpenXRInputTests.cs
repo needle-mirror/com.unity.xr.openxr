@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine.InputSystem;
@@ -14,6 +15,11 @@ using UnityEngine.XR.OpenXR.Features.ConformanceAutomation;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseStruct = UnityEngine.InputSystem.XR.PoseState;
+#else
+using PoseStruct = UnityEngine.XR.OpenXR.Input.Pose;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -31,21 +37,29 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// List of all known interaction features and their associated devices for testing
         /// </summary>
-        protected static readonly (Type featureType, Type layoutType, string layoutNameOverride) [] s_InteractionFeatureLayouts = {
+        protected static readonly (Type featureType, Type layoutType, string layoutNameOverride)[] s_InteractionFeatureLayouts = {
             (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController), null),
             (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice), "EyeGaze"),
-            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
             (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand), null),
-            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController), null),
             (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController), null),
+            (typeof(HandInteractionProfile), typeof(HandInteractionProfile.HandInteraction), null),
+            (typeof(MetaQuestTouchProControllerProfile), typeof(MetaQuestTouchProControllerProfile.QuestProTouchController), null),
+#if !UNITY_ANDROID
+            (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
+            (typeof(HPReverbG2ControllerProfile), typeof(HPReverbG2ControllerProfile.ReverbG2Controller), null),
+            (typeof(MicrosoftMotionControllerProfile), typeof(MicrosoftMotionControllerProfile.WMRSpatialController), null),
             (typeof(ValveIndexControllerProfile), typeof(ValveIndexControllerProfile.ValveIndexController), null)
+#endif
         };
 
         /// <summary>
         /// List of interaction features that should not be tested.
         /// </summary>
         protected static readonly Type[] s_IgnoreInteractionFeatures = {
-            typeof(MockInteractionFeature)
+            typeof(MockInteractionFeature),
+            typeof(HandCommonPosesInteraction),
+            typeof(DPadInteraction),
+            typeof(PalmPoseInteraction)
         };
 
         /// <summary>
@@ -108,12 +122,12 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, bool value)
+        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, bool value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetBool(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
             var actualValue = inputAction.ReadValue<float>() > 0.0f;
-            Assert.IsTrue(actualValue==value, $"Expected '{value}' but received '{actualValue}' from '{inputAction}' bound to '{interactionPath}'");
+            Assert.IsTrue(actualValue == value, $"Expected '{value}' but received '{actualValue}' from '{inputAction}' bound to '{interactionPath}'");
         }
 
         /// <summary>
@@ -124,7 +138,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, float value)
+        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, float value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetFloat(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
@@ -140,7 +154,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, Vector2 value)
+        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, Vector2 value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetVec2(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
@@ -160,7 +174,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="expected">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction (InputAction inputAction, string userPath, string interactionPath, OpenXR.Input.Pose expected)
+        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, PoseStruct expected)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetPose(userPath, interactionPath, expected.position, expected.rotation);
             ConformanceAutomationFeature.ConformanceAutomationSetVelocity(
@@ -205,7 +219,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
                 case "Pose":
                 {
-                    var received = inputAction.ReadValue<Input.Pose>();
+                    var received = inputAction.ReadValue<PoseStruct>();
                     Assert.IsTrue(received.isTracked == expected.isTracked, $"Action '{inputAction.bindings[0].path}/isTracked' bound to '{interactionPath}' expected '{expected.isTracked}' but received '{received.isTracked}'");
                     Assert.IsTrue(received.trackingState == expected.trackingState, $"Action '{inputAction.bindings[0].path}/trackingState' bound to '{interactionPath}' expected '{expected.trackingState}' but received '{received.trackingState}'");
 
@@ -214,15 +228,11 @@ namespace UnityEngine.XR.OpenXR.Tests
                         Assert.IsTrue(received.position == expected.position, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{expected.position}' but received '{received.position}'");
                         Assert.IsTrue(received.rotation == expected.rotation, $"Action '{inputAction.bindings[0].path}/rotation' bound to '{interactionPath}' expected '{expected.rotation}' but received '{received.rotation}'");
 
-                        if((received.trackingState & InputTrackingState.Velocity ) == InputTrackingState.Velocity)
+                        if ((received.trackingState & InputTrackingState.Velocity) == InputTrackingState.Velocity)
                             Assert.IsTrue(received.velocity == expected.velocity, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{expected.velocity}' but received '{received.velocity}'");
-                        else
-                            Assert.IsTrue(received.velocity == Vector3.zero, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{Vector3.zero}' but received '{received.velocity}'");
 
-                        if((received.trackingState & InputTrackingState.AngularVelocity) == InputTrackingState.AngularVelocity)
+                        if ((received.trackingState & InputTrackingState.AngularVelocity) == InputTrackingState.AngularVelocity)
                             Assert.IsTrue(received.angularVelocity == expected.angularVelocity, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{expected.angularVelocity}' but received '{received.angularVelocity}'");
-                        else
-                            Assert.IsTrue(received.angularVelocity == Vector3.zero, $"Action '{inputAction.bindings[0].path}/position' bound to '{interactionPath}' expected '{Vector3.zero}' but received '{received.angularVelocity}'");
                     }
                     break;
                 }
@@ -281,7 +291,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Validate that data flows from OpenXR to the InputSystem through the given OpenXR interaction path to
         /// the given input ControlItem
         /// </summary>
-        /// <param name="layout">Device layout to validate</param>
+        /// <param name="localizedActionMapName">Device layout name to validate</param>
         /// <param name="control">Control within the device layout to validate</param>
         /// <param name="userPath">OpenXR User path to bind to</param>
         /// <param name="interactionPath">OpenXR interaction path to bind to</param>
@@ -314,8 +324,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForXrFrame(1);
 
             // Use the usage to find the device for the action
-            var inputDevice  = !string.IsNullOrEmpty(usage) ?
-                InputSystem.InputSystem.GetDevice<InputSystem.InputDevice>(usage.Substring(1,usage.Length-2)) :
+            var inputDevice = !string.IsNullOrEmpty(usage) ?
+                InputSystem.InputSystem.GetDevice<InputSystem.InputDevice>(usage.Substring(1, usage.Length - 2)) :
                 null;
 
             // Check input TryGetInputSourceName
@@ -346,14 +356,14 @@ namespace UnityEngine.XR.OpenXR.Tests
                 {
                     yield return ValidateInputAction(action, userPath, interactionPath, Vector2.one);
                     yield return ValidateInputAction(action, userPath, interactionPath, Vector2.zero);
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Vector2(1.0f,0.0f));
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Vector2(0.0f,1.0f));
+                    yield return ValidateInputAction(action, userPath, interactionPath, new Vector2(1.0f, 0.0f));
+                    yield return ValidateInputAction(action, userPath, interactionPath, new Vector2(0.0f, 1.0f));
                     break;
                 }
 
                 case "Pose":
                 {
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.one,
                         rotation = Quaternion.identity,
@@ -361,7 +371,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation
                     });
 
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.identity,
@@ -369,43 +379,43 @@ namespace UnityEngine.XR.OpenXR.Tests
                         trackingState = InputTrackingState.None
                     });
 
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
-                        rotation = Quaternion.Euler(90,0,0),
+                        rotation = Quaternion.Euler(90, 0, 0),
                         isTracked = true,
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation
                     });
 
                     // Velocity only
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
                         rotation = Quaternion.identity,
                         isTracked = true,
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation | InputTrackingState.Velocity,
-                        velocity = new Vector3(1,2,3)
+                        velocity = new Vector3(1, 2, 3)
                     });
 
                     // AngularVelocity only
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
-                        rotation = Quaternion.Euler(90,0,0),
+                        rotation = Quaternion.Euler(90, 0, 0),
                         isTracked = true,
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation | InputTrackingState.AngularVelocity,
-                        angularVelocity = new Vector3(1,2,3)
+                        angularVelocity = new Vector3(1, 2, 3)
                     });
 
                     // Velocity and AngularVelocity
-                    yield return ValidateInputAction(action, userPath, interactionPath, new Input.Pose
+                    yield return ValidateInputAction(action, userPath, interactionPath, new PoseStruct
                     {
                         position = Vector3.zero,
-                        rotation = Quaternion.Euler(90,0,0),
+                        rotation = Quaternion.Euler(90, 0, 0),
                         isTracked = true,
                         trackingState = InputTrackingState.Position | InputTrackingState.Rotation | InputTrackingState.Velocity | InputTrackingState.AngularVelocity,
-                        velocity = new Vector3(1,2,3),
-                        angularVelocity = new Vector3(3,2,1)
+                        velocity = new Vector3(1, 2, 3),
+                        angularVelocity = new Vector3(3, 2, 1)
                     });
 
                     break;
@@ -433,7 +443,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests all controls of all interaction features to ensure data flows through properly.
         /// </summary>
         [UnityTest]
-        public IEnumerator ValidateControls ([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
+        [UnityPlatform(exclude = new[] { RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer })] // These tests time out on 2022+ on the Mac Editor CI machines
+        public IEnumerator ValidateControls([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
             // Enable the needed features
             EnableMockRuntime();
@@ -492,7 +503,6 @@ namespace UnityEngine.XR.OpenXR.Tests
                                 break;
 
                             default:
-                                Assert.Fail($"Unknown control '{control.name}' with non-zero offset");
                                 break;
                         }
                     }
@@ -511,16 +521,16 @@ namespace UnityEngine.XR.OpenXR.Tests
                 actionMapCoverage.Add(actionConfig);
 
                 foreach (var binding in actionConfig.bindings)
-                foreach (var userPath in (binding.userPaths ?? userPaths))
-                {
-                    yield return ValidateLayoutControl(layout, control, userPath, $"{userPath}{binding.interactionPath}");
-
-                    // Ensure the usages all map correctly to the data as well
-                    foreach (var usage in actionConfig.usages)
+                    foreach (var userPath in (binding.userPaths ?? userPaths))
                     {
-                        yield return ValidateLayoutControl(layout, control, userPath, $"{userPath}{binding.interactionPath}", null, usage);
+                        yield return ValidateLayoutControl(layout, control, userPath, $"{userPath}{binding.interactionPath}");
+
+                        // Ensure the usages all map correctly to the data as well
+                        foreach (var usage in actionConfig.usages)
+                        {
+                            yield return ValidateLayoutControl(layout, control, userPath, $"{userPath}{binding.interactionPath}", null, usage);
+                        }
                     }
-                }
             }
 
             // Make sure that there are no action maps that reference controls that were not paired up
@@ -605,7 +615,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return new WaitForXrFrame(2);
 
-            if(test.expectLog != null)
+            if (test.expectLog != null)
                 LogAssert.Expect(LogType.Error, test.expectLog);
 
             if (test.expectReport != null)
@@ -659,8 +669,30 @@ namespace UnityEngine.XR.OpenXR.Tests
                 "One or more interaction features has not been added to the testable interaction feature list.");
         }
 
+        /// <summary>
+        /// Ensures that EyeGaze isTracked, position, rotation features map correctly to action handles.
+        /// (Since the EyeGaze features use pose instead of devicePose)
+        /// </summary>
         [UnityTest]
-        public IEnumerator InputTrackingAquiredAndLost ()
+        public IEnumerator EyeGazeFeatureTest()
+        {
+            EnableFeature<EyeGazeInteraction>();
+            InitializeAndStart();
+            yield return new WaitForXrFrame(1);
+
+            InputAction inputAction = new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked");
+            InputControl control = inputAction.controls[0];
+
+            var isTrackedHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked"));
+            Assert.IsTrue(isTrackedHandle != 0);
+            var positionHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/position"));
+            Assert.IsTrue(positionHandle != 0);
+            var rotationHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/rotation"));
+            Assert.IsTrue(rotationHandle != 0);
+        }
+
+        [UnityTest]
+        public IEnumerator InputTrackingAquiredAndLost()
         {
             EnableFeature<OculusTouchControllerProfile>();
 

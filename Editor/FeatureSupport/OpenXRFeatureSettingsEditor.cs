@@ -98,7 +98,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 {
                     if (attr is OpenXRFeatureAttribute)
                     {
-                        featureAttr = (OpenXRFeatureAttribute) attr;
+                        featureAttr = (OpenXRFeatureAttribute)attr;
                         break;
                     }
                 }
@@ -114,7 +114,6 @@ namespace UnityEditor.XR.OpenXR.Features
                     titleContent = uiName;
                 }
             }
-
         }
 
         public void OnGUI()

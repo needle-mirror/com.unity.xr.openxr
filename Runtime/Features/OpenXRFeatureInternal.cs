@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEngine.XR.OpenXR.Features
 {
@@ -23,11 +24,17 @@ namespace UnityEngine.XR.OpenXR.Features
         [DllImport(Library, EntryPoint = "NativeConfig_GetViewConfigurationType")]
         static extern int Internal_GetViewConfigurationType();
 
+        [DllImport(Library, EntryPoint = "NativeConfig_GetViewTypeFromRenderIndex")]
+        static extern int Internal_GetViewTypeFromRenderIndex(int renderPassIndex);
+
         [DllImport(Library, EntryPoint = "session_GetSessionState")]
         static extern void Internal_GetSessionState(out int oldState, out int newState);
 
         [DllImport(Library, EntryPoint = "NativeConfig_GetEnvironmentBlendMode")]
-        static extern int Internal_GetEnvironmentBlendMode();
+        static extern XrEnvironmentBlendMode Internal_GetEnvironmentBlendMode();
+
+        [DllImport(Library, EntryPoint = "NativeConfig_SetEnvironmentBlendMode")]
+        static extern void Internal_SetEnvironmentBlendMode(XrEnvironmentBlendMode xrEnvironmentBlendMode);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetAppSpace")]
         static extern bool Internal_GetAppSpace(out ulong appSpace);

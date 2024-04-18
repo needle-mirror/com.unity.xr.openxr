@@ -1,10 +1,10 @@
-﻿using System.IO;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEditor.SceneManagement;
 
-[assembly:UnityPlatform(RuntimePlatform.WindowsEditor)]
+[assembly: UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor)]
 
 namespace UnityEditor.XR.OpenXR.Tests
 {

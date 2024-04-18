@@ -12,6 +12,11 @@ static const MockRuntimeCreateFlags MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_
 static const MockRuntimeCreateFlags MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT = 0x00000100;
 static const MockRuntimeCreateFlags MR_CREATE_EYE_GAZE_INTERACTION_EXT = 0x00000200;
 static const MockRuntimeCreateFlags MR_CREATE_MSFT_HAND_INTERACTION_EXT = 0x00000400;
+static const MockRuntimeCreateFlags MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT = 0x00000800;
+static const MockRuntimeCreateFlags MR_CREATE_FB_TOUCH_CONTROLLER_PRO = 0x00001000;
+static const MockRuntimeCreateFlags MR_CREATE_META_PERFORMANCE_METRICS_EXT = 0x00002000;
+static const MockRuntimeCreateFlags MR_CREATE_HP_REVERB_G2_CONTROLLER = 0x00004000;
+static const MockRuntimeCreateFlags MR_CREATE_HAND_INTERACTION_EXT = 0x00008000;
 
 static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT;
 
@@ -80,12 +85,6 @@ public:
     bool HasExitBeenRequested() const
     {
         return exitSessionRequested;
-    }
-
-    void SetEnvironmentBlendMode(XrEnvironmentBlendMode blendMode);
-    XrEnvironmentBlendMode GetEnvironmentBlendMode() const
-    {
-        return blendMode;
     }
 
     void SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpace, XrExtent2Df extents);
@@ -333,6 +332,10 @@ private:
 
     XrResult MSFTFirstPersonObserver_Init();
 
+    //// XR_MSFT_first_person_observer
+
+    XrResult MSFTThirdPersonObserver_Init();
+
     std::vector<MockInteractionProfile> interactionProfiles;
 
     MockRuntimeCreateFlags createFlags;
@@ -348,11 +351,12 @@ private:
     XrTime invalidTimeThreshold;
 
     std::map<XrViewConfigurationType, MockViewConfiguration> viewConfigurations;
+    XrViewConfigurationType primaryViewConfiguration;
 
     std::vector<std::string> componentPathStrings;
     std::vector<MockUserPath> userPaths;
 
-    std::chrono::steady_clock::time_point startTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
     bool instanceIsLost;
     bool nullGfx;

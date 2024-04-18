@@ -19,7 +19,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             var sectionOneHandle = DiagnosticReport.GetSection(k_SectionOneTitle);
             Assert.AreNotEqual(DiagnosticReport.k_NullSection, sectionOneHandle);
-
         }
 
         [Test]
@@ -110,7 +109,6 @@ Event One: Event Body One
 
             var report = DiagnosticReport.GenerateReport();
             Assert.AreEqual(k_ExpectedOutput, report);
-
         }
 
         [Test]
@@ -147,7 +145,6 @@ Event 30: Event Body 30
 
             var report = DiagnosticReport.GenerateReport();
             Assert.AreEqual(k_ExpectedOutput, report);
-
         }
 
         [Test]
@@ -205,7 +202,6 @@ Event 30: Event Body 30
             var report = DiagnosticReport.GenerateReport();
             Debug.Log(report);
             Assert.AreEqual(k_ExpectedOutput, report);
-
         }
 
         [Test]
@@ -221,8 +217,6 @@ Event 30: Event Body 30
             var reportTwo = DiagnosticReport.GenerateReport();
 
             Assert.AreNotEqual(reportOne, reportTwo);
-
         }
-
     }
 }

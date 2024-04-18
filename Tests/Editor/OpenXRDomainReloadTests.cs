@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.TestTools;
 using UnityEngine.Scripting;
-using Assert=UnityEngine.Assertions.Assert;
+using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {

@@ -46,6 +46,5 @@ namespace UnityEditor.XR.OpenXR.Features
         /// Feature Ids are a subset of <see cref="FeatureIds"/>. Any feature id in this list and not also in <see cref="FeatureIds"/> will be ignored.
         /// </summary>
         public string[] DefaultFeatureIds;
-
     }
 }

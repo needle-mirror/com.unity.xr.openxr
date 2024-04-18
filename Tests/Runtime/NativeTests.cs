@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using UnityEngine.XR.OpenXR.Input;
+using System.Text;
+using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -20,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [Test]
         public void OpenXRLoader_LoadOpenXRLibrary_InvalidLoaderPath()
         {
-            Assert.IsFalse(OpenXRLoaderBase.Internal_LoadOpenXRLibrary("abababab"));
+            Assert.IsFalse(OpenXRLoaderBase.Internal_LoadOpenXRLibrary(OpenXRLoaderBase.StringToWCHAR_T("abababab")));
         }
 
         [Test]

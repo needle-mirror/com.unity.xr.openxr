@@ -1,13 +1,13 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.Tests;
-using Assert=UnityEngine.Assertions.Assert;
+using Assert = UnityEngine.Assertions.Assert;
 
-[assembly:UnityPlatform(RuntimePlatform.WindowsEditor)]
+[assembly: UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor)]
 
 namespace UnityEditor.XR.OpenXR.Tests
 {

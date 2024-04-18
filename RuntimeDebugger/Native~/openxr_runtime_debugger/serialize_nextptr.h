@@ -1,13 +1,13 @@
 #pragma once
 
 template <>
-void SendToCSharp<XrBaseOutStructure*>(const char* fieldname, XrBaseOutStructure* t);
+void SendToCSharp<>(const char* fieldname, XrBaseOutStructure* t);
 
 template <>
-void SendToCSharp<XrBaseInStructure const*>(const char* fieldname, XrBaseInStructure const* t);
+void SendToCSharp<>(const char* fieldname, XrBaseInStructure const* t);
 
 template <>
-void SendToCSharp<void*>(const char* fieldname, void* t)
+void SendToCSharp<>(const char* fieldname, void* t)
 {
     if (t != nullptr && strcmp(fieldname, "next") == 0)
     {
@@ -20,7 +20,7 @@ void SendToCSharp<void*>(const char* fieldname, void* t)
 }
 
 template <>
-void SendToCSharp<void const*>(const char* fieldname, void const* t)
+void SendToCSharp<>(const char* fieldname, void const* t)
 {
     if (t != nullptr && strcmp(fieldname, "next") == 0)
     {

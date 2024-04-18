@@ -193,6 +193,141 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PokePosition",
+                    "type": "Value",
+                    "id": "b43e4892-4d6a-459c-91a8-9af29eefd54a",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PokeRotation",
+                    "type": "Value",
+                    "id": "1428032a-2b57-4608-b527-5c65f6bf2751",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchPosition",
+                    "type": "Value",
+                    "id": "9e62d239-cd82-49dc-b729-47c335ead96f",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchRotation",
+                    "type": "Value",
+                    "id": "b84a7498-afe6-4908-96e8-dbbfbf951251",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchValue",
+                    "type": "Value",
+                    "id": "414014f8-8561-405b-959e-740722812f66",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchReady",
+                    "type": "Button",
+                    "id": "50cd4505-1924-4b1f-8412-1553f6be7871",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PointerActivate",
+                    "type": "Value",
+                    "id": "b8f4a6c1-f232-45dc-8fbc-5a433fc55dfd",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PointerActivateReady",
+                    "type": "Button",
+                    "id": "8e94dbbf-7bb6-44be-8ed3-6435caddf0e7",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GraspValue",
+                    "type": "Value",
+                    "id": "d9f480a7-118c-43ff-87c1-29060ab510e8",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GraspReady",
+                    "type": "Button",
+                    "id": "3ce7941e-7329-471f-ac54-bf2b1769db4e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PalmPosePosition",
+                    "type": "Value",
+                    "id": "39d9932d-eec1-43e7-90e1-5747b641beab",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PalmPoseRotation",
+                    "type": "Value",
+                    "id": "dc15c3df-ada0-4b53-adf8-b42bc693104a",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchPose",
+                    "type": "Value",
+                    "id": "e112bcf6-3698-4cc2-87a0-2ec99c7e8be6",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PokePose",
+                    "type": "Value",
+                    "id": "09c21183-0461-4610-a292-e679b392b146",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PalmPose",
+                    "type": "Value",
+                    "id": "87e610a5-80a9-44d7-8081-7821f62db053",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -437,6 +572,193 @@
                     "action": "TriggerTouch",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5384511e-d5f4-417b-83b4-2eaba5a5cb9b",
+                    "path": "<XRController>{LeftHand}/pokePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "10050890-76aa-4822-aa8c-bbe27dee3967",
+                    "path": "<XRController>{LeftHand}/pokeRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokeRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e140500d-097d-4ad8-be9c-d4fc65d10f41",
+                    "path": "<XRController>{LeftHand}/pinchPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1940026b-e330-4fb2-9233-1b04658c3261",
+                    "path": "<XRController>{LeftHand}/pinchRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "958bf79b-40e4-498c-b44c-56603ed08249",
+                    "path": "<XRController>{LeftHand}/pinchValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ce392497-ae81-4a1b-a41d-14381e28f0a6",
+                    "path": "<XRController>{LeftHand}/pinchReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a702dacf-f64f-434b-9957-b70b200c786a",
+                    "path": "<XRController>{LeftHand}/pointerActivateValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PointerActivate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f3eecd95-70d4-4134-b2fd-ae14e2cbaf96",
+                    "path": "<XRController>{LeftHand}/pointerActivateReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PointerActivateReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "96fa8f62-9c10-4249-be43-8f0cc39b6d97",
+                    "path": "<XRController>{LeftHand}/graspValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GraspValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7bffa00c-433d-4dd4-b8b3-e69e9719d460",
+                    "path": "<XRController>{LeftHand}/graspReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GraspReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "18e1a6c9-2456-47cd-a508-a0eba3e04022",
+                    "path": "<XRController>{LeftHand}/palmPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPosePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "09c53e52-27e0-46ab-8b2b-e112e4d01088",
+                    "path": "<XRController>{LeftHand}/palmRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPoseRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "75a79926-f549-4d15-95f5-6c726560c0b7",
+                    "path": "<XRController>{LeftHand}/pinchPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f2c34d68-3835-4d33-8664-96d8e9b21c36",
+                    "path": "<HandInteractionPoses>{LeftHand}/pinchPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3e867c71-29e7-4257-8404-a9b036bdfe39",
+                    "path": "<XRController>{LeftHand}/pokePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "16db5c5b-8a49-49a5-a5cd-e34620cb4ad1",
+                    "path": "<HandInteractionPoses>{LeftHand}/pokePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "73672e4a-18e6-4f8d-ad21-c1935a928042",
+                    "path": "<XRController>{LeftHand}/palmPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -632,6 +954,141 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "PokePosition",
+                    "type": "Value",
+                    "id": "8144970d-3c61-4d4c-977c-a395902760e6",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PokeRotation",
+                    "type": "Value",
+                    "id": "2aae9129-3c29-44c3-afc8-b22c78a0c081",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchPosition",
+                    "type": "Value",
+                    "id": "437b7369-66df-42b1-896a-7d188a7fbc81",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchRotation",
+                    "type": "Value",
+                    "id": "da63cb4a-1307-40d0-a349-657f857b4854",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchValue",
+                    "type": "Value",
+                    "id": "02ff351c-e07b-499d-ac70-83107d3da9a3",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchReady",
+                    "type": "Button",
+                    "id": "e9747457-d21d-46df-bc55-c7a1a545d5cc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PointerActivate",
+                    "type": "Value",
+                    "id": "77e16b08-caa6-432f-b2d1-b67fdc00b2dc",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PointerActivateReady",
+                    "type": "Button",
+                    "id": "3a4e4610-8cac-4bec-9f43-3a3f834b8ca3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GraspValue",
+                    "type": "Value",
+                    "id": "1d494f05-c461-4ab0-b84a-3aa4b1a0ee2e",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GraspReady",
+                    "type": "Button",
+                    "id": "a5089112-d704-4c82-9a9a-0b305a4e0313",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PalmPosePosition",
+                    "type": "Value",
+                    "id": "0df1fa0d-1a0f-48e8-88ec-0977735f2dcc",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PalmPoseRotation",
+                    "type": "Value",
+                    "id": "5b793523-30f3-4ac9-8573-40c221fb21f1",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PinchPose",
+                    "type": "Value",
+                    "id": "7c19a65f-e666-414d-affc-d25eecb4b050",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PokePose",
+                    "type": "Value",
+                    "id": "f78fa100-c77c-4a4a-abfd-bbdb4f8d4e80",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PalmPose",
+                    "type": "Value",
+                    "id": "e610f280-58be-4560-864f-72000a7d4d0f",
+                    "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -874,6 +1331,193 @@
                     "processors": "",
                     "groups": "XR Usage",
                     "action": "TriggerTouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "60bb18a2-38f0-4c72-9225-fd94b5573e43",
+                    "path": "<XRController>{RightHand}/pokePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a8989aa5-08df-419a-9d8b-bed53cdbd1e3",
+                    "path": "<XRController>{RightHand}/pokeRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokeRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d125e3c-8c50-4700-9b90-ca0e795bedc6",
+                    "path": "<XRController>{RightHand}/pinchPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2e144be8-733d-46d4-a211-4d9d561a37cc",
+                    "path": "<XRController>{RightHand}/pointerRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e9e9c254-1910-48bd-b27f-5560c738715c",
+                    "path": "<XRController>{RightHand}/pinchValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PinchValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a4d0bbda-40a7-4432-9907-d97ccafcb975",
+                    "path": "<XRController>{RightHand}/pinchReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fe6916c6-051b-4680-9db5-4ad19c2e7514",
+                    "path": "<XRController>{RightHand}/pointerActivateValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PointerActivate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca42b416-2e2a-4ba1-8e04-0622de8e487e",
+                    "path": "<XRController>{RightHand}/pointerActivateReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PointerActivateReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f9cacdba-7b65-4d92-9fab-339109388221",
+                    "path": "<XRController>{RightHand}/graspValue",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GraspValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c2e8c831-4fef-4a8d-93ec-8d4d249764e1",
+                    "path": "<XRController>{RightHand}/graspReady",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "GraspReady",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "56c094f7-c8cc-406b-a28c-f771af285f45",
+                    "path": "<XRController>{RightHand}/palmPosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPosePosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "89f88695-1307-47f4-b484-1a15c612fb43",
+                    "path": "<XRController>{RightHand}/palmRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPoseRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b147a034-67ba-41dd-84a6-e5855bf3e922",
+                    "path": "<XRController>{RightHand}/pinchPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "00d54dc3-d5d8-4ffe-a9f0-e35b995a6304",
+                    "path": "<HandInteractionPoses>{RightHand}/pinchPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PinchPose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7bcff509-bab2-4811-8f9c-92b36e1649ff",
+                    "path": "<XRController>{RightHand}/pokePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "adca6f8a-dbbe-4eea-ae4d-c975d3a50696",
+                    "path": "<HandInteractionPoses>{RightHand}/pokePose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PokePose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c363f816-b747-4d52-bf2b-ba166de6ed52",
+                    "path": "<XRController>{RightHand}/palmPose",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR Usage",
+                    "action": "PalmPose",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

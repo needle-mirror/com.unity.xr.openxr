@@ -1,3 +1,6 @@
+---
+uid: openxr-valve-index-controller-profile
+---
 # Valve Index Controller Profile
 
 Enables the OpenXR interaction profile for the Valve Index controler and exposes the `<ValveIndexController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).  
@@ -29,6 +32,7 @@ For more information about the Valve Index interaction profile, see the [OpenXR 
 |`/input/trackpad/force`| trackpadForce | Float | 
 |`/input/grip/pose` | devicePose | Pose |
 |`/input/aim/pose` | pointer | Pose |
+|`/output/haptic` | haptic | Vibrate |
 | Unity Layout Only  | isTracked | Flag Data |
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |

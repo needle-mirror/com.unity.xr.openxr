@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.XR.Management;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
-
 
 namespace UnityEditor.XR.OpenXR
 {
@@ -23,19 +22,20 @@ namespace UnityEditor.XR.OpenXR
             new OpenXRFeature.ValidationRule
             {
                 message = "The OpenXR package has been updated and Unity must be restarted to complete the update.",
-                checkPredicate = () => {
-                    var packageInfo = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(OpenXRProjectValidation).Assembly);
-                    if (packageInfo == null)
-                        return false;
-
-                    var lastPlayVersion = OpenXRSettings.Instance.lastPlayVersion;
-                    return string.IsNullOrEmpty(lastPlayVersion) || lastPlayVersion == packageInfo.version;
-                },
+                checkPredicate = () => OpenXRSettings.Instance == null || (!OpenXRSettings.Instance.versionChanged),
                 fixIt = RequireRestart,
                 error = true,
-                errorEnteringPlaymode = true
+                errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
-
+            new OpenXRFeature.ValidationRule
+            {
+                message = "The OpenXR Package Settings asset has duplicate settings and must be regenerated.",
+                checkPredicate = AssetHasNoDuplicates,
+                fixIt = RegenerateXRPackageSettingsAsset,
+                error = false,
+                errorEnteringPlaymode = false
+            },
             new OpenXRFeature.ValidationRule()
             {
                 message = "Gamma Color Space is not supported when using OpenGLES.",
@@ -49,30 +49,40 @@ namespace UnityEditor.XR.OpenXR
                         .Where(t =>
                         {
                             var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(t);
-                            if(!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, t))
+                            if (!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, t))
                                 return false;
 
                             var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
-                            if(null == settings)
+                            if (null == settings)
                                 return false;
 
                             var manager = settings.Manager;
-                            if(null == manager)
+                            if (null == manager)
                                 return false;
 
                             return manager.activeLoaders.OfType<OpenXRLoader>().Any();
                         })
+#if UNITY_2023_1_OR_NEWER
+                        .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES3));
+#else
+                        // Keeping OpenGL ES 2 support for 2022 and older versions.
                         .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES2 || g == GraphicsDeviceType.OpenGLES3));
+#endif
                 },
                 fixIt = () => PlayerSettings.colorSpace = ColorSpace.Linear,
                 fixItMessage = "Set PlayerSettings.colorSpace to ColorSpace.Linear",
                 error = true,
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Android,
             },
             new OpenXRFeature.ValidationRule()
             {
                 message = "At least one interaction profile must be added.  Please select which controllers you will be testing against in the Features menu.",
-                checkPredicate = () => OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled),
+                checkPredicate = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    return settings == null || settings.GetFeatures<OpenXRInteractionFeature>().Any(f => f.enabled);
+                },
                 fixIt = OpenProjectSettings,
                 fixItAutomatic = false,
                 fixItMessage = "Open Project Settings to select one or more interaction profiles."
@@ -83,19 +93,26 @@ namespace UnityEditor.XR.OpenXR
                 checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || (PlayerSettings.Android.targetArchitectures == AndroidArchitecture.ARM64),
                 fixIt = () =>
                 {
+#if UNITY_2021_3_OR_NEWER
+                    PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 },
                 fixItMessage = "Change android build to arm64 and enable il2cpp.",
                 error = true,
+                buildTargetGroup = BuildTargetGroup.Android,
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "The only standalone target supported is Windows x64 with OpenXR.  Other architectures and operating systems are not supported at this time.",
-                checkPredicate = () => (BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget) != BuildTargetGroup.Standalone) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64),
+                message = "The only standalone targets supported are Windows x64 and OSX with OpenXR.  Other architectures and operating systems are not supported at this time.",
+                checkPredicate = () => (BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget) != BuildTargetGroup.Standalone) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneOSX),
                 fixIt = () => EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64),
                 fixItMessage = "Switch active build target to StandaloneWindows64.",
                 error = true,
+                errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -118,6 +135,7 @@ namespace UnityEditor.XR.OpenXR
                     prop.SetValue(null, true);
                 },
                 errorEnteringPlaymode = true,
+                buildTargetGroup = BuildTargetGroup.Standalone,
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -125,13 +143,13 @@ namespace UnityEditor.XR.OpenXR
                 checkPredicate = () =>
                 {
                     // There is no public way to check if the input handling backend is set correctly .. so resorting to non-public way for now.
-                    var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
                     var newInputEnabledProp = ps?.FindProperty("activeInputHandler");
                     return newInputEnabledProp?.intValue != 0;
                 },
                 fixIt = () =>
                 {
-                    var ps = (SerializedObject) typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
                     if (ps == null)
                         return;
 
@@ -148,43 +166,111 @@ namespace UnityEditor.XR.OpenXR
             },
             new OpenXRFeature.ValidationRule()
             {
-                message = "If targeting HoloLens V2 devices either Run In Background should be enabled or you should install the Microsoft Mixed Reality OpenXR Plug-in and enable the Mixed Reality Features group.",
+                message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",
                 checkPredicate = () =>
                 {
-#if MICROSOFT_OPENXR_PACKAGE
-                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
-                    foreach (var hlf in hololensFeatures)
-                    {
-                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
-                            return hlf.enabled;
-                    }
-#endif //MICROSOFT_OPENXR_PACKAGE
-
-                    return EditorUserBuildSettings.activeBuildTarget != BuildTarget.WSAPlayer || PlayerSettings.runInBackground;
+#if !USE_INPUT_SYSTEM_POSE_CONTROL && INPUT_SYSTEM_POSE_VALID
+                    return false;
+#else
+                    return true;
+#endif
                 },
-                fixIt = () =>
-                {
-#if MICROSOFT_OPENXR_PACKAGE
-                    var hololensFeatures = OpenXRSettings.ActiveBuildTargetInstance.GetFeatures<OpenXRFeature>();
-                    foreach (var hlf in hololensFeatures)
-                    {
-                        if (String.CompareOrdinal(hlf.featureIdInternal, "com.microsoft.openxr.feature.hololens") == 0)
-                            hlf.enabled = true;
-                    }
-#endif //MICROSOFT_OPENXR_PACKAGE
-                    PlayerSettings.runInBackground = true;
-                },
-                fixItMessage = "Change Run In Background to True.",
+                fixIt = EnableInputSystemPoseControlDefine,
                 error = false,
-            },
+                errorEnteringPlaymode = false,
+            }
         };
 
         private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);
+
+        internal static void EnableInputSystemPoseControlDefine()
+        {
+#if UNITY_2021_3_OR_NEWER
+            NamedBuildTarget[] targets = {NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps};
+            for (var index = 0; index < targets.Length; index++)
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbols(targets[index]);
+                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                PlayerSettings.SetScriptingDefineSymbols(targets[index], defines);
+            }
+
+#else
+            BuildTargetGroup[] buildTargets = {BuildTargetGroup.Android, BuildTargetGroup.Standalone, BuildTargetGroup.WSA};
+            for (var index = 0; index < buildTargets.Length; index++)
+            {
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargets[index]);
+                defines += ";USE_INPUT_SYSTEM_POSE_CONTROL";
+                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargets[index], defines);
+            }
+#endif
+        }
+
+        internal static bool AssetHasNoDuplicates()
+        {
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (packageSettings == null)
+            {
+                return true;
+            }
+
+            string path = packageSettings.PackageSettingsAssetPath();
+            var loadedAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+            if (loadedAssets == null)
+            {
+                return true;
+            }
+
+            // Check for duplicate "full" feature name (Feature class type name + Feature name (contains BuildTargetGroup))
+            HashSet<string> fullFeatureNames = new HashSet<string>();
+            foreach (var loadedAsset in loadedAssets)
+            {
+                OpenXRFeature individualFeature = loadedAsset as OpenXRFeature;
+                if (individualFeature != null)
+                {
+                    Type type = individualFeature.GetType();
+                    string featureName = individualFeature.name;
+                    string fullFeatureName = type.FullName + "\\" + featureName;
+
+                    if (fullFeatureNames.Contains(fullFeatureName))
+                        return false;
+                    fullFeatureNames.Add(fullFeatureName);
+                }
+            }
+
+            return true;
+        }
+
+        internal static void RegenerateXRPackageSettingsAsset()
+        {
+            // Deleting the OpenXR PackageSettings asset also destroys the OpenXRPackageSettings object.
+            // Need to get the static method to create the new asset and object before deleting the asset.
+            var packageSettings = OpenXRSettings.GetPackageSettings();
+            if (packageSettings == null)
+            {
+                return;
+            }
+
+            string path = packageSettings.PackageSettingsAssetPath();
+
+            Action createAssetCallback = packageSettings.RefreshFeatureSets;
+            AssetDatabase.DeleteAsset(path);
+
+            EditorBuildSettings.RemoveConfigObject(Constants.k_SettingsKey);
+
+            createAssetCallback();
+        }
 
         /// <summary>
         /// Open the OpenXR project settings
         /// </summary>
         internal static void OpenProjectSettings() => SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR");
+
+        internal static void GetAllValidationIssues(List<OpenXRFeature.ValidationRule> issues, BuildTargetGroup buildTargetGroup)
+        {
+            issues.Clear();
+            issues.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
+            OpenXRFeature.GetFullValidationList(issues, buildTargetGroup);
+        }
 
         /// <summary>
         /// Gathers and evaluates validation issues and adds them to a list.
@@ -194,7 +280,7 @@ namespace UnityEditor.XR.OpenXR
         public static void GetCurrentValidationIssues(List<OpenXRFeature.ValidationRule> issues, BuildTargetGroup buildTargetGroup)
         {
             CachedValidationList.Clear();
-            CachedValidationList.AddRange(BuiltinValidationRules);
+            CachedValidationList.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
             OpenXRFeature.GetValidationList(CachedValidationList, buildTargetGroup);
 
             issues.Clear();

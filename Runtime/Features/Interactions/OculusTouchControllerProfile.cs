@@ -1,15 +1,18 @@
 using System.Collections.Generic;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Input;
-using UnityEngine.InputSystem.Layouts;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.InputSystem.XR;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
+#else
 using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
@@ -43,13 +46,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [Vector2Control](xref:UnityEngine.InputSystem.Controls.Vector2Control) that represents the <see cref="OculusTouchControllerProfile.thumbstick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis" )]
+            [Preserve, InputControl(aliases = new[] { "Primary2DAxis", "Joystick" }, usage = "Primary2DAxis")]
             public Vector2Control thumbstick { get; private set; }
 
             /// <summary>
             /// A [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="OculusTouchControllerProfile.squeeze"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "GripAxis" , "squeeze"}, usage = "Grip")]
+            [Preserve, InputControl(aliases = new[] { "GripAxis", "squeeze" }, usage = "Grip")]
             public AxisControl grip { get; private set; }
 
             /// <summary>
@@ -61,7 +64,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.system"/> <see cref="OculusTouchControllerProfile.menu"/> OpenXR bindings, depending on handedness.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" }, usage = "Menu")]
+            [Preserve, InputControl(aliases = new[] { "Primary", "menuButton", "systemButton" }, usage = "MenuButton")]
             public ButtonControl menu { get; private set; }
 
             /// <summary>
@@ -109,7 +112,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.thumbstickClick"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked"}, usage = "Primary2DAxisClick")]
+            [Preserve, InputControl(aliases = new[] { "JoystickOrPadPressed", "thumbstickClick", "joystickClicked" }, usage = "Primary2DAxisClick")]
             public ButtonControl thumbstickClicked { get; private set; }
 
             /// <summary>
@@ -117,6 +120,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// </summary>
             [Preserve, InputControl(aliases = new[] { "JoystickOrPadTouched", "thumbstickTouch", "joystickTouched" }, usage = "Primary2DAxisTouch")]
             public ButtonControl thumbstickTouched { get; private set; }
+
+            /// <summary>
+            /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="OculusTouchControllerProfile.thumbrest"/> OpenXR binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "ThumbrestTouch")]
+            public ButtonControl thumbrestTouched { get; private set; }
 
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="OculusTouchControllerProfile.grip"/> OpenXR binding.
@@ -191,6 +200,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 secondaryTouched = GetChildControl<ButtonControl>("secondaryTouched");
                 thumbstickClicked = GetChildControl<ButtonControl>("thumbstickClicked");
                 thumbstickTouched = GetChildControl<ButtonControl>("thumbstickTouched");
+                thumbrestTouched = GetChildControl<ButtonControl>("thumbrestTouched");
 
                 devicePose = GetChildControl<PoseControl>("devicePose");
                 pointer = GetChildControl<PoseControl>("pointer");
@@ -300,18 +310,30 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "Oculus Touch Controller OpenXR";
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Registers the <see cref="OculusTouchController"/> layout with the Input System.
+        /// </summary>
         protected override void RegisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RegisterLayout(typeof(OculusTouchController),
-                        matches: new InputDeviceMatcher()
-                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                        .WithProduct(kDeviceLocalizedName));
+                matches: new InputDeviceMatcher()
+                    .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                    .WithProduct(kDeviceLocalizedName));
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Removes the <see cref="OculusTouchController"/> layout from the Input System.
+        /// </summary>
         protected override void UnregisterDeviceLayout()
         {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForEditorPlayMode())
+                return;
+#endif
             InputSystem.InputSystem.RemoveLayout(nameof(OculusTouchController));
         }
 
@@ -405,7 +427,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         type = ActionType.Binary,
                         usages = new List<string>()
                         {
-                            "Menu"
+                            "MenuButton"
                         },
                         bindings = new List<ActionBinding>()
                         {
@@ -618,6 +640,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             new ActionBinding()
                             {
                                 interactionPath = thumbstickTouch,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    //Thumbrest Touched
+                    new ActionConfig()
+                    {
+                        name = "thumbrestTouched",
+                        localizedName = "Thumbrest Touched",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
+                        {
+                            "ThumbrestTouch"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = thumbrest,
                                 interactionProfileName = profile,
                             }
                         }

@@ -4,6 +4,6 @@
     {
         "api_version": "1.0",
         "name": "Unity Mock Runtime",
-        "library_path": ".\\Windows\\x64\\openxr_loader.dll"
+        "library_path": ".\\windows\\x64\\mock_runtime.dll"
     }
 }

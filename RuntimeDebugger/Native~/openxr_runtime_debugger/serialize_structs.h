@@ -18,23 +18,38 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_PTR_DECL)
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_CONST_PTR_DECL)
 
-#define SEND_TO_CSHARP_STRUCT_DECL(structType) \
-    template <>                                \
-    void SendToCSharp<structType>(const char* fieldname, structType t);
-
-#define SEND_TO_CSHARP_STRUCT_PTR_DECL(structType) \
-    template <>                                    \
-    void SendToCSharp<structType*>(const char* fieldname, structType* t);
-
-#define SEND_TO_CSHARP_STRUCT_CONST_PTR(structType) \
+#define SEND_TO_CSHARP_STRUCT_DECL(structType, ...) \
     template <>                                     \
-    void SendToCSharp<structType const*>(const char* fieldname, structType const* t);
+    void SendToCSharp<>(const char* fieldname, structType t);
 
+#define SEND_TO_CSHARP_STRUCT_PTR_DECL(structType, ...) \
+    template <>                                         \
+    void SendToCSharp<>(const char* fieldname, structType* t);
+
+#define SEND_TO_CSHARP_STRUCT_CONST_PTR(structType, ...) \
+    template <>                                          \
+    void SendToCSharp<>(const char* fieldname, structType const* t);
+
+// Fwd declare base structs
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_DECL)
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_PTR_DECL)
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_CONST_PTR)
+
+// Fwd declare basic structs
+XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCT_DECL)
+
+XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCT_PTR_DECL)
+
+XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCT_CONST_PTR)
+
+// Fwd declare full structs
+XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCT_DECL)
+
+XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCT_PTR_DECL)
+
+XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCT_CONST_PTR)
 
 #define SEND_TO_CSHARP_INDIVIDUAL_FIELDS(structname) \
     SendToCSharp(#structname, t.structname);
@@ -58,7 +73,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_CONST_PTR)
 
 #define SEND_TO_CSHARP_STRUCTS(structname, ...)                        \
     template <>                                                        \
-    void SendToCSharp<structname>(const char* fieldname, structname t) \
+    void SendToCSharp<>(const char* fieldname, structname t)           \
     {                                                                  \
         StartStruct(fieldname, #structname);                           \
         XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS); \
@@ -68,7 +83,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_CONST_PTR)
 
 #define SEND_TO_CSHARP_STRUCTS_PTRS(structname, ...)                       \
     template <>                                                            \
-    void SendToCSharp<structname*>(const char* fieldname, structname* t)   \
+    void SendToCSharp<>(const char* fieldname, structname* t)              \
     {                                                                      \
         StartStruct(fieldname, #structname);                               \
         XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS_PTR); \
@@ -76,20 +91,22 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_STRUCT_CONST_PTR)
         EndStruct();                                                       \
     }
 
-#define SEND_TO_CSHARP_STRUCTS_CONST_PTRS(structname, ...)                           \
-    template <>                                                                      \
-    void SendToCSharp<const structname*>(const char* fieldname, const structname* t) \
-    {                                                                                \
-        StartStruct(fieldname, #structname);                                         \
-        XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS_PTR);           \
-        XR_LIST_STRUCT_ARRAYS_##structname(SEND_TO_CSHARP_ARRAYS_PTR);               \
-        EndStruct();                                                                 \
+#define SEND_TO_CSHARP_STRUCTS_CONST_PTRS(structname, ...)                 \
+    template <>                                                            \
+    void SendToCSharp<>(const char* fieldname, const structname* t)        \
+    {                                                                      \
+        StartStruct(fieldname, #structname);                               \
+        XR_LIST_STRUCT_##structname(SEND_TO_CSHARP_INDIVIDUAL_FIELDS_PTR); \
+        XR_LIST_STRUCT_ARRAYS_##structname(SEND_TO_CSHARP_ARRAYS_PTR);     \
+        EndStruct();                                                       \
     }
 
 // Basic Structs
 XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCTS)
 
 XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCTS_PTRS)
+
+XR_LIST_BASIC_STRUCTS(SEND_TO_CSHARP_STRUCTS_CONST_PTRS)
 
 // Full Structs
 XR_LIST_STRUCTURE_TYPES(SEND_TO_CSHARP_STRUCTS)

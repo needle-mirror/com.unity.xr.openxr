@@ -31,13 +31,15 @@ namespace UnityEditor.XR.OpenXR
                 EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out ret);
                 if (ret == null)
                 {
-                    string searchText = String.Format("t:OpenXRPackageSettings");
-                    string[] assets = AssetDatabase.FindAssets(searchText);
-                    if (assets.Length > 0)
+                    string path = OpenXRPackageSettingsAssetPath();
+                    if (!path.Equals(String.Empty))
                     {
-                        string path = AssetDatabase.GUIDToAssetPath(assets[0]);
                         ret = AssetDatabase.LoadAssetAtPath(path, typeof(OpenXRPackageSettings)) as OpenXRPackageSettings;
-                        EditorBuildSettings.AddConfigObject(Constants.k_SettingsKey, ret, true);
+                        if (ret != null)
+                        {
+                            EditorBuildSettings.AddConfigObject(Constants.k_SettingsKey, ret, true);
+                        }
+
                         // Can't modify EditorBuildSettings once a build has already started - it won't get picked up
                         // Not sure how to gracefully fix this, for now fail the build so there are now surprises.
                         if (BuildPipeline.isBuildingPlayer)
@@ -57,8 +59,8 @@ namespace UnityEditor.XR.OpenXR
             OpenXRPackageSettings settings = ScriptableObject.CreateInstance<OpenXRPackageSettings>();
             if (settings != null)
             {
-                string newAssetName = String.Format("OpenXR Package Settings.asset");
-                string assetPath = GetAssetPathForComponents(s_DefaultSettingsPath);
+                string newAssetName = String.Format(s_PackageSettingsAssetName);
+                string assetPath = GetAssetPathForComponents(s_PackageSettingsDefaultSettingsPath);
                 if (!string.IsNullOrEmpty(assetPath))
                 {
                     assetPath = Path.Combine(assetPath, newAssetName);
@@ -69,14 +71,27 @@ namespace UnityEditor.XR.OpenXR
             return settings;
         }
 
-        private static readonly string[] s_DefaultSettingsPath = {"XR","Settings"};
-        private static string GetAssetPathForComponents(string[] pathComponents, string root = "Assets")
+        internal static readonly string s_PackageSettingsAssetName = "OpenXR Package Settings.asset";
+
+        internal static readonly string[] s_PackageSettingsDefaultSettingsPath = { "XR", "Settings" };
+
+        string IPackageSettings.PackageSettingsAssetPath()
+        {
+            return OpenXRPackageSettingsAssetPath();
+        }
+
+        internal static string OpenXRPackageSettingsAssetPath()
+        {
+            return Path.Combine(GetAssetPathForComponents(s_PackageSettingsDefaultSettingsPath), s_PackageSettingsAssetName);
+        }
+
+        internal static string GetAssetPathForComponents(string[] pathComponents, string root = "Assets")
         {
             if (pathComponents.Length <= 0)
                 return null;
 
             string path = root;
-            foreach( var pc in pathComponents)
+            foreach (var pc in pathComponents)
             {
                 string subFolder = Path.Combine(path, pc);
                 bool shouldCreate = true;
@@ -100,6 +115,11 @@ namespace UnityEditor.XR.OpenXR
         public string GetActiveLoaderLibraryPath()
         {
             return OpenXRChooseRuntimeLibraries.GetLoaderLibraryPath();
+        }
+
+        void IPackageSettings.RefreshFeatureSets()
+        {
+            OpenXRFeatureSetManager.InitializeFeatureSets();
         }
 
         private bool IsValidBuildTargetGroup(BuildTargetGroup buildTargetGroup) =>
@@ -165,7 +185,7 @@ namespace UnityEditor.XR.OpenXR
         /// </summary>
         /// <typeparam name="T">Feature type to retrieve</typeparam>
         /// <returns>All features and their build target group that match the given feature type.</returns>
-        public IEnumerable<(BuildTargetGroup buildTargetGroup,T feature)> GetFeatures<T>() where T : OpenXRFeature
+        public IEnumerable<(BuildTargetGroup buildTargetGroup, T feature)> GetFeatures<T>() where T : OpenXRFeature
         {
             foreach (var kv in Settings)
             {
@@ -174,7 +194,7 @@ namespace UnityEditor.XR.OpenXR
 
                 foreach (var feature in kv.Value.features)
                 {
-                    if(feature is T featureT)
+                    if (feature is T featureT)
                         yield return (kv.Key, featureT);
                 }
             }

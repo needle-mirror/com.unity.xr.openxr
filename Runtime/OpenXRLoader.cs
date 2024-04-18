@@ -21,10 +21,10 @@ using UnityEditor.XR.OpenXR;
 
 [assembly: Preserve]
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
 namespace UnityEngine.XR.OpenXR
 {
     /// <summary>
@@ -33,6 +33,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_EDITOR
     [XRSupportedBuildTarget(BuildTargetGroup.Standalone, new BuildTarget[] {BuildTarget.StandaloneWindows64})]
     [XRSupportedBuildTarget(BuildTargetGroup.Android)]
+    [XRSupportedBuildTarget(BuildTargetGroup.WSA)]
 #endif
     public class OpenXRLoader : OpenXRLoaderBase
 #if UNITY_EDITOR
@@ -44,6 +45,7 @@ namespace UnityEngine.XR.OpenXR
         {
             return "UnityOpenXR";
         }
+
 #endif
     }
 
@@ -82,10 +84,10 @@ namespace UnityEngine.XR.OpenXR
 
         internal LoaderState currentLoaderState { get; private set; } = LoaderState.Uninitialized;
 
-        List<LoaderState> validLoaderInitStates = new List<LoaderState>{LoaderState.Uninitialized, LoaderState.InitializeAttempted};
-        List<LoaderState> validLoaderStartStates = new List<LoaderState>{LoaderState.Initialized, LoaderState.StartAttempted, LoaderState.Stopped};
-        List<LoaderState> validLoaderStopStates = new List<LoaderState>{LoaderState.StartAttempted, LoaderState.Started, LoaderState.StopAttempted};
-        List<LoaderState> validLoaderDeinitStates = new List<LoaderState>{LoaderState.InitializeAttempted, LoaderState.Initialized, LoaderState.Stopped, LoaderState.DeinitializeAttempted};
+        List<LoaderState> validLoaderInitStates = new List<LoaderState> { LoaderState.Uninitialized, LoaderState.InitializeAttempted };
+        List<LoaderState> validLoaderStartStates = new List<LoaderState> { LoaderState.Initialized, LoaderState.StartAttempted, LoaderState.Stopped };
+        List<LoaderState> validLoaderStopStates = new List<LoaderState> { LoaderState.StartAttempted, LoaderState.Started, LoaderState.StopAttempted };
+        List<LoaderState> validLoaderDeinitStates = new List<LoaderState> { LoaderState.InitializeAttempted, LoaderState.Initialized, LoaderState.Stopped, LoaderState.DeinitializeAttempted };
 
         List<LoaderState> runningStates = new List<LoaderState>()
         {
@@ -102,9 +104,11 @@ namespace UnityEngine.XR.OpenXR
         {
             return (currentLoaderState == targetLoaderState);
         }
+
 #endif
 
         OpenXRFeature.NativeEvent currentOpenXRState;
+        private bool actionSetsAttached;
 
         /// <summary>
         /// Reference to the current display subsystem if the loader is initialized, or null if the loader is not initialized.
@@ -170,8 +174,6 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRProjectValidation.LogPlaymodeValidationIssues())
                     return false;
             }
-
-            OpenXRSettings.Instance.lastPlayVersion = UnityEditor.PackageManager.PackageInfo.FindForAssembly(GetType().Assembly)?.version;
 #endif
 
             DiagnosticReport.StartReport();
@@ -195,7 +197,7 @@ namespace UnityEngine.XR.OpenXR
             return false;
         }
 
-        private bool InitializeInternal ()
+        private bool InitializeInternal()
         {
             Instance = this;
 
@@ -204,6 +206,7 @@ namespace UnityEngine.XR.OpenXR
 #if TEST_SUPPORT
             if (ShouldExitEarly()) return false;
 #endif
+            OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
 
             OpenXRInput.RegisterLayouts();
 
@@ -231,7 +234,7 @@ namespace UnityEngine.XR.OpenXR
             RequestOpenXRFeatures();
             RegisterOpenXRCallbacks();
 
-            if(null != OpenXRSettings.Instance)
+            if (null != OpenXRSettings.Instance)
                 OpenXRSettings.Instance.ApplySettings();
 
             if (!CreateSubsystems())
@@ -253,10 +256,10 @@ namespace UnityEngine.XR.OpenXR
 
         private bool CreateSubsystems()
         {
-            // NOTE: This function is only necessary to handle subsystems being lost after domain reload.  If that issue is fixed
+            // NOTE: This function is only necessary to handle subsystems being lost after domain reload. If that issue is fixed
             // at the management level the code below can be folded back into Initialize
-            // NOTE: Below we check to see if a subsystem is already created before creating it.  This is cone because we currently
-            // re-create the subsystems after a domain reload to fix a deficiency in XR Managements handling of domain reload.  To
+            // NOTE: Below we check to see if a subsystem is already created before creating it. This is done because we currently
+            // re-create the subsystems after a domain reload to fix a deficiency in XR Managements handling of domain reload. To
             // ensure we properly handle a fix to that deficiency we first check to make sure the subsystems are not already created.
 
             if (displaySubsystem == null)
@@ -326,7 +329,6 @@ namespace UnityEngine.XR.OpenXR
             return true;
         }
 
-
         private bool StartInternal()
         {
             // In order to get XrReady, we have to at least attempt to create
@@ -340,23 +342,36 @@ namespace UnityEngine.XR.OpenXR
                 return true;
             }
 
-            // calls xrBeginSession
-            Internal_BeginSession();
-
-            OpenXRInput.AttachActionSets();
-
             // Note: Display has to be started before Input so that Input can have access to the Session object
             StartSubsystem<XRDisplaySubsystem>();
             if (!displaySubsystem?.running ?? false)
                 return false;
 
-            StartSubsystem<XRInputSubsystem>();
+            // calls xrBeginSession
+            Internal_BeginSession();
+
+            if (!actionSetsAttached)
+            {
+                OpenXRInput.AttachActionSets();
+                actionSetsAttached = true;
+            }
+
+            if (!displaySubsystem?.running ?? false)
+                StartSubsystem<XRDisplaySubsystem>();
+
             if (!inputSubsystem?.running ?? false)
-                return false;
+                StartSubsystem<XRInputSubsystem>();
 
-            OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStart);
+            var inputRunning = inputSubsystem?.running ?? false;
+            var displayRunning = displaySubsystem?.running ?? false;
 
-            return true;
+            if (inputRunning && displayRunning)
+            {
+                OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStart);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -377,8 +392,17 @@ namespace UnityEngine.XR.OpenXR
             if (ShouldExitEarly()) return false;
 #endif
 
-            Internal_RequestExitSession();
+            var inputRunning = inputSubsystem?.running ?? false;
+            var displayRunning = displaySubsystem?.running ?? false;
 
+            if (inputRunning || displayRunning)
+                OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStop);
+
+            if (inputRunning)
+                StopSubsystem<XRInputSubsystem>();
+
+            if (displayRunning)
+                StopSubsystem<XRDisplaySubsystem>();
             StopInternal();
 
             currentLoaderState = LoaderState.Stopped;
@@ -388,14 +412,6 @@ namespace UnityEngine.XR.OpenXR
 
         private void StopInternal()
         {
-            OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStop);
-
-            if(inputSubsystem?.running ?? false)
-                StopSubsystem<XRInputSubsystem>();
-
-            if(displaySubsystem?.running ?? false)
-                StopSubsystem<XRDisplaySubsystem>();
-
             Internal_EndSession();
 
             ProcessOpenXRMessageLoop();
@@ -425,6 +441,8 @@ namespace UnityEngine.XR.OpenXR
                 if (Instance == null)
                     Instance = this;
 #endif
+                Internal_RequestExitSession();
+
                 Application.onBeforeRender -= ProcessOpenXRMessageLoop;
 
                 ProcessOpenXRMessageLoop(); // Drain any remaining events.
@@ -443,6 +461,7 @@ namespace UnityEngine.XR.OpenXR
                 Internal_UnloadOpenXRLibrary();
 
                 currentLoaderState = LoaderState.Uninitialized;
+                actionSetsAttached = false;
 
                 if (unhandledExceptionHandler != null)
                 {
@@ -484,15 +503,21 @@ namespace UnityEngine.XR.OpenXR
             Internal_SetApplicationInfo(Application.productName, Application.version, applicationVersionHash, Application.unityVersion);
         }
 
+        internal static byte[] StringToWCHAR_T(string s)
+        {
+            var encoding = Environment.OSVersion.Platform == PlatformID.Unix ? Encoding.UTF32 : Encoding.Unicode;
+            return encoding.GetBytes(s + '\0');
+        }
+
         private bool LoadOpenXRSymbols()
         {
             string loaderPath = "openxr_loader";
 
 #if UNITY_EDITOR_WIN
-            loaderPath ="..\\..\\..\\RuntimeLoaders\\windows\\x64\\openxr_loader";
+            loaderPath = "..\\..\\..\\RuntimeLoaders\\windows\\x64\\openxr_loader";
 #elif UNITY_EDITOR_OSX
             // no loader for osx, use the mock by default
-            loaderPath = "../../../Tests/osx/x64/openxr_loader";
+            loaderPath = $"../../MockRuntime/osx/openxr_loader";
 #endif
 
 #if UNITY_EDITOR
@@ -505,7 +530,7 @@ namespace UnityEngine.XR.OpenXR
                     loaderPath = extensionLoaderPath;
             }
 #endif
-            if (!Internal_LoadOpenXRLibrary(loaderPath))
+            if (!Internal_LoadOpenXRLibrary(StringToWCHAR_T(loaderPath)))
                 return false;
 
             return true;
@@ -563,7 +588,7 @@ namespace UnityEngine.XR.OpenXR
 
             var extensions = OpenXRRuntime.GetEnabledExtensions();
             var log = new StringBuilder($"({extensions.Length})\n");
-            foreach(var extension in extensions)
+            foreach (var extension in extensions)
                 log.Append($"  {extension}: Version={OpenXRRuntime.GetExtensionVersion(extension)}\n");
 
             DiagnosticReport.AddSectionEntry(section, "Runtime extensions enabled", log.ToString());
@@ -590,21 +615,30 @@ namespace UnityEngine.XR.OpenXR
                     DiagnosticReport.DumpReport("System Startup Completed");
                     break;
 
+                case OpenXRFeature.NativeEvent.XrRequestRestartLoop:
+                    Debug.Log("XR Initialization failed, will try to restart xr periodically.");
+                    OpenXRRestarter.Instance.PauseAndShutdownAndRestart();
+                    break;
+
+                case OpenXRFeature.NativeEvent.XrRequestGetSystemLoop:
+                    OpenXRRestarter.Instance.PauseAndRetryInitialization();
+                    break;
+
+                case OpenXRFeature.NativeEvent.XrStopping:
+                    loader.StopInternal();
+                    break;
+
                 default:
                     break;
             }
 
             OpenXRFeature.ReceiveNativeEvent(e, payload);
 
-            if((loader == null || !loader.isStarted) && e != OpenXRFeature.NativeEvent.XrInstanceChanged)
+            if ((loader == null || !loader.isStarted) && e != OpenXRFeature.NativeEvent.XrInstanceChanged)
                 return;
 
             switch (e)
             {
-                case OpenXRFeature.NativeEvent.XrStopping:
-                    loader.StopInternal();
-                    break;
-
                 case OpenXRFeature.NativeEvent.XrExiting:
                     OpenXRRestarter.Instance.Shutdown();
                     break;
@@ -674,8 +708,8 @@ namespace UnityEngine.XR.OpenXR
                 Application.onBeforeRender -= ProcessOpenXRMessageLoop;
                 Application.onBeforeRender += ProcessOpenXRMessageLoop;
             }
-
         }
+
 #endif
     }
 }

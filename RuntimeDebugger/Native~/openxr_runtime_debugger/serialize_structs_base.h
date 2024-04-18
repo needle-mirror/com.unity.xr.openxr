@@ -8,18 +8,18 @@
     }                                                         \
     break;
 
-#define SEND_TO_CSHARP_BASE_STRUCT(structType)                         \
-    template <>                                                        \
-    void SendToCSharp<structType>(const char* fieldname, structType t) \
-    {                                                                  \
-        switch (t.type)                                                \
-        {                                                              \
-            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE);      \
-        case XR_TYPE_UNKNOWN:                                          \
-        default:                                                       \
-            SendToCSharp(fieldname, "<Unknown>");                      \
-            break;                                                     \
-        }                                                              \
+#define SEND_TO_CSHARP_BASE_STRUCT(structType)                    \
+    template <>                                                   \
+    void SendToCSharp<>(const char* fieldname, structType t)      \
+    {                                                             \
+        switch (t.type)                                           \
+        {                                                         \
+            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE); \
+        case XR_TYPE_UNKNOWN:                                     \
+        default:                                                  \
+            SendToCSharp(fieldname, "<Unknown>");                 \
+            break;                                                \
+        }                                                         \
     }
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT)
@@ -32,18 +32,18 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT)
     }                                                        \
     break;
 
-#define SEND_TO_CSHARP_BASE_STRUCT_PTR(structType)                       \
-    template <>                                                          \
-    void SendToCSharp<structType*>(const char* fieldname, structType* t) \
-    {                                                                    \
-        switch (t->type)                                                 \
-        {                                                                \
-            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_PTR);    \
-        case XR_TYPE_UNKNOWN:                                            \
-        default:                                                         \
-            SendToCSharp(fieldname, t->type);                            \
-            break;                                                       \
-        }                                                                \
+#define SEND_TO_CSHARP_BASE_STRUCT_PTR(structType)                    \
+    template <>                                                       \
+    void SendToCSharp<>(const char* fieldname, structType* t)         \
+    {                                                                 \
+        switch (t->type)                                              \
+        {                                                             \
+            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_PTR); \
+        case XR_TYPE_UNKNOWN:                                         \
+        default:                                                      \
+            SendToCSharp(fieldname, t->type);                         \
+            break;                                                    \
+        }                                                             \
     }
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_PTR)
@@ -56,18 +56,18 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_PTR)
     }                                                                    \
     break;
 
-#define SEND_TO_CSHARP_BASE_STRUCT_CONST_PTR(structType)                             \
-    template <>                                                                      \
-    void SendToCSharp<structType const*>(const char* fieldname, structType const* t) \
-    {                                                                                \
-        switch (t->type)                                                             \
-        {                                                                            \
-            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_CONST_PTR);          \
-        case XR_TYPE_UNKNOWN:                                                        \
-        default:                                                                     \
-            SendToCSharp(fieldname, "<Unknown>");                                    \
-            break;                                                                   \
-        }                                                                            \
+#define SEND_TO_CSHARP_BASE_STRUCT_CONST_PTR(structType)                    \
+    template <>                                                             \
+    void SendToCSharp<>(const char* fieldname, structType const* t)         \
+    {                                                                       \
+        switch (t->type)                                                    \
+        {                                                                   \
+            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_CONST_PTR); \
+        case XR_TYPE_UNKNOWN:                                               \
+        default:                                                            \
+            SendToCSharp(fieldname, "<Unknown>");                           \
+            break;                                                          \
+        }                                                                   \
     }
 
 XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_CONST_PTR)
@@ -111,8 +111,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY)
     case typeType:                                                  \
     {                                                               \
         typeName** realTypeArray = reinterpret_cast<typeName**>(t); \
-        for (int i = 0; i < lenParam; ++i)                          \
-            SendToCSharp(fieldname, realTypeArray[i]);              \
+        SendToCSharp(fieldname, realTypeArray[i]);                  \
     }                                                               \
     break;
 
@@ -126,13 +125,16 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY)
             return true;                                                                                \
         }                                                                                               \
                                                                                                         \
-        switch (t[0]->type)                                                                             \
+        for (int i = 0; i < lenParam; ++i)                                                              \
         {                                                                                               \
-            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_ARRAY_PTR);                             \
-        case XR_TYPE_UNKNOWN:                                                                           \
-        default:                                                                                        \
-            SendToCSharp(fieldname, "<Unknown>");                                                       \
-            break;                                                                                      \
+            switch (t[i]->type)                                                                         \
+            {                                                                                           \
+                XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_ARRAY_PTR);                         \
+            case XR_TYPE_UNKNOWN:                                                                       \
+            default:                                                                                    \
+                SendToCSharp(fieldname, "<Unknown>");                                                   \
+                break;                                                                                  \
+            }                                                                                           \
         }                                                                                               \
         return true;                                                                                    \
     }
@@ -143,8 +145,7 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY_PTR)
     case typeType:                                                                          \
     {                                                                                       \
         typeName const* const* realTypeArray = reinterpret_cast<typeName const* const*>(t); \
-        for (int i = 0; i < lenParam; ++i)                                                  \
-            SendToCSharp(fieldname, realTypeArray[i]);                                      \
+        SendToCSharp(fieldname, realTypeArray[i]);                                          \
     }                                                                                       \
     break;
 
@@ -158,13 +159,16 @@ XR_LIST_BASE_STRUCTS(SEND_TO_CSHARP_BASE_STRUCT_ARRAY_PTR)
             return true;                                                                                                        \
         }                                                                                                                       \
                                                                                                                                 \
-        switch (t[0]->type)                                                                                                     \
+        for (int i = 0; i < lenParam; ++i)                                                                                      \
         {                                                                                                                       \
-            XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_ARRAY_CONST_PTR);                                               \
-        case XR_TYPE_UNKNOWN:                                                                                                   \
-        default:                                                                                                                \
-            SendToCSharp(fieldname, "<Unknown>");                                                                               \
-            break;                                                                                                              \
+            switch (t[i]->type)                                                                                                 \
+            {                                                                                                                   \
+                XR_LIST_BASE_STRUCT_TYPES_##structType(BASE_TO_TYPE_ARRAY_CONST_PTR);                                           \
+            case XR_TYPE_UNKNOWN:                                                                                               \
+            default:                                                                                                            \
+                SendToCSharp(fieldname, "<Unknown>");                                                                           \
+                break;                                                                                                          \
+            }                                                                                                                   \
         }                                                                                                                       \
         return true;                                                                                                            \
     }

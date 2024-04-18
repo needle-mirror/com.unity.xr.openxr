@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace UnityEngine.XR.OpenXR
@@ -98,11 +98,27 @@ namespace UnityEngine.XR.OpenXR
         public static event Func<bool> wantsToRestart;
 
         /// <summary>
+        /// This bool controls whether or not to retry initialization if the runtime reports a
+        /// FORM_FACTOR_UNAVAILABLE error during initialization.
+        /// </summary>
+        public static bool retryInitializationOnFormFactorErrors
+        {
+            get
+            {
+                return Internal_GetSoftRestartLoopAtInitialization();
+            }
+            set
+            {
+                Internal_SetSoftRestartLoopAtInitialization(value);
+            }
+        }
+
+        /// <summary>
         /// Invokes the given event function and returns true if all invocations return true
         /// </summary>
         /// <param name="func">Event function</param>
         /// <returns>True if all event invocations return true</returns>
-        private static bool InvokeEvent (Func<bool> func)
+        private static bool InvokeEvent(Func<bool> func)
         {
             if (func == null)
                 return true;
@@ -124,17 +140,18 @@ namespace UnityEngine.XR.OpenXR
         }
 
 #if UNITY_INCLUDE_TESTS
-        internal static void ClearEvents ()
+        internal static void ClearEvents()
         {
-            if(wantsToQuit != null)
+            if (wantsToQuit != null)
                 foreach (Func<bool> f in wantsToQuit.GetInvocationList()) wantsToQuit -= f;
 
-            if(wantsToRestart != null)
+            if (wantsToRestart != null)
                 foreach (Func<bool> f in wantsToRestart.GetInvocationList()) wantsToRestart -= f;
 
             wantsToQuit = null;
             wantsToRestart = null;
         }
+
 #endif
 
         internal static bool ShouldQuit() => InvokeEvent(wantsToQuit);
@@ -165,6 +182,12 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetEnabledExtensionName", CharSet = CharSet.Ansi)]
         private static extern bool Internal_GetEnabledExtensionNamePtr(uint index, out IntPtr outName);
+
+        [DllImport(LibraryName, EntryPoint = "session_SetSoftRestartLoopAtInitialization")]
+        private static extern void Internal_SetSoftRestartLoopAtInitialization(bool value);
+
+        [DllImport(LibraryName, EntryPoint = "session_GetSoftRestartLoopAtInitialization")]
+        private static extern bool Internal_GetSoftRestartLoopAtInitialization();
 
         private static bool Internal_GetEnabledExtensionName(uint index, out string extensionName)
         {

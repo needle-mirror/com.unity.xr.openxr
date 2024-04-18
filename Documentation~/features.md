@@ -1,3 +1,6 @@
+---
+uid: openxr-features
+---
 # OpenXR Features
 
 OpenXR is an extensible API that can be extended with new features. To facilitate this within the Unity ecosystem, the Unity OpenXR provider offers a feature extension mechanism.
@@ -114,7 +117,7 @@ The initialize sequence allows features to initialize Unity subsystems in the Lo
 
 #### Start
 
-`OnSessionBegin => OnFormFactorChange => OnEnvironmentBlendModeChange => OnViewConfigurationTypeChange => OnAppSpaceChange => OnSubsystemStart`
+`OnFormFactorChange => OnEnvironmentBlendModeChange => OnViewConfigurationTypeChange => OnSessionBegin =>  OnAppSpaceChange => OnSubsystemStart`
 
 The Start sequence allows features to start Unity subsystems in the Loader callbacks and execute them when the session is created.
 
@@ -171,11 +174,11 @@ protected override void GetValidationChecks(List<OpenXRFeature.ValidationRule> r
 #endif
 ```
 
-![feature-validation](images/feature-validation.png)
+![feature-validation](images/ProjectValidation/feature-validation.png)
 
 ### Custom Loader library
 
-One and only one Unity OpenXR feature per BuildTarget canhave a custom loader library. This must be named `openxr_loader` with native platform naming conventions (for example, `libopenxr_loader.so` on Android).
+One and only one Unity OpenXR feature per BuildTarget can have a custom loader library. This must be named `openxr_loader` with native platform naming conventions (for example, `libopenxr_loader.so` on Android).
 
 Features with a custom loader library must set the `OpenXRFeatureAttribute`: `CustomRuntimeLoaderBuildTargets` to a list of BuildTargets in which a custom loader library is expected to be used. Features that do not use a custom loader library do not have to set `CustomRuntimeLoaderBuildTargets` (or can set it to null or an empty list).
 
@@ -193,7 +196,7 @@ To intercept OpenXR function calls, override `OpenXRFeature.HookGetInstanceProcA
 
 ### Calling OpenXR functions from a feature
 
-To call an OpenXR function within a feature you first need to retreive a pointer to the function.  To do this use the `OpenXRFeature.xrGetInstanceProcAddr` function pointer to request a pointer to the function you want to call.  Using  `OpenXRFeature.xrGetInstanceProcAddr` to retrieve the function pointer ensures that any intercepted calls set up by features using `OpenXRFeature.HookGetInstanceProcAddr` will be included.
+To call an OpenXR function within a feature you first need to retrieve a pointer to the function.  To do this use the `OpenXRFeature.xrGetInstanceProcAddr` function pointer to request a pointer to the function you want to call.  Using  `OpenXRFeature.xrGetInstanceProcAddr` to retrieve the function pointer ensures that any intercepted calls set up by features using `OpenXRFeature.HookGetInstanceProcAddr` will be included.
 
 ### Providing a Unity subsystem implementation
 

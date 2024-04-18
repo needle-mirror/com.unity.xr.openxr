@@ -1,3 +1,7 @@
+---
+uid: openxr-input
+---
+
 # Input in Unity OpenXR
 
 This page details how to use and configure OpenXR input within unity. 
@@ -6,7 +10,7 @@ For information on how to configure Unity to use OpenXR input, see the [Getting 
 
 ## Overview
 
-Initially, Unity will provide a controller-based approach to interfacing with OpenXR. This will allow existing games and applications that are using the Unity's [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) or the [Feature API](https://docs.unity3d.com/Manual/xr_input.html) to continue to use their existing input mechanisms.
+Initially, Unity will provide a controller-based approach to interfacing with OpenXR. This will allow existing games and applications that are using Unity's [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) or the [Feature API](https://docs.unity3d.com/Manual/xr_input.html) to continue to use their existing input mechanisms.
 
 The Unity OpenXR package provides a set of controller layouts for various devices that you can bind to your actions when using the Unity Input System. For more information, see the [Interaction profile features](./index.md#interaction-profile-features) section.
 
@@ -33,13 +37,12 @@ This adds a `Samples` folder to your project with a Scene named `ControllerSampl
 
 ### Locking input to the game window
 
-Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view.  To work around this issue, use the [Unity OpenXR Project Validator](./index.md#project-validation) or follow these steps:
+Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view.  To work around this issue, use the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or follow these steps:
 
 * Access the Input System Debugger window (menu: **Window &gt; Analysis &gt; Input Debugger**).
 * In the **Options** section, enable the **Lock Input to the Game Window** option.
 
-Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](./index.md#project-validation) or the Input System Debugger window
-
+Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or the Input System Debugger window
 
 ![lock-input-to-game-view](images/lock-input-to-game-view.png)
 
@@ -99,6 +102,8 @@ Selecting an Interaction Profile from the features menu will add that device to 
 
 ![XR Controller Menu](images/xr-controller-input-menu.png)
 
+See [Set the interaction profile](xref:openxr-project-config#interaction-profile) for instructions on setting a profile.
+
 ### Mapping between OpenXR paths and Unity bindings
 
 The OpenXR specification details a number of `Interaction Profiles` that you can use to suggest bindings to the OpenXR runtime. Unity uses its own existing XRSDK naming scheme to identify controls and devices and map OpenXR action data to them. 
@@ -133,7 +138,7 @@ Which controls are available on which devices is covered in the specific device 
 |`/input/y/click` | secondaryButton | Boolean |
 |`/input/y/touch` | secondaryTouched | Boolean |
 
-the Unity control `touchpad` and `trackpad` are used interchangably, as are `joystick` and `thumbstick`.
+the Unity control `touchpad` and `trackpad` are used interchangeably, as are `joystick` and `thumbstick`.
 
 ### Pose data
 
@@ -190,7 +195,7 @@ The HMD position reported by Unity when using OpenXR is calculated from the curr
 The Unity `Device Tracking Origin` is mapped to `Local Space`.
 The Unity `Floor Tracking Origin` is mapped to `Stage Space`.
 
-By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Rig` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package. 
+By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Origin` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package. 
 
 ### Interaction bindings
 

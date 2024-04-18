@@ -35,7 +35,7 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     defaultViewConfig.recommendedSwapchainSampleCount = 1;
     defaultViewConfig.maxSwapchainSampleCount = 1;
 
-    // Initialzie stereo view
+    // Initialize stereo view
     MockViewConfiguration stereoViewConfig = {};
     stereoViewConfig.primary = true;
     stereoViewConfig.enabled = true;
@@ -86,6 +86,13 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     // Add microsoft first person observer view if the extension is enabled
     if ((createFlags & (MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT)) == (MR_CREATE_MSFT_FIRST_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT))
         MSFTFirstPersonObserver_Init();
+
+    // Add microsoft third person observer view if the extension is enabled
+    if ((createFlags & (MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT)) == (MR_CREATE_MSFT_THIRD_PERSON_OBSERVER_EXT | MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT))
+        MSFTThirdPersonObserver_Init();
+
+    if ((createFlags & MR_CREATE_META_PERFORMANCE_METRICS_EXT) == MR_CREATE_META_PERFORMANCE_METRICS_EXT)
+        MockMetaPerformanceMetrics::Init(*this, 4);
 
     // Generate the internal strings
     userPaths = {
@@ -227,12 +234,16 @@ XrResult MockRuntime::BeginSession(const XrSessionBeginInfo* beginInfo)
     XrResult result = XR_SUCCESS;
     if ((createFlags & MR_CREATE_MSFT_SECONDARY_VIEW_CONFIGURATION_EXT) != 0)
         result = MSFTSecondaryViewConfiguration_BeginSession(beginInfo);
+    primaryViewConfiguration = beginInfo->primaryViewConfigurationType;
 
     return result;
 }
 
 XrResult MockRuntime::EndSession()
 {
+    if (!IsSessionState(XR_SESSION_STATE_STOPPING))
+        return XR_ERROR_SESSION_NOT_STOPPING;
+
     isRunning = false;
     ChangeSessionStateFrom(XR_SESSION_STATE_STOPPING, XR_SESSION_STATE_IDLE);
 
@@ -321,11 +332,6 @@ bool MockRuntime::IsStateTransitionValid(XrSessionState newState) const
     default:
         return false;
     }
-}
-
-void MockRuntime::SetEnvironmentBlendMode(XrEnvironmentBlendMode blendMode)
-{
-    this->blendMode = blendMode;
 }
 
 void MockRuntime::SetExtentsForReferenceSpace(XrReferenceSpaceType referenceSpace, XrExtent2Df extents)
@@ -469,6 +475,11 @@ XrResult MockRuntime::LocateViews(const XrViewLocateInfo* viewLocateInfo, XrView
 
     // OpenXR 1.0: The runtime must return error XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED if the given viewConfigurationType is not one of the supported type reported by xrEnumerateViewConfigurations.
     MockViewConfiguration* mockViewConfiguration = GetMockViewConfiguration(viewLocateInfo->viewConfigurationType);
+
+    // Emulate varjo runtime failure where xrBeginSession's primary view configuration influences viewCountOutput.
+    if (viewLocateInfo->viewConfigurationType == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO && primaryViewConfiguration != XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO)
+        mockViewConfiguration = GetMockViewConfiguration(primaryViewConfiguration);
+
     if (nullptr == mockViewConfiguration)
         return XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED;
 
@@ -1246,7 +1257,7 @@ XrResult MockRuntime::GetActionStateFloat(const XrActionStateGetInfo* getInfo, X
 
         // OpenXR 1.0: The current state must be the state of the input with the largest absolute value
         float bindingValue = binding->GetFloat();
-        if (abs(bindingValue) > abs(value))
+        if (std::abs(bindingValue) > std::abs(value))
             value = bindingValue;
     }
 
@@ -1639,16 +1650,16 @@ XrResult MockRuntime::EnumerateEnvironmentBlendModes(XrSystemId systemId, XrView
     if (nullptr == mockViewConfig)
         return XR_ERROR_VIEW_CONFIGURATION_TYPE_UNSUPPORTED;
 
-    *environmentBlendModeCountOutput = 1;
+    *environmentBlendModeCountOutput = 2;
 
     if (environmentBlendModeCapacityInput == 0)
         return XR_SUCCESS;
 
     if (environmentBlendModeCapacityInput < *environmentBlendModeCountOutput)
         return XR_ERROR_VALIDATION_FAILURE;
-
-    environmentBlendModes[0] = blendMode;
-
+    //Mock runtime supporting multiple environment blend modes.
+    environmentBlendModes[0] = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+    environmentBlendModes[1] = XR_ENVIRONMENT_BLEND_MODE_ADDITIVE;
     return XR_SUCCESS;
 }
 
@@ -1664,12 +1675,10 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
         return XR_SUCCESS;
 #endif
 
-#if defined(_WIN32)
-    if (XR_SUCCESS == MockWin32ConvertPerformanceCounterTime_GetInstanceProcAddr(name, function))
-        return XR_SUCCESS;
-#endif
-
     if (IsConformanceAutomationEnabled() && XR_SUCCESS == ConformanceAutomation_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
+
+    if (MockMetaPerformanceMetrics::Instance() && XR_SUCCESS == MockMetaPerformanceMetrics_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;

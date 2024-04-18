@@ -224,6 +224,12 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockVulkan_xrCreateSwapchai
     return XR_SUCCESS;
 }
 
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockVulkan_xrCreateSwapchainHook(XrSession session, const XrSwapchainCreateInfo* createInfo, XrSwapchain* swapchain)
+{
+    LOG_FUNC();
+    MOCK_HOOK_NAMED("xrCreateSwapchain", MockVulkan_xrCreateSwapchain(session, createInfo, swapchain));
+}
+
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockVulkan_xrDestroySwapChain(XrSwapchain swapchain)
 {
     s_MockVulkan.vkDestroyImage(s_MockVulkan.device, (VkImage)swapchain, nullptr);
@@ -293,7 +299,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockVulkan_xrEndFrame(XrSes
 XrResult MockVulkan_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function)
 {
     GET_PROC_ADDRESS_REMAP(xrCreateSession, MockVulkan_xrCreateSession)
-    GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockVulkan_xrCreateSwapchain)
+    GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockVulkan_xrCreateSwapchainHook)
     GET_PROC_ADDRESS_REMAP(xrDestroySwapChain, MockVulkan_xrDestroySwapChain)
     GET_PROC_ADDRESS_REMAP(xrEnumerateSwapchainFormats, MockVulkan_xrEnumerateSwapchainFormats)
     GET_PROC_ADDRESS_REMAP(xrEnumerateSwapchainImages, MockVulkan_xrEnumerateSwapchainImages)

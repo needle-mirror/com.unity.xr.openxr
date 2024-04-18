@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking.PlayerConnection;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
-[assembly:InternalsVisibleTo("Unity.XR.OpenXR.Features.RuntimeDebugger.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.RuntimeDebugger.Editor")]
 namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 {
     internal class DebuggerState
@@ -32,26 +32,36 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             kEndFunctionCall,
 
             kCacheNotLargeEnough,
+
+            kLUTDefineTables,
+            kLUTEntryUpdateStart,
+            kLutEntryUpdateEnd,
+            kLUTLookup,
         };
 
-        private const byte FileVersion = 0x1;
+        private const byte FileVersion = 2;
         private static readonly byte[] Header = new byte[] { 0xea, 0x24, 0x39, 0x5c, 0xe0, 0xac, 0x79, FileVersion };
 
         internal static List<FunctionCall> _functionCalls = new List<FunctionCall>();
         private static List<byte> saveToFile = new List<byte>(Header);
+        private static byte openedFileVersion = FileVersion;
+
+        internal static Dictionary<UInt32, Dictionary<UInt64, HandleDebugEvent>> xrLut = new Dictionary<UInt32, Dictionary<UInt64, HandleDebugEvent>>();
+        internal static List<string> lutNames = new List<string>();
 
         internal static void Clear()
         {
             _functionCalls.Clear();
             saveToFile.Clear();
-
-            // version number
             saveToFile.AddRange(Header);
+
+            openedFileVersion = FileVersion;
         }
 
         private static Action _doneCallback;
         internal static UInt32 _lastPayloadSize;
         internal static UInt32 _frameCount;
+        internal static UInt32 _lutSize;
 
         internal static void SetDoneCallback(Action done)
         {
@@ -79,6 +89,9 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 
         internal static void LoadFromFile(string path)
         {
+            xrLut.Clear();
+            lutNames.Clear();
+            lutNames.Add("All Calls");
             using var inStream = File.OpenRead(path);
             var gzip = new GZipStream(inStream, CompressionMode.Decompress);
             byte[] bytes;
@@ -88,10 +101,21 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 bytes = outStream.ToArray();
             }
 
-            if (!Header.SequenceEqual(bytes.Take(8)))
+            var headerCounter = 0;
+            while (headerCounter < 7)
             {
-                Debug.Log("Wrong file format or version.");
-                return;
+                if (Header[headerCounter] != bytes[headerCounter])
+                {
+                    Debug.Log("Wrong file format.");
+                    return;
+                }
+                ++headerCounter;
+            }
+
+            openedFileVersion = bytes[7];
+            if (openedFileVersion > FileVersion)
+            {
+                Debug.Log($"File created with newer version ({openedFileVersion} > {FileVersion}.");
             }
 
             OnMessageEvent(new MessageEventArgs() {data = bytes.Skip(8).ToArray()});
@@ -127,6 +151,33 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                                         ++_frameCount;
                                     }
                                     break;
+                                case Command.kLUTDefineTables:
+                                    lutNames.Clear();
+                                    lutNames.Add("All Calls");
+                                    var numLUTs = r.ReadUInt32();
+                                    for (UInt32 lutIndex = 0; lutIndex < numLUTs; ++lutIndex)
+                                    {
+                                        xrLut[lutIndex] = new Dictionary<UInt64, HandleDebugEvent>();
+                                        lutNames.Add(ReadString(r));
+                                    }
+
+                                    break;
+                                case Command.kLUTEntryUpdateStart:
+                                    var lutKey = r.ReadUInt32();
+                                    var handle = r.ReadUInt64();
+                                    var handleName = ReadString(r);
+
+                                    // struct command, skip it
+                                    r.ReadUInt32();
+                                    ReadString(r);
+                                    ReadString(r);
+
+                                    var evt = new HandleDebugEvent(handleName, handle);
+                                    evt.Parse(r);
+                                    xrLut[lutKey][handle] = evt;
+                                    break;
+                                case Command.kLutEntryUpdateEnd:
+                                    break;
                                 case Command.kCacheNotLargeEnough:
                                     funcCall = new FunctionCall(r.ReadUInt32().ToString(), ReadString(r));
                                     _functionCalls.Add(funcCall);
@@ -142,7 +193,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.LogError(e);
             }
 
             _doneCallback?.Invoke();
@@ -152,15 +203,34 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             private static int idCounter = 1;
             private List<DebugEvent> childrenEvents = new List<DebugEvent>();
+            protected string fieldname;
 
-            protected DebugEvent(string displayName)
-            : base(idCounter++, 0, displayName)
+            protected DebugEvent(string fieldname, string display)
+                : base(idCounter++, 0, display)
             {
+                this.fieldname = fieldname;
+            }
+
+            public virtual DebugEvent Clone()
+            {
+                return null;
             }
 
             public virtual string GetValue()
             {
                 return "";
+            }
+
+            public override string ToString()
+            {
+                string var = displayName;
+
+                foreach (var child in childrenEvents)
+                {
+                    var += "\n\t" + child.ToString().Replace("\n", "\n\t");
+                }
+
+                return var;
             }
 
             public void Parse(BinaryReader r)
@@ -177,11 +247,25 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                         parsedChild = null;
                     }
 
-                    var command = (Command) r.ReadUInt32();
+                    var command = (Command)r.ReadUInt32();
                     switch (command)
                     {
                         case Command.kStartStruct:
                             parsedChild = new StructDebugEvent(ReadString(r), ReadString(r));
+                            break;
+                        case Command.kLUTLookup:
+                            var lutKey = r.ReadUInt32();
+                            var fieldName = ReadString(r);
+                            var handle = r.ReadUInt64();
+
+                            if (xrLut[lutKey].TryGetValue(handle, out var evt))
+                            {
+                                AddChildEvent(evt.Clone(fieldName));
+                            }
+                            else
+                            {
+                                AddChildEvent(new UInt64DebugEvent(fieldName, handle));
+                            }
                             break;
                         case Command.kFloat:
                             AddChildEvent(new FloatDebugEvent(ReadString(r), r.ReadSingle()));
@@ -212,7 +296,8 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                } while (!endEvent && r.BaseStream.Position != r.BaseStream.Length);
+                }
+                while (!endEvent && r.BaseStream.Position != r.BaseStream.Length);
             }
 
 //            public IEnumerable<DebugEvent> GetChildren()
@@ -220,10 +305,57 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
 //                return childrenEvents;
 //            }
 
-            private void AddChildEvent(DebugEvent evt)
+            public DebugEvent GetFirstChild()
+            {
+                return childrenEvents[0];
+            }
+
+            private DebugEvent AddChildEvent(DebugEvent evt)
             {
                 childrenEvents.Add(evt);
                 AddChild(evt);
+                return this;
+            }
+
+            protected DebugEvent AddClonedChildren(DebugEvent clone)
+            {
+                foreach (var evt in childrenEvents)
+                {
+                    clone.AddChildEvent(evt.Clone());
+                }
+                return clone;
+            }
+        }
+
+        internal class HandleDebugEvent : DebugEvent
+        {
+            private string niceDisplay;
+            private UInt64 handle;
+
+            public HandleDebugEvent(string niceDisplay, UInt64 handle)
+                : base("", $"{niceDisplay} = {handle}")
+            {
+                this.niceDisplay = niceDisplay;
+                this.handle = handle;
+            }
+
+            public override string GetValue()
+            {
+                return niceDisplay;
+            }
+
+            public override DebugEvent Clone()
+            {
+                var evt = new HandleDebugEvent(niceDisplay, handle);
+                evt.displayName = displayName;
+                return AddClonedChildren(evt);
+            }
+
+            public DebugEvent Clone(string fieldName)
+            {
+                var ret = Clone();
+                ret.displayName = $"{fieldName} = {niceDisplay} ({handle})";
+                return ret;
             }
         }
 
@@ -233,18 +365,34 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public string returnVal { get; set; }
 
             public FunctionCall(string threadId, string displayName)
-            : base(displayName)
+                : base("", displayName)
             {
                 this.threadId = threadId;
+            }
+
+            public override DebugEvent Clone()
+            {
+                return AddClonedChildren(new FunctionCall(threadId, displayName));
             }
         }
 
         internal class StructDebugEvent : DebugEvent
         {
+            public string structname { get; }
             public StructDebugEvent(string fieldname, string structname)
-                : base($"{fieldname} = {structname}")
+                : base(fieldname, $"{fieldname} = {structname}")
             {
+                this.structname = structname;
+            }
 
+            public override string GetValue()
+            {
+                return structname;
+            }
+
+            public override DebugEvent Clone()
+            {
+                return AddClonedChildren(new StructDebugEvent(fieldname, structname));
             }
         }
 
@@ -252,7 +400,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             public float value { get; }
             public FloatDebugEvent(string displayName, float val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -261,13 +409,18 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             {
                 return $"{value}";
             }
+
+            public override DebugEvent Clone()
+            {
+                return new FloatDebugEvent(fieldname, value);
+            }
         }
 
         internal class StringDebugEvent : DebugEvent
         {
             public string value { get; }
             public StringDebugEvent(string displayName, string val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -276,13 +429,18 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             {
                 return value;
             }
+
+            public override DebugEvent Clone()
+            {
+                return new StringDebugEvent(fieldname, value);
+            }
         }
 
         internal class Int32DebugEvent : DebugEvent
         {
             public Int32 value { get; }
             public Int32DebugEvent(string displayName, Int32 val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -290,6 +448,11 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public override string GetValue()
             {
                 return $"{value}";
+            }
+
+            public override DebugEvent Clone()
+            {
+                return new Int32DebugEvent(fieldname, value);
             }
         }
 
@@ -297,7 +460,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             public Int64 value { get; }
             public Int64DebugEvent(string displayName, Int64 val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -305,6 +468,11 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public override string GetValue()
             {
                 return $"{value}";
+            }
+
+            public override DebugEvent Clone()
+            {
+                return new Int64DebugEvent(fieldname, value);
             }
         }
 
@@ -312,7 +480,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             public UInt32 value { get; }
             public UInt32DebugEvent(string displayName, UInt32 val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -320,6 +488,11 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public override string GetValue()
             {
                 return $"{value}";
+            }
+
+            public override DebugEvent Clone()
+            {
+                return new UInt32DebugEvent(fieldname, value);
             }
         }
 
@@ -327,7 +500,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
         {
             public UInt64 value { get; }
             public UInt64DebugEvent(string displayName, UInt64 val)
-                : base(displayName + " = " + val)
+                : base(displayName, displayName + " = " + val)
             {
                 this.value = val;
             }
@@ -335,6 +508,11 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
             public override string GetValue()
             {
                 return $"{value}";
+            }
+
+            public override DebugEvent Clone()
+            {
+                return new UInt64DebugEvent(fieldname, value);
             }
         }
     }

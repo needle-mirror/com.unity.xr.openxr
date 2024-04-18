@@ -1,4 +1,4 @@
-﻿namespace UnityEngine.XR.OpenXR
+namespace UnityEngine.XR.OpenXR
 {
     /// <summary>
     /// Static constants

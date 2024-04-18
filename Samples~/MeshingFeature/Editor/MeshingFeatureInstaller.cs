@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.IO;
@@ -91,6 +91,7 @@ namespace UnityEditor.XR.OpenXR.Samples.MeshingFeature
             // Self destruct
             AssetDatabase.DeleteAsset(Path.Combine(Path.GetDirectoryName(source), "Editor"));
         }
+
 #endif
     }
 }

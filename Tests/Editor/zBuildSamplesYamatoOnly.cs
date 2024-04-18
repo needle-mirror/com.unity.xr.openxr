@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
 
@@ -31,13 +32,13 @@ class zBuildSamplesYamatoOnly
         if (dir == null) return;
         Directory.CreateDirectory(dir);
 
-        var scripts = new string[] {"install.command", "install.bat"};
+        var scripts = new string[] { "install.command", "install.bat" };
         foreach (var script in scripts)
         {
             var scriptPath = Path.Combine(dir, script);
 
             var scriptContents = $"adb uninstall {identifier}\n" +
-                                $"adb install \"{Path.GetFileName(outputFile)}\"\n\n";
+                $"adb install \"{Path.GetFileName(outputFile)}\"\n\n";
 
             File.AppendAllText(scriptPath, scriptContents);
         }
@@ -47,14 +48,27 @@ class zBuildSamplesYamatoOnly
     {
         foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
-            if (feature.nameUi.Contains("Oculus Quest"))
+            if (feature.nameUi.Contains("Meta Quest"))
             {
                 Console.WriteLine($"Enable: {feature.nameUi}");
                 feature.enabled = true;
                 return;
             }
         }
-        Assert.IsTrue(false, "Could not enable oculus quest extension - if you're not on build machine you must copy dir OculusQuest to your project.");
+        Assert.IsTrue(false, "Could not enable meta quest extension - if you're not on build machine you must copy dir MetaQuest to your project.");
+    }
+
+    static void EnableMSFTObserverFeature()
+    {
+        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+        {
+            if (feature.nameUi.Contains("MSFT Secondary View and Observers"))
+            {
+                Console.WriteLine($"Enable: {feature.nameUi}");
+                feature.enabled = true;
+                return;
+            }
+        }
     }
 
     static void EnableFeature<TFeatureType>() where TFeatureType : OpenXRFeature
@@ -72,7 +86,7 @@ class zBuildSamplesYamatoOnly
 
     static void EnableSampleFeatures()
     {
-        foreach(var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
             if (feature.GetType().Namespace == null)
             {
@@ -94,6 +108,11 @@ class zBuildSamplesYamatoOnly
         EnableFeature<HTCViveControllerProfile>();
         EnableFeature<ValveIndexControllerProfile>();
         EnableFeature<OculusTouchControllerProfile>();
+        EnableFeature<MetaQuestTouchProControllerProfile>();
+        EnableFeature<HandInteractionProfile>();
+        EnableFeature<PalmPoseInteraction>();
+        EnableFeature<DPadInteraction>();
+        EnableFeature<HandCommonPosesInteraction>();
     }
 
     static void EnableWSAProfiles()
@@ -101,11 +120,15 @@ class zBuildSamplesYamatoOnly
         EnableFeature<MicrosoftHandInteraction>();
         EnableFeature<EyeGazeInteraction>();
         EnableFeature<MicrosoftMotionControllerProfile>();
+        EnableFeature<HandInteractionProfile>();
+        EnableFeature<PalmPoseInteraction>();
+        EnableFeature<HandCommonPosesInteraction>();
     }
 
     static void EnableAndroidProfiles()
     {
         EnableFeature<OculusTouchControllerProfile>();
+        EnableFeature<MetaQuestTouchProControllerProfile>();
     }
 
     static SampleBuildTargetSetup[] buildTargetSetup =
@@ -119,7 +142,7 @@ class zBuildSamplesYamatoOnly
             {
                 EnableSampleFeatures();
                 EnableStandaloneProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new [] { GraphicsDeviceType.Direct3D11, GraphicsDeviceType.Vulkan });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11, GraphicsDeviceType.Vulkan });
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
             },
             outputPostfix = "dx11",
@@ -132,7 +155,7 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new [] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Direct3D11 });
                 QualitySettings.SetQualityLevel(5);
                 QualitySettings.antiAliasing = 4;
             },
@@ -146,7 +169,7 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new [] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D11 });
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
             },
             outputPostfix = "vk",
@@ -158,11 +181,17 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
+                EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
                 EnableFeature<MicrosoftHandInteraction>();
                 EnableWSAProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
+#else
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
+#endif
                 OpenXRSettings.ActiveBuildTargetInstance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -176,19 +205,25 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
+                EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
                 EnableFeature<MicrosoftHandInteraction>();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new [] { GraphicsDeviceType.Direct3D12 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D12 });
                 QualitySettings.SetQualityLevel(5);
                 QualitySettings.antiAliasing = 4;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
+#else
                 PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.WSA);
+#endif
+                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
             },
             outputPostfix = "dx12",
         },
 #endif
         new SampleBuildTargetSetup
         {
-            sampleRegex = new Regex(".*Render.*"), // Only build vulkan variant for Render Samples
+            sampleRegex = new Regex(".*RenderSample.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples
             buildTarget = BuildTarget.Android,
             targetGroup = BuildTargetGroup.Android,
             setupPlayerSettings = (outputFile, identifier) =>
@@ -196,10 +231,14 @@ class zBuildSamplesYamatoOnly
                 EnableSampleFeatures();
                 EnableQuestFeature();
                 EnableAndroidProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new []{ GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                 PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                 WriteAndroidInstallerScripts(outputFile, identifier);
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -207,6 +246,7 @@ class zBuildSamplesYamatoOnly
         },
         new SampleBuildTargetSetup
         {
+            sampleRegex = new Regex("^(?!.*MetaSample).*$"), // Don't build the Meta Sample for GLES
             buildTarget = BuildTarget.Android,
             targetGroup = BuildTargetGroup.Android,
             setupPlayerSettings = (outputFile, identifier) =>
@@ -214,10 +254,14 @@ class zBuildSamplesYamatoOnly
                 EnableSampleFeatures();
                 EnableQuestFeature();
                 EnableAndroidProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new []{ GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
                 PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
                 WriteAndroidInstallerScripts(outputFile, identifier);
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
@@ -252,6 +296,7 @@ class zBuildSamplesYamatoOnly
         }
         return "OpenXR Samples";
     }
+
     static void BuildSamples()
     {
         string resultDir = GetResultDir();
@@ -286,7 +331,11 @@ class zBuildSamplesYamatoOnly
             string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
 
             string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
+#if UNITY_2021_3_OR_NEWER
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
+#else
             PlayerSettings.SetApplicationIdentifier(setup.targetGroup, identifier);
+#endif
             PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
             Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
             string outputFile = Path.Combine(outputDir,

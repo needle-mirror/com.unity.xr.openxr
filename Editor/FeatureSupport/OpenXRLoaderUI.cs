@@ -22,10 +22,9 @@ namespace UnityEditor.XR.OpenXR.Features
 
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Standalone)]
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android)]
-    [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoaderNoPreInit", BuildTargetGroup.WSA)]
+    [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.WSA)]
     internal class OpenXRLoaderUI : IXRCustomLoaderUI
     {
-
         protected bool shouldApplyFeatureSetChanges = false;
 
         protected List<OpenXRFeatureSetManager.FeatureSetInfo> featureSets { get; set; }
@@ -36,10 +35,11 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <inheritdoc/>
         public bool IsLoaderEnabled { get; set; }
 
-        public string[] IncompatibleLoaders => new string[] {
+        public string[] IncompatibleLoaders => new string[]
+        {
             "UnityEngine.XR.WindowsMR.WindowsMRLoader",
             "Unity.XR.Oculus.OculusLoader",
-            };
+        };
 
         /// <inheritdoc/>
         public float RequiredRenderHeight { get; protected set; }
@@ -122,7 +122,7 @@ namespace UnityEditor.XR.OpenXR.Features
         {
             // If this editor is rendering then the make sure the project validator is showing
             // issues for the same build target.
-            OpenXRProjectValidationWindow.SetSelectedBuildTargetGroup(activeBuildTargetGroup);
+            OpenXRProjectValidationRulesSetup.SetSelectedBuildTargetGroup(activeBuildTargetGroup);
 
             Vector2 oldIconSize = EditorGUIUtility.GetIconSize();
             EditorGUIUtility.SetIconSize(new Vector2(Content.k_IconSize, Content.k_IconSize));
@@ -155,7 +155,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
                     if (GUI.Button(iconRect, icon, EditorStyles.label))
                     {
-                        OpenXRProjectValidationWindow.ShowWindow(activeBuildTargetGroup);
+                        OpenXRProjectValidationRulesSetup.ShowWindow(activeBuildTargetGroup);
                     }
                 }
             }
@@ -187,7 +187,6 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             EditorGUIUtility.SetIconSize(oldIconSize);
-
         }
     }
 }

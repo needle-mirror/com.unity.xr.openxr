@@ -52,7 +52,12 @@ XrResult MockRuntime::MSFTSecondaryViewConfiguration_WaitFrame(const XrFrameWait
         return XR_ERROR_VALIDATION_FAILURE;
 
     for (auto& viewConfiguration : secondaryViewConfigurationStates)
-        viewConfiguration.active = GetMockViewConfiguration(viewConfiguration.viewConfigurationType)->active;
+    {
+        if (viewConfiguration.viewConfigurationType != 0)
+        {
+            viewConfiguration.active = GetMockViewConfiguration(viewConfiguration.viewConfigurationType)->active;
+        }
+    }
 
     memcpy(secondaryFrameState->viewConfigurationStates, secondaryViewConfigurationStates.data(), secondaryViewConfigurationStates.size() * sizeof(XrSecondaryViewConfigurationStateMSFT));
 
@@ -89,6 +94,13 @@ XrResult MockRuntime::MSFTSecondaryViewConfiguration_EndFrame(const XrFrameEndIn
 
 XrResult MockRuntime::ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, bool active)
 {
+    if (viewConfigurationType == 0)
+    {
+        // emulating a bug we saw with microsoft runtime
+        secondaryViewConfigurationStates.clear();
+        secondaryViewConfigurationStates.push_back({XR_TYPE_SECONDARY_VIEW_CONFIGURATION_STATE_MSFT});
+    }
+
     MockViewConfiguration* viewConfiguration = GetMockViewConfiguration(viewConfigurationType);
     if (nullptr == viewConfiguration || (IsSessionRunning() && !viewConfiguration->enabled))
         return XR_ERROR_SECONDARY_VIEW_CONFIGURATION_TYPE_NOT_ENABLED_MSFT;

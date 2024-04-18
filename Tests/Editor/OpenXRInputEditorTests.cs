@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
@@ -46,7 +46,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             // Ignore the test if there is not more than 1 build target.
             var features = packageSettings.GetFeatures<OculusTouchControllerProfile>().Select(f => f.feature).ToArray();
-            if(features.Length < 2)
+            if (features.Length < 2)
                 return;
 
             // Disable all of the oculus interaction features

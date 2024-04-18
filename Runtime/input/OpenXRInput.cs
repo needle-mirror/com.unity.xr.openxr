@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEditor;
+using UnityEngine.XR.OpenXR.Features.Interactions;
 
 namespace UnityEngine.XR.OpenXR.Input
 {
@@ -98,17 +99,21 @@ namespace UnityEngine.XR.OpenXR.Input
             ["Haptic"] = OpenXRInteractionFeature.ActionType.Vibrate
         };
 
+        private const string s_devicePoseActionName = "devicepose";
+
+        private const string s_pointerActionName = "pointer";
+
         /// <summary>
-        /// Dictionary used to map virtual controls to concrete controls when
+        /// Dictionary used to map virtual controls to concrete controls.
         /// </summary>
         private static readonly Dictionary<string, string> kVirtualControlMap = new Dictionary<string, string>
         {
-            ["deviceposition"] = "devicepose",
-            ["devicerotation"] = "devicepose",
-            ["trackingstate"] = "devicepose",
-            ["istracked"] = "devicepose",
-            ["pointerposition"] = "pointer",
-            ["pointerrotation"] = "pointer"
+            ["deviceposition"] = s_devicePoseActionName,
+            ["devicerotation"] = s_devicePoseActionName,
+            ["trackingstate"] = s_devicePoseActionName,
+            ["istracked"] = s_devicePoseActionName,
+            ["pointerposition"] = s_pointerActionName,
+            ["pointerrotation"] = s_pointerActionName
         };
 
 #if UNITY_EDITOR
@@ -129,12 +134,19 @@ namespace UnityEngine.XR.OpenXR.Input
             // an update callback and wait for the first frame before registering our feature layouts.
             EditorApplication.update += OnFirstFrame;
         }
+
 #endif
 
-        internal static void RegisterLayouts ()
+        internal static void RegisterLayouts()
         {
             InputSystem.InputSystem.RegisterLayout<HapticControl>("Haptic");
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+#if UNITY_FORCE_INPUTSYSTEM_XR_OFF
+            InputSystem.InputSystem.RegisterLayout<UnityEngine.InputSystem.XR.PoseControl>("Pose");
+#endif //UNITY_FORCE_INPUTSYSTEM_XR_OFF
+#else
             InputSystem.InputSystem.RegisterLayout<PoseControl>("Pose");
+#endif //USE_INPUT_SYSTEM_POSE_CONTROL
             InputSystem.InputSystem.RegisterLayout<OpenXRDevice>();
             InputSystem.InputSystem.RegisterLayout<OpenXRHmd>(matches: new InputDeviceMatcher()
                 .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
@@ -147,7 +159,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <summary>
         /// Validates a given ActionMapConfig to ensure that it is generally set up correctly.
         /// </summary>
-        /// <param name="interactionFeature">InteractionFeature the ActionMapConfig belogns to</param>
+        /// <param name="interactionFeature">InteractionFeature the ActionMapConfig belongs to</param>
         /// <param name="actionMapConfig">ActionMapConfig to validate</param>
         /// <returns>True if the action map config is valid</returns>
         private static bool ValidateActionMapConfig(OpenXRInteractionFeature interactionFeature, OpenXRInteractionFeature.ActionMapConfig actionMapConfig)
@@ -174,50 +186,83 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         internal static void AttachActionSets()
         {
-            // Build list of all action maps and validate them
             var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
-            foreach(var interactionFeature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled))
+            var additiveActionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+
+            foreach (var interactionFeature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled && !f.IsAdditive))
             {
                 var start = actionMaps.Count;
                 interactionFeature.CreateActionMaps(actionMaps);
-
                 for (var index = actionMaps.Count - 1; index >= start; index--)
                 {
                     if (!ValidateActionMapConfig(interactionFeature, actionMaps[index]))
                         actionMaps.RemoveAt(index);
                 }
             }
+            if (!RegisterDevices(actionMaps, false))
+                return;
 
-            // Register all devices before registering any actions.
+            foreach (var feature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled && f.IsAdditive))
+            {
+                //Create action maps for additive profiles and add extra actions to non-additive profiles.
+                feature.CreateActionMaps(additiveActionMaps);
+                feature.AddAdditiveActions(actionMaps, additiveActionMaps[additiveActionMaps.Count - 1]);
+            }
+            var interactionProfiles = new Dictionary<string, List<SerializedBinding>>();
+            if (!CreateActions(actionMaps, interactionProfiles))
+                return;
+            if (additiveActionMaps.Count > 0)
+            {
+                RegisterDevices(additiveActionMaps, true);
+                CreateActions(additiveActionMaps, interactionProfiles);
+            }
+
+            //Support Binding modifications if available
+            SetDpadBindingCustomValues();
+
+            // Suggest bindings
+            foreach (var kv in interactionProfiles)
+            {
+                if (!Internal_SuggestBindings(kv.Key, kv.Value.ToArray(), (uint)kv.Value.Count))
+                    OpenXRRuntime.LogLastError();
+            }
+
+            // Attach actions sets to commit all bindings
+            if (!Internal_AttachActionSets())
+                OpenXRRuntime.LogLastError();
+        }
+
+        private static bool RegisterDevices(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, bool isAdditive)
+        {
             foreach (var actionMap in actionMaps)
             {
                 foreach (var deviceInfo in actionMap.deviceInfos)
                 {
                     var localizedName = actionMap.desiredInteractionProfile == null ? UserPathToDeviceName(deviceInfo.userPath) : actionMap.localizedName;
-                    if (0 == Internal_RegisterDeviceDefinition(deviceInfo.userPath, actionMap.desiredInteractionProfile, (uint) deviceInfo.characteristics, localizedName, actionMap.manufacturer, actionMap.serialNumber))
+                    if (0 == Internal_RegisterDeviceDefinition(deviceInfo.userPath, actionMap.desiredInteractionProfile, isAdditive, (uint)deviceInfo.characteristics, localizedName, actionMap.manufacturer, actionMap.serialNumber))
                     {
                         OpenXRRuntime.LogLastError();
-                        return;
+                        return false;
                     }
                 }
             }
+            return true;
+        }
 
-            // Register actions
-            var interactionProfiles = new Dictionary<string,List<SerializedBinding>>();
+        private static bool CreateActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, Dictionary<string, List<SerializedBinding>> interactionProfiles)
+        {
             foreach (var actionMap in actionMaps)
             {
-                // Create the action set
-                var actionSetId = Internal_CreateActionSet(SanitizeStringForOpenXRPath(actionMap.name), actionMap.localizedName, new SerializedGuid());
+                string actionMapLocalizedName = SanitizeStringForOpenXRPath(actionMap.localizedName);
+                var actionSetId = Internal_CreateActionSet(SanitizeStringForOpenXRPath(actionMap.name), actionMapLocalizedName, new SerializedGuid());
                 if (0 == actionSetId)
                 {
                     OpenXRRuntime.LogLastError();
-                    return;
+                    return false;
                 }
-
                 // User paths specified in the deviceInfo
                 var deviceUserPaths = actionMap.deviceInfos.Select(d => d.userPath).ToList();
 
-                // Create actions
                 foreach (var action in actionMap.actions)
                 {
                     // User paths specified in the bindings
@@ -230,44 +275,45 @@ namespace UnityEngine.XR.OpenXR.Input
                         actionSetId,
                         SanitizeStringForOpenXRPath(action.name),
                         action.localizedName,
-                        (uint) action.type,
+                        (uint)action.type,
                         new SerializedGuid(),
-                        allUserPaths, (uint) allUserPaths.Length,
+                        allUserPaths, (uint)allUserPaths.Length, action.isAdditive,
                         action.usages?.ToArray(), (uint)(action.usages?.Count ?? 0));
 
                     if (actionId == 0)
                     {
                         OpenXRRuntime.LogLastError();
-                        return;
+                        return false;
                     }
 
                     foreach (var binding in action.bindings)
                     {
                         foreach (var userPath in binding.userPaths ?? deviceUserPaths)
                         {
-                            var interactionProfile = binding.interactionProfileName ?? actionMap.desiredInteractionProfile;
+                            var interactionProfile = action.isAdditive ? actionMap.desiredInteractionProfile : binding.interactionProfileName ?? actionMap.desiredInteractionProfile;
                             if (!interactionProfiles.TryGetValue(interactionProfile, out var bindings))
                             {
                                 bindings = new List<SerializedBinding>();
                                 interactionProfiles[interactionProfile] = bindings;
                             }
 
-                            bindings.Add(new SerializedBinding {actionId = actionId, path = userPath + binding.interactionPath});
+                            bindings.Add(new SerializedBinding { actionId = actionId, path = userPath + binding.interactionPath });
                         }
                     }
                 }
             }
 
-            // Suggest bindings
-            foreach(var kv in interactionProfiles)
-            {
-                if (!Internal_SuggestBindings(kv.Key, kv.Value.ToArray(), (uint) kv.Value.Count))
-                    OpenXRRuntime.LogLastError();
-            }
+            return true;
+        }
 
-            // Attach actions sets to commit all bindings
-            if (!Internal_AttachActionSets())
-                OpenXRRuntime.LogLastError();
+        private static void SetDpadBindingCustomValues()
+        {
+            var dpadFeature = OpenXRSettings.Instance.GetFeature<DPadInteraction>();
+            if (dpadFeature != null && dpadFeature.enabled)
+            {
+                Internal_SetDpadBindingCustomValues(true, dpadFeature.forceThresholdLeft, dpadFeature.forceThresholdReleaseLeft, dpadFeature.centerRegionLeft, dpadFeature.wedgeAngleLeft, dpadFeature.isStickyLeft);
+                Internal_SetDpadBindingCustomValues(false, dpadFeature.forceThresholdRight, dpadFeature.forceThresholdReleaseRight, dpadFeature.centerRegionRight, dpadFeature.wedgeAngleRight, dpadFeature.isStickyRight);
+            }
         }
 
         /// <summary>
@@ -275,7 +321,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="c">Character to sanitize</param>
         /// <returns>The sanitized character or 0 if the character should be excluded</returns>
-        private static char SanitizeCharForOpenXRPath (char c)
+        private static char SanitizeCharForOpenXRPath(char c)
         {
             if (char.IsLower(c) || char.IsDigit(c))
                 return c;
@@ -286,7 +332,7 @@ namespace UnityEngine.XR.OpenXR.Input
             if (c == '-' || c == '.' || c == '_' || c == '/')
                 return c;
 
-            return (char) 0;
+            return (char)0;
         }
 
         /// <summary>
@@ -300,7 +346,7 @@ namespace UnityEngine.XR.OpenXR.Input
 
             // Find the first character that is not sanitized
             var i = 0;
-            for (; i < input.Length && SanitizeCharForOpenXRPath(input[i]) == input[i]; ++i);
+            for (; i < input.Length && SanitizeCharForOpenXRPath(input[i]) == input[i]; ++i) ;
 
             // Already clean
             if (i == input.Length)
@@ -317,6 +363,30 @@ namespace UnityEngine.XR.OpenXR.Input
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Gets the name of the control's action handle.
+        /// </summary>
+        /// <param name="control">The input control</param>
+        /// <returns>The name of the action handle.</returns>
+        private static string GetActionHandleName(InputControl control)
+        {
+            // Extract the name of the action from the control path.
+            // Example: /EyeTrackingOpenXR/pose/isTracked --> action is pose.
+            InputControl inputControl = control;
+            while (inputControl.parent != null && inputControl.parent.parent != null)
+            {
+                inputControl = inputControl.parent;
+            }
+
+            string controlName = SanitizeStringForOpenXRPath(inputControl.name);
+            if (kVirtualControlMap.TryGetValue(controlName, out var virtualControlName))
+            {
+                return virtualControlName;
+            }
+
+            return controlName;
         }
 
         /// <summary>
@@ -378,7 +448,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="actionRef">Action reference to stop the haptics on.</param>
         /// <param name="inputDevice">Optional device filter for actions bound to multiple devices.</param>
-        public static void StopHaptics (InputActionReference actionRef, InputSystem.InputDevice inputDevice = null)
+        public static void StopHaptics(InputActionReference actionRef, InputSystem.InputDevice inputDevice = null)
         {
             if (actionRef == null)
                 return;
@@ -391,7 +461,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="inputAction">Input action to stop haptics for</param>
         /// <param name="inputDevice">Optional device filter for actions bound to multiple defices</param>
-        public static void StopHaptics (InputAction inputAction, InputSystem.InputDevice inputDevice = null)
+        public static void StopHaptics(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
         {
             if (inputAction == null)
                 return;
@@ -412,13 +482,13 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="flags">Flags that indicate which parts of the input source name are requested.</param>
         /// <param name="inputDevice">Optional input device to limit search to</param>
         /// <returns>True if an input source was found</returns>
-        public static bool TryGetInputSourceName (
+        public static bool TryGetInputSourceName(
             InputAction inputAction,
             int index,
             out string name,
             InputSourceNameFlags flags = InputSourceNameFlags.All,
             InputSystem.InputDevice inputDevice = null
-            )
+        )
         {
             name = "";
 
@@ -429,7 +499,32 @@ namespace UnityEngine.XR.OpenXR.Input
             if (actionHandle == 0)
                 return false;
 
-            return Internal_TryGetInputSourceName(GetDeviceId(inputDevice), actionHandle, (uint) index, (uint) flags, out name);
+            return Internal_TryGetInputSourceName(GetDeviceId(inputDevice), actionHandle, (uint)index, (uint)flags, out name);
+        }
+
+        /// <summary>
+        /// Return the active state of the given action
+        /// </summary>
+        /// <param name="inputAction">Input Action</param>
+        /// <returns>True if the given action has any bindings that are active</returns>
+        public static bool GetActionIsActive(InputAction inputAction)
+        {
+            if (inputAction != null &&
+                inputAction.controls.Count > 0 &&
+                inputAction.controls[0].device != null)
+            {
+                for (var index = 0; index < inputAction.controls.Count; ++index)
+                {
+                    var deviceId = GetDeviceId(inputAction.controls[index].device);
+                    if (deviceId == 0)
+                        continue;
+
+                    var controlName = GetActionHandleName(inputAction.controls[index]);
+                    if (Internal_GetActionIsActive(deviceId, controlName))
+                        return true;
+                }
+            }
+            return false;
         }
 
         [StructLayout(LayoutKind.Explicit, Size = k_Size)]
@@ -454,7 +549,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="inputAction">Source InputAction</param>
         /// <param name="inputDevice">Optional InputDevice to filter by</param>
         /// <returns>OpenXR handle that is associated with the given InputAction or 0 if not found</returns>
-        internal static ulong GetActionHandle(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
+        public static ulong GetActionHandle(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
         {
             if (inputAction == null || inputAction.controls.Count == 0)
                 return 0;
@@ -468,12 +563,11 @@ namespace UnityEngine.XR.OpenXR.Input
                 if (deviceId == 0)
                     continue;
 
-                var controlName = SanitizeStringForOpenXRPath(control.name);
-                if (kVirtualControlMap.TryGetValue(controlName, out var controlNameOverride))
-                    controlName = controlNameOverride;
+                var controlName = GetActionHandleName(control);
 
                 // Populate the action handles list and make sure we dont overflow
                 var xrAction = Internal_GetActionId(deviceId, controlName);
+
                 if (xrAction != 0)
                     return xrAction;
             }
@@ -522,11 +616,14 @@ namespace UnityEngine.XR.OpenXR.Input
         /////////////////////////////////////////////////////////////////////////////////////////////
         private const string Library = "UnityOpenXR";
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_SetDpadBindingCustomValues", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Internal_SetDpadBindingCustomValues(bool isLeft, float forceThreshold, float forceThresholdReleased, float centerRegion, float wedgeAngle, bool isSticky);
+
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SendHapticImpulse", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Internal_SendHapticImpulse(uint deviceId, ulong actionId, float amplitude, float frequency, float duration);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_StopHaptics", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void Internal_StopHaptics (uint deviceId, ulong actionId);
+        private static extern void Internal_StopHaptics(uint deviceId, ulong actionId);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIdByControl")]
         private static extern ulong Internal_GetActionId(uint deviceId, string name);
@@ -547,14 +644,17 @@ namespace UnityEngine.XR.OpenXR.Input
             return true;
         }
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIsActive")]
+        private static extern bool Internal_GetActionIsActive(uint deviceId, string name);
+
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_RegisterDeviceDefinition", CharSet = CharSet.Ansi)]
-        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, uint characteristics, string name, string manufacturer, string serialNumber);
+        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, bool isAdditive, uint characteristics, string name, string manufacturer, string serialNumber);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_CreateActionSet", CharSet = CharSet.Ansi)]
         private static extern ulong Internal_CreateActionSet(string name, string localizedName, SerializedGuid guid);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_CreateAction", CharSet = CharSet.Ansi)]
-        private static extern ulong Internal_CreateAction(ulong actionSetId, string name, string localizedName, uint actionType, SerializedGuid guid, string[] userPaths, uint userPathCount, string[] usages, uint usageCount);
+        private static extern ulong Internal_CreateAction(ulong actionSetId, string name, string localizedName, uint actionType, SerializedGuid guid, string[] userPaths, uint userPathCount, bool isAdditive, string[] usages, uint usageCount);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SuggestBindings", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
@@ -562,6 +662,6 @@ namespace UnityEngine.XR.OpenXR.Input
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_AttachActionSets", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool Internal_AttachActionSets ();
+        internal static extern bool Internal_AttachActionSets();
     }
 }

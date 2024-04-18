@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -81,7 +81,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.AreEqual(0, validationIssues.Count);
 
             // Close the validation window ...
-            OpenXRProjectValidationWindow.CloseWindow();
+            OpenXRProjectValidationRulesSetup.CloseWindow();
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsNotNull(features);
             Assert.IsTrue(features.Length == 2);
 
-            var expectedTypes = new Type[]{ typeof(MockRuntime), typeof(EyeGazeInteraction)};
+            var expectedTypes = new Type[] { typeof(MockRuntime), typeof(EyeGazeInteraction) };
             foreach (var feature in features)
             {
                 Assert.IsTrue(Array.IndexOf(expectedTypes, feature.GetType()) > -1);

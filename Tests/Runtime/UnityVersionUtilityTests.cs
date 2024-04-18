@@ -1,4 +1,3 @@
-
 using NUnit.Framework;
 using System.Runtime.InteropServices;
 
@@ -42,7 +41,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [Test]
-        public void ValidStrings ([ValueSource(nameof(s_ValidStrings))] string versionString)
+        public void ValidStrings([ValueSource(nameof(s_ValidStrings))] string versionString)
         {
             var version = Internal_GetUnityVersion(versionString);
             Assert.IsTrue(version != 0);
@@ -55,22 +54,21 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(version == 0);
         }
 
-
         [Test]
-        public void NumericalCorrectness ()
+        public void NumericalCorrectness()
         {
             // Convert all of the version strings to numbers
             var versions = new ulong[s_SequentialVersions.Length];
-            for(int i=0; i<versions.Length; i++)
+            for (int i = 0; i < versions.Length; i++)
             {
                 versions[i] = Internal_GetUnityVersion(s_SequentialVersions[i]);
                 Assert.IsFalse(versions[i] == 0, $"StringToVersion failed on `{s_SequentialVersions[i]}`");
             }
 
             // Make sure all versions are greater than all versions before them in the list
-            for(int i=1; i<versions.Length; i++)
+            for (int i = 1; i < versions.Length; i++)
             {
-                for(int j=i-1; j>=0; j--)
+                for (int j = i - 1; j >= 0; j--)
                 {
                     Assert.IsTrue(versions[i] > versions[j], $"{s_SequentialVersions[i]} was not greater than {s_SequentialVersions[j]}");
                 }

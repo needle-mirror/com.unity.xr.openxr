@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace UnityEngine.XR.OpenXR
@@ -106,6 +106,7 @@ namespace UnityEngine.XR.OpenXR
             if (Application.isPlaying)
                 ApplyRenderSettings();
         }
+
 #endif
 
         private const string LibraryName = "UnityOpenXR";

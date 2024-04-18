@@ -1,3 +1,6 @@
+---
+uid: openxr-eye-gaze-interaction
+---
 # Eye Gaze Interaction
 
 Unity OpenXR provides support for the Eye Tracking Interaction extension specified by Khronos. Use this layout to retrieve the pose data that the extension returns.
@@ -16,4 +19,3 @@ For more information about the Eye Gaze extension, see the [OpenXR Specification
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 | `/input/gaze_ext/pose` | pose | Pose |
-

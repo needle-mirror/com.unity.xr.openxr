@@ -30,7 +30,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
-        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor})] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
+        [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
         public IEnumerator NoInitNoCrash()
         {
             base.InitializeAndStart();
@@ -42,7 +42,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
-        [UnityPlatform(include = new[] {RuntimePlatform.WindowsEditor})]
+        [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })]
         public IEnumerator LoadRuntimeAfterNoRuntime()
         {
             base.InitializeAndStart();
@@ -51,6 +51,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Assert.IsNull(activeLoader);
 
+#if !OPENXR_USE_KHRONOS_LOADER
             Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", "");
             EnableMockRuntime();
 
@@ -61,6 +62,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsNotNull(activeLoader);
 
             Assert.AreEqual(OpenXRRuntime.name, "Unity Mock Runtime");
+#endif
         }
     }
 }
