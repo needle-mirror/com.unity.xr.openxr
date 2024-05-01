@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extensions/mock_meta_performance_metrics.h"
+#include "Extensions/mock_performance_settings.h"
 
 // XR_EXT_conformance_automation
 
@@ -23,4 +24,9 @@ XrResult MockVulkan_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* fu
 
 #if defined(XR_USE_GRAPHICS_API_D3D11)
 XrResult MockD3D11_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function);
+#endif
+
+// XR_KHR_D3D12_ENABLE
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+XrResult MockD3D12_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function);
 #endif

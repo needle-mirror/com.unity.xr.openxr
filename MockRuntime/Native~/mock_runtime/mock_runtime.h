@@ -18,8 +18,11 @@ static const MockRuntimeCreateFlags MR_CREATE_META_PERFORMANCE_METRICS_EXT = 0x0
 static const MockRuntimeCreateFlags MR_CREATE_HP_REVERB_G2_CONTROLLER = 0x00004000;
 static const MockRuntimeCreateFlags MR_CREATE_HAND_INTERACTION_EXT = 0x00008000;
 static const MockRuntimeCreateFlags MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT = 0x00010000;
+static const MockRuntimeCreateFlags MR_CREATE_D3D12_GFX_EXT = 0x00020000;
+static const MockRuntimeCreateFlags MR_CREATE_PERFORMANCE_SETTINGS_EXT = 0x00040000;
+static const MockRuntimeCreateFlags MR_CREATE_USER_PRESENCE_EXT = 0x00080000;
 
-static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT;
+static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT | MR_CREATE_D3D12_GFX_EXT;
 
 class MockRuntime
 {
@@ -97,6 +100,8 @@ public:
     XrResult GetReferenceSpaceBoundsRect(XrReferenceSpaceType referenceSpace, XrExtent2Df* extents);
 
     XrResult CauseInstanceLoss();
+    XrResult CauseUserPresenceChange(bool hasUserPresent);
+
     bool IsInstanceLost(XrInstance instance) const
     {
         return instanceIsLost;
@@ -116,6 +121,11 @@ public:
     bool IsD3D11Gfx() const
     {
         return (createFlags & MR_CREATE_D3D11_GFX_EXT) != 0;
+    }
+
+    bool IsD3D12Gfx() const
+    {
+        return (createFlags & MR_CREATE_D3D12_GFX_EXT) != 0;
     }
 
     XrResult WaitFrame(const XrFrameWaitInfo* frameWaitInfo, XrFrameState* frameState);
@@ -201,6 +211,8 @@ public:
     XrResult RegisterScriptEventCallback(PFN_ScriptEventCallback callback);
 
     XrResult GetSystemProperties(XrSystemId systemId, XrSystemProperties* properties);
+
+    XrResult CausePerformanceSettingsNotification(XrPerfSettingsDomainEXT domain, XrPerfSettingsSubDomainEXT subdomain, XrPerfSettingsNotificationLevelEXT nextLevel);
 
 private:
     struct MockView

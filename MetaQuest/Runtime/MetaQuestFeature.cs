@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using UnityEditor;
 
 #if UNITY_EDITOR
@@ -67,6 +68,14 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         internal bool symmetricProjection = false;
 
         /// <summary>
+        /// Different APIs to use in the backend.
+        /// On Built-in Render Pipeline, only Legacy will be used.
+        /// On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.
+        /// </summary>
+        [SerializeField, Tooltip("On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.")]
+        internal OpenXRSettings.BackendFovationApi foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
+
+        /// <summary>
         /// Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.
         /// </summary>
         [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
@@ -106,6 +115,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             AddTargetDevice("quest", "Quest", true);
             AddTargetDevice("quest2", "Quest 2", true);
             AddTargetDevice("cambria", "Quest Pro", true);
+            AddTargetDevice("eureka", "Quest 3", true);
         }
 
         /// <summary>
@@ -278,6 +288,22 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         error = true,
                         fixItAutomatic = true,
                         fixItMessage = "Set Vulkan as Graphics API"
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Only Legacy Foveated Rendering API usage is possible on Built-in Render Pipeline",
+                        checkPredicate = () =>
+                        {
+                            return GraphicsSettings.defaultRenderPipeline != null || foveatedRenderingApi == OpenXRSettings.BackendFovationApi.Legacy;
+                        },
+                        fixIt = () =>
+                        {
+                            foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
+                        },
+                        error = true,
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Foveated Rendering API to Legacy"
                     },
 
                     new ValidationRule(this)

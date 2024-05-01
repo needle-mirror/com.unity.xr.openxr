@@ -94,6 +94,9 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     if ((createFlags & MR_CREATE_META_PERFORMANCE_METRICS_EXT) == MR_CREATE_META_PERFORMANCE_METRICS_EXT)
         MockMetaPerformanceMetrics::Init(*this, 4);
 
+    if ((createFlags & MR_CREATE_PERFORMANCE_SETTINGS_EXT) == MR_CREATE_PERFORMANCE_SETTINGS_EXT)
+        MockPerformanceSettings::Init(*this);
+
     // Generate the internal strings
     userPaths = {
         {"/user/hand/left", "Left Hand", nullptr},
@@ -365,6 +368,17 @@ XrResult MockRuntime::CauseInstanceLoss()
         XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING,
         nullptr,
         killTime.time_since_epoch().count()});
+
+    return XR_SUCCESS;
+}
+
+XrResult MockRuntime::CauseUserPresenceChange(bool hasUserPresent)
+{
+    QueueEvent(XrEventDataUserPresenceChangedEXT{
+        XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT,
+        nullptr,
+        session,
+        hasUserPresent});
 
     return XR_SUCCESS;
 }
@@ -1686,10 +1700,18 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
         return XR_SUCCESS;
 #endif
 
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+    if (IsD3D12Gfx() && XR_SUCCESS == MockD3D12_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
+#endif
+
     if (IsConformanceAutomationEnabled() && XR_SUCCESS == ConformanceAutomation_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 
     if (MockMetaPerformanceMetrics::Instance() && XR_SUCCESS == MockMetaPerformanceMetrics_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
+
+    if (MockPerformanceSettings::Instance() && XR_SUCCESS == MockPerformanceSettings_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
@@ -1717,5 +1739,34 @@ XrResult MockRuntime::GetSystemProperties(XrSystemId systemId, XrSystemPropertie
             secondaryViewConfiguration->supportsEyeGazeInteraction = true;
     }
 
+    if ((createFlags & MR_CREATE_USER_PRESENCE_EXT) != 0)
+    {
+        XrSystemUserPresencePropertiesEXT* userPresenceExtension =
+            FindNextPointerType<XrSystemUserPresencePropertiesEXT>(properties, XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT);
+        if (nullptr != userPresenceExtension)
+        {
+            userPresenceExtension->supportsUserPresence = true;
+        }
+    }
+
     return XR_SUCCESS;
+}
+
+XrResult MockRuntime::CausePerformanceSettingsNotification(XrPerfSettingsDomainEXT domain, XrPerfSettingsSubDomainEXT subdomain, XrPerfSettingsNotificationLevelEXT nextLevel)
+{
+    if (MockPerformanceSettings::Instance())
+    {
+        auto previousLevel = MockPerformanceSettings::Instance()->GetPerformanceSettingsNotificationLevel(domain, subdomain);
+        MockPerformanceSettings::Instance()->SetPerformanceSettingsNotificationLevel(domain, subdomain, nextLevel);
+        QueueEvent(XrEventDataPerfSettingsEXT{
+            XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT,
+            nullptr,
+            domain,
+            subdomain,
+            previousLevel,
+            nextLevel});
+        return XR_SUCCESS;
+    }
+
+    return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

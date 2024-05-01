@@ -47,52 +47,67 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public class HandInteraction : XRController
         {
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteraction.grip"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionProfile.grip"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteraction.aim"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionProfile.aim"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, alias = "aimPose", usage = "Pointer")]
             public PoseControl pointer { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteraction.poke"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionProfile.poke"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, usage = "Poke")]
             public PoseControl pokePose { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteraction.pinch"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionProfile.pinch"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, usage = "Pinch")]
             public PoseControl pinchPose { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteraction.pinchValue"/> OpenXR binding.
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteractionProfile.pinchValue"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "PinchValue")]
             public AxisControl pinchValue { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteraction.pinchReady"/> OpenXR binding.
+            /// An [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.pinchValue"/> OpenXR binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "PinchTouched")]
+            public ButtonControl pinchTouched { get; private set; }
+            /// <summary>
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.pinchReady"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "PinchReady")]
             public ButtonControl pinchReady { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteraction.pointerActivateValue"/> OpenXR binding.
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteractionProfile.pointerActivateValue"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "PointerActivateValue")]
             public AxisControl pointerActivateValue { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteraction.pointerActivateReady"/> OpenXR binding.
+            /// An [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.pointerActivateValue"/> OpenXR binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "PointerActivated")]
+            public ButtonControl pointerActivated { get; private set; }
+            /// <summary>
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.pointerActivateReady"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "PointerActivateReady")]
             public ButtonControl pointerActivateReady { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteraction.graspValue"/> OpenXR binding.
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.AxisControl) that represents the <see cref="HandInteractionProfile.graspValue"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "GraspValue")]
             public AxisControl graspValue { get; private set; }
             /// <summary>
-            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteraction.graspReady"/> OpenXR binding.
+            /// An [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.graspValue"/> OpenXR binding.
+            /// </summary>
+            [Preserve, InputControl(usage = "GraspFirm")]
+            public ButtonControl graspFirm { get; private set; }
+            /// <summary>
+            /// An [AxisControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="HandInteractionProfile.graspReady"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(usage = "GraspReady")]
             public ButtonControl graspReady { get; private set; }
@@ -158,10 +173,13 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 pokePose = GetChildControl<PoseControl>("pokePose");
                 pinchPose = GetChildControl<PoseControl>("pinchPose");
                 pinchValue = GetChildControl<AxisControl>("pinchValue");
+                pinchTouched = GetChildControl<ButtonControl>("pinchTouched");
                 pinchReady = GetChildControl<ButtonControl>("pinchReady");
                 pointerActivateValue = GetChildControl<AxisControl>("pointerActivateValue");
+                pointerActivated = GetChildControl<ButtonControl>("pointerActivated");
                 pointerActivateReady = GetChildControl<ButtonControl>("pointerActivateReady");
                 graspValue = GetChildControl<AxisControl>("graspValue");
+                graspFirm = GetChildControl<ButtonControl>("graspFirm");
                 graspReady = GetChildControl<ButtonControl>("graspReady");
                 isTracked = GetChildControl<ButtonControl>("isTracked");
                 trackingState = GetChildControl<IntegerControl>("trackingState");
@@ -397,6 +415,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
+                    //Pinch Touched
+                    new ActionConfig()
+                    {
+                        name = "PinchTouched",
+                        localizedName = "Pinch Touched",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
+                        {
+                            "PinchTouched"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = pinchValue,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
                     //Pinch Ready
                     new ActionConfig()
                     {
@@ -435,6 +472,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
+                    //Pointer Activated
+                    new ActionConfig()
+                    {
+                        name = "PointerActivated",
+                        localizedName = "Pointer Activated",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
+                        {
+                            "PointerActivated"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = pointerActivateValue,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
                     //Pointer Activate Ready
                     new ActionConfig()
                     {
@@ -463,6 +519,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         usages = new List<string>()
                         {
                             "GraspValue"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = graspValue,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    //Grasp Firm
+                    new ActionConfig()
+                    {
+                        name = "GraspFirm",
+                        localizedName = "Grasp Firm",
+                        type = ActionType.Binary,
+                        usages = new List<string>()
+                        {
+                            "GraspFirm"
                         },
                         bindings = new List<ActionBinding>()
                         {

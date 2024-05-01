@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.MockRuntime")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.ConformanceAutomation")]
@@ -500,14 +499,6 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         Exiting = 8,
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct XrBaseInStructure
-    {
-        public uint type;
-        public void* next;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
     internal struct XrVector2f
     {
         float x;
@@ -526,7 +517,6 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
     };
 
-    [StructLayout(LayoutKind.Sequential)]
     internal struct XrVector3f
     {
         float x;
@@ -548,7 +538,6 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
     };
 
-    [StructLayout(LayoutKind.Sequential)]
     internal struct XrQuaternionf
     {
         float x;
@@ -573,103 +562,15 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
     };
 
-    [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct XrCompositionLayerBaseHeader
-    {
-        public uint Type;
-        public void* Next;
-        public ulong LayerFlags;
-        public ulong Space;
-    }
-
-    /// <summary>
-    /// A construct representing a position and orientation within a space, with position expressed in meters, and orientation represented as a unit quaternion.
-    /// <see href="https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrPosef.html"></see>
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XrPosef
+    internal struct XrPosef
     {
         XrQuaternionf orientation;
         XrVector3f position;
 
-        /// <summary>
-        /// Initializes and returns an instance of XrPosef with the provided parameters.
-        /// </summary>
-        /// <param name="vec3">vector3 position.</param>
-        /// <param name="quaternion">quaternion orientation.</param>
         public XrPosef(Vector3 vec3, Quaternion quaternion)
         {
             this.position = new XrVector3f(vec3);
             this.orientation = new XrQuaternionf(quaternion);
         }
     };
-
-    /// <summary>
-    /// Creation info for a swapchain.
-    /// <see href="https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSwapchainCreateInfo.html"></see>
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct XrSwapchainCreateInfo
-    {
-        /// <summary>
-        /// The XrStructureType of this structure.
-        /// <see href="https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrStructureType.html"></see>
-        /// </summary>
-        public uint Type;
-
-        /// <summary>
-        /// Pointer to the next structure in a structure chain. Can be null.
-        /// </summary>
-        public void* Next;
-
-        /// <summary>
-        /// Bitmask of XrSwapchainCreateFlagBits describing additional properties of the swapchain.
-        /// <see href="https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSwapchainCreateFlagBits.html"></see>
-        /// </summary>
-        public ulong CreateFlags;
-
-        /// <summary>
-        /// Bitmask of XrSwapchainUsageFlagBits describing the intended usage of the swapchain�s images.
-        /// The usage flags define how the corresponding graphics API objects are created.
-        /// A mismatch may result in swapchain images that do not support the application�s usage.
-        /// <see href="https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrSwapchainUsageFlagBits.html"></see>
-        /// </summary>
-        public ulong UsageFlags;
-
-        /// <summary>
-        /// The graphics API-specific texture format identifier.
-        /// Can use OpenXRLayerUtility.GetDefaultColorFormat() to get the default format.
-        /// </summary>
-        public long Format;
-
-        /// <summary>
-        /// The number of sub-data element samples in the image, must not be 0 or greater than the graphics API�s maximum limit.
-        /// </summary>
-        public uint SampleCount;
-
-        /// <summary>
-        /// The width of the image, must not be 0 or greater than the graphics API�s maximum limit.
-        /// </summary>
-        public uint Width;
-
-        /// <summary>
-        /// The height of the image, must not be 0 or greater than the graphics API�s maximum limit.
-        /// </summary>
-        public uint Height;
-
-        /// <summary>
-        /// The number of faces, which can be either 6 (for cubemaps) or 1.
-        /// </summary>
-        public uint FaceCount;
-
-        /// <summary>
-        /// The number of array layers in the image or 1 for a 2D image, must not be 0 or greater than the graphics API�s maximum limit.
-        /// </summary>
-        public uint ArraySize;
-
-        /// <summary>
-        /// Describes the number of levels of detail available for minified sampling of the image, must not be 0 or greater than the graphics API�s maximum limit.
-        /// </summary>
-        public uint MipCount;
-    }
 }

@@ -160,18 +160,23 @@ namespace UnityEngine.XR.OpenXR
         private const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRuntimeName")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetRuntimeName(out IntPtr runtimeNamePtr);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRuntimeVersion")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetRuntimeVersion(out ushort major, out ushort minor, out uint patch);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetAPIVersion")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetAPIVersion(out ushort major, out ushort minor, out uint patch);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetPluginVersion")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetPluginVersion(out IntPtr pluginVersionPtr);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionEnabled")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_IsExtensionEnabled(string extensionName);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetExtensionVersion")]
@@ -181,12 +186,14 @@ namespace UnityEngine.XR.OpenXR
         private static extern uint Internal_GetEnabledExtensionCount();
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetEnabledExtensionName", CharSet = CharSet.Ansi)]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetEnabledExtensionNamePtr(uint index, out IntPtr outName);
 
         [DllImport(LibraryName, EntryPoint = "session_SetSoftRestartLoopAtInitialization")]
-        private static extern void Internal_SetSoftRestartLoopAtInitialization(bool value);
+        private static extern void Internal_SetSoftRestartLoopAtInitialization([MarshalAs(UnmanagedType.I1)] bool value);
 
         [DllImport(LibraryName, EntryPoint = "session_GetSoftRestartLoopAtInitialization")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetSoftRestartLoopAtInitialization();
 
         private static bool Internal_GetEnabledExtensionName(uint index, out string extensionName)
@@ -205,6 +212,7 @@ namespace UnityEngine.XR.OpenXR
         private static extern uint Internal_GetAvailableExtensionCount();
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetAvailableExtensionName", CharSet = CharSet.Ansi)]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetAvailableExtensionNamePtr(uint index, out IntPtr extensionName);
 
         private static bool Internal_GetAvailableExtensionName(uint index, out string extensionName)
@@ -220,6 +228,7 @@ namespace UnityEngine.XR.OpenXR
         }
 
         [DllImport(LibraryName, EntryPoint = "session_GetLastError", CharSet = CharSet.Ansi)]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetLastError(out IntPtr error);
 
         /// <summary>

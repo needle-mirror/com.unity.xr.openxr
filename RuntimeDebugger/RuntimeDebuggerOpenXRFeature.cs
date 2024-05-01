@@ -94,6 +94,7 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
         private static extern IntPtr Native_HookGetInstanceProcAddr(IntPtr func, UInt32 cacheSize, UInt32 perThreadCacheSize);
 
         [DllImport(Library, EntryPoint = "GetDataForRead")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Native_GetDataForRead(out IntPtr ptr, out UInt32 size);
 
         [DllImport(Library, EntryPoint = "GetLUTData")]

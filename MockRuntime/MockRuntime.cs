@@ -4,6 +4,10 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine.XR.OpenXR.NativeTypes;
+using UnityEngine.XR.OpenXR.Features.Extensions;
+using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
+
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
@@ -515,7 +519,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         private static extern XrResult Internal_RegisterScriptEventCallback(ScriptEventDelegate callback);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_TransitionToState")]
-        [return: MarshalAs(UnmanagedType.I1)]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_TransitionToState(XrSessionState state, [MarshalAs(UnmanagedType.I1)] bool forceTransition);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_GetSessionState")]
@@ -533,6 +537,13 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockRuntime_CauseInstanceLoss")]
         public static extern void CauseInstanceLoss();
 
+        /// <summary>
+        ///  Force user presence change.
+        /// </summary>
+        /// <param name="hasUserPresent">User present when true.</param>
+        [DllImport(extLib, EntryPoint = "MockRuntime_CauseUserPresenceChange")]
+        public static extern void CauseUserPresenceChange([MarshalAs(UnmanagedType.U1)] bool hasUserPresent);
+
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpaceBounds")]
         internal static extern void SetReferenceSpaceBounds(XrReferenceSpaceType referenceSpace, Vector2 bounds);
 
@@ -547,6 +558,12 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         [DllImport(extLib, EntryPoint = "MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float")]
         internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(string xrPathString, float value, uint unit);
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_CauseNotification")]
+        internal static extern void PerformanceSettings_CauseNotification(PerformanceDomain domain, PerformanceSubDomain subDomain, PerformanceNotificationLevel level);
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_GetPerformanceLevelHint")]
+        internal static extern PerformanceLevelHint PerformanceSettings_GetPerformanceLevelHint(PerformanceDomain domain);
 
 #if UNITY_EDITOR
         static void UseGenericLoaderAndroid()

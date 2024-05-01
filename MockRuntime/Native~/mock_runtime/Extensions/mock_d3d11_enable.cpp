@@ -172,6 +172,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockD3D11_xrCreateSession(X
 
 XrResult MockD3D11_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function)
 {
+    LOG_FUNC();
     GET_PROC_ADDRESS_REMAP(xrCreateSession, MockD3D11_xrCreateSession)
     GET_PROC_ADDRESS_REMAP(xrEnumerateSwapchainFormats, MockD3D11_xrEnumerateSwapchainFormats)
     GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockD3D11_xrCreateSwapchainHook)

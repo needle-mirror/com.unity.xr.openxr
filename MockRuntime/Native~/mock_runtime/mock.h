@@ -106,7 +106,7 @@ extern MockRuntime* s_runtime;
 #define DEBUG_LOG_EVERY_FUNC_CALL 0
 
 #if DEBUG_LOG_EVERY_FUNC_CALL
-#define LOG_FUNC() MOCK_TRACE(kXRLogTypeDebug, __FUNCTION__)
+#define LOG_FUNC() MOCK_TRACE(kXRLogTypeDebug, "%s: %s", __FILE__, __FUNCTION__)
 #else
 #define LOG_FUNC()
 #endif

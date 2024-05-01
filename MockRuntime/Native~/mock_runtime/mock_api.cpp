@@ -213,6 +213,18 @@ MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_CauseInstanceLoss,
 }
 #endif
 
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_CauseUserPresenceChange,
+    (bool hasUserPresent),
+    (hasUserPresent))
+#if !TRAMPOLINE
+{
+    if (nullptr == s_runtime)
+        return;
+
+    s_runtime->CauseUserPresenceChange(hasUserPresent);
+}
+#endif
+
 MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_SetReferenceSpaceBounds,
     (XrReferenceSpaceType referenceSpaceType, XrExtent2Df bounds),
     (referenceSpaceType, bounds))
@@ -303,6 +315,28 @@ MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_MetaPerformanceMetrics_SeedCo
 }
 #endif
 
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_PerformanceSettings_CauseNotification,
+    (XrPerfSettingsDomainEXT domain, XrPerfSettingsSubDomainEXT subdomain, XrPerfSettingsNotificationLevelEXT level),
+    (domain, subdomain, level))
+#if !TRAMPOLINE
+{
+    if (s_runtime == nullptr)
+        return;
+    s_runtime->CausePerformanceSettingsNotification(domain, subdomain, level);
+}
+#endif
+
+MOCK_API_TRAMPOLINE(XrPerfSettingsLevelEXT, XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIGH_EXT, MockRuntime_PerformanceSettings_GetPerformanceLevelHint,
+    (XrPerfSettingsDomainEXT domain),
+    (domain))
+#if !TRAMPOLINE
+{
+    if (MockPerformanceSettings::Instance() == nullptr)
+        return XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIGH_EXT;
+    return MockPerformanceSettings::Instance()->GetPerformanceLevelHint(domain);
+}
+#endif
+
 #if !TRAMPOLINE
 XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
@@ -313,6 +347,7 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_GetSessionState)
     GET_PROC_ADDRESS(MockRuntime_RequestExitSession)
     GET_PROC_ADDRESS(MockRuntime_CauseInstanceLoss)
+    GET_PROC_ADDRESS(MockRuntime_CauseUserPresenceChange)
     GET_PROC_ADDRESS(MockRuntime_SetReferenceSpaceBounds)
     GET_PROC_ADDRESS(MockRuntime_GetEndFrameStats)
     GET_PROC_ADDRESS(MockRuntime_ActivateSecondaryView)
@@ -320,6 +355,8 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_RegisterFunctionCallbacks)
     GET_PROC_ADDRESS(MockRuntime_TransitionToState)
     GET_PROC_ADDRESS(MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float)
+    GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_CauseNotification)
+    GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_GetPerformanceLevelHint)
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

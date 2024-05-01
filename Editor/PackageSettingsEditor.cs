@@ -25,7 +25,7 @@ namespace UnityEditor.XR.OpenXR
             public const float k_Space = 15.0f;
 
             public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode");
-            public static readonly GUIContent k_vulkanAdditionalGraphicsQueue = new GUIContent("Additional Graphics Queue (Vulkan)");
+            public static readonly GUIContent k_vulkanAdditionalGraphicsQueue = new GUIContent("Additional Graphics Queue (Vulkan)", "Request an additional Vulkan graphics queue for its own rendering at startup.");
 
             public static readonly GUIContent[] k_renderModeOptions = new GUIContent[2]
             {
@@ -120,6 +120,7 @@ namespace UnityEditor.XR.OpenXR
             DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode", "m_symmetricProjection", "m_optimizeBufferDiscards", "m_vulkanAdditionalGraphicsQueue");
             if (buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.Standalone)
             {
+                EditorGUIUtility.labelWidth = 210;
                 serializedOpenXrEditorSettings.FindProperty("m_vulkanAdditionalGraphicsQueue").boolValue =
                     EditorGUILayout.Toggle(Content.k_vulkanAdditionalGraphicsQueue, openXrEditorSettings.VulkanAdditionalGraphicsQueue);
             }

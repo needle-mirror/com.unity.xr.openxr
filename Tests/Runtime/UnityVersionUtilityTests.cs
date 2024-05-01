@@ -13,7 +13,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             "2020.2.0rc16",
             "2020.2.0rc1",
             "2020.2.0p1",
-            "2020.3.17F1"
+            "2020.3.17F1",
+            "6000.0.0b16",
+            "7000.1.2f11",
+            "8000.2.12b2"
         };
 
         public static readonly string[] s_InvalidStrings =
@@ -24,7 +27,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             "a.1.1rc1",
             "1.a.1rc1",
             "1.1.1rc",
-            "2020.2,1p1"
+            "2020.2,1p1",
+            "2300.1.11f1",
+            "6001.0.0b16",
+            "7123.3.5f15"
         };
 
         private static readonly string[] s_SequentialVersions =
@@ -37,7 +43,13 @@ namespace UnityEngine.XR.OpenXR.Tests
             "2020.5.0f1",
             "2020.5.0p1",
             "2020.5.1p1",
-            "2020.5.1p2"
+            "2020.5.1p2",
+            "6000.0.0a1",
+            "6000.0.0b1",
+            "6000.0.0f1",
+            "6000.1.0a1",
+            "7000.0.0a1",
+            "8000.0.0a1"
         };
 
         [Test]

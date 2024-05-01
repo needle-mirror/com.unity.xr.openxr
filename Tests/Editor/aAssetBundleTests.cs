@@ -8,7 +8,7 @@ using UnityEditor.SceneManagement;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    public class aAssetBundleTests
+    internal class aAssetBundleTests
     {
         [Test]
         public void BuildAssetBundle()

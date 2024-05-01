@@ -713,5 +713,59 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <param name="inputAction">Action to retrieve XrAction handles for</param>
         /// <returns>XrAction handle bound to the given <see cref="UnityEngine.InputSystem.InputAction"/> or 0 if there is no bound XrAction</returns>
         protected ulong GetAction(InputAction inputAction) => OpenXRInput.GetActionHandle(inputAction);
+
+
+        /// <summary>
+        /// Flags that control various options and behaviors on registered stats.
+        /// </summary>
+        [System.Flags]
+        protected internal enum StatFlags
+        {
+            /// <summary>
+            /// Stat will have no special options or behaviors
+            /// </summary>
+            StatOptionNone = 0,
+            /// <summary>
+            /// Stat will clear to 0.0f at the beginning of every frame
+            /// </summary>
+            ClearOnUpdate = 1 << 0,
+            /// <summary>
+            /// Stat will have all special options and behaviors
+            /// </summary>
+            All = (1 << 1) - 1
+        }
+
+        /// <summary>
+        /// Registers an OpenXR statistic with the given name and flags.
+        /// This method is not thread safe, so it should only be called at OnInstanceCreate.
+        /// </summary>
+        /// <param name="statName">String identifier for the statistic.</param>
+        /// <param name="statFlags">Properties to be applied to the statistic.</param>
+        /// <returns>Stat Id</returns>
+        protected internal static ulong RegisterStatsDescriptor(string statName, StatFlags statFlags)
+        {
+            return runtime_RegisterStatsDescriptor(statName, statFlags);
+        }
+
+        /// <summary>
+        /// Assigns a float value to a registered statistic. Its thread safe.
+        /// </summary>
+        /// <param name="statId">Identifier of the previously registered statistic.</param>
+        /// <param name="value">Float value to be assigned to the stat.</param>
+        protected internal static void SetStatAsFloat(ulong statId, float value)
+        {
+            runtime_SetStatAsFloat(statId, value);
+        }
+
+        /// <summary>
+        /// <para>Assigns an unsigned integer value to a registered statistic. Its thread safe.</para>
+        /// <para>IMPORTANT: Due to limitations in native code, values over 16777216 (1<<24) might not be reflected accurately.</para>
+        /// </summary>
+        /// <param name="statId">Identifier of the previously registered statistic.</param>
+        /// <param name="value">Unsigned integer value to be assigned to the stat.</param>
+        protected internal static void SetStatAsUInt(ulong statId, uint value)
+        {
+            runtime_SetStatAsUInt(statId, value);
+        }
     }
 }

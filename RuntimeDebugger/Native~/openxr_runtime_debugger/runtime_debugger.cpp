@@ -15,6 +15,7 @@
 
 #define XR_NO_PROTOTYPES
 #include <openxr/openxr.h>
+#include <openxr/openxr_loader_negotiation.h>
 #include <openxr/openxr_platform.h>
 
 #include "openxr/openxr_reflection_full.h"

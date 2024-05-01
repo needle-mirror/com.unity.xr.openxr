@@ -1,9 +1,9 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.11.0-exp.1",
+  "version": "1.11.0",
   "unity": "2021.3",
-  "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management. This experimental version added Composition Layer support (Pair with com.unity.xr.compositionlayers package)",
+  "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
     "openxr",
     "xr",
@@ -31,23 +31,18 @@
       "displayName": "Intercept Feature",
       "description": "Demonstrates how to intercept an OpenXR method.",
       "path": "Samples~/InterceptFeature"
-    },
-    {
-      "displayName": "Custom Composition Layer Feature",
-      "description": "Demonstrates how to add support for a custom composition layer type.",
-      "path": "Samples~/CustomCompositionLayerFeature"
     }
   ],
   "_upm": {
-    "changelog": "### Added\n* Added XR Composition Layers support - Experimental. Install Composition Layer Experimental package - com.unity.xr.compositionlayers 0.5.0 to pair with."
+    "changelog": "### Added\n* Added the `XrPerformanceSettings.SetPerformanceLevelHint` static method, which lets you send performance level suggestions to the runtime. These hints help an OpenXR runtime to optimize the use of hardware resources according to the application needs. Refer to [XR performance settings](xref:openxr-performance-settings#performance-settings-level-hints) for more information. This requires the [XR_EXT_performance_settings](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_performance_settings) extension is enabled in the OpenXR runtime.\n* Added the `XrPerformanceSettings.OnXrPerformanceChangeNotification` event, which provides notifications from the OpenXR runtime when a device's thermal, rendering, or compositor performance state changes. The performance states include: `Normal`, `Warning`, and `Impaired`. Refer to [XR performance settings](xref:openxr-performance-settings#performance-settings-notifications) for more information. This requires the [XR_EXT_performance_settings](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_performance_settings) extension is enabled in the OpenXR runtime.\n* Added a`Quest 3` option to the `Target Devices` set in the Meta Quest Support settings. This specifies the application's support for Quest 3 devices within the Android manifest.\n* Added missing ButtonControl actions `pinch_ext`, `aim_activate_ext` and `grasp_ext` for Hand Interaction Profile.\n* Added API `OpenXRUtility.ComputePoseToWorldSpace` to recalculate object position and rotation from tracking-space to world-space. Applicable for use cases such as teleporting.\n* Added support for using Local Floor Reference Space in the OpenXR runtime. Useful in applications that require the user to be seated or in a standing fixed position.\n* Added PreInit flags to allow users to disable the main frame buffer and use offscreen swapchain when using Vulkan on Android in the OpenXR settings.\n* Added functional DX12 mock runtime support to the OpenXR package.\n* Added `RegisterStatsDescriptor` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to register a new statistic that can be feed into and queried at runtime. This method is not thread safe. \n* Added `SetStatAsFloat` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to feed a float value into a specific statistic that was previously registered using the `RegisterStatsDescriptor`. This method is thread safe. \n* Added `SetStatAsUInt` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to feed an unsigned integer value into a specific statistic that was previously registered using the `RegisterStatsDescriptor`. This method is thread safe.\n* Added the `OpenXRSettings.RefreshRecenterSpace` static method, which lets you regenerate the internal XR space used for recentering, without the need to wait until a recenter event is received by the OpenXR SDK. Note that this method does not perform a recenter event in any way, as this can only be done by the device runtime.\n* Added Pre-pass Foveated Rendering for both d3d12 and Vulkan. This feature utilizes Fragment Density Mapping on Quest Devices and Fragment Shading Rate on PC to optimize rendering performance. Refer to [Foveated Rendering](xref:openxr-foveated-rendering) for more information.\n* Added `OpenXRUtility.IsSessionFocused` to return if the current session is in the focused state.\n* Added `OpenXRUtility.IsUserPresent` to return the change of user presence, such as when the user has taken off or put on an XR headset. If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True. If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.\n\n### Changed\n* Changed tracking origin to use Local Floor in place of Floor by default.\n* Changed delta time calculation to utilize OpenXR for frame estimation. Previously internal Unity mechanisms were used. This feature is currently disabled but will be available in the future.\n* When retrieving input feature from [CommonUsages.userPresence](https://docs.unity3d.com/ScriptReference/XR.CommonUsages-userPresence.html), if XR_EXT_user_presence is supported by the current system, retrieved value will be the same as `OpenXRUtility.IsUserPresent`. If `XR_EXT_user_presence` is not supported, retrieved value will be based on `OpenXRUtility.IsSessionFocused`, which is the default return value before 1.11.0.\n\n### Fixed\n* Fixed Marshal to correctly read the number of bytes for booleans in C++.\n* Fixed crash that occurs while cleaning up destroyed swapchains in OpenXR.\n* Fixed Depth Texture flag disparity between the OpenXR and Oculus providers.\n\n### Added\n* Added `OpenXRUtility.IsSessionFocused` to return if the current session is in the focused state.\n* Added `OpenXRUtility.IsUserPresent` to return the change of user presence, such as when the user has taken off or put on an XR headset. If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True. If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.\n\n### Changed\n* When retrieving input feature from [CommonUsages.userPresence](https://docs.unity3d.com/ScriptReference/XR.CommonUsages-userPresence.html), if XR_EXT_user_presence is supported by the current system, retrieved value will be the same as `OpenXRUtility.IsUserPresent`. If `XR_EXT_user_presence` is not supported, retrieved value will be based on `OpenXRUtility.IsSessionFocused`, which is the default return value before 1.11.0."
   },
   "upmCi": {
-    "footprint": "4333faa210c8b87022be94d9e41651d4f14c8a12"
+    "footprint": "5ba13d2282567a2bdddcfa5b4585a9802e080f66"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.11/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "60aad1a020e818ebd6b277b8e76aa00720ad5c4a"
+    "revision": "e70a67560a5a88cc6b92e0ef7923c57ba38755a7"
   }
 }

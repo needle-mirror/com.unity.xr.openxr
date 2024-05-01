@@ -298,6 +298,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR MockVulkan_xrEndFrame(XrSes
 
 XrResult MockVulkan_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function)
 {
+    LOG_FUNC();
     GET_PROC_ADDRESS_REMAP(xrCreateSession, MockVulkan_xrCreateSession)
     GET_PROC_ADDRESS_REMAP(xrCreateSwapchain, MockVulkan_xrCreateSwapchainHook)
     GET_PROC_ADDRESS_REMAP(xrDestroySwapChain, MockVulkan_xrDestroySwapChain)

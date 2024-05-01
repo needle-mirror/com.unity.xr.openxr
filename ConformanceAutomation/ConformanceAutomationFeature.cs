@@ -192,21 +192,27 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         private static extern void initialize(IntPtr xrGetInstanceProcAddr, ulong xrInstance);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceActiveEXT")]
-        private static extern bool xrSetInputDeviceActiveEXT(ulong xrSession, ulong interactionProfile, ulong topLevelPath, bool isActive);
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool xrSetInputDeviceActiveEXT(ulong xrSession, ulong interactionProfile, ulong topLevelPath, [MarshalAs(UnmanagedType.I1)] bool isActive);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceStateBoolEXT")]
-        private static extern bool xrSetInputDeviceStateBoolEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, bool state);
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool xrSetInputDeviceStateBoolEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, [MarshalAs(UnmanagedType.I1)] bool state);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceStateFloatEXT")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool xrSetInputDeviceStateFloatEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, float state);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceStateVector2fEXT")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool xrSetInputDeviceStateVector2fEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, XrVector2f state);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceLocationEXT")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool xrSetInputDeviceLocationEXT(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, ulong space, XrPosef pose);
 
         [DllImport(ExtLib, EntryPoint = "script_xrSetInputDeviceVelocityUNITY")]
-        private static extern bool xrSetInputDeviceVelocityUNITY(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, bool linearValid, XrVector3f linear, bool angularValid, XrVector3f angular);
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool xrSetInputDeviceVelocityUNITY(ulong xrSession, ulong topLevelPath, ulong inputSourcePath, [MarshalAs(UnmanagedType.I1)] bool linearValid, XrVector3f linear, [MarshalAs(UnmanagedType.I1)] bool angularValid, XrVector3f angular);
     }
 }

@@ -117,6 +117,18 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME,
         XR_EXT_hp_mixed_reality_controller_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_EXT_USER_PRESENCE_EXTENSION_NAME,
+        XR_EXT_user_presence_SPEC_VERSION
+    },
+    {
+		XR_TYPE_EXTENSION_PROPERTIES,
+		nullptr,
+		XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
+		XR_EXT_performance_settings_SPEC_VERSION
     }
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
     ,{
@@ -133,6 +145,15 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_KHR_D3D11_ENABLE_EXTENSION_NAME,
         XR_KHR_D3D11_enable_SPEC_VERSION
+    }
+#endif
+
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+    ,{
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_KHR_D3D12_ENABLE_EXTENSION_NAME,
+        XR_KHR_D3D12_enable_SPEC_VERSION
     }
 #endif
 };
@@ -206,6 +227,13 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
                 continue;
             }
 #endif
+#if defined(XR_USE_GRAPHICS_API_D3D12)
+            if (strncmp(XR_KHR_D3D12_ENABLE_EXTENSION_NAME, extension, sizeof(XR_KHR_D3D12_ENABLE_EXTENSION_NAME)) == 0)
+            {
+                flags |= MR_CREATE_D3D12_GFX_EXT;
+                continue;
+            }
+#endif
             if (strncmp(XR_UNITY_NULL_GFX_EXTENSION_NAME, extension, sizeof(XR_UNITY_NULL_GFX_EXTENSION_NAME)) == 0)
             {
                 flags |= MR_CREATE_NULL_GFX_EXT;
@@ -271,7 +299,11 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             flags |= MR_CREATE_FB_TOUCH_CONTROLLER_PRO;
             continue;
         }
-
+        if (strncmp(XR_EXT_USER_PRESENCE_EXTENSION_NAME, extension, sizeof(XR_EXT_USER_PRESENCE_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_USER_PRESENCE_EXT;
+            continue;
+        }
         if (strncmp(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME, extension, sizeof(XR_META_PERFORMANCE_METRICS_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_META_PERFORMANCE_METRICS_EXT;
@@ -280,6 +312,11 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         if (strncmp(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME, extension, sizeof(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_HP_REVERB_G2_CONTROLLER;
+        }
+
+        if (strncmp(XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME, extension, sizeof(XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_PERFORMANCE_SETTINGS_EXT;
         }
     }
 

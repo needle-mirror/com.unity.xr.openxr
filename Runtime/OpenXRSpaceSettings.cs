@@ -27,6 +27,21 @@ namespace UnityEngine.XR.OpenXR
         }
 
         /// <summary>
+        /// Regenerates the internal XR space used for recentering, updating the tracking origin to the most recent floor-based position from the runtime.
+        /// </summary>
+        /// <remarks>
+        /// This method needs that <see cref="AllowRecentering"/> is turned on using <see cref="SetAllowRecentering"/>, otherwise it will do nothing.
+        ///
+        /// This method doesn't trigger a recenter event, as this event has to be initiated from the platform's runtime.
+        ///
+        /// See <seealso cref="SetAllowRecentering"/> for more information.
+        /// </remarks>
+        public static void RefreshRecenterSpace()
+        {
+            Internal_RegenerateTrackingOrigin();
+        }
+
+        /// <summary>
         /// Returns the current state of the recentering feature.
         /// </summary>
         public static bool AllowRecentering
@@ -49,9 +64,13 @@ namespace UnityEngine.XR.OpenXR
         }
 
         [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_SetAllowRecentering")]
-        private static extern void Internal_SetAllowRecentering(bool active, float height);
+        private static extern void Internal_SetAllowRecentering([MarshalAs(UnmanagedType.U1)] bool active, float height);
+
+        [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_RegenerateTrackingOrigin")]
+        private static extern void Internal_RegenerateTrackingOrigin();
 
         [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_GetAllowRecentering")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetAllowRecentering();
 
         [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_GetFloorOffsetHeight")]

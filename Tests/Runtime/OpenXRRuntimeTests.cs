@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR.NativeTypes;
+using UnityEngine.Diagnostics;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -27,6 +29,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 "XR_UNITY_mock_test",
                 "XR_UNITY_null_gfx",
                 "XR_KHR_visibility_mask",
+                "XR_EXT_user_presence",
                 "XR_EXT_conformance_automation",
                 "XR_KHR_composition_layer_depth",
                 "XR_VARJO_quad_views",
@@ -34,7 +37,8 @@ namespace UnityEngine.XR.OpenXR.Tests
                 "XR_EXT_eye_gaze_interaction",
                 "XR_MSFT_hand_interaction",
                 "XR_MSFT_first_person_observer",
-                "XR_META_performance_metrics"
+                "XR_META_performance_metrics",
+                "XR_EXT_performance_settings"
             };
 
             foreach (string expectedExtension in expectedExtensions)
@@ -522,12 +526,13 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator UserPresence()
         {
+            AddExtension("XR_EXT_user_presence");
+
             List<InputDevice> hmdDevices = new List<InputDevice>();
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeadMounted, hmdDevices);
             Assert.That(hmdDevices.Count == 0, Is.True);
 
             InitializeAndStart();
-
             // Wait two frames to let the input catch up with the renderer
             yield return new WaitForXrFrame(2);
 
@@ -538,14 +543,22 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.That(hasValue, Is.True);
             Assert.That(isUserPresent, Is.True);
 
-            MockRuntime.TransitionToState(XrSessionState.Visible, true);
-
-            // State transition doesn't happen immediately so make doubly sure it has happened before we try to get the new feature value
+            //mock no user present
+            bool hasUserPresent = false;
+            MockRuntime.CauseUserPresenceChange(hasUserPresent);
             yield return new WaitForXrFrame(2);
-
             hasValue = hmdDevices[0].TryGetFeatureValue(CommonUsages.userPresence, out isUserPresent);
             Assert.That(hasValue, Is.True);
             Assert.That(isUserPresent, Is.False);
+
+            //mock has user present
+            hasUserPresent = true;
+            MockRuntime.CauseUserPresenceChange(hasUserPresent);
+            yield return new WaitForXrFrame(2);
+            hasValue = hmdDevices[0].TryGetFeatureValue(CommonUsages.userPresence, out isUserPresent);
+            Assert.That(hasValue, Is.True);
+            Assert.That(isUserPresent, Is.True);
+
         }
 
 #if ENABLE_VR
@@ -839,6 +852,77 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             // The static instance should not be set if initialize failed
             Assert.IsTrue(OpenXRLoaderBase.Instance == null);
+        }
+
+        [DllImport("UnityOpenXR", EntryPoint = "unity_ext_GetRegenerateTrackingOriginFlag")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool GetRegenerateTrackingOriginFlag();
+
+        [UnityTest]
+        public IEnumerator RegenerateTrackingOriginFlagTest()
+        {
+            // First, make sure that LocalFloor is being used in place of Floor (so that the LocalFloor code is triggered)
+            OpenXRSettings.SetAllowRecentering(true);
+
+            base.InitializeAndStart();
+
+            // Make sure that we're setting the TrackingOrigin to floor (to force the generation of the local floor space at time = 0)
+            XRInputSubsystem inputSubsystem = Loader.GetLoadedSubsystem<XRInputSubsystem>();
+            inputSubsystem.TrySetTrackingOriginMode(TrackingOriginModeFlags.Device);
+            inputSubsystem.TrySetTrackingOriginMode(TrackingOriginModeFlags.Floor);
+
+            // Since time = 0, XR_EXT_local_floor is not active, and LocalFloor is requested, this will trigger a tracking origin regeneration.
+            Assert.IsTrue(GetRegenerateTrackingOriginFlag());
+
+            yield return null;
+
+            // Advancing several frames will allow the tracking origin regeneration to clear.
+            yield return new WaitForTrackingOriginRegeneration();
+
+            // Check that the tracking origin has been regenerated.
+            Assert.IsFalse(GetRegenerateTrackingOriginFlag());
+
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator FloorTrackingOriginIsRegenerated()
+        {
+            List<ulong> spaceSequence = new();
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                if (methodName == nameof(OpenXRFeature.OnAppSpaceChange))
+                {
+                    spaceSequence.Add((ulong)param);
+                }
+
+                return true;
+            };
+
+            OpenXRSettings.SetAllowRecentering(false);
+            OpenXRSettings.RefreshRecenterSpace();
+
+            base.InitializeAndStart();
+            yield return null;
+
+            XRInputSubsystem inputSubsystem = Loader.GetLoadedSubsystem<XRInputSubsystem>();
+            inputSubsystem.TrySetTrackingOriginMode(TrackingOriginModeFlags.Floor);
+            yield return null;
+
+            OpenXRSettings.SetAllowRecentering(false);
+            OpenXRSettings.RefreshRecenterSpace();
+            bool regenFlagSet = GetRegenerateTrackingOriginFlag();
+            yield return null;
+            yield return new WaitForTrackingOriginRegeneration();
+            bool regenFlagProcessed = GetRegenerateTrackingOriginFlag();
+
+            base.StopAndShutdown();
+
+            Assert.IsTrue(regenFlagSet, "Failed to set regeneration flag");
+            Assert.IsFalse(regenFlagProcessed, "Regeneration flag was not processed");
+
+            var distinctCount = spaceSequence.Distinct().ToList().Count;
+            Assert.IsTrue(spaceSequence.Count == distinctCount, "Some XR Space handles didn't change");
         }
 
         /// <summary>

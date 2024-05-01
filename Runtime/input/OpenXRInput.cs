@@ -394,7 +394,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="actionRef">Action Reference to send haptic impulse through</param>
         /// <param name="amplitude">Amplitude of the impulse [0-1]</param>
-        /// <param name="duration">Duration of the impulse [0-]</param>
+        /// <param name="duration">Duration of the impulse [0-] in seconds</param>
         /// <param name="inputDevice">Optional device to limit haptic impulse to</param>
         public static void SendHapticImpulse(InputActionReference actionRef, float amplitude, float duration, InputSystem.InputDevice inputDevice = null) =>
             SendHapticImpulse(actionRef, amplitude, 0.0f, duration, inputDevice);
@@ -405,7 +405,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="actionRef">Action Reference to send haptic impulse through</param>
         /// <param name="amplitude">Amplitude of the impulse [0-1]</param>
         /// <param name="frequency">Frequency of the impulse in hertz (Hz). (Typical frequency values are between 0 and 300Hz) (0 = default).  Note that not all runtimes support frequency.</param>
-        /// <param name="duration">Duration of the impulse [0-]</param>
+        /// <param name="duration">Duration of the impulse [0-] in seconds</param>
         /// <param name="inputDevice">Optional device to limit haptic impulse to</param>
         public static void SendHapticImpulse(InputActionReference actionRef, float amplitude, float frequency, float duration, InputSystem.InputDevice inputDevice = null) =>
             SendHapticImpulse(actionRef.action, amplitude, frequency, duration, inputDevice);
@@ -415,7 +415,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="action">Action to send haptic impulse through</param>
         /// <param name="amplitude">Amplitude of the impulse [0-1]</param>
-        /// <param name="duration">Duration of the impulse [0-]</param>
+        /// <param name="duration">Duration of the impulse [0-] in seconds</param>
         /// <param name="inputDevice">Optional device to limit haptic impulse to</param>
         public static void SendHapticImpulse(InputAction action, float amplitude, float duration, InputSystem.InputDevice inputDevice = null) =>
             SendHapticImpulse(action, amplitude, 0.0f, duration, inputDevice);
@@ -426,7 +426,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="action">Action to send haptic impulse through</param>
         /// <param name="amplitude">Amplitude of the impulse [0-1]</param>
         /// <param name="frequency">Frequency of the impulse in hertz (Hz). (Typical frequency values are between 0 and 300Hz) (0 = default).  Note that not all runtimes support frequency.</param>
-        /// <param name="duration">Duration of the impulse [0-]</param>
+        /// <param name="duration">Duration of the impulse [0-] in seconds</param>
         /// <param name="inputDevice">Optional device to limit haptic impulse to</param>
         public static void SendHapticImpulse(InputAction action, float amplitude, float frequency, float duration, InputSystem.InputDevice inputDevice = null)
         {
@@ -639,7 +639,7 @@ namespace UnityEngine.XR.OpenXR.Input
         private const string Library = "UnityOpenXR";
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SetDpadBindingCustomValues", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void Internal_SetDpadBindingCustomValues(bool isLeft, float forceThreshold, float forceThresholdReleased, float centerRegion, float wedgeAngle, bool isSticky);
+        private static extern void Internal_SetDpadBindingCustomValues([MarshalAs(UnmanagedType.I1)] bool isLeft, float forceThreshold, float forceThresholdReleased, float centerRegion, float wedgeAngle, [MarshalAs(UnmanagedType.I1)] bool isSticky);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SendHapticImpulse", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Internal_SendHapticImpulse(uint deviceId, ulong actionId, float amplitude, float frequency, float duration);
@@ -667,19 +667,21 @@ namespace UnityEngine.XR.OpenXR.Input
         }
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_TrySetControllerLateLatchAction")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_TrySetControllerLateLatchAction(uint deviceId, ulong actionId);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIsActive")]
+        [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetActionIsActive(uint deviceId, string name);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_RegisterDeviceDefinition", CharSet = CharSet.Ansi)]
-        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, bool isAdditive, uint characteristics, string name, string manufacturer, string serialNumber);
+        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, [MarshalAs(UnmanagedType.I1)] bool isAdditive, uint characteristics, string name, string manufacturer, string serialNumber);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_CreateActionSet", CharSet = CharSet.Ansi)]
         private static extern ulong Internal_CreateActionSet(string name, string localizedName, SerializedGuid guid);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_CreateAction", CharSet = CharSet.Ansi)]
-        private static extern ulong Internal_CreateAction(ulong actionSetId, string name, string localizedName, uint actionType, SerializedGuid guid, string[] userPaths, uint userPathCount, bool isAdditive, string[] usages, uint usageCount);
+        private static extern ulong Internal_CreateAction(ulong actionSetId, string name, string localizedName, uint actionType, SerializedGuid guid, string[] userPaths, uint userPathCount, [MarshalAs(UnmanagedType.I1)] bool isAdditive, string[] usages, uint usageCount);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SuggestBindings", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]

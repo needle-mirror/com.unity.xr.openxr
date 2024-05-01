@@ -51,22 +51,22 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public class HandInteractionPoses : OpenXRDevice
         {
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionPoses.grip"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.grip"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, aliases = new[] { "device", "gripPose" }, usage = "Device")]
             public PoseControl devicePose { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionPoses.aim"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.aim"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0, alias = "aimPose", usage = "Pointer")]
             public PoseControl pointer { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionPoses.poke"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.poke"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0)]
             public PoseControl pokePose { get; private set; }
             /// <summary>
-            /// A <see cref="PoseControl"/> that represents the <see cref="HandInteractionPoses.pinch"/> OpenXR binding.
+            /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.pinch"/> OpenXR binding.
             /// </summary>
             [Preserve, InputControl(offset = 0)]
             public PoseControl pinchPose { get; private set; }
