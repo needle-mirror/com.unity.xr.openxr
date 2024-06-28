@@ -1320,5 +1320,30 @@ namespace UnityEngine.XR.OpenXR.Tests
             OpenXRRestarter.Instance.ShutdownAndRestart();
             yield return new WaitForXrFrame();
         }
+
+        [UnityTest]
+        [UnityPlatform(include = new[] { RuntimePlatform.Android })]
+        public IEnumerator AndroidThreadSettingsSetAtInitialization()
+        {
+            InitializeAndStart();
+
+            yield return new WaitForXrFrame(1);
+
+            if (!OpenXRRuntime.IsExtensionEnabled("XR_KHR_android_thread_settings"))
+            {
+                Assert.Inconclusive("Current XR runtime is not compatible with XR_KHR_android_thread_settings extension");
+            }
+
+            var threadSettingsCount = MockRuntime.GetRegisteredAndroidThreadsCount();
+            var mainThreadFound = MockRuntime.IsAndroidThreadTypeRegistered(1); // XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR
+            var renderThreadFound = MockRuntime.IsAndroidThreadTypeRegistered(3); // XR_ANDROID_THREAD_TYPE_RENDERER_MAIN_KHR
+
+            StopAndShutdown();
+
+            Debug.Log($"threadSettings.Count={threadSettingsCount}");
+            Assert.AreEqual(2, threadSettingsCount, "Unexpected number of Android thread settings registered.");
+            Assert.IsTrue(mainThreadFound, "Main thread not found in Android thread settings.");
+            Assert.IsTrue(renderThreadFound, "Graphics thread not found in Android thread settings.");
+        }
     }
 }

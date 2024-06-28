@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Extensions/mock_khr_android_thread_settings.h"
 #include "Extensions/mock_meta_performance_metrics.h"
 #include "Extensions/mock_performance_settings.h"
 

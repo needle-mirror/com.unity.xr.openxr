@@ -97,6 +97,11 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     if ((createFlags & MR_CREATE_PERFORMANCE_SETTINGS_EXT) == MR_CREATE_PERFORMANCE_SETTINGS_EXT)
         MockPerformanceSettings::Init(*this);
 
+#ifdef XR_USE_PLATFORM_ANDROID
+    if ((createFlags & MR_CREATE_KHR_ANDROID_THREAD_SETTINGS_EXT) == MR_CREATE_KHR_ANDROID_THREAD_SETTINGS_EXT)
+        MockAndroidThreadSettings::Init(*this);
+#endif
+
     // Generate the internal strings
     userPaths = {
         {"/user/hand/left", "Left Hand", nullptr},
@@ -1713,6 +1718,11 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
 
     if (MockPerformanceSettings::Instance() && XR_SUCCESS == MockPerformanceSettings_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
+
+#if defined(XR_USE_PLATFORM_ANDROID)
+    if (MockAndroidThreadSettings::Instance() && XR_SUCCESS == MockAndroidThreadSettings_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
+#endif
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

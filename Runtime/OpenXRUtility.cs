@@ -26,6 +26,10 @@ namespace UnityEngine.XR.OpenXR
         /// <returns>the recalculated pose <see cref="UnityEngine.Pose"/> in world-space.</returns>
         public static Pose ComputePoseToWorldSpace(Transform t, Camera camera)
         {
+            if (camera == null)
+            {
+                camera = Camera.main;
+            }
             Transform cameraTransform = camera.transform;
             Pose headPose = new Pose(cameraTransform.localPosition, cameraTransform.localRotation);
             Pose camPose = new Pose(cameraTransform.position, cameraTransform.rotation);

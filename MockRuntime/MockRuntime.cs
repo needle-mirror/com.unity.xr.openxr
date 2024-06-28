@@ -589,5 +589,32 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         }
 
 #endif
+
+#if UNITY_ANDROID
+        [DllImport(extLib, EntryPoint = "MockRuntime_IsAndroidThreadTypeRegistered")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool Internal_IsAndroidThreadTypeRegistered(uint threadType);
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_GetRegisteredAndroidThreadsCount")]
+        private static extern ulong Internal_GetRegisteredAndroidThreadsCount();
+#endif
+
+        internal static bool IsAndroidThreadTypeRegistered(uint threadType)
+        {
+#if UNITY_ANDROID
+            return Internal_IsAndroidThreadTypeRegistered(threadType);
+#else
+            return false;
+#endif
+        }
+
+        internal static ulong GetRegisteredAndroidThreadsCount()
+        {
+#if UNITY_ANDROID
+            return Internal_GetRegisteredAndroidThreadsCount();
+#else
+            return 0;
+#endif
+        }
     }
 }

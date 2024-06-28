@@ -9,6 +9,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+using UnityEngine.Rendering.Universal;
+#endif // UNITY_RENDER_PIPELINES_UNIVERSAL
 
 namespace UnityEditor.XR.OpenXR
 {
@@ -193,6 +196,18 @@ namespace UnityEditor.XR.OpenXR
                 fixIt = EnableStickControlThumbsticksDefine,
                 error = false,
                 errorEnteringPlaymode = false,
+            },
+            new OpenXRFeature.ValidationRule()
+            {
+                message = "[Optional] Soft shadows can negatively impact performance on HoloLens, disabling soft shadows is recommended",
+                checkPredicate = SoftShadowValidationPredicate,
+                fixItMessage =
+@"When using the Built-In Render Pipeline, enable hard shadows only.
+
+When using the Universal Render Pipeline, open the Render Pipeline Asset in Editor for modification.",
+                fixIt = SoftShadowFixItButtonPress,
+                error = false,
+                buildTargetGroup = BuildTargetGroup.WSA
             }
         };
 
@@ -377,6 +392,44 @@ namespace UnityEditor.XR.OpenXR
                 return;
 
             typeof(EditorApplication).GetMethod("RestartEditorAndRecompileScripts", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
+        }
+
+        private static bool SoftShadowValidationPredicate()
+        {
+            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
+            // If current render pipeline is Built-In Render Pipeline
+            if (currentRenderPipelineAsset == null)
+                return QualitySettings.shadows != UnityEngine.ShadowQuality.All;
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
+            if (urpAsset != null)
+                return urpAsset.supportsSoftShadows == false;
+#endif // UNITY_RENDER_PIPELINES_UNIVERSAL
+            return true;
+        }
+
+        private static void SoftShadowFixItButtonPress()
+        {
+            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
+            // If current render pipeline is Built-In Render Pipeline
+            if (currentRenderPipelineAsset == null)
+            {
+                QualitySettings.shadows = UnityEngine.ShadowQuality.HardOnly;
+                return;
+            }
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
+            if (urpAsset != null)
+            {
+                var urpAssetID = urpAsset.GetInstanceID();
+                if (AssetDatabase.CanOpenAssetInEditor(urpAssetID))
+                    AssetDatabase.OpenAsset(urpAssetID);
+                else
+                    Debug.LogWarning("Unable to open URP asset in Editor.");
+                return;
+            }
+#endif // UNITY_RENDER_PIPELINES_UNIVERSAL
+            Debug.LogWarning("Unable to disable soft shadows.");
         }
     }
 }

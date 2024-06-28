@@ -130,6 +130,14 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
 		XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
 		XR_EXT_performance_settings_SPEC_VERSION
     }
+#if defined(XR_USE_PLATFORM_ANDROID)
+    ,{
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_KHR_ANDROID_THREAD_SETTINGS_EXTENSION_NAME,
+        XR_KHR_android_thread_settings_SPEC_VERSION
+    }
+#endif
 #if defined(XR_USE_GRAPHICS_API_VULKAN)
     ,{
         XR_TYPE_EXTENSION_PROPERTIES,
@@ -318,6 +326,13 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         {
             flags |= MR_CREATE_PERFORMANCE_SETTINGS_EXT;
         }
+
+#ifdef XR_USE_PLATFORM_ANDROID
+        if (strncmp(XR_KHR_ANDROID_THREAD_SETTINGS_EXTENSION_NAME, extension, sizeof(XR_KHR_ANDROID_THREAD_SETTINGS_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_KHR_ANDROID_THREAD_SETTINGS_EXT;
+        }
+#endif
     }
 
     if ((flags & MR_CREATE_ALL_GFX_EXT) == 0)

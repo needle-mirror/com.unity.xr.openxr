@@ -8,10 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+
+## [1.12.0-exp.1] - 2024-06-28
+
+### Fixed
+* Fixed Custom Composition Layer Feature not showing up in the OpenXR feature setting UI after importing into project.
+* Fixed a crash with composition layers in scene due to race condition.
+
+### Changed
+* Implements the construction and maintenance of native composition layers in C# via our LayerProvider classes inheriting from OpenXRCustomLayerHandler.
+
 ## [1.11.1-exp.1] - 2024-06-12
 
 ### Fixed
-* Fixed Metal API initialization. 
+* Fixed Metal API initialization.
 
 ## [1.11.0] - 2024-05-01
 
@@ -42,12 +52,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed crash that occurs while cleaning up destroyed swapchains in OpenXR.
 * Fixed Depth Texture flag disparity between the OpenXR and Oculus providers.
 
-### Added
-* Added `OpenXRUtility.IsSessionFocused` to return if the current session is in the focused state.
-* Added `OpenXRUtility.IsUserPresent` to return the change of user presence, such as when the user has taken off or put on an XR headset. If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True. If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.
+## [1.11.0-exp.1] - 2024-02-25
 
-### Changed
-* When retrieving input feature from [CommonUsages.userPresence](https://docs.unity3d.com/ScriptReference/XR.CommonUsages-userPresence.html), if XR_EXT_user_presence is supported by the current system, retrieved value will be the same as `OpenXRUtility.IsUserPresent`. If `XR_EXT_user_presence` is not supported, retrieved value will be based on `OpenXRUtility.IsSessionFocused`, which is the default return value before 1.11.0.
+### Added
+* Added XR Composition Layers support - Experimental. Install Composition Layer Experimental package - com.unity.xr.compositionlayers 0.5.0 to pair with.
 
 ## [1.10.0] - 2024-01-26
 

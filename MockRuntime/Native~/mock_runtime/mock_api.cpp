@@ -337,6 +337,30 @@ MOCK_API_TRAMPOLINE(XrPerfSettingsLevelEXT, XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIG
 }
 #endif
 
+#ifdef XR_USE_PLATFORM_ANDROID
+MOCK_API_TRAMPOLINE(bool, false, MockRuntime_IsAndroidThreadTypeRegistered,
+    (uint32_t threadTypeValue),
+    (threadTypeValue))
+#if !TRAMPOLINE
+{
+    LOG_FUNC();
+    auto threadType = static_cast<XrAndroidThreadTypeKHR>(threadTypeValue);
+    return MockAndroidThreadSettings::Instance()->IsAndroidThreadTypeRegistered(threadType);
+}
+#endif // !TRAMPOLINE
+
+MOCK_API_TRAMPOLINE(uint32_t, 0, MockRuntime_GetRegisteredAndroidThreadsCount,
+    (),
+    ())
+#if !TRAMPOLINE
+{
+    LOG_FUNC();
+    MOCK_TRACE_DEBUG("Session is valid");
+    return MockAndroidThreadSettings::Instance()->GetRegisteredAndroidThreadsCount();
+}
+#endif // !TRAMPOLINE
+#endif // XR_USE_PLATFORM_ANDROID
+
 #if !TRAMPOLINE
 XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
@@ -357,6 +381,10 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float)
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_CauseNotification)
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_GetPerformanceLevelHint)
+#ifdef XR_USE_PLATFORM_ANDROID
+    GET_PROC_ADDRESS(MockRuntime_IsAndroidThreadTypeRegistered)
+    GET_PROC_ADDRESS(MockRuntime_GetRegisteredAndroidThreadsCount)
+#endif // XR_USE_PLATFORM_ANDROID
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }
