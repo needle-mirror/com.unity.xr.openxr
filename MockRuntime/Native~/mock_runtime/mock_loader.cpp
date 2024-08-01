@@ -115,6 +115,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
+        XR_META_TOUCH_CONTROLLER_PLUS_EXTENSION_NAME,
+        XR_META_touch_controller_plus_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
         XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME,
         XR_EXT_hp_mixed_reality_controller_SPEC_VERSION
     },
@@ -325,6 +331,11 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         if (strncmp(XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME, extension, sizeof(XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME)) == 0)
         {
             flags |= MR_CREATE_PERFORMANCE_SETTINGS_EXT;
+        }
+        if (strncmp(XR_META_TOUCH_CONTROLLER_PLUS_EXTENSION_NAME, extension, sizeof(XR_META_TOUCH_CONTROLLER_PLUS_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_META_TOUCH_CONTROLLER_PLUS;
+            continue;
         }
 
 #ifdef XR_USE_PLATFORM_ANDROID

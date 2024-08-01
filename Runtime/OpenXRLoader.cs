@@ -12,16 +12,11 @@ using UnityEngine.Scripting;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.Features;
-
-#if XR_COMPOSITION_LAYERS
-using Unity.XR.CompositionLayers.Services;
-using UnityEngine.XR.OpenXR.CompositionLayers;
-#endif
-
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.OpenXR;
+
 #endif
 
 [assembly: Preserve]
@@ -370,11 +365,6 @@ namespace UnityEngine.XR.OpenXR
             var inputRunning = inputSubsystem?.running ?? false;
             var displayRunning = displaySubsystem?.running ?? false;
 
-#if XR_COMPOSITION_LAYERS
-            if (CompositionLayerManager.Instance != null)
-                CompositionLayerManager.Instance.LayerProvider = new OpenXRLayerProvider();
-#endif
-
             if (inputRunning && displayRunning)
             {
                 OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemStart);
@@ -422,14 +412,6 @@ namespace UnityEngine.XR.OpenXR
 
         private void StopInternal()
         {
-#if XR_COMPOSITION_LAYERS
-            if (CompositionLayerManager.Instance?.LayerProvider is OpenXRLayerProvider)
-            {
-                ((OpenXRLayerProvider)CompositionLayerManager.Instance.LayerProvider).Dispose();
-                CompositionLayerManager.Instance.LayerProvider = null;
-            }
-#endif
-
             Internal_EndSession();
 
             ProcessOpenXRMessageLoop();

@@ -177,7 +177,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             {
                     new ValidationRule(this)
                     {
-                        message = "Select Oculus Touch Interaction Profile or Meta Quest Pro Touch Interaction Profile to pair with.",
+                        message = "Select Oculus Touch Interaction Profile, Meta Quest Touch Pro Interaction Profile, or Meta Quest Touch Plus Interaction Profile to pair with.",
                         checkPredicate = () =>
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
@@ -189,7 +189,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             {
                                 if (feature.enabled)
                                 {
-                                    if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile))
+                                    if ((feature is OculusTouchControllerProfile) || (feature is MetaQuestTouchProControllerProfile) || (feature is MetaQuestTouchPlusControllerProfile))
                                         touchFeatureEnabled = true;
                                 }
                             }
@@ -198,7 +198,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         error = false,
                         fixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR"); },
                         fixItAutomatic = false,
-                        fixItMessage = "Open Project Settings to select Oculus Touch or Meta Quest Pro Touch interaction profiles or select both."
+                        fixItMessage = "Open Project Settings to select Oculus Touch, Meta Quest Touch Pro, or Meta Quest Touch Plus interaction profiles or select all."
                     },
 
                     new ValidationRule(this)

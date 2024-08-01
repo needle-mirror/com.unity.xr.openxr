@@ -8,20 +8,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+## [1.12.0] - 2024-08-01
 
-## [1.12.0-exp.1] - 2024-06-28
+### Added
+
+* Add class `MetaQuestTouchPlusControllerProfile.QuestTouchPlusController` interaction profile to support Meta Quest Touch Plus Controllers.
+* Added a validation rule to warn you that soft shadows can negatively affect performance for Microsoft HoloLens.
+* Added a validation rule to infrom you to make the OpenXR Loader an active loader in XR Plugin Management if there are active OpenXR features in the OpenXR settings.
+* Added `OpenXRSettings.autoColorSubmissionMode` boolean property to specify OpenXR to use a platform-supported color format in the display swapchain, or for you to manually set which format should OpenXR to use.
+* Added `OpenXRSettings.colorSubmissionModes` array property to control the color format used by the OpenXR display swapchain. The available options can be chosen from the `OpenXRSettings.ColorSubmissionModeGroup` enum. OpenXR will use supported color formats by the platform, starting from the first option in the list. In case none of the color formats supplied is supported by the platform, an error will be thrown. If no color formats are assigned, the format used will be RGBA32.
+* Added `Automatic Color Submission Mode` toggle and `Color Submission Modes` list to the OpenXR project settings tab, allowing you to manually specify the preferred color format to be used by the display swapchain. OpenXR will use supported color formats by the platform, starting from the first option in the list. In case none of the color formats supplied is supported by the platform, an error will be thrown. If no color formats are assigned, the format used will be RGBA32.
 
 ### Fixed
-* Fixed Custom Composition Layer Feature not showing up in the OpenXR feature setting UI after importing into project.
-* Fixed a crash with composition layers in scene due to race condition.
 
-### Changed
-* Implements the construction and maintenance of native composition layers in C# via our LayerProvider classes inheriting from OpenXRCustomLayerHandler.
-
-## [1.11.1-exp.1] - 2024-06-12
-
-### Fixed
-* Fixed Metal API initialization.
+* Fixed sort order of OpenXR features listed based first on priority, then by name, preventing spurious changes in Settings files.
 
 ## [1.11.0] - 2024-05-01
 
@@ -51,11 +51,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed Marshal to correctly read the number of bytes for booleans in C++.
 * Fixed crash that occurs while cleaning up destroyed swapchains in OpenXR.
 * Fixed Depth Texture flag disparity between the OpenXR and Oculus providers.
-
-## [1.11.0-exp.1] - 2024-02-25
-
-### Added
-* Added XR Composition Layers support - Experimental. Install Composition Layer Experimental package - com.unity.xr.compositionlayers 0.5.0 to pair with.
 
 ## [1.10.0] - 2024-01-26
 

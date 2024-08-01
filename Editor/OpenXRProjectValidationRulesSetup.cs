@@ -11,6 +11,8 @@ using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using System;
 using Unity.XR.CoreUtils.Editor;
+using UnityEditor.XR.Management;
+using UnityEngine.XR.Management;
 
 [assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEditor.XR.OpenXR
@@ -56,9 +58,7 @@ namespace UnityEditor.XR.OpenXR
             OpenXRProjectValidation.GetCurrentValidationIssues(failures, activeBuildTargetGroup);
 
             if (failures.Count > 0)
-            {
                 ShowWindow();
-            }
         }
 
         internal static BuildValidationRule ConvertRuleToBuildValidationRule(OpenXRFeature.ValidationRule rule, BuildTargetGroup buildTargetGroup)
@@ -109,10 +109,21 @@ namespace UnityEditor.XR.OpenXR
         {
             foreach (var buildTargetGroup in s_BuildTargetGroups)
             {
+                var coreIssues = new List<BuildValidationRule>();
+
+                // Use the default validation rule for the platforms that support OpenXR if they don't currently have the OpenXRLoader as an active loader.
+                if (buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.WSA)
+                {
+                    if (!IsOpenXRLoaderActiveForBuildTarget(buildTargetGroup))
+                    {
+                        var defaultRule = GetDefaultBuildValidationRule(buildTargetGroup);
+                        coreIssues.Add(defaultRule);
+                    }
+                }
+
                 var issues = new List<OpenXRFeature.ValidationRule>();
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
-                var coreIssues = new List<BuildValidationRule>();
                 foreach (var issue in issues)
                 {
                     coreIssues.Add(ConvertRuleToBuildValidationRule(issue, buildTargetGroup));
@@ -120,6 +131,36 @@ namespace UnityEditor.XR.OpenXR
 
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);
             }
+        }
+
+        static BuildValidationRule GetDefaultBuildValidationRule(BuildTargetGroup targetGroup)
+        {
+            var defaultRule = new BuildValidationRule()
+            {
+                Message = "Select OpenXR as the active loader for this platform.",
+                CheckPredicate = () => IsOpenXRLoaderActiveForBuildTarget(targetGroup),
+                Error = false,
+                FixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR"); },
+                FixItAutomatic = false,
+                FixItMessage = "Open Project Settings to select OpenXR as the active loader for this platform."
+            };
+
+            return defaultRule;
+        }
+
+        static bool IsOpenXRLoaderActiveForBuildTarget(BuildTargetGroup buildTargetGroup)
+        {
+            XRGeneralSettings settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
+            if (settings?.Manager == null)
+                return false;
+
+            foreach (var loader in settings.Manager.activeLoaders)
+            {
+                if (loader.GetType() == typeof(OpenXRLoader))
+                    return true;
+            }
+
+            return false;
         }
 
         [MenuItem("Window/XR/OpenXR/Project Validation")]

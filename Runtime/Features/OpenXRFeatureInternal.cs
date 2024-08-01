@@ -30,10 +30,6 @@ namespace UnityEngine.XR.OpenXR.Features
         [DllImport(Library, EntryPoint = "NativeConfig_GetViewTypeFromRenderIndex")]
         static extern int Internal_GetViewTypeFromRenderIndex(int renderPassIndex);
 
-        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetXRSession")]
-        [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool Internal_GetXRSession(out ulong xrSession);
-
         [DllImport(Library, EntryPoint = "session_GetSessionState")]
         static extern void Internal_GetSessionState(out int oldState, out int newState);
 
@@ -45,7 +41,7 @@ namespace UnityEngine.XR.OpenXR.Features
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetAppSpace")]
         [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool Internal_GetAppSpace(out ulong appSpace);
+        static extern bool Internal_GetAppSpace(out ulong appSpace);
 
         [DllImport(Library, EntryPoint = "NativeConfig_GetProcAddressPtr")]
         internal static extern IntPtr Internal_GetProcAddressPtr([MarshalAs(UnmanagedType.I1)] bool loaderDefault);

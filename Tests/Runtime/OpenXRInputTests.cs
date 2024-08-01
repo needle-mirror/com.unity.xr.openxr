@@ -44,6 +44,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController), null),
             (typeof(HandInteractionProfile), typeof(HandInteractionProfile.HandInteraction), null),
             (typeof(MetaQuestTouchProControllerProfile), typeof(MetaQuestTouchProControllerProfile.QuestProTouchController), null),
+            (typeof(MetaQuestTouchPlusControllerProfile), typeof(MetaQuestTouchPlusControllerProfile.QuestTouchPlusController), null),
 #if !UNITY_ANDROID
             (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
             (typeof(HPReverbG2ControllerProfile), typeof(HPReverbG2ControllerProfile.ReverbG2Controller), null),

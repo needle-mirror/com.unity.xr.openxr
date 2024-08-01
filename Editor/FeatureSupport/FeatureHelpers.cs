@@ -221,7 +221,11 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             // Update the feature list
-            openXrSettings.features = all.OrderBy(f => f.name).ToArray();
+            openXrSettings.features = all
+                .Where(f => f != null)
+                .OrderByDescending(f => f.priority)
+                .ThenBy(f => f.nameUi)
+                .ToArray();
 
             // Populate the internal feature variables for all features
             foreach (var feature in openXrSettings.features)

@@ -17,6 +17,7 @@ Some OpenXR features require specific Unity Project settings to function properl
 * **[Enable the OpenXR XR plug-in](#enable-openxr)**: must be enabled to use OpenXR features.
 * **[OpenXR features](#openxr-features)**: select the specific OpenXR features that you want to use.
 * **[Render Mode](#render-mode)**: choose the rendering strategy.
+* **[Color Submission Mode](#color-submission-mode)**: choose how color information is passed to the renderer.
 * **[Depth Submission Mode](#depth-submission-mode)**: choose how depth information is passed to the renderer.
 * **[Play Mode OpenXR Runtime](#openxr-runtime)** (Editor): choose which OpenXR plug-in to use when running in the Unity Editor Play mode.
 * **[Interaction profiles](#interaction-profile)**: choose which OpenXR interaction profile to use for a platform.
@@ -94,6 +95,48 @@ For more information see:
 * [SinglePassStereoMode](xref:UnityEngine.Rendering.SinglePassStereoMode)
 * [Single Pass Instanced rendering](xref:SinglePassInstancing)
 
+
+<a name="depth-submission-mode"></a>
+### Set the color submission mode
+
+Some OpenXR runtimes support rendering to additional swapchain formats, such as 10- or 16-bit
+high-dynamic range (HDR). Alternately, some performance may be gained on some devices by choosing
+lower fidelity as a trade-off. The available formats depend on both the Unity version you are using
+and the device and runtime that the Player is run on.
+
+*Auto Color Submission Mode* currently selects the default platforms which is typically an 8bpc RGBA/BGRA format.
+
+|**Option**|**Description**|
+|---|---|
+|**8 bits per channel (LDR, default)**|The default 8bpc RGBA/BGRA format. Will use sRGB if supported and either default or selected in player API options (e.g. in GLES).|
+|**10 bits floating-point per color channel, 2 bit alpha (HDR)**|Packed 10bpc unsigned normalized floating-point color with 2 bits of alpha depth.|
+|**16 bits floating-point per channel (HDR)**|16bpc signed half-width floating point color/alpha.|
+|**5,6,5 bit packed (LDR, mobile)**|Compact packed format typically only used on low performance mobile devices and low gamut displays.|
+|**11,11,10 bit packed floating-point (HDR)**|Packed color-only format using 11bpc unsigned float for red and green channels and 10bpc for blue.|
+
+The best choice depends on your use case, platform, and target devices. Larger HDR formats will
+generally encounter lower performance especially on lower-spec hardware, but generally provide
+better rendering integrity in scenes with high dynamic range or luminance gradients (where banding
+may be noticeable in LDR formats).
+
+Reasonable rules of thumb when choosing a setting:
+* For PC XR devices, consider your target devices and choose a performant HDR setting if you need
+  HDR. This often depends on the graphics API, GPU, and XR device together, so it may require extra
+  performance testing.
+* For mobile XR devices, HDR swapchains are generally unsupported. In most cases it's best to stick
+  to **Auto Color Submission Mode** or **8 bits per channel (LDR, default)**.
+
+To set the color submission mode:
+
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
+2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
+3. Select **OpenXR** in the list of XR plug-ins.
+4. Select the tab for a platform build target to view the features for that target.
+5. Uncheck **Auto Color Submission Mode**.
+6. Choose the desired **Color Submission Mode**s and sort according to priority (the order the list
+   is in sets the priority; actual selection depends on graphics API and hardware support.)
+   **8 bits per channel (LDR, default)** can be reordered but cannot be removed; it is a safe
+   fallback.
 
 <a name="depth-submission-mode"></a>
 ### Set the depth submission mode

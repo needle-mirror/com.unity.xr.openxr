@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+
+using UnityEngine;
 
 namespace UnityEngine.XR.OpenXR
 {
@@ -24,7 +28,8 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// Stereo rendering mode.
         /// </summary>
-        [SerializeField] private RenderMode m_renderMode = RenderMode.SinglePassInstanced;
+        [SerializeField]
+        private RenderMode m_renderMode = RenderMode.SinglePassInstanced;
 
         /// <summary>
         /// Runtime Stereo rendering mode.
@@ -44,6 +49,53 @@ namespace UnityEngine.XR.OpenXR
                     Internal_SetRenderMode(value);
                 else
                     m_renderMode = value;
+            }
+        }
+
+        [SerializeField]
+        private bool m_autoColorSubmissionMode = true;
+
+        /// <summary>
+        /// Automatically select the default color submission mode.
+        /// </summary>
+        public bool autoColorSubmissionMode
+        {
+            get => m_autoColorSubmissionMode;
+            set => m_autoColorSubmissionMode = value;
+        }
+
+        [SerializeField]
+        private ColorSubmissionModeList m_colorSubmissionModes = new ColorSubmissionModeList();
+
+        /// <summary>
+        /// Gets or sets the preference for what color format the OpenXR display swapchain should use.
+        /// </summary>
+        public ColorSubmissionModeGroup[] colorSubmissionModes
+        {
+            get
+            {
+                if (m_autoColorSubmissionMode)
+                    return new[] { OpenXRSettings.kDefaultColorMode };
+
+                if (OpenXRLoaderBase.Instance != null)
+                {
+                    int arraySize = Internal_GetColorSubmissionModes(null, 0);
+                    int[] intModes = new int[arraySize];
+                    Internal_GetColorSubmissionModes(intModes, arraySize);
+                    return intModes.Select(i => (ColorSubmissionModeGroup)i).ToArray();
+                }
+                else
+                    return m_colorSubmissionModes.m_List;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetColorSubmissionModes(
+                        value.Select(e => (int)e).ToArray(),
+                        value.Length
+                    );
+                else
+                    m_colorSubmissionModes.m_List = value;
             }
         }
 
@@ -77,6 +129,7 @@ namespace UnityEngine.XR.OpenXR
             /// Use the legacy Built-in API for Foveation. This is the only option for Built-in.
             /// </summary>
             Legacy = 0,
+
             /// <summary>
             /// Use the Foveation for SRP API.
             /// </summary>
@@ -86,7 +139,8 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.
         /// </summary>
-        [SerializeField] private DepthSubmissionMode m_depthSubmissionMode = DepthSubmissionMode.None;
+        [SerializeField]
+        private DepthSubmissionMode m_depthSubmissionMode = DepthSubmissionMode.None;
 
         /// <summary>
         /// Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.
@@ -109,17 +163,15 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
-        [SerializeField] private bool m_optimizeBufferDiscards = false;
+        [SerializeField]
+        private bool m_optimizeBufferDiscards = false;
 
         /// <summary>
         /// Optimization that allows 4x MSAA textures to be memoryless on Vulkan
         /// </summary>
         public bool optimizeBufferDiscards
         {
-            get
-            {
-                return m_optimizeBufferDiscards;
-            }
+            get { return m_optimizeBufferDiscards; }
             set
             {
                 if (OpenXRLoaderBase.Instance != null)
@@ -136,13 +188,20 @@ namespace UnityEngine.XR.OpenXR
             Internal_SetUsedFoveatedRenderingApi(m_foveatedRenderingApi);
 #endif
             Internal_SetRenderMode(m_renderMode);
+            Internal_SetColorSubmissionModes(
+                m_colorSubmissionModes.m_List.Select(e => (int)e).ToArray(),
+                m_colorSubmissionModes.m_List.Length
+            );
             Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
             Internal_SetOptimizeBufferDiscards(m_optimizeBufferDiscards);
         }
 
-        [SerializeField] private bool m_symmetricProjection = false;
+        [SerializeField]
+        private bool m_symmetricProjection = false;
+
 #if UNITY_2023_2_OR_NEWER
-        [SerializeField] private BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
+        [SerializeField]
+        private BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
 #endif
 
         /// <summary>
@@ -151,10 +210,7 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         public bool symmetricProjection
         {
-            get
-            {
-                return m_symmetricProjection;
-            }
+            get { return m_symmetricProjection; }
             set
             {
                 if (OpenXRLoaderBase.Instance != null)
@@ -200,7 +256,9 @@ namespace UnityEngine.XR.OpenXR
         private static extern RenderMode Internal_GetRenderMode();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetDepthSubmissionMode")]
-        private static extern void Internal_SetDepthSubmissionMode(DepthSubmissionMode depthSubmissionMode);
+        private static extern void Internal_SetDepthSubmissionMode(
+            DepthSubmissionMode depthSubmissionMode
+        );
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetDepthSubmissionMode")]
         private static extern DepthSubmissionMode Internal_GetDepthSubmissionMode();
@@ -216,5 +274,26 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "OculusFoveation_GetUsedApi")]
         internal static extern BackendFovationApi Internal_GetUsedFoveatedRenderingApi();
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetColorSubmissionMode")]
+        private static extern void Internal_SetColorSubmissionMode(
+            ColorSubmissionModeGroup[] colorSubmissionMode
+        );
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetColorSubmissionModes")]
+        private static extern void Internal_SetColorSubmissionModes(
+            int[] colorSubmissionMode,
+            int arraySize
+        );
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_GetColorSubmissionModes")]
+        private static extern int Internal_GetColorSubmissionModes(
+            [Out] int[] colorSubmissionMode,
+            int arraySize
+        );
+
+        [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_GetIsUsingLegacyXRDisplay")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool Internal_GetIsUsingLegacyXRDisplay();
     }
 }

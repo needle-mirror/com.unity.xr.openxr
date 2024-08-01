@@ -51,7 +51,8 @@ namespace UnityEditor.XR.OpenXR
             // that Awake was called on and unregister the event handler.
             if (s_LastPackageSettingsEditor != null)
             {
-                OpenXRFeatureSetManager.onFeatureSetStateChanged -= s_LastPackageSettingsEditor.OnFeatureSetStateChanged;
+                OpenXRFeatureSetManager.onFeatureSetStateChanged -=
+                    s_LastPackageSettingsEditor.OnFeatureSetStateChanged;
             }
 
             s_LastPackageSettingsEditor = this;
@@ -76,7 +77,11 @@ namespace UnityEditor.XR.OpenXR
             OpenXRProjectValidationRulesSetup.SetSelectedBuildTargetGroup(buildTargetGroup);
 
 #if XR_MGMT_3_2_0_OR_NEWER
-            if (!managementSettings.metadata.loaderMetadata[0].supportedBuildTargets.Contains(buildTargetGroup))
+            if (
+                !managementSettings.metadata.loaderMetadata[0].supportedBuildTargets.Contains(
+                    buildTargetGroup
+                )
+            )
             {
                 EditorGUILayout.EndBuildTargetSelectionGrouping();
                 return;
@@ -103,11 +108,19 @@ namespace UnityEditor.XR.OpenXR
             GUILayout.BeginHorizontal();
             if (buildTargetGroup == BuildTargetGroup.Android)
             {
-                newRenderMode = EditorGUILayout.Popup(Content.k_renderModeLabel, (int)openXrSettings.renderMode, Content.k_androidRenderModeOptions);
+                newRenderMode = EditorGUILayout.Popup(
+                    Content.k_renderModeLabel,
+                    (int)openXrSettings.renderMode,
+                    Content.k_androidRenderModeOptions
+                );
             }
             else
             {
-                newRenderMode = EditorGUILayout.Popup(Content.k_renderModeLabel, (int)openXrSettings.renderMode, Content.k_renderModeOptions);
+                newRenderMode = EditorGUILayout.Popup(
+                    Content.k_renderModeLabel,
+                    (int)openXrSettings.renderMode,
+                    Content.k_renderModeOptions
+                );
             }
 
             if (newRenderMode != (int)openXrSettings.renderMode)
@@ -116,13 +129,53 @@ namespace UnityEditor.XR.OpenXR
             }
 
             GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
 
-            DrawPropertiesExcluding(serializedOpenXrSettings, "m_Script", "m_renderMode", "m_symmetricProjection", "m_optimizeBufferDiscards", "m_vulkanAdditionalGraphicsQueue");
-            if (buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.Standalone)
+            EditorGUIUtility.labelWidth = 210;
+
+            var newAutoColorSubmissionMode = EditorGUILayout.Toggle(
+                "Auto Color Submission Mode",
+                openXrSettings.autoColorSubmissionMode
+            );
+            if (newAutoColorSubmissionMode != openXrSettings.autoColorSubmissionMode)
             {
-                EditorGUIUtility.labelWidth = 210;
-                serializedOpenXrEditorSettings.FindProperty("m_vulkanAdditionalGraphicsQueue").boolValue =
-                    EditorGUILayout.Toggle(Content.k_vulkanAdditionalGraphicsQueue, openXrEditorSettings.VulkanAdditionalGraphicsQueue);
+                openXrSettings.autoColorSubmissionMode = newAutoColorSubmissionMode;
+            }
+
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+
+            if (!openXrSettings.autoColorSubmissionMode)
+            {
+                EditorGUI.PropertyField(
+                    new(new(0, 0), new(0, 0)),
+                    serializedOpenXrSettings.FindProperty("m_colorSubmissionModes")
+                );
+            }
+
+            GUILayout.EndHorizontal();
+
+            DrawPropertiesExcluding(
+                serializedOpenXrSettings,
+                "m_Script",
+                "m_renderMode",
+                "m_autoColorSubmissionMode",
+                "m_colorSubmissionModes",
+                "m_symmetricProjection",
+                "m_optimizeBufferDiscards",
+                "m_vulkanAdditionalGraphicsQueue"
+            );
+            if (
+                buildTargetGroup == BuildTargetGroup.Android
+                || buildTargetGroup == BuildTargetGroup.Standalone
+            )
+            {
+                serializedOpenXrEditorSettings
+                    .FindProperty("m_vulkanAdditionalGraphicsQueue")
+                    .boolValue = EditorGUILayout.Toggle(
+                    Content.k_vulkanAdditionalGraphicsQueue,
+                    openXrEditorSettings.VulkanAdditionalGraphicsQueue
+                );
             }
 
             EditorGUIUtility.labelWidth = 0;
@@ -139,7 +192,6 @@ namespace UnityEditor.XR.OpenXR
             }
 
             EditorGUILayout.EndVertical();
-
 
             if (m_FeatureEditor != null)
             {
