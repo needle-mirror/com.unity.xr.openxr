@@ -256,6 +256,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             ClearFunctionCallbacks();
         }
 
+        /// <inheritdoc/>
         protected internal override void OnInstanceDestroy(ulong instance)
         {
 #if UNITY_INCLUDE_TESTS

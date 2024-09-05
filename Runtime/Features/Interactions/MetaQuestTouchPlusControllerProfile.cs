@@ -372,6 +372,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "Meta Quest Touch Plus Controller OpenXR";
 
+        /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)
         {
             // Requires the plus controller extension

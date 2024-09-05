@@ -3,7 +3,7 @@ uid: openxr-meta-quest-plus-touch-controller-profile
 ---
 # Meta Quest Touch Plus Controller Profile
 
-Enables the OpenXR interaction profile for Meta Quest Touch Plus controllers and exposes the `<QuestTouchPlusController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@latest/).  
+Enables the OpenXR interaction profile for Meta Quest Touch Plus controllers and exposes the `<QuestTouchPlusController>` device layout within the [Unity Input System](xref:input-system-index).
 
 ## Available controls
 
@@ -12,16 +12,16 @@ Enables the OpenXR interaction profile for Meta Quest Touch Plus controllers and
 |`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/squeeze/value`| grip | Float |
 |`/input/squeeze/value`| gripPressed | Boolean (float cast to boolean) |
-|`/input/menu/click`| menu (Left Hand Only)| Boolean | 
-|`/input/system/click`| menu (Right Hand Only)| Boolean | 
-|`/input/a/click`| primaryButton (Right Hand Only) | Boolean | 
-|`/input/a/touch`| primaryTouched (Right Hand Only) | Boolean | 
-|`/input/b/click`| secondaryButton (Right Hand Only) | Boolean | 
-|`/input/b/touch`| secondaryTouched (Right Hand Only) | Boolean | 
-|`/input/x/click`| primaryButton (Left Hand Only) | Boolean | 
-|`/input/x/touch`| primaryTouched (Left Hand Only) | Boolean | 
-|`/input/y/click`| secondaryButton (Left Hand Only) | Boolean | 
-|`/input/y/touch`| secondaryTouched (Left Hand Only) | Boolean | 
+|`/input/menu/click`| menu (Left Hand Only)| Boolean |
+|`/input/system/click`| menu (Right Hand Only)| Boolean |
+|`/input/a/click`| primaryButton (Right Hand Only) | Boolean |
+|`/input/a/touch`| primaryTouched (Right Hand Only) | Boolean |
+|`/input/b/click`| secondaryButton (Right Hand Only) | Boolean |
+|`/input/b/touch`| secondaryTouched (Right Hand Only) | Boolean |
+|`/input/x/click`| primaryButton (Left Hand Only) | Boolean |
+|`/input/x/touch`| primaryTouched (Left Hand Only) | Boolean |
+|`/input/y/click`| secondaryButton (Left Hand Only) | Boolean |
+|`/input/y/touch`| secondaryTouched (Left Hand Only) | Boolean |
 |`/input/trigger/value`| trigger | Float |
 |`/input/trigger/value`| triggerPressed | Boolean (float cast to boolean) |
 |`/input/trigger/touch`| triggerTouched| Boolean (float cast to boolean) |

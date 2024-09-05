@@ -4,7 +4,7 @@ uid: openxr-input
 
 # Input in Unity OpenXR
 
-This page details how to use and configure OpenXR input within unity. 
+This page details how to use and configure OpenXR input within unity.
 
 For information on how to configure Unity to use OpenXR input, see the [Getting Started](#getting-started) section of this document.
 
@@ -16,11 +16,11 @@ The Unity OpenXR package provides a set of controller layouts for various device
 
 To use OpenXR Input, you must select the correct interaction profiles features to send to OpenXR. To learn more about OpenXR features in Unity, see the [Interaction profile features](./index.md#interaction-profile-features) page.
 
-Future versions of the Unity OpenXR Package will provide further integration with the OpenXR Input system. For smooth upgrading, Unity recommends that you use the device layouts included with the OpenXR package. These have the '(OpenXR)' suffix in the Unity Input System binding window. 
+Future versions of the Unity OpenXR Package will provide further integration with the OpenXR Input system. For smooth upgrading, Unity recommends that you use the device layouts included with the OpenXR package. These have the '(OpenXR)' suffix in the Unity Input System binding window.
 
-Unity will provide documentation on these features when they become available. 
+Unity will provide documentation on these features when they become available.
 
-Interaction profiles manifest themselves as device layouts in the Unity [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@latest/). 
+Interaction profiles manifest themselves as device layouts in the Unity [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@latest/).
 
 ## Getting Started
 
@@ -63,19 +63,19 @@ Using OpenXR with Unity is the same as configuring any other input device using 
 
 1. Decide on what actions and action maps you want to use to describe your gameplay, experience or menu operations
 2. Create an `Input Action` Asset, or use the one included with the [Sample](#run-the-sample).
-3. Add the actions and action maps you defined in step 1 in the `Input Action` Asset you decided to use in step 2. 
+3. Add the actions and action maps you defined in step 1 in the `Input Action` Asset you decided to use in step 2.
 4. Create bindings for each action.
 
-    When using OpenXR, you must either create a "Generic" binding, or use a binding to a device that Unity's OpenXR implementation specifically supports. For a list of these specific devices, see the [Interaction bindings](#interaction-bindings) section. 
+    When using OpenXR, you must either create a "Generic" binding, or use a binding to a device that Unity's OpenXR implementation specifically supports. For a list of these specific devices, see the [Interaction bindings](#interaction-bindings) section.
 
 5. Save your `Input Action` Asset.
 6. Ensure your actions and action maps are enabled at runtime.
 
-    The [Sample](#run-the-sample) contains a helper script called `Action Asset Enabler` which enables every action within an `Input Action` Asset. If you want to enable or disable specific actions and action maps, you can manage this process yourself. 
+    The [Sample](#run-the-sample) contains a helper script called `Action Asset Enabler` which enables every action within an `Input Action` Asset. If you want to enable or disable specific actions and action maps, you can manage this process yourself.
 
-7. Write code that reads data from your actions. 
+7. Write code that reads data from your actions.
 
-    For more information, see the [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) package documentation, or consult the [Sample](#run-the-sample) to see how it reads input from various actions. 
+    For more information, see the [Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/) package documentation, or consult the [Sample](#run-the-sample) to see how it reads input from various actions.
 
 8. Enable the set of Interaction Features that your application uses.
 
@@ -94,11 +94,11 @@ Unity requires the use of the Input System package when using OpenXR. Unity auto
 
 ###  Interaction Profile Features
 
-Each Interaction Profile Feature contains both the device layout for creating bindings in the Unity Input System and a set of bindings that we send to OpenXR. The OpenXR Runtime will determine which bindings to use based on the set of Interaction Profiles that we send to it. 
+Each Interaction Profile Feature contains both the device layout for creating bindings in the Unity Input System and a set of bindings that we send to OpenXR. The OpenXR Runtime will determine which bindings to use based on the set of Interaction Profiles that we send to it.
 
 Unity Recommends that Developers select only the Interaction Profiles that they are able to test their experience with.
 
-Selecting an Interaction Profile from the features menu will add that device to the bindable devices in the Unity Input System. They will be selectable from under the **XR Controller** section of the binding options. 
+Selecting an Interaction Profile from the features menu will add that device to the bindable devices in the Unity Input System. They will be selectable from under the **XR Controller** section of the binding options.
 
 ![XR Controller Menu](images/xr-controller-input-menu.png)
 
@@ -106,7 +106,7 @@ See [Set the interaction profile](xref:openxr-project-config#interaction-profile
 
 ### Mapping between OpenXR paths and Unity bindings
 
-The OpenXR specification details a number of `Interaction Profiles` that you can use to suggest bindings to the OpenXR runtime. Unity uses its own existing XRSDK naming scheme to identify controls and devices and map OpenXR action data to them. 
+The OpenXR specification details a number of `Interaction Profiles` that you can use to suggest bindings to the OpenXR runtime. Unity uses its own existing XRSDK naming scheme to identify controls and devices and map OpenXR action data to them.
 
 The table below outlines the common mappings between OpenXR paths and Unity XRSDK Control names.
 Which controls are available on which devices is covered in the specific device documentation.
@@ -118,7 +118,7 @@ Which controls are available on which devices is covered in the specific device 
 |`/input/select/click`| select | Boolean |
 |`/input/menu/click`| menu | Boolean |
 |`/input/squeeze/value` | grip | Float |
-|`/input/squeeze/click` | gripPressed | Boolean | 
+|`/input/squeeze/click` | gripPressed | Boolean |
 |`/input/squeeze/force` | gripForce | Boolean |
 |`/input/trigger/value` | trigger | Float |
 |`/input/trigger/squeeze` | triggerPressed | Boolean |
@@ -127,7 +127,7 @@ Which controls are available on which devices is covered in the specific device 
 |`/input/thumbstick/touch`| joystickTouched | Vector2 |
 |`/input/thumbstick/clicked`| joystickClicked | Vector2 |
 |`/input/trackpad`| touchpad | Vector2 |
-|`/input/trackpad/touch`| touchpadTouched | Boolean | 
+|`/input/trackpad/touch`| touchpadTouched | Boolean |
 |`/input/trackpad/clicked` | touchpadClicked | Boolean |
 |`/input/a/click` | primaryButton | Boolean |
 |`/input/a/touch` | primaryTouched | Boolean |
@@ -160,12 +160,12 @@ For backwards compatibility, the existing individual controls will continue to b
 
 ### HMD bindings
 
-To read HMD data from OpenXR, use the existing HMD bindings available in the Unity Input System. Unity recommends binding the `centerEye` action of the `XR HMD` device for HMD tracking. The following image shows the use of `centerEye` bindings with the `Tracked Pose Driver`. 
+To read HMD data from OpenXR, use the existing HMD bindings available in the Unity Input System. Unity recommends binding the `centerEye` action of the `XR HMD` device for HMD tracking. The following image shows the use of `centerEye` bindings with the `Tracked Pose Driver`.
 
 ![hmd-config-tpd](images/hmd-config-tpd.png)
 
 
-OpenXR HMD Data contains the following elements. 
+OpenXR HMD Data contains the following elements.
 - Center Eye
 - Device
 - Left Eye
@@ -190,12 +190,12 @@ These are exposed in the Unity Input System through the following bindings. Thes
 
 When using OpenXR the `centerEye` and `device` values are identical.
 
-The HMD position reported by Unity when using OpenXR is calculated from the currently selected Tracking Origin space within OpenXR. 
+The HMD position reported by Unity when using OpenXR is calculated from the currently selected Tracking Origin space within OpenXR.
 
 The Unity `Device Tracking Origin` is mapped to `Local Space`.
 The Unity `Floor Tracking Origin` is mapped to `Stage Space`.
 
-By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Origin` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package. 
+By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Origin` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package.
 
 ### Interaction bindings
 

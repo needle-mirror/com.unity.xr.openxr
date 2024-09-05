@@ -3,7 +3,7 @@ uid: openxr-project-config
 ---
 # Project configuration
 
-Use the **XR Plug-in Management** settings to configure the OpenXR plug-in for your project. 
+Use the **XR Plug-in Management** settings to configure the OpenXR plug-in for your project.
 
 To get started, follow the instructions in [Enable the OpenXR plug-in](#enable-openxr). This also installs the OpenXR package, if needed. Once installed and enabled, you can configure your project settings as described in the [OpenXR Project settings](#project-settings) section.
 
@@ -22,7 +22,6 @@ Some OpenXR features require specific Unity Project settings to function properl
 * **[Play Mode OpenXR Runtime](#openxr-runtime)** (Editor): choose which OpenXR plug-in to use when running in the Unity Editor Play mode.
 * **[Interaction profiles](#interaction-profile)**: choose which OpenXR interaction profile to use for a platform.
 * **[Color space](#color-space)**: When using the Open GL graphics API, you must set the  **Color Space** to **Linear**.
-
 
 <a name="enable-openxr"></a>
 ### Enable the OpenXR plug-in
@@ -46,7 +45,6 @@ To enable OpenXR:
 > [!TIP]
 > If your project uses OpenXR on more than one platform build target, you must enable the OpenXR plugin for each platform.
 
-
 <a name="openxr-features"></a>
 ### Enable OpenXR features
 
@@ -66,8 +64,7 @@ To enable an OpenXR feature:
 5. Select the features and feature groups to enable.
 6. Repeat for any other platform build targets your project supports.
 
-If a feature has its own configuration options, you can click its gear icon (![](images/gear.png)) to open the feature's settings window. Some features provide an icon following their name that links to documentation. 
-
+If a feature has its own configuration options, you can click its gear icon (![](images/gear.png)) to open the feature's settings window. Some features provide an icon following their name that links to documentation.
 
 See [OpenXR Features](index.md#openxr-features) for more information about features and groups.
 
@@ -95,7 +92,6 @@ For more information see:
 * [SinglePassStereoMode](xref:UnityEngine.Rendering.SinglePassStereoMode)
 * [Single Pass Instanced rendering](xref:SinglePassInstancing)
 
-
 <a name="depth-submission-mode"></a>
 ### Set the color submission mode
 
@@ -120,6 +116,7 @@ better rendering integrity in scenes with high dynamic range or luminance gradie
 may be noticeable in LDR formats).
 
 Reasonable rules of thumb when choosing a setting:
+
 * For PC XR devices, consider your target devices and choose a performant HDR setting if you need
   HDR. This often depends on the graphics API, GPU, and XR device together, so it may require extra
   performance testing.
@@ -149,7 +146,7 @@ Many OpenXR runtimes can use depth information to perform more accurate and stab
 |**Depth 16 bit**|A shared depth buffer using 16 bits per pixel is used.|
 |**Depth 24 bit**|A shared depth buffer using 24 bits per pixel is used.|
 
-The best choice can depend on the platform and specific target devices. Depth can significantly reduce judder and other XR rendering artifacts, especially with mixed reality (MR) content that combines rendered graphics with real-world video. The 16-bit option uses less bandwidth to transfer data between the CPU and GPU, which can improve rendering performance and battery life on mobile-type devices. However, the 24-bit option can minimize sorting issues and "z-fighting". 
+The best choice can depend on the platform and specific target devices. Depth can significantly reduce judder and other XR rendering artifacts, especially with mixed reality (MR) content that combines rendered graphics with real-world video. The 16-bit option uses less bandwidth to transfer data between the CPU and GPU, which can improve rendering performance and battery life on mobile-type devices. However, the 24-bit option can minimize sorting issues and "z-fighting".
 
 A reasonable rule of thumb to use when choosing a setting is:
 
@@ -206,17 +203,17 @@ To add an OpenXR interaction profile:
 1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
 2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
 3. Select **OpenXR** in the list of XR plug-ins.
-4. In the **Interaction Profiles** section, click the **+** button to add a profile. 
+4. In the **Interaction Profiles** section, click the **+** button to add a profile.
 5. Select the profile to add from the list.
 
-![](images/openxr-choose-interaction-profile.png)<br />*Choose an interaction profile*
+![Choose Interaction Profile](images/openxr-choose-interaction-profile.png)<br />*Choose an interaction profile*
 
 See [Input in OpenXR](xref:openxr-input) for more information.
 
 <a name="color-space"></a>
 ### Set the rendering color space
 
-When you use the OpenGL graphics API, you must set the Unity Editor to use the linear [color space](xref:LinearRendering-LinearOrGammaWorkflow). 
+When you use the OpenGL graphics API, you must set the Unity Editor to use the linear [color space](xref:LinearRendering-LinearOrGammaWorkflow).
 
 To change the color space:
 
@@ -224,7 +221,6 @@ To change the color space:
 2. Select the **Player** settings category.
 3. Scroll to the **Other Settings** section. (Click **Other Settings** to open the section, if necessary.)
 4. Under the **Rendering** area, choose a **Color Space**.
-
 
 <a name="project-validation"></a>
 ## Project validation
@@ -241,12 +237,11 @@ You can also open a separate **OpenXR Project Validation** window for OpenXR (me
 
 ![feature-validation](images/ProjectValidation/feature-validation.png)
 
-Rules that pass validation are not shown unless you enable **Show all**. 
+Rules that pass validation are not shown unless you enable **Show all**.
 
 Some rules provide a **Fix** button that updates the configuration so that the rule passes validation. Other rules provide an **Edit** button that takes you to the relevant setting so that you can make the necessary adjustments yourself.
 
 You can enable **Ignore build errors** to bypass the pre-build validation check. However, any misconfigured features in your app might not work at runtime.
-
 
 ### Validation issues reported in XR Plug-in Management
 

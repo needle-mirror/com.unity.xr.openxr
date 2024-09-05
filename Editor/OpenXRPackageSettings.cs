@@ -59,12 +59,10 @@ namespace UnityEditor.XR.OpenXR
             OpenXRPackageSettings settings = ScriptableObject.CreateInstance<OpenXRPackageSettings>();
             if (settings != null)
             {
-                string newAssetName = String.Format(s_PackageSettingsAssetName);
-                string assetPath = GetAssetPathForComponents(s_PackageSettingsDefaultSettingsPath);
-                if (!string.IsNullOrEmpty(assetPath))
+                string path = OpenXRPackageSettingsAssetPath();
+                if (!string.IsNullOrEmpty(path))
                 {
-                    assetPath = Path.Combine(assetPath, newAssetName);
-                    AssetDatabase.CreateAsset(settings, assetPath);
+                    AssetDatabase.CreateAsset(settings, path);
                     EditorBuildSettings.AddConfigObject(Constants.k_SettingsKey, settings, true);
                 }
             }

@@ -142,20 +142,23 @@ namespace UnityEditor.XR.OpenXR.Features
             {
                 return ret;
             }
-
             // Find any current extensions that are already serialized
-            Dictionary<OpenXRFeatureAttribute, OpenXRFeature> currentExts =
-                new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
+            var currentExts = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
+
             foreach (var ext in openXrSettings.features)
             {
-                if (ext != null)
+                if (ext == null)
+                    continue;
+
+                // Extensions are named with their assigned build group.
+                if (ext.name.Contains(group.ToString()))
                 {
                     foreach (Attribute attr in Attribute.GetCustomAttributes(ext.GetType()))
                     {
                         if (attr is OpenXRFeatureAttribute)
                         {
                             var extAttr = (OpenXRFeatureAttribute)attr;
-                            currentExts[extAttr] = ext;
+                            currentExts[extAttr] = (OpenXRFeature)ext;
                             break;
                         }
                     }

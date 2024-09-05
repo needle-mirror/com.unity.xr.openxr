@@ -34,7 +34,7 @@ namespace UnityEngine.XR.OpenXR
         ///
         /// This method doesn't trigger a recenter event, as this event has to be initiated from the platform's runtime.
         ///
-        /// See <seealso cref="SetAllowRecentering"/> for more information.
+        /// See <see cref="SetAllowRecentering"/> for more information.
         /// </remarks>
         public static void RefreshRecenterSpace()
         {

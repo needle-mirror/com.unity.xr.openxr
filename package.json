@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "unity": "2021.3",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
@@ -34,15 +34,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Added\n\n* Add class `MetaQuestTouchPlusControllerProfile.QuestTouchPlusController` interaction profile to support Meta Quest Touch Plus Controllers.\n* Added a validation rule to warn you that soft shadows can negatively affect performance for Microsoft HoloLens.\n* Added a validation rule to infrom you to make the OpenXR Loader an active loader in XR Plugin Management if there are active OpenXR features in the OpenXR settings.\n* Added `OpenXRSettings.autoColorSubmissionMode` boolean property to specify OpenXR to use a platform-supported color format in the display swapchain, or for you to manually set which format should OpenXR to use.\n* Added `OpenXRSettings.colorSubmissionModes` array property to control the color format used by the OpenXR display swapchain. The available options can be chosen from the `OpenXRSettings.ColorSubmissionModeGroup` enum. OpenXR will use supported color formats by the platform, starting from the first option in the list. In case none of the color formats supplied is supported by the platform, an error will be thrown. If no color formats are assigned, the format used will be RGBA32.\n* Added `Automatic Color Submission Mode` toggle and `Color Submission Modes` list to the OpenXR project settings tab, allowing you to manually specify the preferred color format to be used by the display swapchain. OpenXR will use supported color formats by the platform, starting from the first option in the list. In case none of the color formats supplied is supported by the platform, an error will be thrown. If no color formats are assigned, the format used will be RGBA32.\n\n### Fixed\n\n* Fixed sort order of OpenXR features listed based first on priority, then by name, preventing spurious changes in Settings files."
+    "changelog": "* Fixed rendering bug when rendering viewport scale < 1. \n* Fixed issue where the Editor would hang when renaming and then viewing OpenXR Settings."
   },
   "upmCi": {
-    "footprint": "7d2795db5af16eacf76db91cbe4e8444f9bc52d4"
+    "footprint": "cddb8f6358b0688a53f366522840d94f966e9b5f"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.12/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "3a1c80d75855c479e3f4e825a51d4317dc7430d0"
+    "revision": "80d54b74e54bc9121b87503e8e4840bfbcdb50f7"
   }
 }

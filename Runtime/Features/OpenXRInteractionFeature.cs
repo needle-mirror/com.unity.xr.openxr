@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR.Features
             /// <summary>OpenXR path for the interaction</summary>
             public string interactionPath;
 
-            /// <summary>Optional OpenXR user paths <seealso cref="UserPaths"/></summary>
+            /// <summary>Optional OpenXR user paths <see cref="UserPaths"/></summary>
             public List<string> userPaths;
         }
 
@@ -72,7 +72,7 @@ namespace UnityEngine.XR.OpenXR.Features
             /// <summary>The name of the action, reported into the InputSystem as the name of the control that represents the input data for this action. This name can only contain a-z lower case letters.</summary>
             public string name;
 
-            /// <summary>The type of data this action will report. <seealso cref="ActionType"/></summary>
+            /// <summary>The type of data this action will report. <see cref="ActionType"/></summary>
             public ActionType type;
 
             /// <summary>Human readable name for the action</summary>
@@ -81,7 +81,7 @@ namespace UnityEngine.XR.OpenXR.Features
             /// <summary>The underlying physical input controls to use as the value for this action</summary>
             public List<ActionBinding> bindings;
 
-            /// <summary>These will be tagged onto <see cref="UnityEngine.XR.InputDevice"/> features. See <seealso cref="UnityEngine.XR.InputDevice.TryGetFeatureValue"/></summary>
+            /// <summary>These will be tagged onto <see cref="UnityEngine.XR.InputDevice"/> features. See <see cref="UnityEngine.XR.InputDevice.TryGetFeatureValue"/></summary>
             public List<string> usages;
 
             /// <summary>Tag to determine if certain action is additive and could be added to the existing profiles</summary>
@@ -93,10 +93,10 @@ namespace UnityEngine.XR.OpenXR.Features
         /// </summary>
         protected internal class DeviceConfig
         {
-            /// <summary>The <see cref="InputDeviceCharacteristics"/> for the <see cref="UnityEngine.XR.InputDevice"/> that will represent this ActionMapConfig. See <seealso cref="UnityEngine.XR.InputDevice.characteristics"/></summary>
+            /// <summary>The <see cref="InputDeviceCharacteristics"/> for the <see cref="UnityEngine.XR.InputDevice"/> that will represent this ActionMapConfig. See <see cref="UnityEngine.XR.InputDevice.characteristics"/></summary>
             public InputDeviceCharacteristics characteristics;
 
-            /// <summary>OpenXR user path that this device maps to. <seealso cref="UserPaths"/></summary>
+            /// <summary>OpenXR user path that this device maps to. <see cref="UserPaths"/></summary>
             public string userPath;
         }
 

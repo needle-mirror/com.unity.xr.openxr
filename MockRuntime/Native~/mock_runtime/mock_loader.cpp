@@ -131,10 +131,10 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         XR_EXT_user_presence_SPEC_VERSION
     },
     {
-		XR_TYPE_EXTENSION_PROPERTIES,
-		nullptr,
-		XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
-		XR_EXT_performance_settings_SPEC_VERSION
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
+        XR_EXT_performance_settings_SPEC_VERSION
     }
 #if defined(XR_USE_PLATFORM_ANDROID)
     ,{

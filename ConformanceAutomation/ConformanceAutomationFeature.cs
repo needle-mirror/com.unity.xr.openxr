@@ -165,7 +165,7 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         /// <param name="linear">Linear velocity value</param>
         /// <param name="angularValid">True if the angular velocity is valid</param>
         /// <param name="angular">Angular velocity value</param>
-        /// <returns></returns>
+        /// <returns>true if the velocity is set successfully, or false if there was an error.</returns>
         public static bool ConformanceAutomationSetVelocity(string topLevelPath, string inputSourcePath, bool linearValid, Vector3 linear, bool angularValid, Vector3 angular)
         {
             return xrSetInputDeviceVelocityUNITY(

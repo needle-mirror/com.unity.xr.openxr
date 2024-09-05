@@ -38,15 +38,15 @@ The performance level hints help an OpenXR runtime balance the tradeoffs it must
 
 You can set the following levels as hints about your application's current performance needs:
 
-- **Power Savings**: At this level, the OpenXR runtime prioritizes energy conservation over consistent frame rendering and latency. 
-- **Sustained Low**: At this level, the OpenXR runtime tries to balance resource usage and high performance, prioritizing the former. Energy savings are prioritized over low latency, but the runtime tries to maintain a relatively stable frame rendering and XR compositing flow, as long as it's thermally sustainable. 
-- **Sustained High**: This level is the default hint, if none is set by your application. At this level, the OpenXR runtime prioritizes consistent rendering, XR compositing and latency in a thermal range that is sustainable. 
+- **Power Savings**: At this level, the OpenXR runtime prioritizes energy conservation over consistent frame rendering and latency.
+- **Sustained Low**: At this level, the OpenXR runtime tries to balance resource usage and high performance, prioritizing the former. Energy savings are prioritized over low latency, but the runtime tries to maintain a relatively stable frame rendering and XR compositing flow, as long as it's thermally sustainable.
+- **Sustained High**: This level is the default hint, if none is set by your application. At this level, the OpenXR runtime prioritizes consistent rendering, XR compositing and latency in a thermal range that is sustainable.
 - **Boost**: At this level, the OpenXR runtime allows maximum resource usage without trying to keep the device operating in a thermally sustainable range. If the device hardware exceeds its thermal limits, the runtime must throttle performance, so you should limit use of this performance level to short durations (less that 30 seconds).
 
 > [!NOTE]
-> When setting the Performance Level Hint to **Sustained Low** or **Sustained High** levels, your application can still experience performance throttling. For example, a device might exceed thermal limits due to external circumstances, such as operating in a high-temperature environment or for an extended amount of time. You can use [Performance Notifications](#performance-settings-notifications) to detect such impending performance issues and lower application workload before the runtime must impose throttling. 
+> When setting the Performance Level Hint to **Sustained Low** or **Sustained High** levels, your application can still experience performance throttling. For example, a device might exceed thermal limits due to external circumstances, such as operating in a high-temperature environment or for an extended amount of time. You can use [Performance Notifications](#performance-settings-notifications) to detect such impending performance issues and lower application workload before the runtime must impose throttling.
 
-Use the static method, [XrPerformanceSettingsFeature.SetPerformanceLevelHint](xref:UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings.XrPerformanceSettingsFeature.SetPerformanceLevelHint*) to set a given performance level hint for a specific CPU or GPU performance domain. 
+Use the static method, [XrPerformanceSettingsFeature.SetPerformanceLevelHint](xref:UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings.XrPerformanceSettingsFeature.SetPerformanceLevelHint*) to set a given performance level hint for a specific CPU or GPU performance domain.
 
 
 By choosing the lowest level that gives your application good performance, you can extend the device's battery life and avoid overheating. For example, you could set the **Power Savings** hint during loading screens. For normal operation, you could set **Sustained Low** for less demanding sequences, and **Sustained High** for more complex scenes. When appropriate, you could set the **Boost** hint to achieve maximum performance for a brief time.
@@ -59,7 +59,7 @@ Here are some examples of how you might use performance level hints in different
   ```c#
   XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.CPU, PerformanceLevelHint.PowerSavings);
   XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.GPU, PerformanceLevelHint.PowerSavings);
-  
+
   // Show a picture sequence and continue with app loading
   ```
 
@@ -84,7 +84,7 @@ Here are some examples of how you might use performance level hints in different
 
   ```c#
   XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.CPU, PerformanceLevelHint.Boost);
-  
+
   // Run complex logic
   ```
 
@@ -96,19 +96,19 @@ The OpenXR runtime can inform your application about performance changes, so you
 Performance is categorized as one of the following performance states:
 
 - **Normal**: No performance degradation is expected and the app can run as usual.
-- **Warning**: The OpenXR runtime is expecting performance degradation if device conditions do not improve. 
+- **Warning**: The OpenXR runtime is expecting performance degradation if device conditions do not improve.
 - **Impaired**: The device is suffering performance degradation.
 
 An OpenXR runtime monitors performance of the device CPU and GPU across a set of key performance areas, called subdomains. These subdomains include:
 
 * [Compositing](#compositing-subdomain): A runtime task that takes all rendered layers and combines them for display.
 * [Rendering](#rendering-subdomain): Your application's timely submission of frames to the compositor.
-* [Thermal](#thermal-subdomain): The hardware device's temperature compared to its thermal limits. 
+* [Thermal](#thermal-subdomain): The hardware device's temperature compared to its thermal limits.
 
 If the performance state of a subdomain changes, the [XrPerformanceSettingsFeature](xref:UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings.XrPerformanceSettingsFeature.OnXrPerformanceChangeNotification) object dispatches an event that describes the change. Refer to [Subscribe to performance notifications](#subscribe) for information about handling this event.
 
 When the performance state of a domain and subdomain changes for the worse, you should take mitigation measures that reduce application workload in that area. If you do not, the OpenXR runtime might impose its own, more drastic, measures.
- 
+
 After a sufficient period (determined by the runtime) of improved performance, a performance state can change from impaired to warning, and from warning to normal. Leaving the impaired state means that the runtime has stopped its own mitigation measures.
 
 > [!TIP]
@@ -120,8 +120,8 @@ After a sufficient period (determined by the runtime) of improved performance, a
 Compositing is a task performed by the OpenXR runtime to combine submitted frames for final display. The runtime must share CPU and GPU resources with your application while performing this task. If the runtime can't complete compositing in time, visual artifacts can occur. When in the impaired state, the OpenXR runtime might take actions that interfere with your application, such as limiting frame rate, ignoring submitted layers, or even shutting down the application.
 
 * In the **Normal** state, the compositor can consistently finish with sufficient margin.
-* In the **Warning** state, the compositor is finishing its task in time, but the margin is considered insufficient. 
-* In the **Impaired** state, the compositor cannot finish its task in time. 
+* In the **Warning** state, the compositor is finishing its task in time, but the margin is considered insufficient.
+* In the **Impaired** state, the compositor cannot finish its task in time.
 
 <a name="rendering-subdomain"></a>
 ### Rendering subdomain
@@ -130,16 +130,16 @@ Your application's rendering pipeline must submit rendered layers to the composi
 
 * In the **Normal** state, your application is consistently submitting rendered frames to the compositor in time to be used.
 * In the **Warning** state, at least one layer is regularly submitted past the compositor deadline.
-* In the **Impaired** state, late submission of frames has reached a critical threshold. 
+* In the **Impaired** state, late submission of frames has reached a critical threshold.
 
 <a name="thermal-subdomain"></a>
 ### Thermal subdomain
 
-XR devices must stay within a safe operating temperature. When a device reaches its thermal limits, the OpenXR runtime must take drastic measures to lower heat generation. These mitigations can severely impact the user experience. 
+XR devices must stay within a safe operating temperature. When a device reaches its thermal limits, the OpenXR runtime must take drastic measures to lower heat generation. These mitigations can severely impact the user experience.
 
 * In the **Normal** state, the device is operating within a sustainable thermal range.
 * In the **Warning** state, the OpenXR runtime anticipates that the device will soon overheat under the current load.
-* In the **Impaired** state, the OpenXR is taking measures such as throttling performance, to reduce the device temperature. 
+* In the **Impaired** state, the OpenXR is taking measures such as throttling performance, to reduce the device temperature.
 
 
 <a name="subscribe"></a>
@@ -150,9 +150,9 @@ Subscribe to the [XrPerformanceSettingsFeature.OnXrPerformanceChangeNotification
 A notification event provides the following data (as a [PerformanceChangeNotification](xref:UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings.PerformanceChangeNotification) struct):
 
 * Old performance state (normal, warning, or impaired)
-* New performance state (normal, warning, or impaired) 
-* Affected domain (CPU or GPU) 
-* Affected subdomain (compositing, rendering, or thermal) 
+* New performance state (normal, warning, or impaired)
+* Affected domain (CPU or GPU)
+* Affected subdomain (compositing, rendering, or thermal)
 
 The following code snippet illustrates how you can subscribe to the performance notification event and handle performance changes (by calling your own application-defined functions that modify performance):
 

@@ -159,6 +159,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Called after xrCreateInstance.
         /// </summary>
         /// <param name="xrInstance">Handle of the xrInstance</param>
+        /// <returns> Always returns true, as this is intended to be overridden.</returns>
         protected internal virtual bool OnInstanceCreate(ulong xrInstance) => true;
 
         /// <summary>
@@ -520,18 +521,30 @@ namespace UnityEngine.XR.OpenXR.Features
             OpenXRLoaderBase.Instance.DestroySubsystem<T>();
         }
 
-        /// <inheritdoc />
+        /// <summary>Called when the object is loaded.</summary>
+        /// <remarks>
+        /// Additional information:
+        /// <a href="https://docs.unity3d.com/ScriptReference/ScriptableObject.OnEnable.html">ScriptableObject.OnEnable</a>
+        /// </remarks>
         protected virtual void OnEnable()
         {
         }
 
-        /// <inheritdoc />
+        /// <summary>Called when the object is loaded.</summary>
+        /// <remarks>
+        /// Additional information:
+        /// <a href="https://docs.unity3d.com/ScriptReference/ScriptableObject.OnDisable.html">ScriptableObject.OnDisable</a>
+        /// </remarks>
         protected virtual void OnDisable()
         {
             // Virtual for future expansion and to match OnEnable
         }
 
-        /// <inheritdoc />
+        /// <summary>Called when the object is loaded.</summary>
+        /// <remarks>
+        /// Additional information:
+        /// <a href="https://docs.unity3d.com/ScriptReference/ScriptableObject.Awake.html">ScriptableObject.Awake</a>
+        /// </remarks>
         protected virtual void Awake()
         {
         }
@@ -758,14 +771,18 @@ namespace UnityEngine.XR.OpenXR.Features
         }
 
         /// <summary>
-        /// <para>Assigns an unsigned integer value to a registered statistic. Its thread safe.</para>
-        /// <para>IMPORTANT: Due to limitations in native code, values over 16777216 (1<<24) might not be reflected accurately.</para>
+        /// Assigns an unsigned integer value to a registered statistic. It is thread safe.
         /// </summary>
+        /// <remarks>
+        /// IMPORTANT: Due to limitations in native code, values over 16777216 (1&lt;&lt;24) might not be reflected accurately.
+        /// </remarks>
         /// <param name="statId">Identifier of the previously registered statistic.</param>
         /// <param name="value">Unsigned integer value to be assigned to the stat.</param>
         protected internal static void SetStatAsUInt(ulong statId, uint value)
         {
             runtime_SetStatAsUInt(statId, value);
         }
+
+
     }
 }

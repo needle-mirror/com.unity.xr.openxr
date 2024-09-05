@@ -18,7 +18,7 @@ using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
-    /// This <see cref="OpenXRInteractionFeature"/> enables the use of Microsoft hand interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">XR_MSFT_hand_interaction</see> in the underyling runtime.
+    /// This <see cref="OpenXRInteractionFeature"/> enables the use of Microsoft hand interaction profiles in OpenXR. It enables <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">XR_MSFT_hand_interaction</a> in the underyling runtime.
     /// This creates a new <see cref="InputDevice"/> with the <see cref="InputDeviceCharacteristics.HandTracking"/> characteristic.
     /// </summary>
 #if UNITY_EDITOR
@@ -40,7 +40,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string featureId = "com.unity.openxr.feature.input.handtracking";
 
         /// <summary>
-        /// An Input System device based off the hand interaction profile in the <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">Hand Interaction Extension</see>. Enabled through <see cref="MicrosoftHandInteraction"/>.
+        /// An Input System device based off the hand interaction profile in the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">Hand Interaction Extension</a>. Enabled through <see cref="MicrosoftHandInteraction"/>.
         /// </summary>
         [Preserve, InputControlLayout(displayName = "Hololens Hand (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
         public class HoloLensHand : XRController
@@ -139,7 +139,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             }
         }
 
-        /// <summary>The OpenXR Extension string. OpenXR uses this to check if this extension is available or enabled. See <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">hand interaction extension</see> documentation for more information on this OpenXR extension.</summary>
+        /// <summary>The OpenXR Extension string. OpenXR uses this to check if this extension is available or enabled. See <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction">hand interaction extension</a> documentation for more information on this OpenXR extension.</summary>
         public const string extensionString = "XR_MSFT_hand_interaction";
 
         /// <summary>

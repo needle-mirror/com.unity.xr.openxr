@@ -346,8 +346,13 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <param name="buildTargetGroup">The build target group to process features sets for.</param>
         public static void SetFeaturesFromEnabledFeatureSets(BuildTargetGroup buildTargetGroup)
         {
-            var featureSets = FeatureSetInfosForBuildTarget(buildTargetGroup);
             var extInfo = FeatureHelpersInternal.GetAllFeatureInfo(buildTargetGroup);
+            SetFeaturesFromEnabledFeatureSets(buildTargetGroup, extInfo);
+        }
+
+        internal static void SetFeaturesFromEnabledFeatureSets(BuildTargetGroup buildTargetGroup, FeatureHelpersInternal.AllFeatureInfo extInfo)
+        {
+            var featureSets = FeatureSetInfosForBuildTarget(buildTargetGroup);
 
             var fsi = s_FeatureSetState[buildTargetGroup];
 

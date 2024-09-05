@@ -478,9 +478,9 @@ namespace UnityEditor.XR.OpenXR.Features
 
             if (buildTargetGroup != activeBuildTarget || mustInitializeFeatures)
             {
-                InitializeFeatures(buildTargetGroup);
+                var allFeatureInfo = InitializeFeatures(buildTargetGroup);
                 OpenXRFeatureSetManager.activeBuildTarget = buildTargetGroup;
-                OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets(buildTargetGroup);
+                OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets(buildTargetGroup, allFeatureInfo);
 
                 // This must be done after SetFeaturesFromEnabledFeatureSets to ensure we dont get an infinite update loop
                 mustInitializeFeatures = false;
@@ -528,7 +528,7 @@ namespace UnityEditor.XR.OpenXR.Features
             return false;
         }
 
-        void InitializeFeatures(BuildTargetGroup group)
+        FeatureHelpersInternal.AllFeatureInfo InitializeFeatures(BuildTargetGroup group)
         {
             selectionListItems.Clear();
             filteredListItems.Clear();
@@ -605,6 +605,8 @@ namespace UnityEditor.XR.OpenXR.Features
                 initialSelectedItem = selectionListItems[lastSelectedItemIndex[activeBuildTarget]];
             }
             OnSelectItem(initialSelectedItem);
+
+            return allFeatureInfos;
         }
 
         void InitStyles()

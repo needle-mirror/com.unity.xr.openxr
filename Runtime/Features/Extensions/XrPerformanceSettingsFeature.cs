@@ -43,15 +43,21 @@ namespace UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings
         /// </summary>
         /// <remarks>
         /// Refer to [Performance notifications](xref:openxr-performance-settings#performance-settings-notifications) for additional information.
-        ///
+        /// </remarks>
         /// <example>
+        /// <para>
         /// Example of subscribing to the event and handling the performance change notification:
-        /// <code>
+        /// </para>
+        /// <code lang="cs">
+        /// <![CDATA[
         /// XrPerformanceSettingsFeature.OnXrPerformanceChangeNotification += OnGPUPerformanceChange;
+        /// ]]>
         /// </code>
-        ///
+        /// <para>
         /// Example of handling the performance change notification:
-        /// <code>
+        /// </para>
+        /// <code lang="cs">
+        /// <![CDATA[
         /// void OnGPUPerformanceChange(PerformanceChangeNotification notification)
         /// {
         ///     if (notification.domain != Domain.GPU)
@@ -70,9 +76,9 @@ namespace UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings
         ///         UseReducedQuality();
         ///     }
         /// }
+        /// ]]>
         /// </code>
         /// </example>
-        /// </remarks>
         public static event UnityAction<PerformanceChangeNotification> OnXrPerformanceChangeNotification;
 
         /// <summary>
@@ -93,6 +99,12 @@ namespace UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings
             return false;
         }
 
+        /// <summary>
+        /// When an instance of the Performance setting feature is created, it allows us to confirm that the instance has been created, that the extension is enabled
+        /// and we have successfully registed the performance notification callback
+        /// </summary>
+        /// <param name="xrInstance">XR Session Instance</param>
+        /// <returns>True if the instance has successfully been created. Otherwise it returns false.</returns>
         protected internal override bool OnInstanceCreate(ulong xrInstance)
         {
             return base.OnInstanceCreate(xrInstance) &&

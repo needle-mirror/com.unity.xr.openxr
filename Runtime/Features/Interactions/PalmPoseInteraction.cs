@@ -115,7 +115,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         private const string kDeviceLocalizedName = "Palm Pose Interaction OpenXR";
         /// <summary>
         /// The OpenXR Extension string. This is used by OpenXR to check if this extension is available or enabled.
-        /// /// </summary>
+        /// </summary>
         public const string extensionString = "XR_EXT_palm_pose";
 
 #if UNITY_EDITOR

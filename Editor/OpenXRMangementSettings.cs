@@ -54,7 +54,7 @@ namespace UnityEditor.XR.OpenXR
             }
             catch (System.Exception ex)
             {
-                Debug.Log($"Erorr adding new OpenXR Settings object to build settings.\n{ex.Message}");
+                Debug.Log($"Error adding new OpenXR Settings object to build settings.\n{ex.Message}");
             }
 
             return false;

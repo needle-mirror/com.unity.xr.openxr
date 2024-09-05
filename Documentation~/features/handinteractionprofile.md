@@ -4,7 +4,7 @@ uid: openxr-hand-interaction-profile
 # Hand Interaction Profile
 
 The hand interaction profile is designed for runtimes which provide hand inputs using hand tracking devices instead of controllers with triggers or buttons.
-This allows hand tracking devices to provide commonly used gestures and action poses. Enables this OpenXR interaction profile will expose the `<HandInteraction>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).  
+The hand interaction profile allows hand tracking devices to provide commonly used gestures and action poses. Enable this OpenXR interaction profile to expose the `<HandInteraction>` device layout within the [Unity Input System](xref:input-system-index).
 
 OpenXR Specification about Hand Interaction Profile will be updated here when it is available.
 

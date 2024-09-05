@@ -1,6 +1,6 @@
 # Mock Runtime 0.0.2
-OpenXR Runtime that allows for testing without a device.
 
+OpenXR Runtime that allows for testing without a device.
 
 ## Paths
 
@@ -26,5 +26,4 @@ The MockRuntime manages a list of input states, one for each combination of inte
 
 ## Conformance Automation Extension
 
-The MockRuntime implements the conformance automation extension and allows [Input State](#input-state) values to be set.  When a value is set via Conformance Automation it is temporarly stored in the extension itself rather than directly settings the equivalent value in Mock Runtime.  The values stored in the extension will then be read by the MockRuntime during `xrSyncActions` and copied into the runtime state where they will persist.  
-
+The MockRuntime implements the conformance automation extension and allows [Input State](#input-state) values to be set.  When a value is set via Conformance Automation it is temporarly stored in the extension itself rather than directly settings the equivalent value in Mock Runtime.  The values stored in the extension will then be read by the MockRuntime during `xrSyncActions` and copied into the runtime state where they will persist.

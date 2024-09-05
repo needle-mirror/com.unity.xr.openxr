@@ -102,7 +102,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 #endif
 
         /// <summary>
-        /// A  dpad-like interaction feature that allows the application to bind one or more digital actions to a trackpad or thumbstick as though it were a dpad. <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrInteractionProfileDpadBindingEXT"></a>
+        /// A  dpad-like interaction feature that allows the application to bind one or more digital actions to a trackpad or thumbstick as though it were a dpad. <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrInteractionProfileDpadBindingEXT">XrInteractionProfileDpadBindingEXT</a>
         /// </summary>
         [Preserve, InputControlLayout(displayName = "D-Pad Binding (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
         public class DPad : XRController
@@ -225,7 +225,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         /// <summary>
         /// The OpenXR Extension strings. This is used by OpenXR to check if this extension is available or enabled.
-        /// /// </summary>
+        /// </summary>
         public string[] extensionStrings = { "XR_KHR_binding_modification", "XR_EXT_dpad_binding" };
 
 #if UNITY_EDITOR

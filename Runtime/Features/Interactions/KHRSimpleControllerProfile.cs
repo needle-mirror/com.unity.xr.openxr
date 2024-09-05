@@ -39,7 +39,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string featureId = "com.unity.openxr.feature.input.khrsimpleprofile";
 
         /// <summary>
-        /// An Input System device based off the <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_khronos_simple_controller_profile">Khronos Simple Controller interaction profile</see>. This device contains one haptic output motor.
+        /// An Input System device based off the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_khronos_simple_controller_profile">Khronos Simple Controller interaction profile</a>. This device contains one haptic output motor.
         /// </summary>
         [Preserve, InputControlLayout(displayName = "Khronos Simple Controller (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
         public class KHRSimpleController : XRControllerWithRumble
@@ -131,7 +131,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         }
 
         /// <summary>
-        /// OpenXR string that represents the <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#semantic-path-interaction-profiles">Interaction Profile.</see>
+        /// OpenXR string that represents the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#semantic-path-interaction-profiles">Interaction Profile.</a>
         /// </summary>
         public const string profile = "/interaction_profiles/khr/simple_controller";
 

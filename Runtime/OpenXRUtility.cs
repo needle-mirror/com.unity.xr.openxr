@@ -37,14 +37,14 @@ namespace UnityEngine.XR.OpenXR
 
         /// <summary>
         /// Returns if the current session is in the focused state.
-        /// See <see href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#session-states">XR_SESSION_STATE_FOCUSED.</see> for reference.
+        /// See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#session-states">XR_SESSION_STATE_FOCUSED.</a> for reference.
         /// </summary>
         public static bool IsSessionFocused => Internal_IsSessionFocused();
         /// <summary>
         ///  Returns the change of user presence, such as when the user has taken off or put on an XR headset.
         ///  If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True.
         ///  If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.
-        ///  See <see href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_user_presence">XR_EXT_user_presence.</see> for reference.
+        ///  See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_user_presence">XR_EXT_user_presence.</a> for reference.
         /// </summary>
         public static bool IsUserPresent => Internal_GetUserPresence();
 

@@ -44,7 +44,7 @@ A feature must also provide an `OpenXRFeature` attribute when running in the Edi
         /// The feature id string. This is used to give the feature a well known id for reference.
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.example.intercept";
-        
+
     }
 ```
 
@@ -85,8 +85,8 @@ protected virtual bool OnInstanceCreate(ulong xrInstance)
   if (!OpenXRRuntime.IsExtensionEnabled("XR_UNITY_mock_driver"))
   {
     Debug.LogWarning("XR_UNITY_mock_driver is not enabled, disabling Mock Driver.");
-    
-    // Return false here to indicate the system should disable your feature for this execution.  
+
+    // Return false here to indicate the system should disable your feature for this execution.
     // Note that if a feature is marked required, returning false will cause the OpenXRLoader to abort and try another loader.
     return false;
   }

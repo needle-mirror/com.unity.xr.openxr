@@ -17,7 +17,7 @@ using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 namespace UnityEngine.XR.OpenXR.Features.Interactions
 {
     /// <summary>
-    /// This <see cref="OpenXRInteractionFeature"/> enables the use of eye gaze interaction profiles in OpenXR. It enables <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">XR_EXT_eye_gaze_interaction</see> in the underlying runtime.
+    /// This <see cref="OpenXRInteractionFeature"/> enables the use of eye gaze interaction profiles in OpenXR. It enables <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">XR_EXT_eye_gaze_interaction</a> in the underlying runtime.
     /// This creates a new <see cref="InputDevice"/> with the <see cref="InputDeviceCharacteristics.EyeTracking"/> characteristic. This new device has both <see cref="EyeTrackingUsages.gazePosition"/> and <see cref="EyeTrackingUsages.gazeRotation"/> input features, as well as <see cref="CommonUsages.isTracked"/> and <see cref="CommonUsages.trackingState"/> usages to determine if the gaze is available.
     /// </summary>
 #if UNITY_EDITOR
@@ -39,7 +39,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string featureId = "com.unity.openxr.feature.input.eyetracking";
 
         /// <summary>
-        /// An Input System device based off the <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_eye_gaze_input">Eye Gaze Interaction Profile</see>. Enabled through <see cref="EyeGazeInteraction"/>.
+        /// An Input System device based off the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_eye_gaze_input">Eye Gaze Interaction Profile</a>. Enabled through <see cref="EyeGazeInteraction"/>.
         /// </summary>
         [Preserve, InputControlLayout(displayName = "Eye Gaze (OpenXR)", isGenericTypeOfDevice = true)]
         public class EyeGazeDevice : OpenXRDevice
@@ -73,7 +73,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "Eye Tracking OpenXR";
 
-        /// <summary>The OpenXR Extension string. This is used by OpenXR to check if this extension is available or enabled. See <see href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">eye gaze interaction extension</see> documentation for more information on this OpenXR extension.</summary>
+        /// <summary>The OpenXR Extension string. This is used by OpenXR to check if this extension is available or enabled. See <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction">eye gaze interaction extension</a> documentation for more information on this OpenXR extension.</summary>
         public const string extensionString = "XR_EXT_eye_gaze_interaction";
 
         private const string layoutName = "EyeGaze";
@@ -198,7 +198,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     }
 
     /// <summary>
-    /// Tags that can be used with <see cref="InputDevice.TryGetFeatureValue"/> to get eye tracking related input features.  See <seealso cref="CommonUsages"/> for additional usages.
+    /// Tags that can be used with <see cref="InputDevice.TryGetFeatureValue"/> to get eye tracking related input features.  See <see cref="CommonUsages"/> for additional usages.
     /// </summary>
     public static class EyeTrackingUsages
     {

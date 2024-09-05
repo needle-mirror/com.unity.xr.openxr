@@ -112,7 +112,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         /// <summary>
         /// The OpenXR Extension string. This is used by OpenXR to check if this extension is available or enabled.
-        /// /// </summary>
+        /// </summary>
         public const string extensionString = "XR_EXT_hand_interaction";
 
 #if UNITY_EDITOR

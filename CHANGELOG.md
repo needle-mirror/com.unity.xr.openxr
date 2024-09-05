@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+## [1.12.1] - 2024-09-05
+
+* Fixed rendering bug when rendering viewport scale < 1. 
+* Fixed issue where the Editor would hang when renaming and then viewing OpenXR Settings.
+
 ## [1.12.0] - 2024-08-01
 
 ### Added
@@ -34,8 +39,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added support for using Local Floor Reference Space in the OpenXR runtime. Useful in applications that require the user to be seated or in a standing fixed position.
 * Added PreInit flags to allow users to disable the main frame buffer and use offscreen swapchain when using Vulkan on Android in the OpenXR settings.
 * Added functional DX12 mock runtime support to the OpenXR package.
-* Added `RegisterStatsDescriptor` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to register a new statistic that can be feed into and queried at runtime. This method is not thread safe. 
-* Added `SetStatAsFloat` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to feed a float value into a specific statistic that was previously registered using the `RegisterStatsDescriptor`. This method is thread safe. 
+* Added `RegisterStatsDescriptor` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to register a new statistic that can be feed into and queried at runtime. This method is not thread safe.
+* Added `SetStatAsFloat` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to feed a float value into a specific statistic that was previously registered using the `RegisterStatsDescriptor`. This method is thread safe.
 * Added `SetStatAsUInt` method to the `OpenXRFeature` abstract class, which lets your OpenXR feature to feed an unsigned integer value into a specific statistic that was previously registered using the `RegisterStatsDescriptor`. This method is thread safe.
 * Added the `OpenXRSettings.RefreshRecenterSpace` static method, which lets you regenerate the internal XR space used for recentering, without the need to wait until a recenter event is received by the OpenXR SDK. Note that this method does not perform a recenter event in any way, as this can only be done by the device runtime.
 * Added Pre-pass Foveated Rendering for both d3d12 and Vulkan. This feature utilizes Fragment Density Mapping on Quest Devices and Fragment Shading Rate on PC to optimize rendering performance. Refer to [Foveated Rendering](xref:openxr-foveated-rendering) for more information.
@@ -117,7 +122,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added functionality in `OpenXRFeatureBuildHooks` exposing the BootConfig for reading/writing.
 * Added `Force Remove Internet Permission` setting to the Meta Quest Feature settings, allowing to remove Internet permissions added automatically to the application manifest.
 * Added class HPReverbG2ControllerProfile.ReverbG2Controller and a new interaction profile to support the HP Reverb G2 controllers.
-* Added Hand Interaction Profile and added PalmPose and dpad EXT implementations. 
+* Added Hand Interaction Profile and added PalmPose and dpad EXT implementations.
 
 ### Changed
 * Modified `ModifyAndroidManifestMeta` class to provide required Android manifest entries using a new internal XR system, instead of manually modifying the manifest file.
@@ -284,7 +289,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Ensured a deterministic order of features within the OpenXR Settings
 
 ### Changed
-* Updated OpenXR Loader to 1.0.17 
+* Updated OpenXR Loader to 1.0.17
 * Changed `feature set` text to `feature group` in the top level XR-Management list
 
 ### Fixed
@@ -328,8 +333,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.1] - 2021-04-06
 ### Added
 * Oculus controller profile now exposes both grip and aim poses.
-* Added support for `XR_VARJO_QUAD_VIEWS` extension 
-* Added `XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT` and `XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT` bits to the composition layer flags 
+* Added support for `XR_VARJO_QUAD_VIEWS` extension
+* Added `XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT` and `XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT` bits to the composition layer flags
 * Added `XrSecondaryViewConfigurationSwapchainCreateInfoMSFT` to to `XrSwapchainCreateInfo` when using a secondary view
 * MockRuntime First Person Observer View support
 * MockRuntime input support

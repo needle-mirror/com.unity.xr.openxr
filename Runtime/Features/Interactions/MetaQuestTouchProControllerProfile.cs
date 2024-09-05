@@ -405,6 +405,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "Meta Quest Pro Touch Controller OpenXR";
 
+        /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)
         {
             // Requires the pro controller extension
