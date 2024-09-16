@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using UnityEditor.PackageManager;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using Microsoft.Win32;
 
@@ -161,6 +163,55 @@ namespace UnityEditor.XR.OpenXR
             }
         }
 
+        internal class MetaXRSimDetector : RuntimeDetector
+        {
+            const string PackageName = "com.meta.xr.simulator";
+            string runtimePath = string.Empty;
+            SearchRequest searchRequest = null;
+
+            public override string jsonPath => runtimePath;
+
+            public MetaXRSimDetector()
+                : base("Meta XR Simulator")
+            {
+                SubmitPackageRequest();
+            }
+
+            void SubmitPackageRequest()
+            {
+                searchRequest = Client.Search(PackageName);
+                EditorApplication.update += OnEditorUpdate;
+            }
+
+            void OnEditorUpdate()
+            {
+                switch (searchRequest.Status)
+                {
+                    case StatusCode.Failure:
+                    {
+                        EditorApplication.update -= OnEditorUpdate;
+                        return;
+                    }
+
+                    case StatusCode.InProgress:
+                    {
+                        return;
+                    }
+                }
+
+                EditorApplication.update -= OnEditorUpdate;
+
+                foreach (var packageInfo in searchRequest.Result)
+                {
+                    if (packageInfo.name == PackageName)
+                    {
+                        runtimePath = Path.Combine(Path.GetFullPath(packageInfo.assetPath), @"MetaXRSimulator/meta_openxr_simulator.json");
+                        break;
+                    }
+                }
+            }
+        }
+
         internal class DiscoveredDetector : RuntimeDetector
         {
             public DiscoveredDetector(string _name, string jsonPath)
@@ -238,12 +289,14 @@ namespace UnityEditor.XR.OpenXR
             WindowsMRDetector windowsMRDetector = new WindowsMRDetector();
             SteamVRDetector steamVRDetector = new SteamVRDetector();
             OculusDetector oculusDetector = new OculusDetector();
+            MetaXRSimDetector metaXRSimDetector = new MetaXRSimDetector();
             List<RuntimeDetector> runtimeList = new List<RuntimeDetector>(5)
             {
                 new SystemDefault(),
                 windowsMRDetector,
                 steamVRDetector,
-                oculusDetector
+                oculusDetector,
+                metaXRSimDetector
             };
 
             foreach (var pathValuePair in runtimePathToValue)

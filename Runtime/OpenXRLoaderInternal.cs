@@ -50,5 +50,9 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "unity_ext_RequestEnableExtensionString", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
         internal static extern bool Internal_RequestEnableExtensionString(string extensionString);
+
+        [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionEnabled")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool Internal_IsExtensionEnabled(string extensionName);
     }
 }

@@ -80,6 +80,15 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 },
                 new ManifestElement()
                 {
+                    ElementPath = new List<string> { "manifest", "uses-feature" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "oculus.software.eye_tracking" },
+                        { "required", "true" }
+                    }
+                },
+                new ManifestElement()
+                {
                     ElementPath = new List<string> { "manifest", "application", "meta-data" },
                     Attributes = new Dictionary<string, string>
                     {
@@ -102,6 +111,14 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                     Attributes = new Dictionary<string, string>
                     {
                         { "name", "com.oculus.intent.category.VR" }
+                    }
+                },
+                new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-permission" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.permission.EYE_TRACKING" }
                     }
                 }
             };

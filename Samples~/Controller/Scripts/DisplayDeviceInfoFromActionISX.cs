@@ -48,6 +48,9 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
                             m_TargetText.text += $"{usg},";
                         }
                     }
+
+                    if (m_TargetText.text.Length > 30)
+                        m_TargetText.text = m_TargetText.text.Substring(0, 30);
                 }
                 return;
             }

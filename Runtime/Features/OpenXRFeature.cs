@@ -727,6 +727,21 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <returns>XrAction handle bound to the given <see cref="UnityEngine.InputSystem.InputAction"/> or 0 if there is no bound XrAction</returns>
         protected ulong GetAction(InputAction inputAction) => OpenXRInput.GetActionHandle(inputAction);
 
+        /// <summary>
+        /// Returns XrAction handle bound to the given device and usage.
+        /// </summary>
+        /// <param name="device">Device to retrieve XrAction handles for</param>
+        /// <param name="usage">Usage to retrieve XrAction handles for</param>
+        /// <returns>XrAction handle bound to the given device and usage, or 0 if there is no bound XrAction</returns>
+        protected ulong GetAction(InputDevice device, InputFeatureUsage usage) => OpenXRInput.GetActionHandle(device, usage);
+
+        /// <summary>
+        /// Returns XrAction handle bound to the given device and usage.
+        /// </summary>
+        /// <param name="device">Device to retrieve XrAction handles for</param>
+        /// <param name="usageName">Usage name to retrieve XrAction handles for</param>
+        /// <returns>XrAction handle bound to the given device and usage, or 0 if there is no bound XrAction</returns>
+        protected ulong GetAction(InputDevice device, string usageName) => OpenXRInput.GetActionHandle(device, usageName);
 
         /// <summary>
         /// Flags that control various options and behaviors on registered stats.

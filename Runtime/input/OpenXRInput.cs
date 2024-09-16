@@ -9,8 +9,11 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.OpenXR.Features;
-using UnityEditor;
 using UnityEngine.XR.OpenXR.Features.Interactions;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif // UNITY_EDITOR
 
 namespace UnityEngine.XR.OpenXR.Input
 {
@@ -116,7 +119,7 @@ namespace UnityEngine.XR.OpenXR.Input
             ["pointerrotation"] = s_pointerActionName
         };
 
-#if UNITY_EDITOR
+#if ENABLE_INPUT_SYSTEM && UNITY_EDITOR
         [InitializeOnLoadMethod]
         private static void RegisterFeatureLayouts()
         {
@@ -139,6 +142,7 @@ namespace UnityEngine.XR.OpenXR.Input
 
         internal static void RegisterLayouts()
         {
+#if ENABLE_INPUT_SYSTEM
             InputSystem.InputSystem.RegisterLayout<HapticControl>("Haptic");
 #if USE_INPUT_SYSTEM_POSE_CONTROL
 #if UNITY_FORCE_INPUTSYSTEM_XR_OFF
@@ -154,6 +158,7 @@ namespace UnityEngine.XR.OpenXR.Input
                 .WithManufacturer(@"OpenXR"));
 
             OpenXRInteractionFeature.RegisterLayouts();
+#endif // ENABLE_INPUT_SYSTEM
         }
 
         /// <summary>
@@ -370,6 +375,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="control">The input control</param>
         /// <returns>The name of the action handle.</returns>
+#if ENABLE_INPUT_SYSTEM
         private static string GetActionHandleName(InputControl control)
         {
             // Extract the name of the action from the control path.
@@ -388,6 +394,7 @@ namespace UnityEngine.XR.OpenXR.Input
 
             return controlName;
         }
+#endif // ENABLE_INPUT_SYSTEM
 
         /// <summary>
         /// Send a haptic impulse using an action reference
@@ -430,6 +437,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="inputDevice">Optional device to limit haptic impulse to</param>
         public static void SendHapticImpulse(InputAction action, float amplitude, float frequency, float duration, InputSystem.InputDevice inputDevice = null)
         {
+#if ENABLE_INPUT_SYSTEM
             if (action == null)
                 return;
 
@@ -441,6 +449,7 @@ namespace UnityEngine.XR.OpenXR.Input
             duration = Mathf.Max(duration, 0);
 
             Internal_SendHapticImpulse(GetDeviceId(inputDevice), actionHandle, amplitude, frequency, duration);
+#endif // ENABLE_INPUT_SYSTEM
         }
 
         /// <summary>
@@ -450,10 +459,39 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="inputDevice">Optional device filter for actions bound to multiple devices.</param>
         public static void StopHaptics(InputActionReference actionRef, InputSystem.InputDevice inputDevice = null)
         {
+#if ENABLE_INPUT_SYSTEM
             if (actionRef == null)
                 return;
 
             StopHaptics(actionRef.action, inputDevice);
+#endif // ENABLE_INPUT_SYSTEM
+        }
+
+        /// <summary>
+        /// Send a haptic impulse using the given device
+        /// </summary>
+        /// <param name="device">Device to send haptic impulse</param>
+        /// <param name="amplitude">Amplitude of the impulse [0-1]</param>
+        /// <param name="frequency">Frequency of the impulse in hertz (Hz). (Typical frequency values are between 0 and 300Hz) (0 = default).  Note that not all runtimes support frequency.</param>
+        /// <param name="duration">Duration of the impulse [0-] in seconds</param>
+        public static void SendHapticImpulse(XR.InputDevice device, float amplitude, float frequency, float duration)
+        {
+            if (!device.isValid)
+                return;
+
+            Internal_SendHapticImpulseNoISX(GetDeviceId(device), amplitude, frequency, duration);
+        }
+
+        /// <summary>
+        /// Stop any haptics playing for the given device.
+        /// </summary>
+        /// <param name="device">Device to stop haptics on.</param>
+        public static void StopHapticImpulse(XR.InputDevice device)
+        {
+            if (!device.isValid)
+                return;
+
+            Internal_StopHapticsNoISX(GetDeviceId(device));
         }
 
         /// <summary>
@@ -463,6 +501,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <param name="inputDevice">Optional device filter for actions bound to multiple defices</param>
         public static void StopHaptics(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
         {
+#if ENABLE_INPUT_SYSTEM
             if (inputAction == null)
                 return;
 
@@ -471,6 +510,7 @@ namespace UnityEngine.XR.OpenXR.Input
                 return;
 
             Internal_StopHaptics(GetDeviceId(inputDevice), actionHandle);
+#endif // ENABLE_INPUT_SYSTEM
         }
 
         /// <summary>
@@ -491,7 +531,7 @@ namespace UnityEngine.XR.OpenXR.Input
         )
         {
             name = "";
-
+#if ENABLE_INPUT_SYSTEM
             if (index < 0)
                 return false;
 
@@ -500,6 +540,9 @@ namespace UnityEngine.XR.OpenXR.Input
                 return false;
 
             return Internal_TryGetInputSourceName(GetDeviceId(inputDevice), actionHandle, (uint)index, (uint)flags, out name);
+#else
+            return false;
+#endif
         }
 
         /// <summary>
@@ -509,6 +552,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <returns>True if the given action has any bindings that are active</returns>
         public static bool GetActionIsActive(InputAction inputAction)
         {
+#if ENABLE_INPUT_SYSTEM
             if (inputAction != null &&
                 inputAction.controls.Count > 0 &&
                 inputAction.controls[0].device != null)
@@ -524,7 +568,32 @@ namespace UnityEngine.XR.OpenXR.Input
                         return true;
                 }
             }
+#endif // ENABLE_INPUT_SYSTEM
             return false;
+        }
+
+        /// <summary>
+        /// Return the active state of the given action
+        /// </summary>
+        /// <param name="device">InputDevice to get active state for</param>
+        /// <param name="usage">InputFeatureUsage to get active state for</param>
+        /// <returns>True if the given action has any bindings that are active</returns>
+        public static bool GetActionIsActive(XR.InputDevice device, InputFeatureUsage usage)
+            => GetActionIsActive(device, usage.name);
+
+        /// <summary>
+        /// Return the active state of the given action
+        /// </summary>
+        /// <param name="device">InputDevice to get active state for</param>
+        /// <param name="usageName">InputFeatureUsage name to get active state for</param>
+        /// <returns>True if the given action has any bindings that are active</returns>
+        public static bool GetActionIsActive(XR.InputDevice device, string usageName)
+        {
+            var deviceId = GetDeviceId(device);
+            if (deviceId == 0)
+                return false;
+
+            return Internal_GetActionIsActiveNoISX(deviceId, usageName);
         }
 
         /// <summary>
@@ -535,6 +604,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <returns>True if the given action is a valid pose action can be late latched</returns>
         public static bool TrySetControllerLateLatchAction(InputAction inputAction)
         {
+#if ENABLE_INPUT_SYSTEM
             //only allow one binding per action for LateLatching
             if (inputAction == null || inputAction.controls.Count != 1)
                 return false;
@@ -546,6 +616,43 @@ namespace UnityEngine.XR.OpenXR.Input
             var actionHandle = GetActionHandle(inputAction);
             if (actionHandle == 0)
                 return false;
+            return Internal_TrySetControllerLateLatchAction(deviceId, actionHandle);
+#else
+            return false;
+#endif
+        }
+
+        /// <summary>
+        /// Set InputAction to be used for controller late latching (Vulkan Only
+        /// Feature). Only support one input action for each left and right
+        /// controller. See Controller XRInput Samples MarkLateLatchNodeXRInput.cs
+        /// for example code and usages.
+        /// </summary>
+        /// <param name="device">Source device</param>
+        /// <param name="usage">Source usage - attached to a Pose Type</param>
+        /// <returns>True if the given action is a valid pose action can be late latched</returns>
+        public static bool TrySetControllerLateLatchAction(XR.InputDevice device, InputFeatureUsage usage)
+            => TrySetControllerLateLatchAction(device, usage.name);
+
+        /// <summary>
+        /// Set InputAction to be used for controller late latching (Vulkan Only
+        /// Feature). Only support one input action for each left and right
+        /// controller. See Controller XRInput Samples MarkLateLatchNodeXRInput.cs
+        /// for example code and usages.
+        /// </summary>
+        /// <param name="device">Source device</param>
+        /// <param name="usageName">Source usage name - attached to a Pose Type</param>
+        /// <returns>True if the given action is a valid pose action can be late latched</returns>
+        public static bool TrySetControllerLateLatchAction(XR.InputDevice device, string usageName)
+        {
+            var deviceId = GetDeviceId(device);
+            if (deviceId == 0)
+                return false;
+
+            var actionHandle = GetActionHandle(device, usageName);
+            if (actionHandle == 0)
+                return false;
+
             return Internal_TrySetControllerLateLatchAction(deviceId, actionHandle);
         }
 
@@ -566,6 +673,30 @@ namespace UnityEngine.XR.OpenXR.Input
         }
 
         /// <summary>
+        /// Returns the OpenXR action handle for the given input device and usage.
+        /// </summary>
+        /// <param name="device">Device to find action handle for.</param>
+        /// <param name="usage">Usage to find action handle for.</param>
+        /// <returns>OpenXR handle that is associated with the given device and usage, or 0 if not found</returns>
+        public static ulong GetActionHandle(XR.InputDevice device, InputFeatureUsage usage)
+            => GetActionHandle(device, usage.name);
+
+        /// <summary>
+        /// Returns the OpenXR action handle for the given input device and usage name.
+        /// </summary>
+        /// <param name="device">Device to find action handle for.</param>
+        /// <param name="usageName">Usage name to find action handle for.</param>
+        /// <returns>OpenXR handle that is associated with the given device and usage, or 0 if not found</returns>
+        public static ulong GetActionHandle(XR.InputDevice device, string usageName)
+        {
+            var deviceId = GetDeviceId(device);
+            if (deviceId == 0)
+                return 0;
+
+            return Internal_GetActionIdNoISX(deviceId, usageName);
+        }
+
+        /// <summary>
         /// Returns the OpenXR action handle for the given input action
         /// </summary>
         /// <param name="inputAction">Source InputAction</param>
@@ -573,6 +704,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// <returns>OpenXR handle that is associated with the given InputAction or 0 if not found</returns>
         public static ulong GetActionHandle(InputAction inputAction, InputSystem.InputDevice inputDevice = null)
         {
+#if ENABLE_INPUT_SYSTEM
             if (inputAction == null || inputAction.controls.Count == 0)
                 return 0;
 
@@ -593,6 +725,7 @@ namespace UnityEngine.XR.OpenXR.Input
                 if (xrAction != 0)
                     return xrAction;
             }
+#endif // ENABLE_INPUT_SYSTEM
 
             return 0;
         }
@@ -602,6 +735,7 @@ namespace UnityEngine.XR.OpenXR.Input
         /// </summary>
         /// <param name="inputDevice">Input device to return identifier for</param>
         /// <returns>Identifier the OpenXR plugin uses for this device.  If a device could not be found an invalid device id of 0 will be returned</returns>
+#if ENABLE_INPUT_SYSTEM
         private static uint GetDeviceId(InputSystem.InputDevice inputDevice)
         {
             if (inputDevice == null)
@@ -611,6 +745,10 @@ namespace UnityEngine.XR.OpenXR.Input
             var result = inputDevice.ExecuteCommand(ref command);
             return result == 0 ? 0 : command.deviceId;
         }
+#endif // ENABLE_INPUT_SYSTEM
+
+        static uint GetDeviceId(XR.InputDevice inputDevice)
+            => Internal_GetDeviceId(inputDevice.characteristics, inputDevice.name);
 
         /// <summary>
         /// Convert a user path into a device name
@@ -644,11 +782,20 @@ namespace UnityEngine.XR.OpenXR.Input
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_SendHapticImpulse", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Internal_SendHapticImpulse(uint deviceId, ulong actionId, float amplitude, float frequency, float duration);
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_SendHapticImpulseNoISX", CallingConvention = CallingConvention.Cdecl)]
+        static extern void Internal_SendHapticImpulseNoISX(uint deviceId, float amplitude, float frequency, float duration);
+
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_StopHaptics", CallingConvention = CallingConvention.Cdecl)]
         private static extern void Internal_StopHaptics(uint deviceId, ulong actionId);
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_StopHapticsNoISX", CallingConvention = CallingConvention.Cdecl)]
+        static extern void Internal_StopHapticsNoISX(uint deviceId);
+
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIdByControl")]
         private static extern ulong Internal_GetActionId(uint deviceId, string name);
+
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIdByUsageName", CharSet = CharSet.Ansi)]
+        static extern ulong Internal_GetActionIdNoISX(uint deviceId, string usageName);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_TryGetInputSourceName", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
@@ -674,6 +821,10 @@ namespace UnityEngine.XR.OpenXR.Input
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetActionIsActive(uint deviceId, string name);
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetActionIsActiveNoISX", CharSet = CharSet.Ansi)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        static extern bool Internal_GetActionIsActiveNoISX(uint deviceId, string name);
+
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_RegisterDeviceDefinition", CharSet = CharSet.Ansi)]
         private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, [MarshalAs(UnmanagedType.I1)] bool isAdditive, uint characteristics, string name, string manufacturer, string serialNumber);
 
@@ -690,5 +841,8 @@ namespace UnityEngine.XR.OpenXR.Input
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_AttachActionSets", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
         internal static extern bool Internal_AttachActionSets();
+
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetDeviceId", CharSet = CharSet.Ansi)]
+        static extern uint Internal_GetDeviceId(InputDeviceCharacteristics characteristics, string name);
     }
 }

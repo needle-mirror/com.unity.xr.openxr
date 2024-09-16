@@ -117,6 +117,7 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
+#if ENABLE_INPUT_SYSTEM
             new OpenXRFeature.ValidationRule()
             {
                 message = "Lock Input to Game View in order for tracked pose driver to work in editor playmode.",
@@ -140,33 +141,7 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
-            new OpenXRFeature.ValidationRule()
-            {
-                message = "Active Input Handling must be set to Input System Package (New) for OpenXR.",
-                checkPredicate = () =>
-                {
-                    // There is no public way to check if the input handling backend is set correctly .. so resorting to non-public way for now.
-                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
-                    var newInputEnabledProp = ps?.FindProperty("activeInputHandler");
-                    return newInputEnabledProp?.intValue != 0;
-                },
-                fixIt = () =>
-                {
-                    var ps = (SerializedObject)typeof(PlayerSettings).GetMethod("GetSerializedObject", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
-                    if (ps == null)
-                        return;
-
-                    ps.Update();
-                    var newInputEnabledProp = ps.FindProperty("activeInputHandler");
-                    if (newInputEnabledProp != null)
-                        newInputEnabledProp.intValue = 1;
-                    ps.ApplyModifiedProperties();
-
-                    RequireRestart();
-                },
-                error = true,
-                errorEnteringPlaymode = true,
-            },
+#endif // ENABLE_INPUT_SYSTEM
             new OpenXRFeature.ValidationRule()
             {
                 message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",

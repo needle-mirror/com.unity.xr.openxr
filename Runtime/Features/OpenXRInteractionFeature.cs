@@ -288,6 +288,7 @@ namespace UnityEngine.XR.OpenXR.Features
 
         internal static void RegisterLayouts()
         {
+#if ENABLE_INPUT_SYSTEM
 #if UNITY_EDITOR
             var packageSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             if (null == packageSettings)
@@ -326,6 +327,7 @@ namespace UnityEngine.XR.OpenXR.Features
                 if (feature.enabled)
                     ((OpenXRInteractionFeature)feature).RegisterDeviceLayout();
 #endif //#if UNITY_EDITOR
+#endif //#if ENABLE_INPUT_SYSTEM
         }
 
 #if UNITY_EDITOR && INPUT_SYSTEM_BINDING_VALIDATOR

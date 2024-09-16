@@ -446,7 +446,7 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
     {
         "HP Reverb G2 Controller",
         "/interaction_profiles/hp/mixed_reality_controller",
-        MR_CREATE_HP_REVERB_G2_CONTROLLER,
+        0,
         {"/user/hand/left",
             "/user/hand/right"},
         {

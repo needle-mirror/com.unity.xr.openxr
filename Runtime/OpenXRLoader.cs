@@ -12,11 +12,11 @@ using UnityEngine.Scripting;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.Features;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.OpenXR;
-
 #endif
 
 [assembly: Preserve]
@@ -58,6 +58,24 @@ namespace UnityEngine.XR.OpenXR
 #endif
     public partial class OpenXRLoaderBase : XRLoaderHelper
     {
+        private class FeatureLoggingInfo
+        {
+            public FeatureLoggingInfo(string nameUi, string version, string company, string extensionStrings)
+            {
+                m_nameUi = nameUi;
+                m_version = version;
+                m_company = company;
+                m_openxrExtensionStrings = extensionStrings;
+            }
+
+            public string m_nameUi;
+            public string m_version;
+            public string m_company;
+            public string m_openxrExtensionStrings;
+        }
+
+        private List<FeatureLoggingInfo> featureLoggingInfo;
+
         const double k_IdlePollingWaitTimeInSeconds = 0.1;
         private static List<XRDisplaySubsystemDescriptor> s_DisplaySubsystemDescriptors =
             new List<XRDisplaySubsystemDescriptor>();
@@ -230,7 +248,6 @@ namespace UnityEngine.XR.OpenXR
             if (!Internal_InitializeSession())
                 return false;
 
-            SetApplicationInfo();
             RequestOpenXRFeatures();
             RegisterOpenXRCallbacks();
 
@@ -243,6 +260,7 @@ namespace UnityEngine.XR.OpenXR
             if (OpenXRFeature.requiredFeatureFailed)
                 return false;
 
+            SetApplicationInfo();
             OpenXRAnalytics.SendInitializeEvent(true);
 
             OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemCreate);
@@ -542,31 +560,56 @@ namespace UnityEngine.XR.OpenXR
             if (instance == null || instance.features == null)
                 return;
 
-            StringBuilder requestedLog = new StringBuilder("");
-            StringBuilder failedLog = new StringBuilder("");
-            uint count = 0;
-            uint failedCount = 0;
+            featureLoggingInfo = new List<FeatureLoggingInfo>(instance.featureCount);
+
             foreach (var feature in instance.features)
             {
                 if (feature == null || !feature.enabled)
                     continue;
 
-                ++count;
-
-                requestedLog.Append($"  {feature.nameUi}: Version={feature.version}, Company=\"{feature.company}\"");
+                // Store feature logging info to be logged later.
+                // We need to log this after we've determined the version of the OpenXR Runtime
+                featureLoggingInfo.Add(new FeatureLoggingInfo(feature.nameUi, feature.version, feature.company, feature.openxrExtensionStrings));
 
                 if (!string.IsNullOrEmpty(feature.openxrExtensionStrings))
                 {
-                    requestedLog.Append($", Extensions=\"{feature.openxrExtensionStrings}\"");
-
                     // Check to see if any of the required extensions are not supported by the runtime
                     foreach (var extensionString in feature.openxrExtensionStrings.Split(' '))
                     {
+                        // Request each extension.
                         if (string.IsNullOrWhiteSpace(extensionString)) continue;
-                        if (!Internal_RequestEnableExtensionString(extensionString))
+                        Internal_RequestEnableExtensionString(extensionString);
+                    }
+                }
+            }
+        }
+
+        private void LogRequestedOpenXRFeatures()
+        {
+            var instance = OpenXRSettings.Instance;
+            if (instance == null || instance.features == null)
+                return;
+
+            StringBuilder requestedLog = new StringBuilder("");
+            StringBuilder failedLog = new StringBuilder("");
+            uint count = 0;
+            uint failedCount = 0;
+            foreach (var feature in featureLoggingInfo)
+            {
+                requestedLog.Append($"  {feature.m_nameUi}: Version={feature.m_version}, Company=\"{feature.m_company}\"");
+
+                if (!string.IsNullOrEmpty(feature.m_openxrExtensionStrings))
+                {
+                    requestedLog.Append($", Extensions=\"{feature.m_openxrExtensionStrings}\"");
+
+                    // Check to see if any of the required extensions are not supported by the runtime
+                    foreach (var extensionString in feature.m_openxrExtensionStrings.Split(' '))
+                    {
+                        if (string.IsNullOrWhiteSpace(extensionString)) continue;
+                        if (!Internal_IsExtensionEnabled(extensionString))
                         {
                             ++failedCount;
-                            failedLog.Append($"  {extensionString}: Feature=\"{feature.nameUi}\": Version={feature.version}, Company=\"{feature.company}\"\n");
+                            failedLog.Append($"  {extensionString}: Feature=\"{feature.m_nameUi}\": Version={feature.m_version}, Company=\"{feature.m_company}\"\n");
                         }
                     }
                 }
@@ -609,6 +652,10 @@ namespace UnityEngine.XR.OpenXR
 
                 case OpenXRFeature.NativeEvent.XrReady:
                     loader.StartInternal();
+                    break;
+
+                case OpenXRFeature.NativeEvent.XrBeginSession:
+                    loader.LogRequestedOpenXRFeatures();
                     break;
 
                 case OpenXRFeature.NativeEvent.XrFocused:

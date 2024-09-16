@@ -32,6 +32,11 @@
             "name": "com.unity.xr.management",
             "expression": "4.4.0",
             "define": "XR_MGMT_4_4_0_OR_NEWER"
+        },
+        {
+            "name": "com.unity.xr.compositionlayers",
+            "expression": "0.5.0",
+            "define": "XR_COMPOSITION_LAYERS"
         }
     ],
     "noEngineReferences": false

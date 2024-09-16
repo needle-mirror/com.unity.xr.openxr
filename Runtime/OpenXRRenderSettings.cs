@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-
 using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR
 {
@@ -136,11 +137,34 @@ namespace UnityEngine.XR.OpenXR
             SRPFoveation = 1,
         }
 
+#if UNITY_ANDROID
+
+        private string[] m_eyeTrackingPermissionsToRequest = new string[]
+        {
+            "com.oculus.permission.EYE_TRACKING",
+            "android.permission.EYE_TRACKING",
+            "android.permission.EYE_TRACKING_FINE"
+        };
+#endif
+
         /// <summary>
         /// Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.
         /// </summary>
         [SerializeField]
         private DepthSubmissionMode m_depthSubmissionMode = DepthSubmissionMode.None;
+
+        static void PermissionGrantedCallback(string permissionName)
+        {
+#if UNITY_ANDROID
+            foreach (var permission in GetInstance(true).m_eyeTrackingPermissionsToRequest)
+            {
+                if (permissionName == permission)
+                {
+                    Internal_SetHasEyeTrackingPermissions(true);
+                }
+            }
+#endif
+        }
 
         /// <summary>
         /// Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.
@@ -194,7 +218,20 @@ namespace UnityEngine.XR.OpenXR
             );
             Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
             Internal_SetOptimizeBufferDiscards(m_optimizeBufferDiscards);
+
+#if UNITY_ANDROID // Only Android need specific permissions for eye tracking, for now
+            var foveatedRenderingFreature = GetFeature<FoveatedRenderingFeature>();
+            if (m_eyeTrackingPermissionsToRequest != null && m_eyeTrackingPermissionsToRequest.Length > 0
+                && (Internal_HasRequestedEyeTrackingPermissions()
+                    || (foveatedRenderingFreature != null && foveatedRenderingFreature.enabled)))
+            {
+                var permissionCallbacks = new PermissionCallbacks();
+                permissionCallbacks.PermissionGranted += PermissionGrantedCallback;
+                Permission.RequestUserPermissions(m_eyeTrackingPermissionsToRequest, permissionCallbacks);
+            }
+#endif
         }
+
 
         [SerializeField]
         private bool m_symmetricProjection = false;
@@ -274,6 +311,17 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "OculusFoveation_GetUsedApi")]
         internal static extern BackendFovationApi Internal_GetUsedFoveatedRenderingApi();
+
+        [DllImport(LibraryName, EntryPoint = "OculusFoveation_HasRequestedEyeTrackingPermissions")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool Internal_HasRequestedEyeTrackingPermissions();
+
+        [DllImport(LibraryName, EntryPoint = "OculusFoveation_GetHasEyeTrackingPermissions")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool Internal_GetHasEyeTrackingPermissions();
+
+        [DllImport(LibraryName, EntryPoint = "OculusFoveation_SetHasEyeTrackingPermissions")]
+        internal static extern void Internal_SetHasEyeTrackingPermissions([MarshalAs(UnmanagedType.I1)] bool value);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetColorSubmissionMode")]
         private static extern void Internal_SetColorSubmissionMode(

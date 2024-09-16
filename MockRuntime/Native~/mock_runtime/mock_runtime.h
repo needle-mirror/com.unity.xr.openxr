@@ -17,7 +17,6 @@ static const MockRuntimeCreateFlags MR_CREATE_FB_TOUCH_CONTROLLER_PRO = 0x000010
 static const MockRuntimeCreateFlags MR_CREATE_META_PERFORMANCE_METRICS_EXT = 0x00002000;
 static const MockRuntimeCreateFlags MR_CREATE_HP_REVERB_G2_CONTROLLER = 0x00004000;
 static const MockRuntimeCreateFlags MR_CREATE_HAND_INTERACTION_EXT = 0x00008000;
-static const MockRuntimeCreateFlags MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT = 0x00010000;
 static const MockRuntimeCreateFlags MR_CREATE_D3D12_GFX_EXT = 0x00020000;
 static const MockRuntimeCreateFlags MR_CREATE_PERFORMANCE_SETTINGS_EXT = 0x00040000;
 static const MockRuntimeCreateFlags MR_CREATE_USER_PRESENCE_EXT = 0x00080000;
@@ -70,7 +69,7 @@ public:
 
     bool IsLocalFloorSpaceEnabled() const
     {
-        return (createFlags & MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT) != 0;
+        return true;
     }
 
     XrResult GetNextEvent(XrEventDataBuffer* eventData);

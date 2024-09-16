@@ -1,0 +1,5 @@
+{
+    "displayName": "Controller XRInput",
+    "description": "Basic sample showing how to query OpenXR input with the XR Input APIs.",
+    "createSeparatePackage": false
+}

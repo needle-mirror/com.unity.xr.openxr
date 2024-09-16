@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.12.1",
+  "version": "1.13.0",
   "unity": "2021.3",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
@@ -23,6 +23,11 @@
       "path": "Samples~/Controller"
     },
     {
+      "displayName": "Controller XRInput",
+      "description": "Basic sample showing how to query OpenXR input with the XR Input APIs.",
+      "path": "Samples~/ControllerXRInput"
+    },
+    {
       "displayName": "Meshing Subsystem Feature",
       "description": "Shows a teapot mesh generated from native mesh subsystem with physics baked in background.",
       "path": "Samples~/MeshingFeature"
@@ -31,18 +36,23 @@
       "displayName": "Intercept Feature",
       "description": "Demonstrates how to intercept an OpenXR method.",
       "path": "Samples~/InterceptFeature"
+    },
+    {
+      "displayName": "Custom Composition Layer Feature",
+      "description": "Demonstrates how to add support for a custom composition layer type.",
+      "path": "Samples~/CustomCompositionLayerFeature"
     }
   ],
   "_upm": {
-    "changelog": "* Fixed rendering bug when rendering viewport scale < 1. \n* Fixed issue where the Editor would hang when renaming and then viewing OpenXR Settings."
+    "changelog": "### Added\n\n* Added Meta XR Simulator as runtime option for OpenXR. One can search for the `com.meta.xr.simulator` package to add the Open XR runtime to the dropdown list of available runtimes during Play Mode.\n* Added a `Quest 3S` option to `Target Devices` in the Meta Quest Support settings. This specifies the application's support for Quest 3S devices within the Android manifest.\n* Added `IUnityXRDisplay::CreateTexture` API to C# script so providers can access them for functionality.\n* Added APIs to provide an alternative to the Input System: `OpenXRFeature.GetAction`, `OpenXRInput.GetActionHandle`, `OpenXRInput.SendHapticImpulse`, `OpenXRInput.StopHapticImpulse`, `OpenXRInput.TrySetControllerLateLatchAction`, and `OpenXRInput.GetActionIsActive`.\n* Added a \"Controller XRInput\" sample to demonstrate how to access input data without the Input System.\n* Added experimental support for XR Composition Layers support. Install the Unity [Composition Layer (com.unity.xr.compositionlayers)](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest?subfolder=/changelog/CHANGELOG.html) package to use composition layers in an OpenXR project.\n* Added support for the `XR_KHR_maintenance1` extension. This low-level extension provides support for new capabilities promoted in the OpenXR 1.1 standard, which may be needed for backwards compatibility for using new extensions in OpenXR loaders using the version 1.0 of the standard. You need to request this extension if your project will make use of OpenXR 1.1 extenstions that need this extension and are backwards compatible with loaders based on the 1.0 version of the OpenXR standard. If your project targets only the OpenXR 1.1 version, you don't need to request this extension. To use the `XR_KHR_maintenance1` extension, you must request it as part of your own [OpenXR feature definition](xref:openxr-features). Refer to [XR_KHR_maintenance1](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_maintenance1) for more information on the extension.\n* Added OpenXR 1.1 Runtime support.\n\n### Changed\n\n* Added [Known Issue](xref:openxr-manual#known-issues) to documentation covering how OpenXR doesn't provide Acceleration or Angular Acceleration values for input devices, and these will always return 0.\n* Added a validation rule requiring Multi-view to be enabled in order to enable Symmetric Projection.\n* Implements the construction and maintenance of native composition layers in C# via our LayerProvider classes inheriting from OpenXRCustomLayerHandler.\n* Changed OpenXR loader version to 1.1.36.\n\n### Fixed\n\n* Symmetric Projection was being gated behind foveation extensions being enabled. This wasn't necessary and that dependency has been removed.\n* Fixed a bug that causes a user to need a validation rule to make OpenXR loader active.\n* Fixed `m_BlendMode` from being overwritten whenever the `DisplaySubsystem` restarts.\n* Fixed Metal API initialization. \n* Fixed Custom Composition Layer Feature not showing up in the OpenXR feature setting UI after importing into project.\n* Fixed a crash with composition layers in scene due to race condition."
   },
   "upmCi": {
-    "footprint": "cddb8f6358b0688a53f366522840d94f966e9b5f"
+    "footprint": "119e49d3aa1bb7596ffb26de7f7e1b5e2b560115"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.12/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.13/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "80d54b74e54bc9121b87503e8e4840bfbcdb50f7"
+    "revision": "e0d9b71899340c28c5c9c0833055cb4fae78fffb"
   }
 }

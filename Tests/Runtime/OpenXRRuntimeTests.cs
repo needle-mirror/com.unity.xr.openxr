@@ -474,6 +474,97 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(containsMockExt);
         }
 
+        /// <summary>
+        /// List of extensions to test against runtime loader version greater than 1.1
+        /// </summary>
+        protected static readonly (string extName, bool expected)[] s_ExtensionsEnableExamples1_1 =
+        {
+            ("XR_EXT_palm_pose", true), //not available for mockruntime, but promoted to core in 1.1 loader, so expect enabled as default.
+            ("XR_EXT_hp_mixed_reality_controller", true), //available for mockruntime, also promoted to core in 1.1 loader, so expect enabled as default.
+            ("XR_VARJO_quad_views", true), //available for mockruntime, also promoted to core in 1.1 loader, so expect enabled as default.
+            ("XR_EXT_local_floor", true), //not available for mockruntime, but promoted to core in 1.1 loader, so expect enabled as default.
+            ("XR_KHR_composition_layer_cylinder", false), // not available for mockruntime, so expect not enabled.
+            ("XR_EXT_eye_gaze_interaction", true), // available for mockruntime, so expect enabled.
+            ("XR_KHR_maintenance1", true), // not available for mockruntime, but promoted to core in 1.1 loader, so expect enabled as default.
+        };
+
+        [UnityTest]
+        public IEnumerator CheckExtensionEnabledRuntimeAPIVersion1_1([ValueSource(nameof(s_ExtensionsEnableExamples1_1))] (string extName, bool expected) extension)
+        {
+            AddExtension(extension.extName);
+
+            bool xrCreateInstanceCalled = false;
+            bool extensionEnabled = false;
+
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
+                {
+                    xrCreateInstanceCalled = true;
+                    extensionEnabled = OpenXRRuntime.IsExtensionEnabled(extension.extName);
+                }
+
+                return true;
+            };
+
+            base.InitializeAndStart();
+            yield return null;
+            Assert.IsTrue(xrCreateInstanceCalled);
+            Assert.IsTrue(extensionEnabled == extension.expected);
+        }
+
+        /// <summary>
+        /// List of extensions to test against runtime loader version 1.0
+        /// </summary>
+        protected static readonly (string extName, bool expected)[] s_ExtensionsEnableExamples1_0 =
+        {
+            ("XR_EXT_palm_pose", false), //not available for mockruntime, so expect not enabled.
+            ("XR_EXT_hp_mixed_reality_controller", true), //available for mockruntime, so expect enabled.
+            ("XR_VARJO_quad_views", true), //available for mockruntime, so expect enabled as default.
+            ("XR_EXT_local_floor", false), //not available for mockruntime, , so expect not enabled.
+            ("XR_KHR_composition_layer_cylinder", false), // not available for mockruntime, so expect not enabled.
+            ("XR_EXT_eye_gaze_interaction", true), // available for mockruntime, so expect enabled.
+            ("XR_KHR_maintenance1", false), // not available for mockruntime, so expect not enabled.
+        };
+
+        [UnityTest]
+        public IEnumerator CheckExtensionEnabledRuntimeAPIVersion1_0([ValueSource(nameof(s_ExtensionsEnableExamples1_0))] (string extName, bool expected) extension)
+        {
+            AddExtension(extension.extName);
+
+            bool xrCreateInstanceCalled = false;
+            bool extensionEnabled = false;
+            int attemptCount = 0;
+            MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
+            {
+                attemptCount += 1;
+                if (attemptCount <= 1)
+                {
+                    return XrResult.ApiVersionUnsupported;
+                }
+                else
+                {
+                    return XrResult.Success;
+                }
+            });
+
+            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            {
+                if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
+                {
+                    xrCreateInstanceCalled = true;
+                    extensionEnabled = OpenXRRuntime.IsExtensionEnabled(extension.extName);
+                }
+
+                return true;
+            };
+
+            base.InitializeAndStart();
+            yield return null;
+            Assert.IsTrue(xrCreateInstanceCalled);
+            Assert.IsTrue(extensionEnabled == extension.expected);
+        }
+
         [UnityTest]
         public IEnumerator SimulatePause()
         {
@@ -863,6 +954,21 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             // First, make sure that LocalFloor is being used in place of Floor (so that the LocalFloor code is triggered)
             OpenXRSettings.SetAllowRecentering(true);
+
+            // This is a Runtime 1.0 only test - It depends on XR_EXT_local_floor not being active, which only happens for Runtime 1.0
+            int attemptCount = 0;
+            MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
+            {
+                attemptCount += 1;
+                if (attemptCount <= 1)
+                {
+                    return XrResult.ApiVersionUnsupported;
+                }
+                else
+                {
+                    return XrResult.Success;
+                }
+            });
 
             base.InitializeAndStart();
 

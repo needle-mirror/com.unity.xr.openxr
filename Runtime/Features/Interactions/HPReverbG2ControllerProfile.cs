@@ -247,6 +247,16 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
         private const string kDeviceLocalizedName = "HP Reverb G2 Controller OpenXR";
 
+        /// <inheritdoc/>
+        protected internal override bool OnInstanceCreate(ulong instance)
+        {
+            // Requires extension to enable
+            if (!OpenXRRuntime.IsExtensionEnabled("XR_EXT_hp_mixed_reality_controller"))
+                return false;
+
+            return base.OnInstanceCreate(instance);
+        }
+
         /// <summary>
         /// Registers the <see cref="ReverbG2Controller"/> layout with the Input System.
         /// </summary>

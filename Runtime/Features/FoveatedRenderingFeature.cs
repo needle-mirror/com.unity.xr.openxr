@@ -16,7 +16,7 @@ namespace UnityEngine.XR.OpenXR.Features
         Company = "Unity",
         Desc = "Add foveated rendering.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/foveatedrendering.html",
-        OpenxrExtensionStrings = "XR_UNITY_foveation XR_FB_foveation XR_FB_foveation_configuration XR_FB_swapchain_update_state XR_FB_foveation_vulkan",
+        OpenxrExtensionStrings = "XR_UNITY_foveation XR_FB_foveation XR_FB_foveation_configuration XR_FB_swapchain_update_state XR_FB_foveation_vulkan XR_META_foveation_eye_tracked XR_META_vulkan_swapchain_create_info",
         Version = "1",
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Feature,
         FeatureId = featureId)]

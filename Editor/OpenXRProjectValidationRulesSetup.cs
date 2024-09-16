@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -5,14 +6,15 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
 using UnityEditor.PackageManager;
-using UnityEditor.XR.OpenXR.Features;
-using UnityEngine;
 using UnityEngine.XR.OpenXR;
+#if XR_COMPOSITION_LAYERS
+using UnityEngine.XR.OpenXR.Features.CompositionLayers;
+#endif
 using UnityEngine.XR.OpenXR.Features;
-using System;
 using Unity.XR.CoreUtils.Editor;
 using UnityEditor.XR.Management;
 using UnityEngine.XR.Management;
+
 
 [assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 namespace UnityEditor.XR.OpenXR
@@ -109,18 +111,11 @@ namespace UnityEditor.XR.OpenXR
         {
             foreach (var buildTargetGroup in s_BuildTargetGroups)
             {
-                var coreIssues = new List<BuildValidationRule>();
+                bool isOpenXRSupportedPlatform = buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.WSA;
+                if (!isOpenXRSupportedPlatform)
+                    continue;
 
-                // Use the default validation rule for the platforms that support OpenXR if they don't currently have the OpenXRLoader as an active loader.
-                if (buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.WSA)
-                {
-                    if (!IsOpenXRLoaderActiveForBuildTarget(buildTargetGroup))
-                    {
-                        var defaultRule = GetDefaultBuildValidationRule(buildTargetGroup);
-                        coreIssues.Add(defaultRule);
-                    }
-                }
-
+                var coreIssues = new List<BuildValidationRule>() { GetDefaultBuildValidationRule(buildTargetGroup) };
                 var issues = new List<OpenXRFeature.ValidationRule>();
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
@@ -128,6 +123,10 @@ namespace UnityEditor.XR.OpenXR
                 {
                     coreIssues.Add(ConvertRuleToBuildValidationRule(issue, buildTargetGroup));
                 }
+
+#if XR_COMPOSITION_LAYERS
+                coreIssues.Add(GetCompositionLayersValidationRule(buildTargetGroup));
+#endif
 
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);
             }
@@ -137,10 +136,16 @@ namespace UnityEditor.XR.OpenXR
         {
             var defaultRule = new BuildValidationRule()
             {
-                Message = "Select OpenXR as the active loader for this platform.",
-                CheckPredicate = () => IsOpenXRLoaderActiveForBuildTarget(targetGroup),
+                // This will hide the rules given a condition so that when you click "Show all" it doesn't show up as passed
+                IsRuleEnabled = () =>
+                {
+                    // Only show this rule if there are enabled OpenXR features that aren't interaction profiles
+                    return ExistsOpenXRFeaturesEnabledForBuildTarget(targetGroup);
+                },
+                Message = "[OpenXR] Enabled OpenXR Features require OpenXR to be selected as the active loader for this platform",
+                CheckPredicate = () => BuildHelperUtils.HasLoader(targetGroup, typeof(OpenXRLoaderBase)),
                 Error = false,
-                FixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management/OpenXR"); },
+                FixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management"); },
                 FixItAutomatic = false,
                 FixItMessage = "Open Project Settings to select OpenXR as the active loader for this platform."
             };
@@ -148,18 +153,48 @@ namespace UnityEditor.XR.OpenXR
             return defaultRule;
         }
 
-        static bool IsOpenXRLoaderActiveForBuildTarget(BuildTargetGroup buildTargetGroup)
+#if XR_COMPOSITION_LAYERS
+        static BuildValidationRule GetCompositionLayersValidationRule(BuildTargetGroup buildTargetGroup)
         {
-            XRGeneralSettings settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
-            if (settings?.Manager == null)
-                return false;
-
-            foreach (var loader in settings.Manager.activeLoaders)
+            var rule = new BuildValidationRule
             {
-                if (loader.GetType() == typeof(OpenXRLoader))
-                    return true;
-            }
+                Category = "Composition Layers",
+                Message = $"The <b>{OpenXRCompositionLayersFeature.FeatureName}</b> feature is required to use the Compositon Layers package.",
+                IsRuleEnabled = () => buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.Standalone,
+                CheckPredicate = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+                    var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
+                    return feature.enabled;
+                },
+                FixItAutomatic = true,
+                FixIt = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+                    var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
+                    feature.enabled = true;
+                },
+                FixItMessage = $"Go to <b>Project Settings</b> > <b>XR Plug-in Management</b> > <b>OpenXR</b> > <b>{buildTargetGroup}</b> tab. In the list of OpenXR Features, enable <b>{OpenXRCompositionLayersFeature.FeatureName}</b>.",
+                Error = true,
+            };
 
+            return rule;
+        }
+#endif
+
+        /// <summary>
+        /// Check if there are any features enabled for this build target
+        /// </summary>
+        static bool ExistsOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
+        {
+            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+            foreach (var feature in openXrSettings?.features)
+            {
+                if (feature != null && feature.enabled && !(feature is OpenXRInteractionFeature interactionFeature && !interactionFeature.IsAdditive))
+                {
+                    return true;
+                }
+            }
             return false;
         }
 

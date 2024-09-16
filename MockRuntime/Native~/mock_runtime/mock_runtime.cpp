@@ -1390,18 +1390,8 @@ XrResult MockRuntime::CreateReferenceSpace(const XrReferenceSpaceCreateInfo* cre
     case XR_REFERENCE_SPACE_TYPE_STAGE:
     case XR_REFERENCE_SPACE_TYPE_VIEW:
     case XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT:
-        break;
-
     case XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT:
-        if ((createFlags & MR_CREATE_LOCAL_FLOOR_REFERENCE_SPACE_EXT) != 0)
-        {
-            break;
-        }
-        else
-        {
-            // Extension not enabled
-            return XR_ERROR_VALIDATION_FAILURE;
-        }
+        break;
 
     default:
         return XR_ERROR_REFERENCE_SPACE_UNSUPPORTED;

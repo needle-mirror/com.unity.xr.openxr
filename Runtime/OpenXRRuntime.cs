@@ -33,6 +33,19 @@ namespace UnityEngine.XR.OpenXR
             Internal_GetPluginVersion(out var pluginVersionPtr) ? Marshal.PtrToStringAnsi(pluginVersionPtr) : "";
 
         /// <summary>
+        /// Check if current runtime API version is greater than 1.1
+        /// </summary>
+        internal static bool isRuntimeAPIVersionGreaterThan1_1()
+        {
+            if (Internal_GetAPIVersion(out var major, out var minor, out var patch))
+            {
+                if (major >= 1 && minor >= 1)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Describes whether the OpenXR Extension with the given name is enabled.
         /// </summary>
         /// <param name="extensionName">Name of the extension</param>

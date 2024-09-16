@@ -116,6 +116,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             AddTargetDevice("quest2", "Quest 2", true);
             AddTargetDevice("cambria", "Quest Pro", true);
             AddTargetDevice("eureka", "Quest 3", true);
+            AddTargetDevice("quest3s", "Quest 3S", true);
         }
 
         /// <summary>
@@ -288,6 +289,34 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         error = true,
                         fixItAutomatic = true,
                         fixItMessage = "Set Vulkan as Graphics API"
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Symmetric Projection is only supported when using Multi-view",
+                        checkPredicate = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            if (null == settings)
+                                return false;
+
+                            if (symmetricProjection && (settings.renderMode != OpenXRSettings.RenderMode.SinglePassInstanced))
+                            {
+                                return false;
+                            }
+                            return true;
+                        },
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            if (null != settings)
+                            {
+                                settings.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                            }
+                        },
+                        error = true,
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Render Mode to Multi-view"
                     },
 
                     new ValidationRule(this)

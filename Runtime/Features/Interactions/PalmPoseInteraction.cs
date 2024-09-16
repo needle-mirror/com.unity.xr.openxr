@@ -108,6 +108,11 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string palmPose = "/input/palm_ext/pose";
 
         /// <summary>
+        /// Constant for a pose interaction binding '.../grip_surface/pose' OpenXR Input Binding, which is supported in OpenXR 1.1 specification
+        /// </summary>
+        public const string gripSurfacePose = "/input/grip_surface/pose";
+
+        /// <summary>
         /// A unique string for palm pose feature
         /// </summary>
         public const string profile = "/interaction_profiles/ext/palmpose";
@@ -228,14 +233,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         name = "palmpose",
                         localizedName = "Palm Pose",
                         type = ActionType.Pose,
-                        bindings = new List<ActionBinding>()
-                        {
-                            new ActionBinding()
-                            {
-                                interactionPath = palmPose,
-                                interactionProfileName = profile,
-                            }
-                        },
+                        bindings = AddBindingBasedOnRuntimeAPIVersion(),
                         isAdditive = true
                     }
                 }
@@ -244,7 +242,40 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             AddActionMap(actionMap);
         }
 
-        //Process additive actions: add additional supported additive actions to existing controller profiles
+        /// <summary>
+        /// Determine path binding based on current runtime API version.
+        /// </summary>
+        internal List<ActionBinding> AddBindingBasedOnRuntimeAPIVersion()
+        {
+            List<ActionBinding> pairingActionBinding;
+            if (OpenXRRuntime.isRuntimeAPIVersionGreaterThan1_1())
+            {
+                pairingActionBinding = new List<ActionBinding>()
+                {
+                    new ActionBinding()
+                    {
+                        interactionPath = gripSurfacePose,
+                        interactionProfileName = profile,
+                    }
+                };
+            }
+            else
+            {
+                pairingActionBinding = new List<ActionBinding>()
+                {
+                    new ActionBinding()
+                    {
+                        interactionPath = palmPose,
+                        interactionProfileName = profile,
+                    }
+                };
+            }
+
+            return pairingActionBinding;
+        }
+        /// <summary>
+        /// Process additive actions: add additional supported additive actions to existing controller profiles
+        /// </summary>
         internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
             foreach (var actionMap in actionMaps)

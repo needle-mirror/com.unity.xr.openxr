@@ -8,6 +8,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+## [1.13.0] - 2024-09-16
+
+### Added
+
+* Added Meta XR Simulator as runtime option for OpenXR. One can search for the `com.meta.xr.simulator` package to add the Open XR runtime to the dropdown list of available runtimes during Play Mode.
+* Added a `Quest 3S` option to `Target Devices` in the Meta Quest Support settings. This specifies the application's support for Quest 3S devices within the Android manifest.
+* Added `IUnityXRDisplay::CreateTexture` API to C# script so providers can access them for functionality.
+* Added APIs to provide an alternative to the Input System: `OpenXRFeature.GetAction`, `OpenXRInput.GetActionHandle`, `OpenXRInput.SendHapticImpulse`, `OpenXRInput.StopHapticImpulse`, `OpenXRInput.TrySetControllerLateLatchAction`, and `OpenXRInput.GetActionIsActive`.
+* Added a "Controller XRInput" sample to demonstrate how to access input data without the Input System.
+* Added experimental support for XR Composition Layers support. Install the Unity [Composition Layer (com.unity.xr.compositionlayers)](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest?subfolder=/changelog/CHANGELOG.html) package to use composition layers in an OpenXR project.
+* Added support for the `XR_KHR_maintenance1` extension. This low-level extension provides support for new capabilities promoted in the OpenXR 1.1 standard, which may be needed for backwards compatibility for using new extensions in OpenXR loaders using the version 1.0 of the standard. You need to request this extension if your project will make use of OpenXR 1.1 extenstions that need this extension and are backwards compatible with loaders based on the 1.0 version of the OpenXR standard. If your project targets only the OpenXR 1.1 version, you don't need to request this extension. To use the `XR_KHR_maintenance1` extension, you must request it as part of your own [OpenXR feature definition](xref:openxr-features). Refer to [XR_KHR_maintenance1](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_maintenance1) for more information on the extension.
+* Added OpenXR 1.1 Runtime support.
+
+### Changed
+
+* Added [Known Issue](xref:openxr-manual#known-issues) to documentation covering how OpenXR doesn't provide Acceleration or Angular Acceleration values for input devices, and these will always return 0.
+* Added a validation rule requiring Multi-view to be enabled in order to enable Symmetric Projection.
+* Implements the construction and maintenance of native composition layers in C# via our LayerProvider classes inheriting from OpenXRCustomLayerHandler.
+* Changed OpenXR loader version to 1.1.36.
+
+### Fixed
+
+* Symmetric Projection was being gated behind foveation extensions being enabled. This wasn't necessary and that dependency has been removed.
+* Fixed a bug that causes a user to need a validation rule to make OpenXR loader active.
+* Fixed `m_BlendMode` from being overwritten whenever the `DisplaySubsystem` restarts.
+* Fixed Metal API initialization. 
+* Fixed Custom Composition Layer Feature not showing up in the OpenXR feature setting UI after importing into project.
+* Fixed a crash with composition layers in scene due to race condition.
+ 
 ## [1.12.1] - 2024-09-05
 
 * Fixed rendering bug when rendering viewport scale < 1. 

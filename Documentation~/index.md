@@ -30,7 +30,7 @@ To help the community as a whole, Unity will continue to submit any runtime issu
 
 Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
 
-This release is linked against the OpenXR-SDK version [1.0.34](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.0.34).
+This release is linked against the OpenXR-SDK version [1.1.36](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.36).
 
 Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
 
@@ -99,6 +99,7 @@ The most important part of the diagnostic log is the section marked `==== OpenXR
 
 * For projects targeting HoloLens 2 that are using Out of the Box Unity OpenXR support, **Project Settings - &gt; Player - &gt; Resolution and Presentation - &gt; Run in Background** must be enabled. For projects that are using the Microsoft OpenXR extended support package this is not required.
 * An issue with an invalid stage space during startup may cause problems with the XR Origin component from the `com.unity.xr.interaction.toolkit` package, or the camera offset component in the `com.unity.xr.legacyinputhelpers` package. These packages will be updated shortly to contain fixes for this issue. Until then the workaround is to use the `Floor` Device Tracking Option setting.
+* OpenXR doesn't currently provide a way to get Acceleration and AngularAcceleration values on input devices, so these values will always be zero.
 
 ## Upgrading a project to use OpenXR
 

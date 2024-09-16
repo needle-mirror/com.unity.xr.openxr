@@ -400,7 +400,6 @@ namespace UnityEditor.XR.OpenXR.Features
                                 EditorGUI.BeginDisabledGroup(requiredFeatures.Contains(filteredListItem.featureId));
                                 filteredListItem.feature.enabled = EditorGUILayout.ToggleLeft(filteredListItem.uiName, filteredListItem.feature.enabled, GUILayout.ExpandWidth(false), GUILayout.Width(featureNameSize.x));
                                 EditorGUI.EndDisabledGroup();
-
                                 if (!String.IsNullOrEmpty(filteredListItem.documentationLink))
                                 {
                                     if (GUILayout.Button(filteredListItem.documentationIcon, EditorStyles.label, GUILayout.Width(Styles.k_IconWidth)))
