@@ -105,7 +105,8 @@ script_initialize(PFN_xrGetInstanceProcAddr xrGetInstanceProcAddr, XrInstance in
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceStateFloatEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceStateFloatEXT));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceStateVector2fEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceStateVector2fEXT));
     CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceLocationEXT", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceLocationEXT));
-    CHECK_XRCMD(xrGetInstanceProcAddr(instance, "xrSetInputDeviceVelocityUNITY", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceVelocityUNITY));
+    // Do not assert on this function since some runtimes may not have implemented it
+    xrGetInstanceProcAddr(instance, "xrSetInputDeviceVelocityUNITY", (PFN_xrVoidFunction*)&unity_xrSetInputDeviceVelocityUNITY);
 
     XR_TRACE_LOG(s_Trace, "[ConformanceAutomationExt] - script_initialize complete");
 }

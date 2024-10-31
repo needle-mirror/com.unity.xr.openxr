@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+
+## [1.13.1] - 2024-10-31
+
+### Fixed
+
+* Conformance Automation Feature:  Removed assert for optional entry point xrSetInputDeviceVelocityUNITY.
+
 ## [1.13.0] - 2024-09-16
 
 ### Added

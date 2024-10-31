@@ -81,7 +81,7 @@ namespace UnityEngine.XR.OpenXR.Features.ConformanceAutomation
         {
             return xrSetInputDeviceActiveEXT(
                 xrSession,
-                GetCurrentInteractionProfile(interactionProfile),
+                StringToPath(interactionProfile),
                 StringToPath(topLevelPath),
                 isActive);
         }
