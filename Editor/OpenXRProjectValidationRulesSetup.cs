@@ -124,10 +124,6 @@ namespace UnityEditor.XR.OpenXR
                     coreIssues.Add(ConvertRuleToBuildValidationRule(issue, buildTargetGroup));
                 }
 
-#if XR_COMPOSITION_LAYERS
-                coreIssues.Add(GetCompositionLayersValidationRule(buildTargetGroup));
-#endif
-
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);
             }
         }
@@ -152,35 +148,6 @@ namespace UnityEditor.XR.OpenXR
 
             return defaultRule;
         }
-
-#if XR_COMPOSITION_LAYERS
-        static BuildValidationRule GetCompositionLayersValidationRule(BuildTargetGroup buildTargetGroup)
-        {
-            var rule = new BuildValidationRule
-            {
-                Category = "Composition Layers",
-                Message = $"The <b>{OpenXRCompositionLayersFeature.FeatureName}</b> feature is required to use the Compositon Layers package.",
-                IsRuleEnabled = () => buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.Standalone,
-                CheckPredicate = () =>
-                {
-                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
-                    var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
-                    return feature.enabled;
-                },
-                FixItAutomatic = true,
-                FixIt = () =>
-                {
-                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
-                    var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
-                    feature.enabled = true;
-                },
-                FixItMessage = $"Go to <b>Project Settings</b> > <b>XR Plug-in Management</b> > <b>OpenXR</b> > <b>{buildTargetGroup}</b> tab. In the list of OpenXR Features, enable <b>{OpenXRCompositionLayersFeature.FeatureName}</b>.",
-                Error = true,
-            };
-
-            return rule;
-        }
-#endif
 
         /// <summary>
         /// Check if there are any features enabled for this build target

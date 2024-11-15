@@ -17,7 +17,7 @@ namespace UnityEngine.XR.OpenXR.Features.CompositionLayers
         Company = "Unity",
         OpenxrExtensionStrings = "XR_KHR_composition_layer_cylinder XR_KHR_composition_layer_equirect XR_KHR_composition_layer_equirect2 XR_KHR_composition_layer_cube XR_KHR_composition_layer_color_scale_bias XR_KHR_android_surface_swapchain",
         Version = "1.0.0",
-        BuildTargetGroups = new[] { BuildTargetGroup.Android, BuildTargetGroup.Standalone },
+        BuildTargetGroups = new[] { BuildTargetGroup.Android, BuildTargetGroup.Standalone, BuildTargetGroup.WSA },
         FeatureId = FeatureId
     )]
 #endif

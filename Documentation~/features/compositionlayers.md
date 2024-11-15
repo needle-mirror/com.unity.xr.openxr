@@ -3,7 +3,7 @@ uid: openxr-composition-layers
 ---
 # Composition Layers Support
 
-The OpenXR Composition Layers feature provides support for rendering high quality imagees on layer types, such as cylinder, equirect, cube, and more, on platforms like the Quest headsets. 
+The OpenXR Composition Layers feature provides support for rendering high quality images on layer types, such as cylinder, equirect, cube, and more, on platforms like the Quest headsets.
 This functionality allows developers to manage visual layers in a flexible, performant way, tailored for XR applications.
 
 Refer to the [Composition Layers](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest) documentation for information about using composition layers in a scene.

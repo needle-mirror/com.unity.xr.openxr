@@ -8,8 +8,10 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CompositionLayers.Extensions;
 using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Services;
-using UnityEngine.Video;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if UNITY_VIDEO
+using UnityEngine.Video;
+#endif
 
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
@@ -104,7 +106,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             public RenderTexture RenderTexture;
             public Texture Texture;
+#if UNITY_VIDEO
             public VideoPlayer videoPlayer;
+#endif
             public MeshCollider meshCollider;
         }
 
@@ -520,22 +524,26 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     else
                         container.Texture = texturesExtension.LeftTexture;
 
-
+#if UNITY_VIDEO
                     container.videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
+#endif
                     container.meshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
                 }
 
-                bool isVideo = container.videoPlayer != null && container.videoPlayer.enabled;
+                bool isVideo = false;
+#if UNITY_VIDEO
+                isVideo = container.videoPlayer != null && container.videoPlayer.enabled;
+#endif
                 bool isUI = container.meshCollider != null && container.meshCollider.enabled;
 
 #if UNITY_EDITOR
-                // Layers with a video or ui component in editor may have multiple native render textures associated with the layer id so we much find them.
+                // Layers with a video or ui component in editor may have multiple native render textures associated with the layer id so we must find them.
                 if (isVideo || isUI)
                     OpenXRLayerUtility.FindAndWriteToRenderTexture(layerInfo, container.Texture, out container.RenderTexture);
                 else if (isNewTexture)
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, container.RenderTexture);
 #else
-                // We only need to write continously to the native render texture if our texture is changing.
+                // We only need to write continuously to the native render texture if our texture is changing.
                 if (isVideo || isUI || isNewTexture)
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, container.RenderTexture);
 #endif
@@ -547,7 +555,12 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 bool isRenderTextureWritten = OpenXRLayerUtility.FindAndWriteToRenderTexture(layerInfo, texturesExtension.LeftTexture, out RenderTexture renderTexture);
                 if (isRenderTextureWritten)
                 {
-                    var layerRenderInfo = new LayerRenderInfo() { Texture = texturesExtension.LeftTexture, RenderTexture = renderTexture, videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(), meshCollider = layerInfo.Layer.GetComponent<MeshCollider>() };
+                    var layerRenderInfo = new LayerRenderInfo()
+                        { Texture = texturesExtension.LeftTexture, RenderTexture = renderTexture,
+#if UNITY_VIDEO
+                            videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
+#endif
+                            meshCollider = layerInfo.Layer.GetComponent<MeshCollider>() };
                     m_renderInfos.Add(layerInfo.Id, layerRenderInfo);
                 };
 

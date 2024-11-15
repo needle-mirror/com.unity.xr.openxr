@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.13.2] - 2024-11-15
+
+### Added
+
+* Added UWP platform as one of the supported build targets for OpenXR Composition Layer feature.
+
+### Fixed
+
+* Fixed compiler errors when using experimental versions of the XR Composition Layers package (versions older than 1.0.0). You are required to use XR Composition Layers 1.0.0 or newer for OpenXR support.
+
 ## [1.13.1] - 2024-10-31
 
 ### Fixed

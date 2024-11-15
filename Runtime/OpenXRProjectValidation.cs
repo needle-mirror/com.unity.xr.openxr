@@ -9,6 +9,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
+#if XR_COMPOSITION_LAYERS
+using UnityEngine.XR.OpenXR.Features.CompositionLayers;
+#endif
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
 using UnityEngine.Rendering.Universal;
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
@@ -183,7 +186,27 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 fixIt = SoftShadowFixItButtonPress,
                 error = false,
                 buildTargetGroup = BuildTargetGroup.WSA
+            },
+#if XR_COMPOSITION_LAYERS
+            new OpenXRFeature.ValidationRule()
+            {
+                message = $"The <b>{OpenXRCompositionLayersFeature.FeatureName}</b> feature is required to use the Composition Layers package.",
+                checkPredicate = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    return settings == null || settings.GetFeatures<OpenXRCompositionLayersFeature>().Any(f => f.enabled);
+                },
+                fixItMessage =
+                    $"Go to <b>Project Settings</b> > <b>XR Plug-in Management</b> > <b>OpenXR</b> > <b>{EditorUserBuildSettings.selectedBuildTargetGroup}</b> tab. In the list of OpenXR Features, enable <b>{OpenXRCompositionLayersFeature.FeatureName}</b>.",
+                fixIt = () =>
+                {
+                    var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
+                    feature.enabled = true;
+                },
+                error = true,
             }
+#endif
         };
 
         private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);

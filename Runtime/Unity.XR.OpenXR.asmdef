@@ -29,7 +29,7 @@
         },
         {
             "name": "com.unity.xr.compositionlayers",
-            "expression": "0.5.0",
+            "expression": "1.0.0",
             "define": "XR_COMPOSITION_LAYERS"
         },
         {
@@ -46,6 +46,11 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "7.0.0",
             "define": "UNITY_RENDER_PIPELINES_UNIVERSAL"
+        },
+        {
+            "name": "com.unity.modules.video",
+            "expression": "1.0.0",
+            "define": "UNITY_VIDEO"
         }
     ],
     "noEngineReferences": false
