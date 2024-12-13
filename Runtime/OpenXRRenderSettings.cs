@@ -137,6 +137,22 @@ namespace UnityEngine.XR.OpenXR
             SRPFoveation = 1,
         }
 
+        /// <summary>
+        /// Space Warp motion vector texture format.
+        /// </summary>
+        public enum SpaceWarpMotionVectorTextureFormat
+        {
+            /// <summary>
+            /// RGBA16f texture format
+            /// </summary>
+            RGBA16f,
+
+            /// <summary>
+            /// RG16f texture format
+            /// </summary>
+            RG16f,
+        }
+
 #if UNITY_ANDROID
 
         private string[] m_eyeTrackingPermissionsToRequest = new string[]
@@ -187,6 +203,34 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
+
+        /// <summary>
+        /// Space Warp motion vector texture format (default is RGBA16f).
+        /// </summary>
+        [SerializeField]
+        private SpaceWarpMotionVectorTextureFormat m_spacewarpMotionVectorTextureFormat = SpaceWarpMotionVectorTextureFormat.RGBA16f;
+
+        /// <summary>
+        /// Selects the motion vector texture format for Space Warp.
+        /// </summary>
+        public SpaceWarpMotionVectorTextureFormat spacewarpMotionVectorTextureFormat
+        {
+            get
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    return Internal_GetSpaceWarpMotionVectorTextureFormat();
+                else
+                    return m_spacewarpMotionVectorTextureFormat;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetSpaceWarpMotionVectorTextureFormat(value);
+                else
+                    m_spacewarpMotionVectorTextureFormat = value;
+            }
+        }
+
         [SerializeField]
         private bool m_optimizeBufferDiscards = false;
 
@@ -208,6 +252,9 @@ namespace UnityEngine.XR.OpenXR
         private void ApplyRenderSettings()
         {
             Internal_SetSymmetricProjection(m_symmetricProjection);
+#if UNITY_6000_1_OR_NEWER
+            Internal_SetOptimizeMultiviewRenderRegions(m_optimizeMultiviewRenderRegions);
+#endif
 #if UNITY_2023_2_OR_NEWER
             Internal_SetUsedFoveatedRenderingApi(m_foveatedRenderingApi);
 #endif
@@ -217,6 +264,7 @@ namespace UnityEngine.XR.OpenXR
                 m_colorSubmissionModes.m_List.Length
             );
             Internal_SetDepthSubmissionMode(m_depthSubmissionMode);
+            Internal_SetSpaceWarpMotionVectorTextureFormat(m_spacewarpMotionVectorTextureFormat);
             Internal_SetOptimizeBufferDiscards(m_optimizeBufferDiscards);
 
 #if UNITY_ANDROID // Only Android need specific permissions for eye tracking, for now
@@ -235,6 +283,11 @@ namespace UnityEngine.XR.OpenXR
 
         [SerializeField]
         private bool m_symmetricProjection = false;
+
+#if UNITY_6000_1_OR_NEWER
+        [SerializeField]
+        private bool m_optimizeMultiviewRenderRegions = false;
+#endif
 
 #if UNITY_2023_2_OR_NEWER
         [SerializeField]
@@ -256,6 +309,24 @@ namespace UnityEngine.XR.OpenXR
                     m_symmetricProjection = value;
             }
         }
+
+#if UNITY_6000_1_OR_NEWER
+        /// <summary>
+        /// Activates Multiview Render Regions optimizations at application start.
+        /// Requires Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.
+        /// </summary>
+        public bool optimizeMultiviewRenderRegions
+        {
+            get { return m_optimizeMultiviewRenderRegions; }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetOptimizeMultiviewRenderRegions(value);
+                else
+                    m_optimizeMultiviewRenderRegions = value;
+            }
+        }
+#endif
 
         /// <summary>
         /// Different APIs to use in the backend.
@@ -300,8 +371,19 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetDepthSubmissionMode")]
         private static extern DepthSubmissionMode Internal_GetDepthSubmissionMode();
 
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSpaceWarpMotionVectorTextureFormat")]
+        private static extern void Internal_SetSpaceWarpMotionVectorTextureFormat(
+            SpaceWarpMotionVectorTextureFormat spaceWarpMotionVectorTextureFormat
+        );
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_GetSpaceWarpMotionVectorTextureFormat")]
+        private static extern SpaceWarpMotionVectorTextureFormat Internal_GetSpaceWarpMotionVectorTextureFormat();
+
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSymmetricProjection")]
         private static extern void Internal_SetSymmetricProjection([MarshalAs(UnmanagedType.I1)] bool enabled);
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeMultiviewRenderRegions")]
+        private static extern void Internal_SetOptimizeMultiviewRenderRegions([MarshalAs(UnmanagedType.I1)] bool enabled);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeBufferDiscards")]
         private static extern void Internal_SetOptimizeBufferDiscards([MarshalAs(UnmanagedType.I1)] bool enabled);

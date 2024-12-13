@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+## [1.14.0] - 2024-12-13
+
+### Added
+
+* Added support for the RG16f texture format and a selection mode for the texture format of the Space Warp motion vector texture for the Meta Quest feature. You can select the format for the Space Warp motion vector texture in Editor > Project Settings > XR Plug-in Management > OpenXR > Android tab > Meta Quest Support feature settings.
+* Added the following extension methods for `XrResult`: `IsSuccess()`, `IsUnqualifiedSuccess()`, and `IsError()`, which you can use to more conveniently reason about `XrResult` values.
+* Added new values to the `XrResult` enum to match the values present in the native `XrResult` type in OpenXR 1.1.36.
+* Added support for locating the OpenXR loader for the Meta XR Simulator on OSX.
+* Added new Optimize Multiview Render Regions settings option for Meta Quest devices. In the context of XR rendering, Multiview Render Regions enables the drivers to skip shader invocations (and rendering work) for screen areas outside of the user's view (such as the nasal regions that the user can't see within the headset). You can toggle on support for Multiview Render Regions in Editor > Project Settings > XR Plug-in Management > OpenXR > Android tab > Meta Quest Support feature settings. Note that Multiview Render Regions requires Symmetric Projection settings toggle turned on, and Render Mode set to Single Pass Instanced \ Multi-view. Multiview Render Regions is only supported in the Vulkan Graphics API, and it is activated at application start up.
+* Added project validation warning to prevent user from using URP upscaling with XR.
+
+### Deprecated
+
+* Deprecated `XrResult.TimeoutExpored` and `XrResult.AndroidThreadSettingsdFailureKHR` and replaced them with correctly spelled enum values.
+
+### Fixed
+
+* Occlusion Mask vertices projected based on FOV.
 
 ## [1.13.2] - 2024-11-15
 
@@ -50,13 +68,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Symmetric Projection was being gated behind foveation extensions being enabled. This wasn't necessary and that dependency has been removed.
 * Fixed a bug that causes a user to need a validation rule to make OpenXR loader active.
 * Fixed `m_BlendMode` from being overwritten whenever the `DisplaySubsystem` restarts.
-* Fixed Metal API initialization. 
+* Fixed Metal API initialization.
 * Fixed Custom Composition Layer Feature not showing up in the OpenXR feature setting UI after importing into project.
 * Fixed a crash with composition layers in scene due to race condition.
- 
+
 ## [1.12.1] - 2024-09-05
 
-* Fixed rendering bug when rendering viewport scale < 1. 
+* Fixed rendering bug when rendering viewport scale < 1.
 * Fixed issue where the Editor would hang when renaming and then viewing OpenXR Settings.
 
 ## [1.12.0] - 2024-08-01

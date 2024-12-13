@@ -223,7 +223,7 @@ class zBuildSamplesYamatoOnly
 #endif
         new SampleBuildTargetSetup
         {
-            sampleRegex = new Regex(".*RenderSample.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples
+            sampleRegex = new Regex(".*Render.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples
             buildTarget = BuildTarget.Android,
             targetGroup = BuildTargetGroup.Android,
             setupPlayerSettings = (outputFile, identifier) =>

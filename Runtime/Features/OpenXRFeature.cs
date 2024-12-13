@@ -156,10 +156,18 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnSubsystemDestroy() { }
 
         /// <summary>
-        /// Called after xrCreateInstance.
+        /// Called after `xrCreateInstance`. Override this method to validate that any necessary OpenXR extensions were
+        /// successfully enabled (<see cref="OpenXRRuntime.IsExtensionEnabled">OpenXRRuntime.IsExtensionEnabled</see>)
+        /// and that any required system properties are supported. If this method returns <see langword="false"/>,
+        /// the feature's <see cref="OpenXRFeature.enabled"/> property is set to <see langword="false"/>.
         /// </summary>
-        /// <param name="xrInstance">Handle of the xrInstance</param>
-        /// <returns> Always returns true, as this is intended to be overridden.</returns>
+        /// <param name="xrInstance">Handle of the native `xrInstance`.</param>
+        /// <returns><see langword="true"/> if this feature successfully initialized. Otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// If this feature is a required feature of an enabled feature set, returning <see langword="false"/> here
+        /// causes the `OpenXRLoader` to fail, and XR Plug-in Management will fall back to another loader if enabled.
+        /// </remarks>
+        /// <seealso href="xref:openxr-features#enabling-openxr-spec-extension-strings">Enabling OpenXR spec extension strings</seealso>
         protected internal virtual bool OnInstanceCreate(ulong xrInstance) => true;
 
         /// <summary>
@@ -389,6 +397,18 @@ namespace UnityEngine.XR.OpenXR.Features
             /// Optional link that will be opened if the help icon is clicked.
             /// </summary>
             public string helpLink;
+
+            /// <summary>
+            /// Optional struct HighlighterFocusData used to create HighlighterFocus functionality.
+            /// WindowTitle contains the name of the window tab to highlight in.
+            /// SearchPhrase contains the text to be searched and highlighted.
+            /// </summary>
+            public HighlighterFocusData highlighterFocus { get; set; }
+            public struct HighlighterFocusData
+            {
+                public string windowTitle { get; set; }
+                public string searchText { get; set; }
+            }
 
             internal OpenXRFeature feature;
 

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
 
 #if UNITY_EDITOR || PACKAGE_DOCS_GENERATION
 namespace UnityEditor.XR.OpenXR.Features
@@ -11,13 +12,23 @@ namespace UnityEditor.XR.OpenXR.Features
         public const string Interaction = "Interaction";
     }
 
+
     [AttributeUsage(AttributeTargets.Class)]
     public class OpenXRFeatureAttribute : Attribute
     {
+        internal class CopyFieldAttribute : Attribute
+        {
+            public string FieldName;
+            public CopyFieldAttribute(string fieldName)
+            {
+                FieldName = fieldName;
+            }
+        }
+
         /// <summary>
         /// Feature name to show in the feature configuration UI.
         /// </summary>
-        public string UiName;
+        [CopyField(nameof(OpenXRFeature.nameUi))] public string UiName;
 
         /// <summary>
         /// Hide this feature from the UI.
@@ -34,12 +45,12 @@ namespace UnityEditor.XR.OpenXR.Features
         /// If these extensions can't be enabled, a message will be logged, but execution will continue.
         /// Can contain multiple extensions separated by spaces.
         /// </summary>
-        public string OpenxrExtensionStrings;
+        [CopyField(nameof(OpenXRFeature.openxrExtensionStrings))] public string OpenxrExtensionStrings;
 
         /// <summary>
         /// Company that created the feature, shown in the feature configuration UI.
         /// </summary>
-        public string Company;
+        [CopyField(nameof(OpenXRFeature.company))] public string Company;
 
         /// <summary>
         /// Link to the feature documentation. The help button in the UI opens this link in a web browser.
@@ -49,7 +60,7 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <summary>
         /// Feature version.
         /// </summary>
-        public string Version;
+        [CopyField(nameof(OpenXRFeature.version))] public string Version;
 
         /// <summary>
         /// BuildTargets in this list use a custom runtime loader (that is, openxr_loader.dll).
@@ -73,19 +84,19 @@ namespace UnityEditor.XR.OpenXR.Features
         /// True fi this feature is required, false otherwise.
         /// Required features will cause the loader to fail to initialize if they fail to initialize or start.
         /// </summary>
-        public bool Required = false;
+        [CopyField(nameof(OpenXRFeature.required))] public bool Required = false;
 
         /// <summary>
         /// Determines the order in which the feature will be called in both the GetInstanceProcAddr hook list and
         /// when events such as OnInstanceCreate are called. Higher priority features will hook after lower priority features and
         /// be called first in the event list.
         /// </summary>
-        public int Priority = 0;
+        [CopyField(nameof(OpenXRFeature.priority))] public int Priority = 0;
 
         /// <summary>
         /// A well known string id for this feature. It is recommended that that id be in reverse DNS naming format (com.foo.bar.feature).
         /// </summary>
-        public string FeatureId = "";
+        [CopyField(nameof(OpenXRFeature.featureIdInternal))] public string FeatureId = "";
 
 
         internal static readonly System.Text.RegularExpressions.Regex k_PackageVersionRegex = new System.Text.RegularExpressions.Regex(@"(\d*\.\d*)\..*");

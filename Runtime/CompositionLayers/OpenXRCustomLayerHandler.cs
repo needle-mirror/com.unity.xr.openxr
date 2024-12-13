@@ -13,7 +13,6 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.Video;
 #endif
 
-
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
     /// <summary>
@@ -523,7 +522,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     }
                     else
                         container.Texture = texturesExtension.LeftTexture;
-
 #if UNITY_VIDEO
                     container.videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
 #endif

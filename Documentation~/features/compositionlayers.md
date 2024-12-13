@@ -28,7 +28,7 @@ In addition to the built-in layer types supported by the Composition Layers feat
 ### Custom Layer Example
 The following example demonstrates how to create a custom layer handler for a custom layer type. This handler is responsible for managing the lifecycle of the layer, rendering, and other properties.
 
-```c#    
+```c#
 #if UNITY_EDITOR
 [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "OpenXR Custom Layer Handler Example",
     BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android },

@@ -224,14 +224,16 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             // Update the feature list
-            openXrSettings.features = all
+            var originalFeatures = openXrSettings.features;
+            var newFeatures = all
                 .Where(f => f != null)
                 .OrderByDescending(f => f.priority)
                 .ThenBy(f => f.nameUi)
                 .ToArray();
 
             // Populate the internal feature variables for all features
-            foreach (var feature in openXrSettings.features)
+            bool fieldChanged = false;
+            foreach (var feature in newFeatures)
             {
                 if (feature.internalFieldsUpdated)
                     continue;
@@ -240,20 +242,38 @@ namespace UnityEditor.XR.OpenXR.Features
 
                 foreach (var attr in feature.GetType().GetCustomAttributes<OpenXRFeatureAttribute>())
                 {
-                    feature.nameUi = attr.UiName;
-                    feature.version = attr.Version;
-                    feature.featureIdInternal = attr.FeatureId;
-                    feature.openxrExtensionStrings = attr.OpenxrExtensionStrings;
-                    feature.priority = attr.Priority;
-                    feature.required = attr.Required;
-                    feature.company = attr.Company;
+                    foreach (var sourceField in attr.GetType().GetFields())
+                    {
+                        var copyField = sourceField.GetCustomAttribute<OpenXRFeatureAttribute.CopyFieldAttribute>();
+                        if (copyField == null)
+                            continue;
+
+                        var targetField = feature.GetType().GetField(copyField.FieldName,
+                            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                        if (targetField == null)
+                            continue;
+
+                        // Only set value if value is different
+                        if ((targetField.GetValue(feature) == null && sourceField.GetValue(attr) != null) ||
+                            targetField.GetValue(feature).Equals(sourceField.GetValue(attr)) == false)
+                        {
+                            targetField.SetValue(feature, sourceField.GetValue(attr));
+                            fieldChanged = true;
+                        }
+
+                    }
                 }
             }
 
-#if UNITY_EDITOR
             // Ensure the settings are saved after the features are populated
-            EditorUtility.SetDirty(openXrSettings);
+            if (fieldChanged || originalFeatures == null || originalFeatures.SequenceEqual(newFeatures) == false)
+            {
+                openXrSettings.features = newFeatures;
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(openXrSettings);
 #endif
+            }
+
             return ret;
         }
     }

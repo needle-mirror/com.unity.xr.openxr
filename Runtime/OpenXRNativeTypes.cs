@@ -32,294 +32,635 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     public enum XrResult
     {
         /// <summary>
-        /// Success
+        /// Function successfully completed.
         /// </summary>
         Success = 0,
 
         /// <summary>
-        /// Timeout
+        /// The specified timeout time occurred before the operation could complete.
         /// </summary>
+        [Obsolete("This value is misspelled and therefore deprecated in OpenXR Plug-in version 1.14.0. Use TimeoutExpired instead.", false)]
         TimeoutExpored = 1,
 
         /// <summary>
-        /// Connection Loss Pending
+        /// The specified timeout time occurred before the operation could complete.
+        /// </summary>
+        TimeoutExpired = 1,
+
+        /// <summary>
+        /// The session will be lost soon.
         /// </summary>
         LossPending = 3,
 
         /// <summary>
-        /// Event Unavailable
+        /// No event was available.
         /// </summary>
         EventUnavailable = 4,
 
         /// <summary>
-        /// Bounds Unavailable
+        /// The space’s bounds are not known at the moment.
         /// </summary>
         SpaceBoundsUnavailable = 7,
 
         /// <summary>
-        /// No Session Focus
+        /// The session is not in the focused state.
         /// </summary>
         SessionNotFocused = 8,
 
         /// <summary>
-        /// Frame Discarded
+        /// A frame has been discarded from composition.
         /// </summary>
         FrameDiscarded = 9,
 
         /// <summary>
-        /// Validation Failure
+        /// The function usage was invalid in some way.
         /// </summary>
         ValidationFailure = -1,
 
         /// <summary>
-        /// Runtime Failure
+        /// The runtime failed to handle the function in an unexpected way that is not covered by another error result.
         /// </summary>
         RuntimeFailure = -2,
 
         /// <summary>
-        /// Out of Memory
+        /// A memory allocation has failed.
         /// </summary>
         OutOfMemory = -3,
 
         /// <summary>
-        /// API version Unsupported
+        /// The runtime does not support the requested API version.
         /// </summary>
         ApiVersionUnsupported = -4,
 
         /// <summary>
-        /// Initialization Failure
+        /// Initialization of object could not be completed.
         /// </summary>
         InitializationFailed = -6,
 
         /// <summary>
-        /// Function Unsupported
+        /// The requested function was not found or is otherwise unsupported.
         /// </summary>
         FunctionUnsupported = -7,
 
         /// <summary>
-        /// Feature Unsupported
+        /// The requested feature is not supported.
         /// </summary>
         FeatureUnsupported = -8,
 
         /// <summary>
-        /// Extension Not Available
+        /// A requested extension is not supported.
         /// </summary>
         ExtensionNotPresent = -9,
 
         /// <summary>
-        /// Limit Reached
+        /// The runtime supports no more of the requested resource.
         /// </summary>
         LimitReached = -10,
 
         /// <summary>
-        /// Insufficient Size
+        /// The supplied size was smaller than required.
         /// </summary>
         SizeInsufficient = -11,
 
         /// <summary>
-        /// Handle Invalid
+        /// A supplied object handle was invalid.
         /// </summary>
         HandleInvalid = -12,
 
         /// <summary>
-        /// Instance Lost
+        /// The `XrInstance` was lost or could not be found. It will need to be destroyed and optionally recreated.
         /// </summary>
         InstanceLost = -13,
 
         /// <summary>
-        /// Session Running
+        /// The session is already running.
         /// </summary>
         SessionRunning = -14,
 
         /// <summary>
-        /// Session Not Running
+        /// The session is not yet running.
         /// </summary>
         SessionNotRunning = -16,
 
         /// <summary>
-        /// Session Lost
+        /// The `XrSession` was lost. It will need to be destroyed and optionally recreated.
         /// </summary>
         SessionLost = -17,
 
         /// <summary>
-        /// System Invalid
+        /// The provided `XrSystemId` was invalid.
         /// </summary>
         SystemInvalid = -18,
 
         /// <summary>
-        /// Path Invalid
+        /// The provided `XrPath` was not valid.
         /// </summary>
         PathInvalid = -19,
 
         /// <summary>
-        /// Path Count Exceeded
+        /// The maximum number of supported semantic paths has been reached.
         /// </summary>
         PathCountExceeded = -20,
 
         /// <summary>
-        /// Path Format Invalid
+        /// The semantic path character format is invalid.
         /// </summary>
         PathFormatInvalid = -21,
 
         /// <summary>
-        /// Path Unsupported
+        /// The semantic path is unsupported.
         /// </summary>
         PathUnsupported = -22,
 
         /// <summary>
-        /// Layer Invalid
+        /// The layer was NULL or otherwise invalid.
         /// </summary>
         LayerInvalid = -23,
 
         /// <summary>
-        /// Layer Limit Exceeded
+        /// The number of specified layers is greater than the supported number.
         /// </summary>
         LayerLimitExceeded = -24,
 
         /// <summary>
-        /// Swapchain Rect Invalid
+        /// The image rect was negatively sized or otherwise invalid.
         /// </summary>
         SwapchainRectInvalid = -25,
 
         /// <summary>
-        /// Swapchain Rect Unsupported
+        /// The image format is not supported by the runtime or platform.
         /// </summary>
         SwapchainFormatUnsupported = -26,
 
         /// <summary>
-        /// Action Type Mismatch
+        /// The API used to retrieve an action’s state does not match the action’s type.
         /// </summary>
         ActionTypeMismatch = -27,
 
         /// <summary>
-        /// Session Not Ready
+        /// The session is not in the ready state.
         /// </summary>
         SessionNotReady = -28,
 
         /// <summary>
-        /// Session Not Stopping
+        /// The session is not in the stopping state.
         /// </summary>
         SessionNotStopping = -29,
 
         /// <summary>
-        /// Time Invalid
+        /// The provided `XrTime` was zero, negative, or out of range.
         /// </summary>
         TimeInvalid = -30,
 
         /// <summary>
-        /// Reference Space Unsupported
+        /// The specified reference space is not supported by the runtime or system.
         /// </summary>
         ReferenceSpaceUnsupported = -31,
 
         /// <summary>
-        /// File Access Error
+        /// The file could not be accessed.
         /// </summary>
         FileAccessError = -32,
 
         /// <summary>
-        /// File Contents Invalid
+        /// The file’s contents were invalid.
         /// </summary>
         FileContentsInvalid = -33,
 
         /// <summary>
-        /// Form Factor Unsupported
+        /// The specified form factor is not supported by the current runtime or platform.
         /// </summary>
         FormFactorUnsupported = -34,
 
         /// <summary>
-        /// Form Factor Unavailable
+        /// The specified form factor is supported, but the device is currently not available, e.g. not plugged in or powered off.
         /// </summary>
         FormFactorUnavailable = -35,
 
         /// <summary>
-        /// API Layer Not Present
+        /// A requested API layer is not present or could not be loaded.
         /// </summary>
         ApiLayerNotPresent = -36,
 
         /// <summary>
-        /// Call Order Invalid
+        /// The call was made without having made a previously required call.
         /// </summary>
         CallOrderInvalid = -37,
 
         /// <summary>
-        /// Graphics Device Invalid
+        /// The given graphics device is not in a valid state. The graphics device could be lost or initialized without meeting graphics requirements.
         /// </summary>
         GraphicsDeviceInvalid = -38,
 
         /// <summary>
-        /// Pose Invalid
+        /// The supplied pose was invalid with respect to the requirements.
         /// </summary>
         PoseInvalid = -39,
 
         /// <summary>
-        /// Index Out of Range
+        /// The supplied index was outside the range of valid indices.
         /// </summary>
         IndexOutOfRange = -40,
 
         /// <summary>
-        /// View Configuration Type Unsupported
+        /// The specified view configuration type is not supported by the runtime or platform.
         /// </summary>
         ViewConfigurationTypeUnsupported = -41,
 
         /// <summary>
-        /// Environment Blend Mode Unsupported
+        /// The specified environment blend mode is not supported by the runtime or platform.
         /// </summary>
         EnvironmentBlendModeUnsupported = -42,
 
         /// <summary>
-        /// Name Duplicated
+        /// The name provided was a duplicate of an already-existing resource.
         /// </summary>
         NameDuplicated = -44,
 
         /// <summary>
-        /// Name Invalid
+        /// The name provided was invalid.
         /// </summary>
         NameInvalid = -45,
 
         /// <summary>
-        /// Actionset Not Attached
+        /// A referenced action set is not attached to the session.
         /// </summary>
         ActionsetNotAttached = -46,
 
         /// <summary>
-        /// Actionset Already Attached
+        /// The session already has attached action sets.
         /// </summary>
         ActionsetsAlreadyAttached = -47,
 
         /// <summary>
-        /// Localized Name Duplicated
+        /// The localized name provided was a duplicate of an already-existing resource.
         /// </summary>
         LocalizedNameDuplicated = -48,
 
         /// <summary>
-        /// Localized Name Invalid
+        /// The localized name provided was invalid.
         /// </summary>
         LocalizedNameInvalid = -49,
 
         /// <summary>
-        /// Android Thread Settings Id Invalid
+        /// The `xrGetGraphicsRequirements`* call was not made before calling `xrCreateSession`.
+        /// </summary>
+        GraphicsRequirementsCallMissing = -50,
+
+        /// <summary>
+        /// The loader was unable to find or load a runtime.
+        /// </summary>
+        RuntimeUnavailable = -51,
+
+        /// <summary>
+        /// One or more of the extensions being enabled has dependency on extensions that are not enabled.
+        /// </summary>
+        ExtensionDependencyNotEnabled = -1000710001,
+
+        /// <summary>
+        /// Insufficient permissions. This error is included for use by vendor extensions. The precise definition of
+        /// `PermissionInsufficient` and actions possible by the developer or user to resolve it can vary by platform,
+        /// extension or function. The developer should refer to the documentation of the function that returned the
+        /// error code and extension it was defined.
+        /// </summary>
+        PermissionInsufficient = -1000710000,
+
+        /// <summary>
+        /// `xrSetAndroidApplicationThreadKHR` failed as thread id is invalid. (Added by the `XR_KHR_android_thread_settings` extension)
         /// </summary>
         AndroidThreadSettingsIdInvalidKHR = -1000003000,
 
         /// <summary>
-        /// Android Thread Settings Failure
+        /// `xrSetAndroidApplicationThreadKHR` failed setting the thread attributes/priority. (Added by the `XR_KHR_android_thread_settings` extension)
         /// </summary>
+        [Obsolete("This enum value is misspelled and therefore deprecated in OpenXR Plug-in version 1.14.0. Use AndroidThreadSettingsFailureKHR instead.", false)]
         AndroidThreadSettingsdFailureKHR = -1000003001,
 
         /// <summary>
-        /// Create Spatial Anchor Failed
+        /// `xrSetAndroidApplicationThreadKHR` failed setting the thread attributes/priority. (Added by the `XR_KHR_android_thread_settings` extension)
+        /// </summary>
+        AndroidThreadSettingsFailureKHR = -1000003001,
+
+        /// <summary>
+        /// Spatial anchor could not be created at that location. (Added by the `XR_MSFT_spatial_anchor` extension)
         /// </summary>
         CreateSpatialAnchorFailedMSFT = -1000039001,
 
         /// <summary>
-        /// Seccondary View Configuration Type Not Enabled
+        /// The secondary view configuration was not enabled when creating the session. (Added by the `XR_MSFT_secondary_view_configuration` extension)
         /// </summary>
         SecondaryViewConfigurationTypeNotEnabledMSFT = -1000053000,
+
+        /// <summary>
+        /// The controller model key is invalid. (Added by the `XR_MSFT_controller_model` extension)
+        /// </summary>
+        ControllerModelKeyInvalidMSFT = -1000055000,
+
+        /// <summary>
+        /// The reprojection mode is not supported. (Added by the `XR_MSFT_composition_layer_reprojection` extension)
+        /// </summary>
+        ReprojectionModeUnsupportedMSFT = -1000066000,
+
+        /// <summary>
+        /// Compute new scene not completed. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        ComputeNewSceneNotCompletedMSFT = -1000097000,
+
+        /// <summary>
+        /// Scene component id invalid. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        SceneComponentIdInvalidMSFT = -1000097001,
+
+        /// <summary>
+        /// Scene component type mismatch. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        SceneComponentTypeMismatchMSFT = -1000097002,
+
+        /// <summary>
+        /// Scene mesh buffer id invalid. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        SceneMeshBufferIdInvalidMSFT = -1000097003,
+
+        /// <summary>
+        /// Scene compute feature incompatible. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        SceneComputeFeatureIncompatibleMSFT = -1000097004,
+
+        /// <summary>
+        /// Scene compute consistency mismatch. (Added by the `XR_MSFT_scene_understanding` extension)
+        /// </summary>
+        SceneComputeConsistencyMismatchMSFT = -1000097005,
+
+        /// <summary>
+        /// The display refresh rate is not supported by the platform. (Added by the `XR_FB_display_refresh_rate` extension)
+        /// </summary>
+        DisplayRefreshRateUnsupportedFB = -1000101000,
+
+        /// <summary>
+        /// The color space is not supported by the runtime. (Added by the `XR_FB_color_space` extension)
+        /// </summary>
+        ColorSpaceUnsupportedFB = -1000108000,
+
+        /// <summary>
+        /// The component type is not supported for this space. (Added by the `XR_FB_spatial_entity` extension)
+        /// </summary>
+        SpaceComponentNotSupportedFB = -1000113000,
+
+        /// <summary>
+        /// The required component is not enabled for this space. (Added by the `XR_FB_spatial_entity` extension)
+        /// </summary>
+        SpaceComponentNotEnabledFB = -1000113001,
+
+        /// <summary>
+        /// A request to set the component’s status is currently pending. (Added by the `XR_FB_spatial_entity` extension)
+        /// </summary>
+        SpaceComponentStatusPendingFB = -1000113002,
+
+        /// <summary>
+        /// The component is already set to the requested value. (Added by the `XR_FB_spatial_entity` extension)
+        /// </summary>
+        SpaceComponentStatusAlreadySetFB = -1000113003,
+
+        /// <summary>
+        /// The object state is unexpected for the issued command. (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        UnexpectedStatePassthroughFB = -1000118000,
+
+        /// <summary>
+        /// Trying to create an MR feature when one was already created and only one instance is allowed. (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        FeatureAlreadyCreatedPassthroughFB = -1000118001,
+
+        /// <summary>
+        /// Requested functionality requires a feature to be created first. (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        FeatureRequiredPassthroughFB = -1000118002,
+
+        /// <summary>
+        /// Requested functionality is not permitted - application is not allowed to perform the requested operation. (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        NotPermittedPassthroughFB = -1000118003,
+
+        /// <summary>
+        /// There were insufficient resources available to perform an operation. (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        InsufficientResourcesPassthroughFB = -1000118004,
+
+        /// <summary>
+        /// Unknown Passthrough error (no further details provided). (Added by the `XR_FB_passthrough` extension)
+        /// </summary>
+        UnknownPassthroughFB = -1000118050,
+
+        /// <summary>
+        /// The model key is invalid. (Added by the `XR_FB_render_model` extension)
+        /// </summary>
+        RenderModelKeyInvalidFB = -1000119000,
+
+        /// <summary>
+        /// The model is unavailable. (Added by the `XR_FB_render_model` extension)
+        /// </summary>
+        RenderModelUnavailableFB = 1000119020,
+
+        /// <summary>
+        /// Marker tracking is disabled or the specified marker is not currently tracked. (Added by the `XR_VARJO_marker_tracking` extension)
+        /// </summary>
+        MarkerNotTrackedVARJO = -1000124000,
+
+        /// <summary>
+        /// The specified marker ID is not valid. (Added by the `XR_VARJO_marker_tracking` extension)
+        /// </summary>
+        MarkerIdInvalidVARJO = -1000124001,
+
+        /// <summary>
+        /// The com.magicleap.permission.MARKER_TRACKING permission was denied. (Added by the `XR_ML_marker_understanding` extension)
+        /// </summary>
+        MarkerDetectorPermissionDeniedML = -1000138000,
+
+        /// <summary>
+        /// The specified marker could not be located spatially. (Added by the `XR_ML_marker_understanding` extension)
+        /// </summary>
+        MarkerDetectorLocateFailedML = -1000138001,
+
+        /// <summary>
+        /// The marker queried does not contain data of the requested type. (Added by the `XR_ML_marker_understanding` extension)
+        /// </summary>
+        MarkerDetectorInvalidDataQueryML = -1000138002,
+
+        /// <summary>
+        /// `createInfo` contains mutually exclusive parameters, such as setting `XR_MARKER_DETECTOR_CORNER_REFINE_METHOD_APRIL_TAG_ML` with `XR_MARKER_TYPE_ARUCO_ML`. (Added by the `XR_ML_marker_understanding` extension)
+        /// </summary>
+        MarkerDetectorInvalidCreateInfoML = -1000138003,
+
+        /// <summary>
+        /// The marker id passed to the function was invalid. (Added by the `XR_ML_marker_understanding` extension)
+        /// </summary>
+        MarkerInvalidML = -1000138004,
+
+        /// <summary>
+        /// The localization map being imported is not compatible with current OS or mode. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapIncompatibleML = -1000139000,
+
+        /// <summary>
+        /// The localization map requested is not available. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapUnavailableML = -1000139001,
+
+        /// <summary>
+        /// The map localization service failed to fulfill the request, retry later. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapFailML = -1000139002,
+
+        /// <summary>
+        /// The com.magicleap.permission.SPACE_IMPORT_EXPORT permission was denied. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapImportExportPermissionDeniedML = -1000139003,
+
+        /// <summary>
+        /// The com.magicleap.permission.SPACE_MANAGER permission was denied. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapPermissionDeniedML = -1000139004,
+
+        /// <summary>
+        /// The map being imported already exists in the system. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapAlreadyExistsML = -1000139005,
+
+        /// <summary>
+        /// The map localization service cannot export cloud based maps. (Added by the `XR_ML_localization_map` extension)
+        /// </summary>
+        LocalizationMapCannotExportCloudMapML = -1000139006,
+
+        /// <summary>
+        /// A spatial anchor was not found associated with the spatial anchor name provided (Added by the `XR_MSFT_spatial_anchor_persistence` extension)
+        /// </summary>
+        SpatialAnchorNameNotFoundMSFT = -1000142001,
+
+        /// <summary>
+        /// The spatial anchor name provided was not valid (Added by the `XR_MSFT_spatial_anchor_persistence` extension)
+        /// </summary>
+        SpatialAnchorNameInvalidMSFT = -1000142002,
+
+        /// <summary>
+        /// Marker does not encode a string. (Added by the `XR_MSFT_scene_marker` extension)
+        /// </summary>
+        SceneMarkerDataNotStringMSFT = 1000147000,
+
+        /// <summary>
+        /// Anchor import from cloud or export from device failed. (Added by the `XR_FB_spatial_entity_sharing` extension)
+        /// </summary>
+        SpaceMappingInsufficientFB = -1000169000,
+
+        /// <summary>
+        /// Anchors were downloaded from the cloud but failed to be imported/aligned on the device. (Added by the `XR_FB_spatial_entity_sharing` extension)
+        /// </summary>
+        SpaceLocalizationFailedFB = -1000169001,
+
+        /// <summary>
+        /// Timeout occurred while waiting for network request to complete. (Added by the `XR_FB_spatial_entity_sharing` extension)
+        /// </summary>
+        SpaceNetworkTimeoutFB = -1000169002,
+
+        /// <summary>
+        /// The network request failed. (Added by the `XR_FB_spatial_entity_sharing` extension)
+        /// </summary>
+        SpaceNetworkRequestFailedFB = -1000169003,
+
+        /// <summary>
+        /// Cloud storage is required for this operation but is currently disabled. (Added by the `XR_FB_spatial_entity_sharing` extension)
+        /// </summary>
+        SpaceCloudStorageDisabledFB = -1000169004,
+
+        /// <summary>
+        /// The provided data buffer did not match the required size. (Added by the `XR_META_passthrough_color_lut` extension)
+        /// </summary>
+        PassthroughColorLutBufferSizeMismatchMETA = -1000266000,
+
+        /// <summary>
+        /// Warning: The requested depth image is not yet available. (Added by the `XR_META_environment_depth` extension)
+        /// </summary>
+        EnvironmentDepthNotAvailableMETA = 1000291000,
+
+        /// <summary>
+        /// Tracking optimization hint is already set for the domain. (Added by the `XR_QCOM_tracking_optimization_settings` extension)
+        /// </summary>
+        HintAlreadySetQCOM = -1000306000,
+
+        /// <summary>
+        /// The provided space is valid but not an anchor. (Added by the `XR_HTC_anchor` extension)
+        /// </summary>
+        NotAnAnchorHTC = -1000319000,
+
+        /// <summary>
+        /// The space passed to the function was not locatable. (Added by the `XR_EXT_plane_detection` extension)
+        /// </summary>
+        SpaceNotLocatableEXT = -1000429000,
+
+        /// <summary>
+        /// The permission for this resource was not granted. (Added by the `XR_EXT_plane_detection` extension)
+        /// </summary>
+        PlaneDetectionPermissionDeniedEXT = -1000429001,
+
+        /// <summary>
+        /// Returned by completion function to indicate future is not ready. (Added by the `XR_EXT_future` extension)
+        /// </summary>
+        FuturePendingEXT = -1000469001,
+
+        /// <summary>
+        /// Returned by completion function to indicate future is not valid. (Added by the `XR_EXT_future` extension)
+        /// </summary>
+        FutureInvalidEXT = -1000469002,
+
+        /// <summary>
+        /// Provided by `XR_KHR_maintenance1`
+        /// </summary>
+        ExtensionDependencyNotEnabledKHR = ExtensionDependencyNotEnabled,
+
+        /// <summary>
+        /// Provided by `XR_KHR_maintenance1`
+        /// </summary>
+        PermissionInsufficientKHR = PermissionInsufficient,
 
         /// <summary>
         /// Max XR Result Value
         /// </summary>
         MaxResult = 0x7FFFFFFF
+    }
+
+    /// <summary>
+    /// Extension methods for <see cref="XrResult"/>.
+    /// </summary>
+    public static class XrResultExtensions
+    {
+        /// <summary>
+        /// Indicates whether the `XrResult` represents a success code, inclusive of <see cref="XrResult.Success"/>.
+        /// </summary>
+        /// <param name="xrResult">The `XrResult`.</param>
+        /// <returns><see langword="true"/> if the `XrResult` represents a success code. Otherwise, <see langword="false"/>.</returns>
+        public static bool IsSuccess(this XrResult xrResult)
+        {
+            return xrResult >= 0;
+        }
+
+        /// <summary>
+        /// Indicates whether the `XrResult` represents an unqualified success, ie <see cref="XrResult.Success"/>.
+        /// </summary>
+        /// <param name="xrResult">The `XrResult`.</param>
+        /// <returns><see langword="true"/> if the `XrResult` represents an unqualified success. Otherwise, <see langword="false"/>.</returns>
+        public static bool IsUnqualifiedSuccess(this XrResult xrResult)
+        {
+            return xrResult == 0;
+        }
+
+        /// <summary>
+        /// Indicates whether the `XrResult` represents an error code.
+        /// </summary>
+        /// <param name="xrResult">The `XrResult`.</param>
+        /// <returns><see langword="true"/> if the `XrResult` represents an error code. Otherwise, <see langword="false"/>.</returns>
+        public static bool IsError(this XrResult xrResult)
+        {
+            return xrResult < 0;
+        }
     }
 
     /// <summary>

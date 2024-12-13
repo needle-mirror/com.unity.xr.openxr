@@ -17,6 +17,9 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private static GUIContent s_LateLatchingSupportedLabel = EditorGUIUtility.TrTextContent("Late Latching (Vulkan)");
         private static GUIContent s_LateLatchingDebugLabel = EditorGUIUtility.TrTextContent("Late Latching Debug Mode");
         private static GUIContent s_ShowAndroidExperimentalLabel = EditorGUIUtility.TrTextContent("Experimental", "Experimental settings that are under active development and should be used with caution.");
+#if UNITY_6000_1_OR_NEWER
+        private static GUIContent s_OptimizeMultiviewRenderRegionsLabel = EditorGUIUtility.TrTextContent("Optimize Multiview Render Regions (Vulkan)", "Activates Multiview Render Regions optimizations at application start. Requires usage of Unity 6.1 or later, Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.");
+#endif
 
         struct TargetDeviceProperty
         {
@@ -35,6 +38,11 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private SerializedProperty m_LateLatchingDebugProperty;
 
         private SerializedProperty optimizeBufferDiscards;
+#if UNITY_6000_1_OR_NEWER
+        private SerializedProperty optimizeMultiviewRenderRegions;
+#endif
+
+        private SerializedProperty spacewarpMotionVectorTextureFormat;
 
         void InitActiveTargetDevices()
         {
@@ -64,6 +72,10 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             optimizeBufferDiscards =
                 serializedObject.FindProperty("optimizeBufferDiscards");
+#if UNITY_6000_1_OR_NEWER
+            optimizeMultiviewRenderRegions =
+                serializedObject.FindProperty("optimizeMultiviewRenderRegions");
+#endif
 
             targetDeviceProperties = new List<TargetDeviceProperty>();
             InitActiveTargetDevices();
@@ -74,6 +86,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             // mapping these to Properties so tha we can get Undo/redo functionality
             m_LateLatchingDebugProperty = serializedObject.FindProperty("lateLatchingDebug");
             m_LateLatchingModeProperty = serializedObject.FindProperty("lateLatchingMode");
+
+            spacewarpMotionVectorTextureFormat = serializedObject.FindProperty("spacewarpMotionVectorTextureFormat");
 
             for (int i = 0; i < targetDevicesProperty.arraySize; ++i)
             {
@@ -93,12 +107,17 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         public override void OnInspectorGUI()
         {
             // Update anything from the serializable object
-            EditorGUIUtility.labelWidth = 215.0f;
+            EditorGUIUtility.labelWidth = 275.0f;
 
             serializedObject.Update();
             EditorGUILayout.LabelField("Rendering Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(symmetricProjection, new GUIContent("Symmetric Projection (Vulkan)"));
             EditorGUILayout.PropertyField(optimizeBufferDiscards, new GUIContent("Optimize Buffer Discards (Vulkan)"));
+            // OptimizeMultiviewRenderRegions (aka MVPVV) only supported on Unity 6.1 onwards
+#if UNITY_6000_1_OR_NEWER
+            EditorGUILayout.PropertyField(optimizeMultiviewRenderRegions, s_OptimizeMultiviewRenderRegionsLabel);
+#endif
+            EditorGUILayout.PropertyField(spacewarpMotionVectorTextureFormat, new GUIContent("Space Warp motion vector texture format"));
 
             EditorGUILayout.Space();
 
@@ -136,7 +155,11 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             var serializedOpenXrSettings = new SerializedObject(androidOpenXRSettings);
 
             androidOpenXRSettings.symmetricProjection = symmetricProjection.boolValue;
+#if UNITY_6000_1_OR_NEWER
+            androidOpenXRSettings.optimizeMultiviewRenderRegions = optimizeMultiviewRenderRegions.boolValue;
+#endif
             androidOpenXRSettings.optimizeBufferDiscards = optimizeBufferDiscards.boolValue;
+            androidOpenXRSettings.spacewarpMotionVectorTextureFormat = (OpenXRSettings.SpaceWarpMotionVectorTextureFormat)spacewarpMotionVectorTextureFormat.enumValueIndex;
             serializedOpenXrSettings.ApplyModifiedProperties();
 
             EditorGUIUtility.labelWidth = 0.0f;

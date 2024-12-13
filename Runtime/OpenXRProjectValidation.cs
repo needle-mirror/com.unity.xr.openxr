@@ -12,6 +12,7 @@ using UnityEngine.XR.OpenXR.Features;
 #if XR_COMPOSITION_LAYERS
 using UnityEngine.XR.OpenXR.Features.CompositionLayers;
 #endif
+
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
 using UnityEngine.Rendering.Universal;
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
@@ -91,7 +92,12 @@ namespace UnityEditor.XR.OpenXR
                 },
                 fixIt = OpenProjectSettings,
                 fixItAutomatic = false,
-                fixItMessage = "Open Project Settings to select one or more interaction profiles."
+                fixItMessage = "Open Project Settings to select one or more interaction profiles.",
+                highlighterFocus = new OpenXRFeature.ValidationRule.HighlighterFocusData
+                {
+                    searchText = "Enabled Interaction Profiles",
+                    windowTitle = "Project Settings",
+                }
             },
             new OpenXRFeature.ValidationRule()
             {
@@ -145,6 +151,16 @@ namespace UnityEditor.XR.OpenXR
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
 #endif // ENABLE_INPUT_SYSTEM
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+            new OpenXRFeature.ValidationRule() {
+                message = "[Optional] Enabling URP upscaling decreases performance significantly because it is currently not supported by XR. Please disable it by setting Upscaling Filter to Automatic in the Universal Render Pipeline Asset.",
+                checkPredicate = URPUpscalingValidationPredicate,
+                fixIt = URPUpscalingFix,
+                fixItMessage = "URP upscaling has been disabled by setting the Upscaling Filter to Automatic in the Universal Render Pipeline Asset.",
+                error = false,
+                errorEnteringPlaymode = false,
+            },
+#endif
             new OpenXRFeature.ValidationRule()
             {
                 message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",
@@ -187,6 +203,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 error = false,
                 buildTargetGroup = BuildTargetGroup.WSA
             },
+
 #if XR_COMPOSITION_LAYERS
             new OpenXRFeature.ValidationRule()
             {
@@ -406,6 +423,22 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return true;
         }
 
+        private static bool URPUpscalingValidationPredicate()
+        {
+            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
+            if (currentRenderPipelineAsset == null)
+            {
+                return false;
+            }
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
+            if (urpAsset != null) {
+                return urpAsset.upscalingFilter == UpscalingFilterSelection.Auto;
+            }
+#endif
+            return false;
+        }
+
         private static void SoftShadowFixItButtonPress()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
@@ -428,6 +461,32 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             }
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
             Debug.LogWarning("Unable to disable soft shadows.");
+        }
+        private static void URPUpscalingFix()
+        {
+            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
+            // If current render pipeline is Built-In Render Pipeline
+            if (currentRenderPipelineAsset == null)
+            {
+                Debug.LogWarning("No Render Pipeline Asset was found. Please assign a Default Render Pipeline Asset in the Graphics settings or assign a Render Pipeline Asset in the active Quality level.");
+                return;
+            }
+#if UNITY_RENDER_PIPELINES_UNIVERSAL
+            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
+            if (urpAsset != null)
+            {
+                var urpAssetID = urpAsset.GetInstanceID();
+                if (AssetDatabase.CanOpenAssetInEditor(urpAssetID))
+                {
+                    AssetDatabase.OpenAsset(urpAssetID);
+                    urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
+                }
+                else
+                    Debug.LogWarning("Unable to open URP asset in Editor.");
+                return;
+            }
+#endif // UNITY_RENDER_PIPELINES_UNIVERSAL
+            Debug.LogWarning("Unable to disable URP upscaling.");
         }
     }
 }

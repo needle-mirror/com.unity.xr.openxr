@@ -101,6 +101,11 @@ namespace UnityEditor.XR.OpenXR
                 FixItMessage = rule.fixItMessage,
                 HelpLink = rule.helpLink,
                 HelpText = rule.helpText,
+                HighlighterFocus = new BuildValidationRule.HighlighterFocusData
+                {
+                    WindowTitle = rule.highlighterFocus.windowTitle,
+                    SearchText = rule.highlighterFocus.searchText
+                },
                 Message = rule.message,
                 Category = rule.feature != null ? rule.feature.nameUi : "OpenXR",
                 SceneOnlyValidation = false

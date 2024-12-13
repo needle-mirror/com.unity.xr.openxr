@@ -101,6 +101,18 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         internal bool lateLatchingDebug;
 
         /// <summary>
+        /// If enabled, the application can use Multi-View Per View Viewports functionality. This feature requires Unity 6.1 or later, and usage of the Vulkan renderer.
+        /// </summary>
+        [SerializeField]
+        internal bool optimizeMultiviewRenderRegions;
+
+        /// <summary>
+        /// Holding the Space Warp motion vector texture format
+        /// </summary>
+        [SerializeField]
+        internal OpenXRSettings.SpaceWarpMotionVectorTextureFormat spacewarpMotionVectorTextureFormat =  OpenXRSettings.SpaceWarpMotionVectorTextureFormat.RGBA16f;
+
+        /// <summary>
         /// Forces the removal of Internet permissions added to the Android Manifest.
         /// </summary>
         public bool ForceRemoveInternetPermission
@@ -270,8 +282,67 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         fixItAutomatic = false,
                     },
 
-#if UNITY_ANDROID
+                    // OptimizeMultiviewRenderRegions (aka MVPVV) only supported on Unity 6.1 onwards
+#if UNITY_6000_1_OR_NEWER
                     new ValidationRule(this)
+                    {
+                        message = "Optimize Multiview Render Regions requires symmetric projection setting turned on.",
+                        checkPredicate = () =>
+                        {
+                            if (optimizeMultiviewRenderRegions)
+                            {
+                                return symmetricProjection;
+                            }
+                            return true;
+                        },
+                        error = true,
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            var feature = settings.GetFeature<MetaQuestFeature>();
+                            feature.symmetricProjection = true;
+                        }
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Optimize Multiview Render Regions requires Render Mode set to \"Single Pass Instanced / Multi-view\".",
+                        checkPredicate = () =>
+                        {
+                            if (optimizeMultiviewRenderRegions)
+                            {
+                                var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                                return (settings.renderMode == OpenXRSettings.RenderMode.SinglePassInstanced);
+                            }
+                            return true;
+                        },
+                        error = true,
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            settings.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                        }
+                    },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Optimize Multiview Render Regions needs the Vulkan Graphics API to be the default Graphics API to work at runtime.",
+                        helpText = "The Optimize Multiview Render Regions feature only works with the Vulkan Graphics API, which needs to be set as the first Graphics API to be loaded at application startup. Choosing other Graphics API may require to switch to Vulkan and restart the application.",
+                        checkPredicate = () =>
+                        {
+                            if (optimizeMultiviewRenderRegions)
+                            {
+                                var graphicsApis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
+                                return graphicsApis[0] == GraphicsDeviceType.Vulkan;
+                            }
+                            return true;
+                        },
+                        error = false
+                    },
+#endif
+
+#if UNITY_ANDROID
+                new ValidationRule(this)
                     {
                         message = "Symmetric Projection is only supported on Vulkan graphics API",
                         checkPredicate = () =>

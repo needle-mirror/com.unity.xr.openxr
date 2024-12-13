@@ -74,7 +74,17 @@ namespace UnityEditor.XR.OpenXR
 
             public override string jsonPath => "";
 
-            public override string tooltip => (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
+            public override string tooltip
+            {
+                get
+                {
+                    string str = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
+#if UNITY_EDITOR_OSX
+                    str = File.Exists("/usr/local/share/openxr/1/active_runtime.json") ? "/usr/local/share/openxr/1/active_runtime.json" : "";
+#endif
+                    return str;
+                }
+            }
 
             public override bool detected => true;
 
@@ -205,10 +215,24 @@ namespace UnityEditor.XR.OpenXR
                 {
                     if (packageInfo.name == PackageName)
                     {
-                        runtimePath = Path.Combine(Path.GetFullPath(packageInfo.assetPath), @"MetaXRSimulator/meta_openxr_simulator.json");
+                        string packageAssetPath = Path.GetFullPath(packageInfo.assetPath);
+                        runtimePath = GetRuntimeJsonPath(packageAssetPath);
                         break;
                     }
                 }
+            }
+
+            private static string GetRuntimeJsonPath(string packageAssetPath)
+            {
+                var runtimePath = Path.Combine(packageAssetPath, Path.Combine("MetaXRSimulator", "meta_openxr_simulator_win64.json"));
+#if UNITY_EDITOR_OSX
+                runtimePath = Path.Combine(Path.GetFullPath(packageAssetPath), Path.Combine("MetaXRSimulator", "meta_openxr_simulator_posix.json"));
+#endif
+                if (!File.Exists(runtimePath))
+                {
+                    runtimePath = Path.Combine(packageAssetPath, Path.Combine("MetaXRSimulator", "meta_openxr_simulator.json"));
+                }
+                return runtimePath;
             }
         }
 
@@ -362,8 +386,6 @@ namespace UnityEditor.XR.OpenXR
             public static readonly GUIContent k_ActiveRuntimeLabel = new GUIContent("Play Mode OpenXR Runtime", "Changing this value will only affect this instance of the editor.");
         }
 
-        private static int selectedRuntimeIndex = -1;
-
         internal const string k_SelectedRuntimeEnvKey = "XR_SELECTED_RUNTIME_JSON";
 
         private static int GetActiveRuntimeIndex(List<RuntimeDetector> runtimes)
@@ -372,11 +394,12 @@ namespace UnityEditor.XR.OpenXR
             if (string.IsNullOrEmpty(envValue))
                 return 0;
 
-            var runtime = runtimes.Where(r => String.Compare(r.jsonPath, envValue, StringComparison.InvariantCulture) == 0);
-            if (!runtime.Any())
-                return 0;
-
-            return runtimes.IndexOf(runtime.First());
+            for (int i = 0; i < runtimes.Count; i++)
+            {
+                if (String.Compare(runtimes[i].jsonPath, envValue, StringComparison.InvariantCulture) == 0)
+                    return i;
+            }
+            return 0;
         }
 
         internal static void SetSelectedRuntime(string jsonPath)
@@ -390,8 +413,7 @@ namespace UnityEditor.XR.OpenXR
             GUILayout.BeginHorizontal();
             var runtimes = OpenXRRuntimeSelector.RuntimeDetectors.Where(runtime => runtime.detected).ToList();
 
-            if (selectedRuntimeIndex < 0 || selectedRuntimeIndex >= runtimes.Count)
-                selectedRuntimeIndex = GetActiveRuntimeIndex(runtimes);
+            int selectedRuntimeIndex = GetActiveRuntimeIndex(runtimes);
             int index = EditorGUILayout.Popup(Content.k_ActiveRuntimeLabel, selectedRuntimeIndex, runtimes.Select(s => new GUIContent(s.name, s.tooltip)).ToArray());
             if (selectedRuntimeIndex != index)
             {

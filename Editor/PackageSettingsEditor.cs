@@ -163,7 +163,9 @@ namespace UnityEditor.XR.OpenXR
                 "m_colorSubmissionModes",
                 "m_symmetricProjection",
                 "m_optimizeBufferDiscards",
-                "m_vulkanAdditionalGraphicsQueue"
+                "m_vulkanAdditionalGraphicsQueue",
+                "m_optimizeMultiviewRenderRegions",
+                "m_spacewarpMotionVectorTextureFormat"
             );
             if (
                 buildTargetGroup == BuildTargetGroup.Android

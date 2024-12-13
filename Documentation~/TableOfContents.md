@@ -4,6 +4,7 @@
     * [Meta Quest Support](features/metaquest.md)
     * [Foveated Rendering](features/foveatedrendering.md)
     * [XR Performance Settings](features/performance-settings.md)
+    * [Multiview Render Regions](features/multiviewrenderregions.md)
 * [OpenXR Input](input.md)
     * [Microsoft Mixed Reality Motion Controller Profile](features/microsoftmotioncontrollerprofile.md)
     * [Oculus Touch Controller Profile](features/oculustouchcontrollerprofile.md)
