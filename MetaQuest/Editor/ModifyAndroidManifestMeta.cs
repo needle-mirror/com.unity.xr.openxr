@@ -7,6 +7,8 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
+using UnityEngine.XR.OpenXR.Features;
+using System.Linq;
 
 #if XR_MGMT_4_4_0_OR_NEWER
 using Unity.XR.Management.AndroidManifest.Editor;
@@ -80,15 +82,6 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 },
                 new ManifestElement()
                 {
-                    ElementPath = new List<string> { "manifest", "uses-feature" },
-                    Attributes = new Dictionary<string, string>
-                    {
-                        { "name", "oculus.software.eye_tracking" },
-                        { "required", "true" }
-                    }
-                },
-                new ManifestElement()
-                {
                     ElementPath = new List<string> { "manifest", "application", "meta-data" },
                     Attributes = new Dictionary<string, string>
                     {
@@ -112,14 +105,6 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                     {
                         { "name", "com.oculus.intent.category.VR" }
                     }
-                },
-                new ManifestElement()
-                {
-                    ElementPath = new List<string> { "manifest", "uses-permission" },
-                    Attributes = new Dictionary<string, string>
-                    {
-                        { "name", "com.oculus.permission.EYE_TRACKING" }
-                    }
                 }
             };
 
@@ -134,6 +119,29 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                         { "value", "true" }
                     }
                 });
+            }
+
+            if (IsAppTargetingQuestPro())
+            {
+                elementsToAdd.Add(
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "uses-feature" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "oculus.software.eye_tracking" },
+                            { "required", "true" }
+                        }
+                    });
+                elementsToAdd.Add(
+                    new ManifestElement()
+                    {
+                        ElementPath = new List<string> { "manifest", "uses-permission" },
+                        Attributes = new Dictionary<string, string>
+                        {
+                            { "name", "com.oculus.permission.EYE_TRACKING" }
+                        }
+                    });
             }
 
             return new ManifestRequirement
@@ -179,8 +187,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         private static bool ForceRemoveInternetPermission()
         {
-            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
-            var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
+            var questFeature = GetFeatureFromSettings<MetaQuestFeature>(BuildTargetGroup.Android);
 
             if (questFeature == null || !questFeature.enabled)
                 return false; // By default the permission is retained
@@ -190,13 +197,27 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         private static Texture2D SystemSplashScreen()
         {
-            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
-            var questFeature = androidOpenXRSettings.GetFeature<MetaQuestFeature>();
+            var questFeature = GetFeatureFromSettings<MetaQuestFeature>(BuildTargetGroup.Android);
 
             if (questFeature == null || !questFeature.enabled)
                 return null;
 
             return questFeature.systemSplashScreen;
+        }
+
+        private static bool IsAppTargetingQuestPro()
+        {
+            var questFeature = GetFeatureFromSettings<MetaQuestFeature>(BuildTargetGroup.Android);
+            return questFeature.targetDevices
+                .Where(device => string.Equals(device.manifestName, "cambria"))
+                .Where(device => device.enabled)
+                .Any();
+        }
+
+        private static T GetFeatureFromSettings<T>(BuildTargetGroup buildTargetGroup) where T : OpenXRFeature
+        {
+            var androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+            return androidOpenXRSettings.GetFeature<T>();
         }
 
         private static void ProcessSystemSplashScreen(string gradlePath)

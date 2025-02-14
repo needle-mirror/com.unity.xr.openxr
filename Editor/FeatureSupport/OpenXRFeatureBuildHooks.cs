@@ -30,12 +30,16 @@ namespace UnityEditor.XR.OpenXR.Features
             if (!BuildHelperUtils.HasLoader(group, typeof(OpenXRLoaderBase)))
                 return false;
 
-            if (OpenXRSettings.ActiveBuildTargetInstance == null || OpenXRSettings.ActiveBuildTargetInstance.features == null)
+            OpenXRSettings buildTargetOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildPipeline.GetBuildTargetGroup(target));
+            if (buildTargetOpenXRSettings == null || buildTargetOpenXRSettings.features == null)
+            {
+                UnityEngine.Debug.LogWarning($"Could not find valid OpenXR settings for build target {target}.");
                 return false;
+            }
 
             if (_ext == null || _ext.GetType() != featureType)
             {
-                foreach (var ext in OpenXRSettings.ActiveBuildTargetInstance.features)
+                foreach (var ext in buildTargetOpenXRSettings.features)
                 {
                     if (featureType == ext.GetType())
                     {

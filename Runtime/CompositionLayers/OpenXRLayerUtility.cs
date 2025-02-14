@@ -181,8 +181,25 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return;
 
             if (renderTexture.dimension == Rendering.TextureDimension.Cube && texture.dimension == Rendering.TextureDimension.Cube)
+            {
+                Cubemap convertedTexture = null;
+
+                // Check if graphics format or mipmap count is different and convert if necessary.
+                if (renderTexture.graphicsFormat != texture.graphicsFormat || renderTexture.mipmapCount != texture.mipmapCount)
+                {
+                    convertedTexture = new Cubemap(texture.width, renderTexture.graphicsFormat, Experimental.Rendering.TextureCreationFlags.None);
+
+                    // Convert the texture to the render texture format.
+                    if (!Graphics.ConvertTexture(texture, convertedTexture))
+                    {
+                        Debug.LogError("Failed to convert Cubemap to Render Texture format!");
+                        return;
+                    }
+                }
+
                 for (int i = 0; i < 6; i++)
-                    Graphics.CopyTexture(texture, i, renderTexture, i);
+                    Graphics.CopyTexture(convertedTexture == null ? texture : convertedTexture, i, renderTexture, i);
+            }
             else
                 Graphics.Blit(texture, renderTexture);
         }

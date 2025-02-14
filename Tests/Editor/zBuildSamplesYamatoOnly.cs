@@ -48,7 +48,7 @@ class zBuildSamplesYamatoOnly
     {
         foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
-            if (feature.nameUi.Contains("Meta Quest"))
+            if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.metaquest", true) == 0)
             {
                 Console.WriteLine($"Enable: {feature.nameUi}");
                 feature.enabled = true;
@@ -62,7 +62,7 @@ class zBuildSamplesYamatoOnly
     {
         foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
         {
-            if (feature.nameUi.Contains("MSFT Secondary View and Observers"))
+            if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.example.msftobserver", true) == 0)
             {
                 Console.WriteLine($"Enable: {feature.nameUi}");
                 feature.enabled = true;
@@ -254,6 +254,7 @@ class zBuildSamplesYamatoOnly
                 EnableSampleFeatures();
                 EnableQuestFeature();
                 EnableAndroidProfiles();
+                PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;

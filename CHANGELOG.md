@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+## [1.14.1] - 2025-02-14
+
+### Added
+
+* Added a validation rule to the Meta Quest Support feature to ensure that your app's default interface orientation uses a supported value.
+
+### Fixed
+
+* Fixed the OpenXRFeatureBuildHooks class so it now grabs the OpenXRSettings object from the given build target during build processing.
+* Fixed duplicate OpenXR feature assets being added to the OpenXRSettings asset when upgrading to a newer OpenXR package.
+* Fixed rendering problems with Mixed Reality Capture.
+* Fixed a debug log spamming issue regarding ignored event types. This message could be logged multiple times per frame and was not helpful.
+* Fixed Meta-specific eye-tracking manifest permissions to be added only to apps targeting Meta Quest Pro devices.
+* Fixed an issue where spacewarp may assign motion vector textures to wrong render passes when using secondary views.
+* Fixed a bug when allocating array swapchain failed, the index was incremented incorrectly. 
+* Fixed an issue when OpenXR feature didn't have all the attribute entries setup.
+
 ## [1.14.0] - 2024-12-13
 
 ### Added

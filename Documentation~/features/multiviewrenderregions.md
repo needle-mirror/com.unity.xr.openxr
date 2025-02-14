@@ -3,8 +3,6 @@ uid: openxr-multiview-render-regions
 ---
 # Multiview Render Regions
 
-## Overview
-
 The Multiview Render Regions feature is an optimization technique that prevents processing on areas of the screen that are not visible to the user.
 
 For a detailed explanation of Multiview Render Regions, refer to [Multiview Render Regions](https://docs.unity3d.com/6000.1/Documentation/Manual/xr-multiview-render-regions.html) in the Unity Manual.
@@ -24,4 +22,4 @@ To enable the Multiview Render Regions feature:
 3. Use the **Gear** icon to open **Meta Quest Support** settings.
 4. Under **Rendering Settings**, enable **Optimize Multiview Render Regions**.
 
-![The Optimize Multiview Render Regions feature is enabled in the OpenXR Rendering Settings.](images/multiview-render-regions.png)<br/>*Enable the Optimize Multiview Render Regions feature in Rendering Settings.*
+![The Optimize Multiview Render Regions feature is enabled in the OpenXR Rendering Settings.](../images/multiview-render-regions.png)<br/>*Enable the Optimize Multiview Render Regions feature in Rendering Settings.*

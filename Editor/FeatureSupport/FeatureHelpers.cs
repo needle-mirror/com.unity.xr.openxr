@@ -137,30 +137,31 @@ namespace UnityEditor.XR.OpenXR.Features
         public static AllFeatureInfo GetAllFeatureInfo(BuildTargetGroup group)
         {
             AllFeatureInfo ret = new AllFeatureInfo { Features = new List<FeatureInfo>() };
-            var openXrSettings = OpenXRPackageSettings.GetOrCreateInstance().GetSettingsForBuildTargetGroup(group);
+            var openXrPackageSettings = OpenXRPackageSettings.GetOrCreateInstance();
+            var openXrSettings = openXrPackageSettings.GetSettingsForBuildTargetGroup(group);
             if (openXrSettings == null)
             {
                 return ret;
             }
+            var assetPath = Path.Combine(OpenXRPackageSettings.GetAssetPathForComponents(OpenXRPackageSettings.s_PackageSettingsDefaultSettingsPath), openXrPackageSettings.name + ".asset");
+            var openXrExtensionAssets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+
             // Find any current extensions that are already serialized
             var currentExts = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
+            var buildGroupName = group.ToString();
 
-            foreach (var ext in openXrSettings.features)
+            foreach (var ext in openXrExtensionAssets)
             {
-                if (ext == null)
+                if (ext == null || !ext.name.Contains(buildGroupName))
                     continue;
 
-                // Extensions are named with their assigned build group.
-                if (ext.name.Contains(group.ToString()))
+                foreach (Attribute attr in Attribute.GetCustomAttributes(ext.GetType()))
                 {
-                    foreach (Attribute attr in Attribute.GetCustomAttributes(ext.GetType()))
+                    if (attr is OpenXRFeatureAttribute)
                     {
-                        if (attr is OpenXRFeatureAttribute)
-                        {
-                            var extAttr = (OpenXRFeatureAttribute)attr;
-                            currentExts[extAttr] = (OpenXRFeature)ext;
-                            break;
-                        }
+                        var extAttr = (OpenXRFeatureAttribute)attr;
+                        currentExts[extAttr] = (OpenXRFeature)ext;
+                        break;
                     }
                 }
             }
@@ -255,7 +256,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
                         // Only set value if value is different
                         if ((targetField.GetValue(feature) == null && sourceField.GetValue(attr) != null) ||
-                            targetField.GetValue(feature).Equals(sourceField.GetValue(attr)) == false)
+                            targetField.GetValue(feature) == null || targetField.GetValue(feature).Equals(sourceField.GetValue(attr)) == false)
                         {
                             targetField.SetValue(feature, sourceField.GetValue(attr));
                             fieldChanged = true;

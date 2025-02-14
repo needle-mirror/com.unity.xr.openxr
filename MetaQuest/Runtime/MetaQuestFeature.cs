@@ -408,7 +408,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
                     new ValidationRule(this)
                     {
-                        message = "Symmetric Projection is not supported on Quest 1",
+                        message = "Symmetric Projection is only available on Quest 2 or higher",
                         checkPredicate = () =>
                         {
                             if (symmetricProjection)
@@ -444,8 +444,39 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
                             return true;
                         }
-                    }
+                    },
 #endif
+                    new ValidationRule(this)
+                    {
+                        message = "Meta Quest HMDs only support Landscape Left orientation.",
+                        checkPredicate = () =>
+                        {
+                            if (PlayerSettings.defaultInterfaceOrientation == UIOrientation.AutoRotation)
+                            {
+                                if (!PlayerSettings.allowedAutorotateToLandscapeLeft)
+                                    return false;
+                            }
+                            else
+                            {
+                                if (PlayerSettings.defaultInterfaceOrientation != UIOrientation.LandscapeLeft)
+                                    return false;
+                            }
+                            return true;
+                        },
+                        error = true,
+                        fixIt = () =>
+                        {
+                            if (PlayerSettings.defaultInterfaceOrientation == UIOrientation.AutoRotation)
+                            {
+                                PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+                            }
+                            else
+                            {
+                                PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+                            }
+                        },
+                        fixItAutomatic = true,
+                    }
             };
 
         internal class MetaQuestFeatureEditorWindow : EditorWindow

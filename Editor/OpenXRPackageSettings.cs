@@ -64,6 +64,7 @@ namespace UnityEditor.XR.OpenXR
                 {
                     AssetDatabase.CreateAsset(settings, path);
                     EditorBuildSettings.AddConfigObject(Constants.k_SettingsKey, settings, true);
+                    AssetDatabase.SaveAssets();
                 }
             }
             return settings;
