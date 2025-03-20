@@ -12,6 +12,8 @@ OpenXR Specification about Hand Interaction Extension will be updated here when 
 
 ## Available controls
 
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
+
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 |`/input/grip/pose` | devicePose | Pose |

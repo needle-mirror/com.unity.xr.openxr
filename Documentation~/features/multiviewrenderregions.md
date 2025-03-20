@@ -17,7 +17,7 @@ To enable this feature, you will need the following:
 ## Enable Multiview Render Regions
 
 To enable the Multiview Render Regions feature:
-1. Open the **OpenXR** section of **XR Plug-in Management** (menu: **Edit** > **Project Settings** > **XR Plug-in Management** > **OpenXR**.
+1. Open the **OpenXR** section of **XR Plug-in Management** (menu: **Edit** > **Project Settings** > **XR Plug-in Management** > **OpenXR**).
 2. Under **All Features**, enable **Meta Quest Support**.
 3. Use the **Gear** icon to open **Meta Quest Support** settings.
 4. Under **Rendering Settings**, enable **Optimize Multiview Render Regions**.

@@ -10,6 +10,8 @@ OpenXR Specification about Hand Interaction Profile will be updated here when it
 
 ## Available controls
 
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
+
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 |`/input/grip/pose` | devicePose | Pose |
@@ -26,3 +28,5 @@ OpenXR Specification about Hand Interaction Profile will be updated here when it
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |
 | Unity Layout Only  | deviceRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

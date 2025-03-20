@@ -5,15 +5,17 @@ uid: openxr-oculus-touch-controller-profile
 
 Enables the OpenXR interaction profile for Oculus Touch controllers and exposes the `<OculusTouchController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
 
-For more information about the Oculus Touch interaction profile, see the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_oculus_touch_controller_profile).
+For more information about the Oculus Touch interaction profile, refer to the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_oculus_touch_controller_profile).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 |`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/squeeze/value`| grip | Float |
-|`/input/squeeze/value`| gripPressed | Boolean (float cast to boolean) |
+|`/input/squeeze/value`| gripPressed | Boolean (float cast to Boolean) |
 |`/input/menu/click`| menu (Left Hand Only)| Boolean |
 |`/input/system/click`| menu (Right Hand Only)| Boolean |
 |`/input/a/click`| primaryButton (Right Hand Only) | Boolean |
@@ -25,8 +27,8 @@ For more information about the Oculus Touch interaction profile, see the [OpenXR
 |`/input/y/click`| secondaryButton (Left Hand Only) | Boolean |
 |`/input/y/touch`| secondaryTouched (Left Hand Only) | Boolean |
 |`/input/trigger/value`| trigger | Float |
-|`/input/trigger/value`| triggerPressed | Boolean (float cast to boolean) |
-|`/input/trigger/touch`| triggerTouched| Boolean (float cast to boolean) |
+|`/input/trigger/value`| triggerPressed | Boolean (float cast to Boolean) |
+|`/input/trigger/touch`| triggerTouched| Boolean (float cast to Boolean) |
 |`/input/thumbstick/click`| thumbstickClicked | Boolean |
 |`/input/thumbstick/touch`| thumbstickTouched | Boolean |
 |`/input/grip/pose` | devicePose | Pose |
@@ -36,3 +38,5 @@ For more information about the Oculus Touch interaction profile, see the [OpenXR
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |
 | Unity Layout Only  | deviceRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

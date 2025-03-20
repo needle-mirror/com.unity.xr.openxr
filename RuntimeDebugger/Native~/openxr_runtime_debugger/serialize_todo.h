@@ -24,3 +24,9 @@ void SendToCSharp<>(const char* fieldname, XrInteractionProfileAnalogThresholdVA
 {
     SendToCSharp(fieldname, "<TODO: XrInteractionProfileAnalogThresholdVALVE>");
 }
+
+template <>
+void SendToCSharp<>(const char* fieldname, XrWorldMeshBufferML* t)
+{
+    SendToCSharp(fieldname, "<TODO: XrWorldMeshBufferML>");
+}

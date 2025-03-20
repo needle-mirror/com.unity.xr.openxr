@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > **Notes**
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
+
+## [1.14.2] - 2025-03-20
+
+### Added
+
+* Added a validation rule about the minimum Android API level is 24.
+* Added support for visible triangle mesh to be available for use in post processing.
+
+### Changed
+
+* Modified the Meta Quest Support feature to use the updated Khronos OpenXR loader library.
+* Changed OpenXR loader version to 1.1.45.
+
+### Fixed
+
+* Fixed an issue that enabled interaction profiles setting not being saved after reopened the project.
+* Fixed a bug that depth submission mode corrupting the spacewarp depth texture.
+* Fixed a bug that wrong view configuration type being selected as primary view and causing rendering issues.
+* Fixed an issue on Android platforms where `xrCreateSwapchainAndroidSurfaceKHR` was attempted to be used even when the XR Composition Layers package wasn't installed.
+* Fixed an issue that Meta XR simulator can't launch properly on Mac.
+
 ## [1.14.1] - 2025-02-14
 
 ### Added

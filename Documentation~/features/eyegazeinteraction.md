@@ -12,9 +12,11 @@ At present, this device does not appear in the Unity Input System drop-down menu
 |Position|`<EyeGaze>/pose/position`|
 |Rotation|`<EyeGaze>/pose/rotation`|
 
-For more information about the Eye Gaze extension, see the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction).
+For more information about the Eye Gaze extension, refer to the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_eye_gaze_interaction).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|

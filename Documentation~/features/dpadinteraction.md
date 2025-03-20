@@ -7,9 +7,11 @@ Unity OpenXR provides support for the Dpad Binding extension specified by Khrono
 
 Enables the OpenXR interaction profile for Dpad Interaction and exposes the `<DPad>` layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
 
-For more information about the Dpad Binding extension, see the [OpenXR Specification](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_dpad_binding).
+For more information about the Dpad Binding extension, refer to the [OpenXR Specification](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_dpad_binding).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|

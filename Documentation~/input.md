@@ -140,6 +140,7 @@ Which controls are available on which devices is covered in the specific device 
 
 the Unity control `touchpad` and `trackpad` are used interchangeably, as are `joystick` and `thumbstick`.
 
+<a id="pose-data"></a>
 ### Pose data
 
 Unity expresses Pose data as individual elements (for example, position, rotation, velocity, and so on). OpenXR expresses poses as a group of data. Unity has introduced a new type to the Input System called a `Pose` that is used to represent OpenXR poses. The available poses and their OpenXR paths are listed below:

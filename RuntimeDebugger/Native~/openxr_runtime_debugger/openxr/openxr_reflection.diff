@@ -1,5 +1,5 @@
 diff --git a/specification/scripts/creflectiongenerator.py b/specification/scripts/creflectiongenerator.py
-index ac05aeed6..b1932f559 100644
+index a1beca84a..fa08160ee 100644
 --- a/specification/scripts/creflectiongenerator.py
 +++ b/specification/scripts/creflectiongenerator.py
 @@ -35,11 +35,13 @@ class CommandData:
@@ -70,10 +70,18 @@ index ac05aeed6..b1932f559 100644
          self.protects = set()
          self.template: Optional[JinjaTemplate] = None
          self.parents = {}
-@@ -97,14 +131,34 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -97,14 +131,42 @@ class CReflectionOutputGenerator(OutputGenerator):
                 if x.protect == protect and x.structTypeName is not None]
          return ret
  
++    def getCmdsForProtect(self, protect=None):
++        return [x for x in self.cmds
++                if x.protect == protect]
++
++    def getEnumsForProtect(self, protect=None):
++        return [x for x in self.enums
++                if x.protect == protect]
++
 +    def getCmdsForProtect(self, protect=None):
 +        return [x for x in self.cmds
 +                if x.protect == protect]
@@ -89,7 +97,7 @@ index ac05aeed6..b1932f559 100644
  
 +        # UNITY: specialization filter
 +        self.cmds = [x for x in self.cmds if x.cmdName not in ('xrGetInstanceProcAddr')]
-+        self.structs = [x for x in self.structs if x.typeName not in ('XrBaseInStructure', 'XrBaseOutStructure', 'XrEventDataBuffer', 'XrDebugUtilsMessengerCreateInfoEXT', 'XrSpatialGraphNodeSpaceCreateInfoMSFT', 'XrInteractionProfileAnalogThresholdVALVE')]
++        self.structs = [x for x in self.structs if x.typeName not in ('XrBaseInStructure', 'XrBaseOutStructure', 'XrEventDataBuffer', 'XrDebugUtilsMessengerCreateInfoEXT', 'XrSpatialGraphNodeSpaceCreateInfoMSFT', 'XrInteractionProfileAnalogThresholdVALVE', 'XrWorldMeshBufferML')]
 +
          unprotected_structs = self._get_structs_for_protect()
          protected_structs = [(x, self._get_structs_for_protect(protect=x))
@@ -105,7 +113,7 @@ index ac05aeed6..b1932f559 100644
          # drop empty collections
          protected_structs = [(x, y) for x, y in protected_structs if y]
  
-@@ -138,7 +192,15 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -138,7 +200,15 @@ class CReflectionOutputGenerator(OutputGenerator):
              unprotectedStructs=unprotected_structs,
              protectedStructs=protected_structs,
              structs=self.structs,
@@ -121,7 +129,7 @@ index ac05aeed6..b1932f559 100644
              bitmasks=self.bitmasks,
              extensions=extensions,
              polymorphic_struct_families=polymorphic_struct_families,
-@@ -159,6 +221,8 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -159,6 +229,8 @@ class CReflectionOutputGenerator(OutputGenerator):
              # If the type is a struct type, generate it using the
              # special-purpose generator.
              self.genStruct(typeinfo, name, alias)
@@ -130,7 +138,7 @@ index ac05aeed6..b1932f559 100644
  
          parent_struct = typeElem.get('parentstruct')
          if parent_struct is not None:
-@@ -174,12 +238,75 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -174,12 +246,75 @@ class CReflectionOutputGenerator(OutputGenerator):
  
          self.commands.append(CommandData(name, self.featureName))
  
@@ -206,7 +214,7 @@ index ac05aeed6..b1932f559 100644
          structTypeEnum = None
          members = []
          for member in typeinfo.getMembers():
-@@ -188,7 +315,8 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -188,7 +323,8 @@ class CReflectionOutputGenerator(OutputGenerator):
              if self.conventions.is_structure_type_member(memberType, memberName):
                  structTypeEnum = member.get("values")
  
@@ -216,7 +224,7 @@ index ac05aeed6..b1932f559 100644
  
          protect = set()
          if self.featureExtraProtect:
-@@ -202,7 +330,9 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -202,7 +338,9 @@ class CReflectionOutputGenerator(OutputGenerator):
          else:
              protect = None
  
@@ -227,7 +235,7 @@ index ac05aeed6..b1932f559 100644
          if protect:
              self.protects.add(protect)
  
-@@ -242,4 +372,16 @@ class CReflectionOutputGenerator(OutputGenerator):
+@@ -242,4 +380,16 @@ class CReflectionOutputGenerator(OutputGenerator):
                      continue
                  enumTuples.append((getElemName(elem), strVal))
  
@@ -246,7 +254,7 @@ index ac05aeed6..b1932f559 100644
 +
 +            self.enums.append(EnumData(groupName, expandPrefix, expandSuffix, enumTuples, protect))
 diff --git a/specification/scripts/template_openxr_reflection.h b/specification/scripts/template_openxr_reflection.h
-index 3c668ca8f..ba6f5d42a 100644
+index 11ec318d1..9ddbbc8e1 100644
 --- a/specification/scripts/template_openxr_reflection.h
 +++ b/specification/scripts/template_openxr_reflection.h
 @@ -12,7 +12,7 @@

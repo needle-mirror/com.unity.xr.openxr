@@ -5,9 +5,11 @@ uid: openxr-khronos-simple-controller-profile
 
 Enables the OpenXR interaction profile for the Khronos Simple Controller and exposes the `<SimpleController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
 
-For more information about the Khronos Simple Controller interaction profile, see the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_khronos_simple_controller_profile).
+For more information about the Khronos Simple Controller interaction profile, refer to the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_khronos_simple_controller_profile).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
@@ -22,3 +24,5 @@ For more information about the Khronos Simple Controller interaction profile, se
 | Unity Layout Only  | deviceRotation | Quaternion |
 | Unity Layout Only  | pointerPosition | Vector3 |
 | Unity Layout Only  | pointerRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

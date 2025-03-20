@@ -40,7 +40,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 
         private void OnEnable()
         {
-            SubsystemManager.GetInstances(s_InputSubsystems);
+            SubsystemManager.GetSubsystems(s_InputSubsystems);
             for (int i = 0; i < s_InputSubsystems.Count; i++)
             {
                 s_InputSubsystems[i].trackingOriginUpdated += TrackingOriginUpdated;
@@ -53,7 +53,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 
         private void OnDisable()
         {
-            SubsystemManager.GetInstances(s_InputSubsystems);
+            SubsystemManager.GetSubsystems(s_InputSubsystems);
             for (int i = 0; i < s_InputSubsystems.Count; i++)
             {
                 s_InputSubsystems[i].trackingOriginUpdated -= TrackingOriginUpdated;
@@ -74,7 +74,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
         {
             XRInputSubsystem subsystem = null;
 
-            SubsystemManager.GetInstances(s_InputSubsystems);
+            SubsystemManager.GetSubsystems(s_InputSubsystems);
             if (s_InputSubsystems.Count > 0)
             {
                 subsystem = s_InputSubsystems[0];

@@ -7,9 +7,11 @@ Unity OpenXR provides support for the Hololens 2 Hand interaction profile. This 
 
 This interaction profile does not provide hand mesh or hand rig data. These will be added in the future.
 
-For more information about the Microsoft Hand Interaction extension, see the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction).
+For more information about the Microsoft Hand Interaction extension, refer to the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_MSFT_hand_interaction).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
@@ -23,3 +25,5 @@ For more information about the Microsoft Hand Interaction extension, see the [Op
 | Unity Layout Only  | deviceRotation | Quaternion |
 | Unity Layout Only  | pointerPosition | Vector3 |
 | Unity Layout Only  | pointerRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

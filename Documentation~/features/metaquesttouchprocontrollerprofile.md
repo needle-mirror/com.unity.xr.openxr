@@ -7,11 +7,13 @@ Enables the OpenXR interaction profile for Meta Quest Pro controllers and expose
 
 ## Available controls
 
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
+
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 |`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/squeeze/value`| grip | Float |
-|`/input/squeeze/value`| gripPressed | Boolean (float cast to boolean) |
+|`/input/squeeze/value`| gripPressed | Boolean (float cast to Boolean) |
 |`/input/menu/click`| menu (Left Hand Only)| Boolean |
 |`/input/system/click`| menu (Right Hand Only)| Boolean |
 |`/input/a/click`| primaryButton (Right Hand Only) | Boolean |
@@ -23,8 +25,8 @@ Enables the OpenXR interaction profile for Meta Quest Pro controllers and expose
 |`/input/y/click`| secondaryButton (Left Hand Only) | Boolean |
 |`/input/y/touch`| secondaryTouched (Left Hand Only) | Boolean |
 |`/input/trigger/value`| trigger | Float |
-|`/input/trigger/value`| triggerPressed | Boolean (float cast to boolean) |
-|`/input/trigger/touch`| triggerTouched| Boolean (float cast to boolean) |
+|`/input/trigger/value`| triggerPressed | Boolean (float cast to Boolean) |
+|`/input/trigger/touch`| triggerTouched| Boolean (float cast to Boolean) |
 |`/input/thumbstick/click`| thumbstickClicked | Boolean |
 |`/input/thumbstick/touch`| thumbstickTouched | Boolean |
 |`/input/thumbrest/touch`| thumbrestTouched | Boolean |
@@ -42,3 +44,5 @@ Enables the OpenXR interaction profile for Meta Quest Pro controllers and expose
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |
 | Unity Layout Only  | deviceRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

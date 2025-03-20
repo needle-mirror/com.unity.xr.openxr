@@ -26,7 +26,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         OpenxrExtensionStrings = "XR_OCULUS_android_initialize_loader",
         Version = "1.0.0",
         BuildTargetGroups = new[] { BuildTargetGroup.Android },
-        CustomRuntimeLoaderBuildTargets = new[] { BuildTarget.Android },
         FeatureId = featureId
     )]
 #endif

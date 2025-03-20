@@ -21,7 +21,11 @@ namespace UnityEngine.XR.OpenXR.Samples.MeshingFeature
         {
             if (transform.position.y < -10)
             {
+#if UNITY_6000_0_OR_NEWER
+                rb.linearVelocity = Vector3.zero;
+#else
                 rb.velocity = Vector3.zero;
+#endif
                 rb.angularVelocity = Vector3.zero;
                 rb.MovePosition(starting);
             }

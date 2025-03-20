@@ -126,6 +126,15 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
+            new OpenXRFeature.ValidationRule()
+            {
+                message = "The project's minimum Android API level is lower than 24, which is the lowest level supported by the OpenXR plug-in.",
+                helpText = "This API level is required by the OpenXR plug-in's loader library. If your project is using a custom loader library, ensure that the project's minimum API level is supported by your library, which may be lower than 24.",
+                checkPredicate = () => PlayerSettings.Android.minSdkVersion >= AndroidSdkVersions.AndroidApiLevel24,
+                fixIt = () => PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24,
+                fixItMessage = "Set Player Settings minimum Android API Level to 24.",
+                buildTargetGroup = BuildTargetGroup.Android,
+            },
 #if ENABLE_INPUT_SYSTEM
             new OpenXRFeature.ValidationRule()
             {

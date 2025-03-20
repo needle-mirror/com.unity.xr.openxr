@@ -189,6 +189,10 @@ namespace UnityEditor.XR.OpenXR.Features
                             AssetDatabase.AddObjectToAsset(extObj, openXrSettings);
                             AssetDatabase.SaveAssets();
                         }
+                        else
+                        {
+                            extObj.name = extType.Name + " " + group;
+                        }
 
                         if (extObj == null)
                             continue;

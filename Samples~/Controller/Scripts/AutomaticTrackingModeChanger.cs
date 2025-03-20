@@ -24,7 +24,7 @@ namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
             if (m_TimeRemainingTillChange <= 0.0f)
             {
                 List<XRInputSubsystem> inputSubsystems = new List<XRInputSubsystem>();
-                SubsystemManager.GetInstances(inputSubsystems);
+                SubsystemManager.GetSubsystems(inputSubsystems);
                 XRInputSubsystem subsystem = inputSubsystems?[0];
                 if (subsystem != null)
                 {

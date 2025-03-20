@@ -3,11 +3,13 @@ uid: openxr-valve-index-controller-profile
 ---
 # Valve Index Controller Profile
 
-Enables the OpenXR interaction profile for the Valve Index controler and exposes the `<ValveIndexController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
+Enables the OpenXR interaction profile for the Valve Index controller and exposes the `<ValveIndexController>` device layout within the [Unity Input System](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/manual/).
 
-For more information about the Valve Index interaction profile, see the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_htc_vive_controller_profile).
+For more information about the Valve Index interaction profile, refer to the [OpenXR Specification](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_htc_vive_controller_profile).
 
 ## Available controls
+
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
 
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
@@ -38,3 +40,5 @@ For more information about the Valve Index interaction profile, see the [OpenXR 
 | Unity Layout Only  | deviceRotation | Quaternion |
 | Unity Layout Only  | pointerPosition | Vector3 |
 | Unity Layout Only  | pointerRotation | Quaternion |
+
+[!include[](snippets/unity-layout.md)]

@@ -11,6 +11,8 @@ For more information about the Palm Pose extension, refer to the [OpenXR Specifi
 
 ## Available controls
 
+The following table outlines the mapping between the OpenXR paths and Unity's implementation:
+
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 | `/input/palm_ext/pose` | palmPose | Pose |

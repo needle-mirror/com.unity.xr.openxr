@@ -27,7 +27,7 @@ namespace UnityEngine.XR.OpenXR.Samples.MeshingFeature
             }
 
             var meshSubsystems = new List<XRMeshSubsystem>();
-            SubsystemManager.GetInstances(meshSubsystems);
+            SubsystemManager.GetSubsystems(meshSubsystems);
             if (meshSubsystems.Count == 1)
             {
                 s_MeshSubsystem = meshSubsystems[0];

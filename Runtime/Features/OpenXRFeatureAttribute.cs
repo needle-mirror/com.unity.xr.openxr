@@ -81,7 +81,7 @@ namespace UnityEditor.XR.OpenXR.Features
         public string Category = "";
 
         /// <summary>
-        /// True fi this feature is required, false otherwise.
+        /// True if this feature is required, false otherwise.
         /// Required features will cause the loader to fail to initialize if they fail to initialize or start.
         /// </summary>
         [CopyField(nameof(OpenXRFeature.required))] public bool Required = false;

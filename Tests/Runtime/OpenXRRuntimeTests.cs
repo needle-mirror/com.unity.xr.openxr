@@ -890,6 +890,20 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             AddExtension("XR_VARJO_quad_views");
             OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.MultiPass;
+            // This is a Runtime 1.0 only test
+            int attemptCount = 0;
+            MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
+            {
+                attemptCount += 1;
+                if (attemptCount <= 1)
+                {
+                    return XrResult.ApiVersionUnsupported;
+                }
+                else
+                {
+                    return XrResult.Success;
+                }
+            });
             base.InitializeAndStart();
             yield return null;
             yield return null;
