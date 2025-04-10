@@ -104,6 +104,7 @@ namespace UnityEditor.XR.OpenXR
 
 
         [SerializeField] bool m_vulkanAdditionalGraphicsQueue = false;
+        [SerializeField] bool m_vulkanOffscreenSwapchainNoMainDisplay = true;
 
         /// <summary>
         /// If enabled, when the application begins it will request an additional Vulkan graphics queue.
@@ -117,6 +118,21 @@ namespace UnityEditor.XR.OpenXR
             set
             {
                 m_vulkanAdditionalGraphicsQueue = value;
+            }
+        }
+
+        /// <summary>
+        /// If enabled, when the application begins it will enable Vulkan offscreen swapchain and disable the main display buffer.
+        /// </summary>
+        public bool VulkanOffscreenSwapchainNoMainDisplay
+        {
+            get
+            {
+                return m_vulkanOffscreenSwapchainNoMainDisplay;
+            }
+            set
+            {
+                m_vulkanOffscreenSwapchainNoMainDisplay = value;
             }
         }
 

@@ -6,6 +6,7 @@ using UnityEditor;
 
 #if UNITY_EDITOR
 using System.IO;
+using UnityEditor.Android;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR.Features.Interactions;
@@ -23,7 +24,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
     [OpenXRFeature(UiName = "Meta Quest Support",
         Desc = "Necessary to deploy a Meta Quest compatible app.",
         Company = "Unity",
-        DocumentationLink = "https://developer.oculus.com/downloads/package/oculus-openxr-mobile-sdk/",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/metaquest.html",
         OpenxrExtensionStrings = "XR_OCULUS_android_initialize_loader",
         Version = "1.0.0",
         BuildTargetGroups = new[] { BuildTargetGroup.Android },
@@ -476,7 +477,67 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             }
                         },
                         fixItAutomatic = true,
+                    },
+                    new ValidationRule(this)
+                    {
+                        message = "[Optional] Latency Optimization is recommended to be set to <b>Prioritize Input Polling</b> when Meta Quest support is enabled.",
+                        checkPredicate = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            if (settings.latencyOptimization != OpenXRSettings.LatencyOptimization.PrioritizeInputPolling)
+                                return false;
+                            else
+                                return true;
+                        },
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            settings.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+                        },
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Latency Optimization to <b>Prioritize Input Polling</b>"
+                    },
+#if UNITY_6000_2_OR_NEWER && UNITY_META_QUEST
+                    new ValidationRule(this)
+                    {
+                        message = "[Optional] Meta Quest supports Thin Link Time Optimization. This can optimize CPU performance and can only be done in non-development, IL2CPP enabled builds with Strip Engine Code disabled.",
+                        checkPredicate = () =>
+                        {
+                            if (EditorUserBuildSettings.development == true)
+                            {
+                                return false;
+                            }
+
+                            if (PlayerSettings.GetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP)
+                            {
+                                return false;
+                            }
+
+                            if (PlayerSettings.stripEngineCode == true)
+                            {
+                                return false;
+                            }
+
+                            if (UserBuildSettings.linkTimeOptimization == Unity.Android.Types.AndroidLinkTimeOptimization.None)
+                            {
+                                return false;
+                            }
+                            return true;
+                        },
+                        error = false,
+                        fixIt = () =>
+                        {
+                            EditorUserBuildSettings.development = false;
+
+                            PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+
+                            PlayerSettings.stripEngineCode = false;
+
+                            UserBuildSettings.linkTimeOptimization = Unity.Android.Types.AndroidLinkTimeOptimization.Thin;
+                        },
+                        fixItAutomatic = false,
                     }
+#endif
             };
 
         internal class MetaQuestFeatureEditorWindow : EditorWindow

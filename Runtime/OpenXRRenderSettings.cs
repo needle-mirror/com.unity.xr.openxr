@@ -53,6 +53,50 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
+        /// <summary>
+        /// Modes describing whether to prioritize minimzing Input polling latency, or rendering latency.
+        /// </summary>
+        public enum LatencyOptimization
+        {
+            /// <summary>
+            /// Prioritize reducing rendering latency.
+            /// </summary>
+            PrioritizeRendering,
+
+            /// <summary>
+            /// Prioritize reducing input latency.
+            /// </summary>
+            PrioritizeInputPolling,
+        };
+
+        [SerializeField]
+        private LatencyOptimization m_latencyOptimization = LatencyOptimization.PrioritizeRendering;
+
+        /// <summary>
+        /// Specifies where the xrWaitFrame call should occur to optimize latency.
+        /// Note that modifying this value at runtime will not do anything. This property can be modified in the Unity Editor through
+        /// the OpenXR settings, or programatically during the build process.
+        /// </summary>
+        /// <remarks>
+        /// When set to <see cref="LatencyOptimization.PrioritizeRendering"/>, the xrWaitFrame call will be moved to before rendering to reduce rendering latency.
+        /// When set to <see cref="LatencyOptimization.PrioritizeInputPolling"/>, the xrWaitFrame call will be moved to before input polling to reduce input latency.
+        /// </remarks>
+        /// <seealso cref="LatencyOptimization"/>
+        public LatencyOptimization latencyOptimization
+        {
+            get
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    return Internal_GetLatencyOptimization();
+                else
+                    return m_latencyOptimization;
+            }
+            set
+            {
+                m_latencyOptimization = value;
+            }
+        }
+
         [SerializeField]
         private bool m_autoColorSubmissionMode = true;
 
@@ -255,10 +299,14 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_6000_1_OR_NEWER
             Internal_SetOptimizeMultiviewRenderRegions(m_optimizeMultiviewRenderRegions);
 #endif
+#if UNITY_6000_2_OR_NEWER
+            Internal_SetUseOpenXRPredictedTime(m_useOpenXRPredictedTime);
+#endif
 #if UNITY_2023_2_OR_NEWER
             Internal_SetUsedFoveatedRenderingApi(m_foveatedRenderingApi);
 #endif
             Internal_SetRenderMode(m_renderMode);
+            Internal_SetLatencyOptimization(m_latencyOptimization);
             Internal_SetColorSubmissionModes(
                 m_colorSubmissionModes.m_List.Select(e => (int)e).ToArray(),
                 m_colorSubmissionModes.m_List.Length
@@ -355,6 +403,30 @@ namespace UnityEngine.XR.OpenXR
         public BackendFovationApi foveatedRenderingApi => BackendFovationApi.Legacy;
 #endif
 
+        [SerializeField]
+        private bool m_useOpenXRPredictedTime = false;
+        /// <summary>
+        /// Enable OpenXR time prediction which allows the hardware and runtime to set the
+        /// display time prediction for the next frame instead of Unity.
+        /// </summary>
+        public bool useOpenXRPredictedTime
+        {
+            get
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    return Internal_GetUseOpenXRPredictedTime();
+                else
+                    return m_useOpenXRPredictedTime;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    Internal_SetUseOpenXRPredictedTime(value);
+                else
+                    m_useOpenXRPredictedTime = value;
+            }
+        }
+
         private const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetRenderMode")]
@@ -362,6 +434,12 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRenderMode")]
         private static extern RenderMode Internal_GetRenderMode();
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetLatencyOptimization")]
+        private static extern void Internal_SetLatencyOptimization(LatencyOptimization latencyOptimzation);
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_GetLatencyOptimization")]
+        private static extern LatencyOptimization Internal_GetLatencyOptimization();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetDepthSubmissionMode")]
         private static extern void Internal_SetDepthSubmissionMode(
@@ -425,5 +503,12 @@ namespace UnityEngine.XR.OpenXR
         [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_GetIsUsingLegacyXRDisplay")]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool Internal_GetIsUsingLegacyXRDisplay();
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_GetUseOpenXRPredictedTime")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool Internal_GetUseOpenXRPredictedTime();
+
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetUseOpenXRPredictedTime")]
+        private static extern void Internal_SetUseOpenXRPredictedTime([MarshalAs(UnmanagedType.I1)] bool enabled);
     }
 }

@@ -17,8 +17,10 @@ Some OpenXR features require specific Unity Project settings to function properl
 * **[Enable the OpenXR XR plug-in](#enable-openxr)**: must be enabled to use OpenXR features.
 * **[OpenXR features](#openxr-features)**: select the specific OpenXR features that you want to use.
 * **[Render Mode](#render-mode)**: choose the rendering strategy.
+* **[Latency Optimization](#latency-optimization)**: choose how the OpenXR plug-in minimizes latency for input polling or rendering.
 * **[Color Submission Mode](#color-submission-mode)**: choose how color information is passed to the renderer.
 * **[Depth Submission Mode](#depth-submission-mode)**: choose how depth information is passed to the renderer.
+* **[Offscreen Rendering Only (Vulkan)](#offscreen-rendering-only)**: provides an increase in graphical performance when enabled, but must be disabled for handheld platforms.
 * **[Play Mode OpenXR Runtime](#openxr-runtime)** (Editor): choose which OpenXR plug-in to use when running in the Unity Editor Play mode.
 * **[Interaction profiles](#interaction-profile)**: choose which OpenXR interaction profile to use for a platform.
 * **[Color space](#color-space)**: When using the Open GL graphics API, you must set the  **Color Space** to **Linear**.
@@ -92,6 +94,57 @@ For more information see:
 * [SinglePassStereoMode](xref:UnityEngine.Rendering.SinglePassStereoMode)
 * [Single Pass Instanced rendering](xref:SinglePassInstancing)
 
+<a name="latency-optimization"></a>
+### Set latency optimization
+
+The **Latency Optimization** options allow you to choose whether to prioritize minimizing latency for input polling or for rendering.
+
+This option controls when frame synchronization occurs, which is responsible for dictating when a frame is submitted and displayed to device. Changing the timing affects the delay between when input is polled/when simulation is completed and when the XR device displays the image.
+
+By default, **Latency Optimization** is set to **Prioritize Rendering**.
+
+|**Option** | **Description** |
+| --------- | --------------- |
+|**Prioritize Rendering** | The time between when a frame is simulated and when the frame is submitted to the device for rendering is minimized. This reduces the extrapolation/warping of the rendered scene and objects. |
+|**Prioritize Input Polling** | The time between when input is polled and when the frame is submitted to the device for rendering is minimized. This makes interacting with the world feel more responsive. |
+
+To set the preferred **Latency Optimization** option:
+
+1. Open the **Project Settings** window (menu: **Edit &gt; Project Settings**).
+2. Click **XR Plug-in Management** to expand the plug-in section (if necessary).
+3. Select **OpenXR** in the list of XR plug-ins.
+4. Select the tab for a platform build target to view the features for that target.
+5. Choose the desired **Latency Optimization**.
+
+You can also modify the **Latency Optimization** priority programatically with an Editor script, by modifying the value of `OpenXRSettings.latencyOptimization`.
+Below is an example made using a custom Editor class extending [`IPreprocessBuildWithReport`](xref:UnityEditor.Build.IPreprocessBuildWithReport).
+
+> [!NOTE]
+> The Latency Optimization settings cannot be changed at runtime. Trying to set `OpenXRSettings.latencyOptimization` to any value will not change the priority.
+
+```c#
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
+using UnityEngine;
+using UnityEngine.XR.OpenXR;
+
+public class LatencyOptimizationAtBuildTime : IPreprocessBuildWithReport
+{
+    public int callbackOrder => -200;
+
+    public void OnPreprocessBuild(BuildReport report)
+    {
+        var buildTargetSettings = OpenXRSettings.ActiveBuildTargetInstance;
+
+        if (buildTargetSettings.latencyOptimization != OpenXRSettings.LatencyOptimization.PrioritizeInputPolling)
+        {
+            Debug.Log($"Changing LatencyOptimization settings from \"{buildTargetSettings.latencyOptimization}\" to \"{OpenXRSettings.LatencyOptimization.PrioritizeInputPolling}\"");
+            buildTargetSettings.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+        }
+    }
+}
+```
+
 <a name="depth-submission-mode"></a>
 ### Set the color submission mode
 
@@ -163,6 +216,17 @@ To set the depth submission mode:
 5. Choose the desired **Depth Submission Mode**.
 
 Setting the mode to anything other than **None** enables the OpenXR [XR_KHR_composition_layer depth extension](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_KHR_composition_layer_depth). Unity ignores the **Depth Submission Mode** for OpenXR plug-ins that do not support this extension.
+
+
+<a name="Offscreen Rendering Only"></a>
+### Offscreen Rendering Only (Vulkan)
+
+**Offscreen Rendering Only** lets Unity know that the main display will not be used for rendering and to not allocate backbuffers for the main display. It is expected that the device's runtime will render it's own buffers to an offscreen display instead. This feature is only available on Android build targets.
+
+> [!NOTE]
+> If you enable **Offscreen Rendering Only** and the device's runtime does not allocate offscreen buffers then the app will not render.
+> If you disbale **Offscreen Rendering Only** then Unity will assume the main display is being used and allocate resources for backbuffers to blit with.
+> Apps meant to run on handheld devices must disable **Offscreen Rendering Only**.
 
 <a name="openxr-runtime"></a>
 ### Choose an OpenXR runtime to use in Play mode

@@ -302,5 +302,17 @@ namespace UnityEngine.XR.OpenXR.API
         [DllImport(k_UnityOpenXRLib, EntryPoint = "Display_CreateTexture")]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool CreateTexture(UnityXRRenderTextureDesc desc, out uint32_t id);
+
+        /// <summary>
+        /// Destroy a texture given a UnityXRRenderTextureId.
+        /// </summary>
+        /// <param name="textureId"> Texture ID represents the instance of a texture to be destroyed.</param>
+        /// <returns>
+        /// true Successfully destroyed.
+        /// false Error
+        /// </returns>
+        [DllImport(k_UnityOpenXRLib, EntryPoint = "Display_DestroyTexture")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        public static extern bool DestroyTexture(uint32_t textureId);
     }
 } // namespace

@@ -40,48 +40,23 @@ The following sections provide a reference of the settings you can configure in 
 
 ### Rendering Settings
 
-Use the following settings to configure rendering in your project.
+Use the following settings to configure rendering in your project:
 
-#### Symmetric Projection (Vulkan)
-
-If enabled, when the application begins it will create a stereo symmetric view that changes the eye buffer resolution based on the Inter-Pupillary Distance (IPD). Provides a performance benefit across all IPD values.
-
-#### Optimize Buffer Discards (Vulkan)
-
-Enable this setting to enable an optimization that allows 4x Multi Sample Anti Aliasing (MSAA) textures to be memoryless on Vulkan.
-
-#### Optimize Multiview Render Regions (Vulkan)
-
-Enable to activate Multiview Render Regions optimizations at application start (Unity 6.1 and newer).
-
-To learn more about this feature, refer to [Multiview Render Regions](xref:openxr-multiview-render-regions).
-
-#### Space Warp motion vector texture format
-
-Choose the format used by the motion vector texture to store its values. The option you choose depends on whether you want to prioritize visual quality and performance.
-
-The options you can choose are:
-
-| Option      | Description |
-| :---------- | :---------- |
-| **RGBA16f** | Use this for more precise values. This can improve the visual quality of Space Warp. |
-| **RG16f**   | Use this option for reduced memory usage, but slightly less precision. |
-
-To learn more about Space Warp, refer to [URP Application Spacewarp](xref:um-xr-application-spacewarp).
+| **Setting** | **Description** |
+| :---------- | :-------------- |
+| **Symmetric Projection (Vulkan)** | If enabled, when the application begins it will create a stereo symmetric view that changes the eye buffer resolution based on the Inter-Pupillary Distance (IPD). Provides a performance benefit across all IPD values. |
+| **Optimize Buffer Discards (Vulkan)** | Enable this setting to enable an optimization that allows 4x Multi Sample Anti Aliasing (MSAA) textures to be memoryless on Vulkan. |
+| **Optimize Multiview Render Regions (Vulkan)** | Enable to activate Multiview Render Regions optimizations at application start (Unity 6.1 and newer). <br>To learn more about this feature, refer to [Multiview Render Regions](xref:openxr-multiview-render-regions). |
+| **Space Warp motion vector texture format** | Choose the format used by the motion vector texture to store its values. The option you choose depends on whether you want to prioritize visual quality and performance. <br>The options you can use are:<ul><li><strong> RGBA16f: </strong> Use this for more precise values. This can improve the visual quality of Space Warp.</li><li><strong>RG16f: </strong>Use this option for reduced memory usage, but slightly less precision.</li></ul>To learn more about Space Warp, refer to [URP Application Spacewarp](xref:um-xr-application-spacewarp). |
 
 ### Manifest Settings
 
-Use the following settings to configure your project manifest.
+Use the following settings to configure your project manifest:
 
-#### Force Remove Internet Permission
-
-Enable to force the removal of internet permissions added to the [Android App Manifest](xref:um-android-manifest).
-
-#### System Splash Screen
-
-Uses a `PNG` in the `Assets` folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch, until the app submits the first frame.
-
-Use the picker (&#8857;) to select an image from the `Assets` folder you want to use as the system splash screen image.
+| **Setting** | **Description** |
+| :---------- | :-------------- |
+| **Force Remove Internet Permission** | Enable to force the removal of internet permissions added to the [Android App Manifest](xref:um-android-manifest). |
+| **System Splash Screen** | Uses a `PNG` in the `Assets` folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch, until the app submits the first frame.<br>Use the picker (&#8857;) to select an image from the `Assets` folder you want to use as the system splash screen image. |
 
 ### Target Devices
 

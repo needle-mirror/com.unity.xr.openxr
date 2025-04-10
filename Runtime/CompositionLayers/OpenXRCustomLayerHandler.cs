@@ -103,12 +103,18 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         class LayerRenderInfo
         {
-            public RenderTexture RenderTexture;
+            public Dictionary<int, SwapchainImageInfo> SwapchainImageInfos = new Dictionary<int, SwapchainImageInfo>();
             public Texture Texture;
 #if UNITY_VIDEO
             public VideoPlayer videoPlayer;
 #endif
             public MeshCollider meshCollider;
+
+            public class SwapchainImageInfo
+            {
+                public RenderTexture RenderTexture;
+                public bool IsWritten;
+            }
         }
 
         /// <summary>
@@ -526,42 +532,69 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     container.videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
 #endif
                     container.meshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
+                    container.SwapchainImageInfos.Clear();
                 }
 
-                bool isVideo = false;
+                RenderTexture foundRenderTexture = OpenXRLayerUtility.FindRenderTexture(layerInfo);
+                if (foundRenderTexture == null)
+                {
+                    // We still return true here.
+                    // Nothing is wrong with the layer, there just may not be a swapchain image immediately available yet.
+                    // We still need to make the release call.
+                    OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
+                    return true;
+                }
+
+                var foundRenderTextureId = foundRenderTexture.GetInstanceID();
+                LayerRenderInfo.SwapchainImageInfo SwapchainImageInfo = null;
+                if (!container.SwapchainImageInfos.ContainsKey(foundRenderTextureId))
+                {
+                    SwapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo { RenderTexture = foundRenderTexture, IsWritten = false };
+                    container.SwapchainImageInfos.Add(foundRenderTextureId, SwapchainImageInfo);
+                }
+
+                SwapchainImageInfo = container.SwapchainImageInfos[foundRenderTextureId];
+
+                var isVideo = false;
 #if UNITY_VIDEO
                 isVideo = container.videoPlayer != null && container.videoPlayer.enabled;
 #endif
-                bool isUI = container.meshCollider != null && container.meshCollider.enabled;
+                var isUI = container.meshCollider != null && container.meshCollider.enabled;
 
-#if UNITY_EDITOR
-                // Layers with a video or ui component in editor may have multiple native render textures associated with the layer id so we must find them.
-                if (isVideo || isUI)
-                    OpenXRLayerUtility.FindAndWriteToRenderTexture(layerInfo, container.Texture, out container.RenderTexture);
-                else if (isNewTexture)
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, container.RenderTexture);
-#else
-                // We only need to write continuously to the native render texture if our texture is changing.
-                if (isVideo || isUI || isNewTexture)
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, container.RenderTexture);
-#endif
+                // Layers that have a new texture or have video or ui components must always have their swapchain image written to.
+                if (isNewTexture || isVideo || isUI)
+                {
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, foundRenderTexture);
+                    SwapchainImageInfo.IsWritten = true;
+                }
 
+                // For all other layers only write to the swapchain image if it has not already been written.
+                else if (!SwapchainImageInfo.IsWritten)
+                {
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, foundRenderTexture);
+                    SwapchainImageInfo.IsWritten = true;
+                }
+
+                OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
             }
-
             else
             {
                 bool isRenderTextureWritten = OpenXRLayerUtility.FindAndWriteToRenderTexture(layerInfo, texturesExtension.LeftTexture, out RenderTexture renderTexture);
                 if (isRenderTextureWritten)
                 {
                     var layerRenderInfo = new LayerRenderInfo()
-                        { Texture = texturesExtension.LeftTexture, RenderTexture = renderTexture,
+                    {
+                        Texture = texturesExtension.LeftTexture,
 #if UNITY_VIDEO
-                            videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
+                        videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
 #endif
-                            meshCollider = layerInfo.Layer.GetComponent<MeshCollider>() };
+                        meshCollider = layerInfo.Layer.GetComponent<MeshCollider>()
+                    };
+                    layerRenderInfo.SwapchainImageInfos.Add(renderTexture.GetInstanceID(), new LayerRenderInfo.SwapchainImageInfo { RenderTexture = renderTexture, IsWritten = true });
                     m_renderInfos.Add(layerInfo.Id, layerRenderInfo);
-                };
+                }
 
+                OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
             }
 
             return true;

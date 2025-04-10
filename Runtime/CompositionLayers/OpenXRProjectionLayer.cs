@@ -317,6 +317,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
             OpenXRLayerUtility.FindAndWriteToStereoRenderTextures(layerInfo, out RenderTexture renderTextureLeft, out RenderTexture renderTextureRight);
+            OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
             return true;
         }
 

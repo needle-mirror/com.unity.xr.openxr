@@ -8,6 +8,7 @@ namespace UnityEditor.XR.OpenXR
     internal class OpenXRBuildProcessor : XRBuildHelper<OpenXRSettings>
     {
         private const string kRequestAdditionalVulkanGraphicsQueue = "xr-request-additional-vulkan-graphics-queue";
+        private const string kVulkanOffscreenSwapchainNoMainDisplay = "xr-use-vulkan-offscreen-swapchain-no-main-display-buffer";
 
         public override string BuildSettingsKey => Constants.k_SettingsKey;
 
@@ -32,6 +33,27 @@ namespace UnityEditor.XR.OpenXR
             if (settings != null)
             {
                 _bootConfigBuilder.SetBootConfigBoolean(kRequestAdditionalVulkanGraphicsQueue, settings.VulkanAdditionalGraphicsQueue);
+
+                var offscreenRenderingOnly = false;
+#if UNITY_ANDROID
+                offscreenRenderingOnly = settings.VulkanOffscreenSwapchainNoMainDisplay;
+#endif
+                _bootConfigBuilder.SetBootConfigBoolean(kVulkanOffscreenSwapchainNoMainDisplay, offscreenRenderingOnly);
+                _bootConfigBuilder.WriteBootConfig(report);
+            }
+#endif
+        }
+
+
+        public override void OnPostprocessBuild(BuildReport report)
+        {
+            base.OnPostprocessBuild(report);
+
+#if UNITY_STANDALONE_WIN || UNITY_ANDROID
+            var settings = OpenXREditorSettings.Instance;
+            if (settings != null)
+            {
+                _bootConfigBuilder.ClearAndWriteBootConfig(report);
             }
 #endif
         }

@@ -26,6 +26,7 @@ namespace UnityEditor.XR.OpenXR
 
             public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode");
             public static readonly GUIContent k_vulkanAdditionalGraphicsQueue = new GUIContent("Additional Graphics Queue (Vulkan)", "Request an additional Vulkan graphics queue for its own rendering at startup.");
+            public static readonly GUIContent k_vulkanOffscreenSwapchainNoMainDisplay = new GUIContent("Offscreen Rendering Only (Vulkan)", "Enabled offscreen swapchains and stops allocations for the main display buffer. This setting should be disabled for handheld platforms.");
 
             public static readonly GUIContent[] k_renderModeOptions = new GUIContent[2]
             {
@@ -38,6 +39,8 @@ namespace UnityEditor.XR.OpenXR
                 new GUIContent("Multi-pass"),
                 new GUIContent("Single Pass Instanced \\ Multi-view"),
             };
+
+            public static readonly GUIContent k_latencyOptimization = new GUIContent("Latency Optimization", "Choose how the OpenXR plug-in minimizes latency for input polling or rendering.");
         }
 
         private void Awake()
@@ -155,15 +158,26 @@ namespace UnityEditor.XR.OpenXR
 
             GUILayout.EndHorizontal();
 
+            GUILayout.BeginHorizontal();
+
+            EditorGUILayout.PropertyField(
+                serializedOpenXrSettings.FindProperty("m_latencyOptimization"),
+                Content.k_latencyOptimization
+            );
+
+            GUILayout.EndHorizontal();
+
             DrawPropertiesExcluding(
                 serializedOpenXrSettings,
                 "m_Script",
                 "m_renderMode",
                 "m_autoColorSubmissionMode",
+                "m_latencyOptimization",
                 "m_colorSubmissionModes",
                 "m_symmetricProjection",
                 "m_optimizeBufferDiscards",
                 "m_vulkanAdditionalGraphicsQueue",
+                "m_vulkanOffscreenSwapchainNoMainDisplay",
                 "m_optimizeMultiviewRenderRegions",
                 "m_spacewarpMotionVectorTextureFormat"
             );
@@ -177,6 +191,16 @@ namespace UnityEditor.XR.OpenXR
                     .boolValue = EditorGUILayout.Toggle(
                     Content.k_vulkanAdditionalGraphicsQueue,
                     openXrEditorSettings.VulkanAdditionalGraphicsQueue
+                );
+            }
+
+            if (buildTargetGroup == BuildTargetGroup.Android)
+            {
+                serializedOpenXrEditorSettings
+                    .FindProperty("m_vulkanOffscreenSwapchainNoMainDisplay")
+                    .boolValue = EditorGUILayout.Toggle(
+                    Content.k_vulkanOffscreenSwapchainNoMainDisplay,
+                    openXrEditorSettings.VulkanOffscreenSwapchainNoMainDisplay
                 );
             }
 

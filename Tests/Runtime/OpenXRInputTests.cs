@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
@@ -732,6 +733,112 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetSpace(aimAction, Vector3.zero, Quaternion.identity, trackedFlags);
             yield return new WaitForXrFrame(2);
             Assert.IsTrue(tracked, "There's no tracking after resetting space location flags");
+        }
+        [UnityTest]
+        public IEnumerator TestGetInputSourceName()
+        {
+            EnableMockRuntime();
+            var feature = EnableFeature(typeof(OculusTouchControllerProfile)) as OpenXRInteractionFeature;
+
+            // Make sure all the devices are registered with the input system
+            InputSystem.InputSystem.Update();
+
+            var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+            feature.CreateActionMaps(actionMaps);
+
+            base.InitializeAndStart();
+            yield return new WaitForXrFrame(1);
+
+            var layoutName = nameof(OculusTouchControllerProfile.OculusTouchController);
+            var layout = InputSystem.InputSystem.LoadLayout(layoutName);
+            Assert.IsNotNull(layout, $"Missing layout '{layoutName}'");
+
+            // Get list of all known user paths supported by this action map
+            var userPaths = actionMaps.SelectMany(m => m.deviceInfos.Select(d => d.userPath)).Distinct().ToList();
+
+            // Initialize dictionaries to store the action names for left and right hand
+            Dictionary<string, string> leftHandNames = new Dictionary<string, string>();
+            Dictionary<string, string> rightHandNames = new Dictionary<string, string>();
+
+            List<string> differentActions = new List<string> { "primaryButton", "secondaryTouch", "menu" };
+            List<string> sameActions = new List<string> { "grip", "thumbstick", "gripPressed", "triggerTouched" };
+
+            // Loop through the controls and user paths to test bindings
+            foreach (var control in layout.controls)
+            {
+
+                foreach (var userPath in userPaths)
+                {
+                    // Convert the user path to a usage to limit the bound action
+                    var usage = userPath switch
+                    {
+                        "/user/hand/left" => "{LeftHand}",
+                        "/user/hand/right" => "{RightHand}",
+                        _ => ""
+                    };
+
+                    // Create an action bound to the control
+                    var action = new InputAction(
+                        null,
+                        InputActionType.Value,
+                        $"<{layout.name}>{usage}/{control.name}",
+                        null,
+                        null,
+                        control.layout);
+
+                    action.Enable();
+
+                    // Make sure the input system updates and wait a frame to ensure the action is properly bound before testing with it
+                    InputSystem.InputSystem.Update();
+                    yield return new WaitForXrFrame(1);
+
+                    // Use the usage to find the device for the action
+                    var inputDevice = !string.IsNullOrEmpty(usage) ?
+                        InputSystem.InputSystem.GetDevice<InputSystem.InputDevice>(usage.Substring(1, usage.Length - 2)) :
+                        null;
+
+                    // Check input TryGetInputSourceName
+                    Assert.IsTrue(
+                        OpenXRInput.TryGetInputSourceName(action, 0, out var actionName, OpenXRInput.InputSourceNameFlags.All, inputDevice),
+                        $"Failed to retrieve input source for action '{action}'.");
+
+                    Assert.IsNotEmpty(actionName, $"Input source name for action '{action}' should not be empty");
+
+                    // Store the action names for left and right hands if in actions to be tested
+                    if (differentActions.Contains(control.name) || sameActions.Contains(control.name))
+                    {
+                        var normalizedActionName = actionName.Split(' ').Last();
+                        if (usage == "{LeftHand}")
+                        {
+                            leftHandNames[control.name] = normalizedActionName;
+                        }
+                        else if (usage == "{RightHand}")
+                        {
+                            rightHandNames[control.name] = normalizedActionName;
+                        }
+                    }
+                }
+            }
+
+            // Check actions that should have the same name for both hands
+            foreach (var controlName in sameActions)
+            {
+                if (leftHandNames.ContainsKey(controlName) && rightHandNames.ContainsKey(controlName))
+                {
+                    Assert.AreEqual(leftHandNames[controlName], rightHandNames[controlName],
+                        $"For control '{controlName}', the input source names for left and right hand should be the same.");
+                }
+            }
+
+            // Check actions that should have different names for left and right hands
+            foreach (var controlName in differentActions)
+            {
+                if (leftHandNames.ContainsKey(controlName) && rightHandNames.ContainsKey(controlName))
+                {
+                    Assert.AreNotEqual(leftHandNames[controlName], rightHandNames[controlName],
+                        $"For control '{controlName}', the input source names for left and right hand should be different.");
+                }
+            }
         }
     }
 }

@@ -220,6 +220,21 @@ class zBuildSamplesYamatoOnly
             },
             outputPostfix = "dx12",
         },
+        new SampleBuildTargetSetup // Latency Optimization sample, Win64 DX11 variant
+        {
+            sampleRegex = new Regex(".*LatencyOptimization.*"),
+            buildTarget = BuildTarget.StandaloneWindows64,
+            targetGroup = BuildTargetGroup.Standalone,
+            setupPlayerSettings = (outputFile, identifier) =>
+            {
+                EnableSampleFeatures();
+                EnableStandaloneProfiles();
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11, GraphicsDeviceType.Vulkan });
+                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
+                OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+            },
+            outputPostfix = "prioritize-input-dx11",
+        },
 #endif
         new SampleBuildTargetSetup
         {
@@ -267,6 +282,30 @@ class zBuildSamplesYamatoOnly
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
             },
             outputPostfix = "arm64_gles3",
+        },
+        new SampleBuildTargetSetup // Latency Optimization sample, Android Vulkan variant
+        {
+            sampleRegex = new Regex(".*LatencyOptimization.*"),
+            buildTarget = BuildTarget.Android,
+            targetGroup = BuildTargetGroup.Android,
+            setupPlayerSettings = (outputFile, identifier) =>
+            {
+                EnableSampleFeatures();
+                EnableQuestFeature();
+                EnableAndroidProfiles();
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+#if UNITY_2021_3_OR_NEWER
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+#else
+                PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+#endif
+                WriteAndroidInstallerScripts(outputFile, identifier);
+                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
+                OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+            },
+            outputPostfix = "prioritize-input-arm64-vk",
         },
     };
 

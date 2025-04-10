@@ -27,8 +27,19 @@ namespace UnityEditor.XR.OpenXR.Samples.InterceptFeature
 
             // Automatically enable the feature
             FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
-            var feature = OpenXRSettings.Instance.GetFeature<InterceptCreateSessionFeature>();
-            if (feature != null)
+            FeatureHelpers.RefreshFeatures(BuildTargetGroup.WSA);
+            FeatureHelpers.RefreshFeatures(BuildTargetGroup.Android);
+
+            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Standalone);
+            foreach (var feature in settings.GetFeatures<InterceptCreateSessionFeature>())
+                feature.enabled = true;
+
+            settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.WSA);
+            foreach (var feature in settings.GetFeatures<InterceptCreateSessionFeature>())
+                feature.enabled = true;
+
+            settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            foreach (var feature in settings.GetFeatures<InterceptCreateSessionFeature>())
                 feature.enabled = true;
 
             // Find this script in the asset database

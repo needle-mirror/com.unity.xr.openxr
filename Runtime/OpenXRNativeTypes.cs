@@ -532,6 +532,31 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         LocalizationMapCannotExportCloudMapML = -1000139006,
 
         /// <summary>
+        /// The `com.magicleap.permission.SPATIAL_ANCHOR` permission was not granted. (Added by the `XR_ML_spatial_anchors` extension)
+        /// </summary>
+        SpatialAnchorsPermissionDeniedML = -1000140000,
+
+        /// <summary>
+        /// Operation failed because the system is not localized into a localization map. (Added by the `XR_ML_spatial_anchors` extension)
+        /// </summary>
+        SpatialAnchorsNotLocalizedML = -1000140001,
+
+        /// <summary>
+        /// Operation failed because it is performed outside of the localization map. (Added by the `XR_ML_spatial_anchors` extension)
+        /// </summary>
+        SpatialAnchorsOutOfMapBoundsML = -1000140002,
+
+        /// <summary>
+        /// Operation failed because the space referenced cannot be located. (Added by the `XR_ML_spatial_anchors` extension)
+        /// </summary>
+        SpatialAnchorsSpaceNotLocatableML = -1000140003,
+
+        /// <summary>
+        /// The anchor references was not found. (Added by the `XR_ML_spatial_anchors_storage` extension)
+        /// </summary>
+        SpatialAnchorsAnchorNotFoundML = -1000141000,
+
+        /// <summary>
         /// A spatial anchor was not found associated with the spatial anchor name provided (Added by the `XR_MSFT_spatial_anchor_persistence` extension)
         /// </summary>
         SpatialAnchorNameNotFoundMSFT = -1000142001,
@@ -610,6 +635,56 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Returned by completion function to indicate future is not valid. (Added by the `XR_EXT_future` extension)
         /// </summary>
         FutureInvalidEXT = -1000469002,
+
+        /// <summary>
+        /// The `com.magicleap.permission.SYSTEM_NOTIFICATION` permission was not granted. (Added by the `XR_ML_system_notifications` extension)
+        /// </summary>
+        SystemNotificationPermissionDeniedML = -1000473000,
+
+        /// <summary>
+        /// Incompatible SKU detected. (Added by the `XR_ML_system_notifications` extension)
+        /// </summary>
+        SystemNotificationIncompatibleSkuML = -1000473001,
+
+        /// <summary>
+        /// The world mesh detector permission was not granted. (Added by the `XR_ML_world_mesh_detection` extension)
+        /// </summary>
+        WorldMeshDetectorPermissionDeniedML = -1000474000,
+
+        /// <summary>
+        /// At the time of the call the runtime was unable to locate the space and cannot fulfill your request. (Added by the `XR_ML_world_mesh_detection` extension)
+        /// </summary>
+        WorldMeshDetectorSpaceNotLocatableML = -1000474001,
+
+        /// <summary>
+        /// Permission to track facial expressions was not granted (Added by the `XR_ML_facial_expression` extension)
+        /// </summary>
+        FacialExpressionPermissionDeniedML = 1000482000,
+
+        /// <summary>
+        /// The network request failed. (Added by the `XR_META_colocation_discovery` extension)
+        /// </summary>
+        ColocationDiscoveryNetworkFailedMETA = -1000571001,
+
+        /// <summary>
+        /// The runtime does not have any methods available to perform discovery. (Added by the `XR_META_colocation_discovery` extension)
+        /// </summary>
+        ColocationDiscoveryNoDiscoveryMethodMETA = -1000571002,
+
+        /// <summary>
+        /// Colocation advertisement has already been enabled. (Added by the `XR_META_colocation_discovery` extension)
+        /// </summary>
+        ColocationDiscoveryAlreadyAdvertisingMETA = 1000571003,
+
+        /// <summary>
+        /// Colocation discovery has already been enabled. (Added by the `XR_META_colocation_discovery` extension)
+        /// </summary>
+        ColocationDiscoveryAlreadyDiscoveringMETA = 1000571004,
+
+        /// <summary>
+        /// The group UUID was not be found within the runtime. (Added by the `XR_META_spatial_entity_group_sharing` extension)
+        /// </summary>
+        SpaceGroupNotFoundMETA = -1000572002,
 
         /// <summary>
         /// Provided by `XR_KHR_maintenance1`

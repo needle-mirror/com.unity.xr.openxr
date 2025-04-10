@@ -169,6 +169,15 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             return FindRenderTexture(texId);
         }
 
+        /// <summary>
+        /// Releases the swapchain image associated with the layer id.
+        /// </summary>
+        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
+        /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
+        public static void ReleaseSwapchain(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            ext_compositor_layers_ReleaseSwapchain(layerInfo.Id);
+        }
 
         /// <summary>
         /// Handles transfering texture data to a render texture.
@@ -305,6 +314,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         [DllImport(LibraryName)]
         internal static extern UInt32 ext_compositor_layers_CreateOrGetRenderTextureId(int id);
+
+        [DllImport(LibraryName)]
+        internal static extern void ext_compositor_layers_ReleaseSwapchain(int id);
 
         [DllImport(LibraryName)]
         [return: MarshalAs(UnmanagedType.U1)]

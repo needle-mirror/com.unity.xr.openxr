@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.15.0-pre.1] - 2025-04-10
+
+### Added
+
+* Added `OpenXREditorSettings.VulkanOffscreenSwapchainNoMainDisplay` property to request at startup to use offscreen rendering for devices that require it. The setting can be enabled through the Project settings UI and build code. This setting should be disabled for handheld platforms.
+* Added Meta Quest input profile features when switching to Meta Quest Build Profile.
+* Added `Use OpenXR Predicted Time` UI setting to enable OpenXR time prediction which allows the hardware and runtime to set the display time prediction for the next frame instead of Unity.
+* Added a new OpenXRSetting, [LatencyOptimization](xref:project-configuration#latency-optimization) to allow developers to opt to prioritize rendering latency or input polling latency.
+* Added optional project validation check for Link Time Optimization with Meta Quest.
+* Added `UnityXRDisplay::DestroyTexture` API so providers can access them to destroy textures created by `UnityXRDisplay::CreateTexture` API.
+* Added a validation rule for setting Latency Optimization to Prioritize Input Polling with Meta Quest Support enabled.
+
+### Changed
+
+* Recompiled the native Android plug-in with support for [16 KB page sizes](https://developer.android.com/guide/practices/page-sizes) on Android 15 or newer.
+
+### Fixed
+
+* Fixed offscreen rendering flags to be added only when the "Offscreen Rendering Only (Vulkan)" Android OpenXR UI setting is enabled. [IN-78279](https://unity3d.atlassian.net/servicedesk/customer/portal/2/IN-78279).
+* Fixed Meshing and Intercept features not being enabled by default when the sample was imported.
+* Fixed OpenXRCustomLayerHandler class so it now explicitiy calls acquire and release on swapchains for every layer on the main thread and caches swapchain image render textures for efficiency.
+* Fixed an issue where `OpenXRInput.TryGetInputSourceName` failed to retrieve the input source name.
+
 ## [1.14.3] - 2025-04-20
 
 ### Fixed
@@ -29,7 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-* Fixed an issue that enabled interaction profiles setting not being saved after reopened the project.
+* Fixed an issue that enabled interaction profiles setting not being saved after reopening the project.
 * Fixed a bug that depth submission mode corrupting the spacewarp depth texture.
 * Fixed a bug that wrong view configuration type being selected as primary view and causing rendering issues.
 * Fixed an issue on Android platforms where `xrCreateSwapchainAndroidSurfaceKHR` was attempted to be used even when the XR Composition Layers package wasn't installed.
@@ -41,6 +64,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * Added a validation rule to the Meta Quest Support feature to ensure that your app's default interface orientation uses a supported value.
 
+### Changed
+
+* Modified the Meta Quest Support feature to use the updated Khronos OpenXR loader library.
+
 ### Fixed
 
 * Fixed the OpenXRFeatureBuildHooks class so it now grabs the OpenXRSettings object from the given build target during build processing.
@@ -49,7 +76,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed a debug log spamming issue regarding ignored event types. This message could be logged multiple times per frame and was not helpful.
 * Fixed Meta-specific eye-tracking manifest permissions to be added only to apps targeting Meta Quest Pro devices.
 * Fixed an issue where spacewarp may assign motion vector textures to wrong render passes when using secondary views.
-* Fixed a bug when allocating array swapchain failed, the index was incremented incorrectly. 
+* Fixed a bug when allocating array swapchain failed, the index was incremented incorrectly.
 * Fixed an issue when OpenXR feature didn't have all the attribute entries setup.
 
 ## [1.14.0] - 2024-12-13

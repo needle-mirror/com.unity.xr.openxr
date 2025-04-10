@@ -20,7 +20,7 @@ Once the package is installed, you can enable OpenXR Composition Layers in your 
 4. Select the **OpenXR** settings page under **XR Plug-in Management**.
 5. Enable the **Composition Layer Support** option in the **OpenXR Feature Groups** area of the **OpenXR** settings.
 
-![OpenXR feature options](../../images/openxr-features.png)
+![OpenXR feature options](../images/openxr-features.png)
 
 ## Custom Layers
 In addition to the built-in layer types supported by the Composition Layers feature, you can create and register your own custom composition layers. This is particularly useful when your project requires non-standard visual behavior, optimized layer rendering, or complex interactions in AR/VR environments.
