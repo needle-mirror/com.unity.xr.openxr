@@ -13,6 +13,7 @@ using UnityEngine.XR.OpenXR.Features.Interactions;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.OculusQuestSupport")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.MetaQuestSupport.Editor")]
+[assembly: InternalsVisibleTo("Unity.XRTesting")]
 namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 {
     /// <summary>

@@ -30,7 +30,7 @@ To help the community as a whole, Unity will continue to submit any runtime issu
 
 Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
 
-This release is linked against the OpenXR-SDK version [1.1.36](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.36).
+This release is linked against the OpenXR-SDK version [1.1.45](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.45).
 
 Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
 

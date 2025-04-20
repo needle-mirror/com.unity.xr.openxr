@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.14.3] - 2025-04-20
+
+### Fixed
+
+* Fixed Multiview Render Regions feature regression.
+
 ## [1.14.2] - 2025-03-20
 
 ### Added
