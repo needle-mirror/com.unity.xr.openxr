@@ -248,6 +248,10 @@ class zBuildSamplesYamatoOnly
                 EnableAndroidProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+#if UNITY_2023_1_OR_NEWER
+                PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
+                PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
+#endif
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
 #if UNITY_2021_3_OR_NEWER
                 PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);

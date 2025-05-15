@@ -11,6 +11,7 @@ using UnityEngine.XR.OpenXR;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
 namespace UnityEditor.XR.OpenXR.Features
 {
     /// <summary>
@@ -99,6 +100,8 @@ namespace UnityEditor.XR.OpenXR.Features
 
     internal static class FeatureHelpersInternal
     {
+        private static bool hasLoggedOpenXRSettingsWarning = false;
+
         public class AllFeatureInfo
         {
             public List<FeatureInfo> Features;
@@ -145,6 +148,30 @@ namespace UnityEditor.XR.OpenXR.Features
             }
             var assetPath = Path.Combine(OpenXRPackageSettings.GetAssetPathForComponents(OpenXRPackageSettings.s_PackageSettingsDefaultSettingsPath), openXrPackageSettings.name + ".asset");
             var openXrExtensionAssets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+
+            if (openXrExtensionAssets == null || openXrExtensionAssets.Length == 0)
+            {
+                string[] guids = AssetDatabase.FindAssets("t:OpenXRSettings");
+
+                foreach (string guid in guids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    var candidateAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+
+                    if (candidateAssets.Any(obj => obj != null && obj.name == openXrPackageSettings.name))
+                    {
+                        if (path.StartsWith("Packages/") && !hasLoggedOpenXRSettingsWarning)
+                        {
+                            Debug.LogWarning("OpenXR settings assets are stored inside a package and won't persist changes. Please move it under Assets/XR/Settings.");
+                            hasLoggedOpenXRSettingsWarning = true;
+                        }
+
+                        openXrExtensionAssets = candidateAssets;
+                        break;
+                    }
+                }
+            }
+
 
             // Find any current extensions that are already serialized
             var currentExts = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();

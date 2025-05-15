@@ -9,14 +9,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
-## [1.15.0-pre.1] - 2025-04-10
+## [1.15.0-pre.2] - 2025-05-15
+
+### Added
+
+* Added `OpenXRLayerUtility.RequestRenderTextureId` and `OpenXRLayerUtility.RequestStereoRenderTextureIds`. These functions have callback parameters because they execute on the graphics thread.
+* Added support for a new Multiview Render Regions Optimization mode - All Passes, which gets applied to as many passes as possible instead of only the final pass of the render in XR.
+
+### Changed
+
+* Changed the Symmetric Projection validation rule that checks for Vulkan api to a warning instead of an error.
+* Deprecated  `OpenXRLayerUtility.FindRenderTexture`, `OpenXRLayerUtility.FindAndWriteToRenderTexture`, `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`, and `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`. 
+* Swapchain images are acquired on the graphics thread with `OpenXRLayerUtility.RequestRenderTextureId` and `OpenXRLayerUtility.RequestStereoRenderTextureIds` and automatically released by the OpenXR plugin on the graphics thread.
+* Enable `XR_FB_foveation` and `XR_FB_foveation_configuration` extensions by default if available for runtime.
+* Changed Multiview Render Regions (Vulkan) setting for Meta Quest Support from a check box to dropdown menu with three options: None, FinalPass and AllPasses.
+
+### Fixed
+
+* Fixed errors when opening Profiler (Standalone Process) with OpenXR Plugin is present in the project.
+* Fixed Mock Runtime occlusion mesh rendering.
+* Fixed an issue that OpenXR Project Settings window appears blank and Editor freezes when upgrading package version to 1.14.1 or higher.
+
+## [1.15.0-pre.1] - 2025-04-24
 
 ### Added
 
 * Added `OpenXREditorSettings.VulkanOffscreenSwapchainNoMainDisplay` property to request at startup to use offscreen rendering for devices that require it. The setting can be enabled through the Project settings UI and build code. This setting should be disabled for handheld platforms.
 * Added Meta Quest input profile features when switching to Meta Quest Build Profile.
 * Added `Use OpenXR Predicted Time` UI setting to enable OpenXR time prediction which allows the hardware and runtime to set the display time prediction for the next frame instead of Unity.
-* Added a new OpenXRSetting, [LatencyOptimization](xref:project-configuration#latency-optimization) to allow developers to opt to prioritize rendering latency or input polling latency.
+* Added a new OpenXrSetting, [LatencyOptimization](xref:project-configuration#latency-optimization) to allow developers to choose opt to prioritize rendering latency or input polling latency.
 * Added optional project validation check for Link Time Optimization with Meta Quest.
 * Added `UnityXRDisplay::DestroyTexture` API so providers can access them to destroy textures created by `UnityXRDisplay::CreateTexture` API.
 * Added a validation rule for setting Latency Optimization to Prioritize Input Polling with Meta Quest Support enabled.
@@ -32,7 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed OpenXRCustomLayerHandler class so it now explicitiy calls acquire and release on swapchains for every layer on the main thread and caches swapchain image render textures for efficiency.
 * Fixed an issue where `OpenXRInput.TryGetInputSourceName` failed to retrieve the input source name.
 
-## [1.14.3] - 2025-04-20
+## [1.14.3] - 2025-04-18
 
 ### Fixed
 
@@ -113,6 +134,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 * Conformance Automation Feature:  Removed assert for optional entry point xrSetInputDeviceVelocityUNITY.
+* Fixed an issue where `OpenXRInput.TryGetInputSourceName` failed to retrieve the input source name
 
 ## [1.13.0] - 2024-09-16
 

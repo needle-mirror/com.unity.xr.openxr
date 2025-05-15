@@ -18,18 +18,21 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     {
         class ProjectionData : IDisposable
         {
+            public bool isActiveLayer;
             public CompositionLayerManager.LayerInfo layer;
+            public TexturesExtension texturesExtension;
             public NativeArray<XrCompositionLayerProjectionView> nativeViews;
-            public RenderTexture[] renderTextures;
-            public Camera[] cameras;
+            public uint[] renderTextureIds;
+            public RenderTexture[] rigTextures;
+            public Camera[] rigCameras;
 
             public void Dispose()
             {
                 nativeViews.Dispose();
 
-                if (renderTextures != null)
+                if (rigTextures != null)
                 {
-                    foreach (var renderTexture in renderTextures)
+                    foreach (var renderTexture in rigTextures)
                     {
                         renderTexture.Release();
                     }
@@ -37,7 +40,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
         }
 
-        Dictionary<int, ProjectionData> m_ProjectionData = new Dictionary<int, ProjectionData>();
+        static Dictionary<int, ProjectionData> m_ProjectionData = new Dictionary<int, ProjectionData>();
         bool m_isMainCameraRendered = false;
         bool m_isOnBeforeRender = false;
 
@@ -128,10 +131,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
+            TexturesExtension texturesExtension = null;
             var isProjectionRig = layer.Layer.LayerData.GetType() == typeof(ProjectionLayerRigData);
             if (!isProjectionRig)
             {
-                TexturesExtension texturesExtension = layer.Layer.GetComponent<TexturesExtension>();
+                texturesExtension = layer.Layer.GetComponent<TexturesExtension>();
                 if (texturesExtension == null || texturesExtension.enabled == false || texturesExtension.LeftTexture == null || texturesExtension.RightTexture == null)
                 {
                     nativeLayer = default;
@@ -208,8 +212,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 {
                     layer = layer,
                     nativeViews = nativeViews,
-                    renderTextures = null,
-                    cameras = null
+                    texturesExtension = texturesExtension,
+                    rigTextures = null,
+                    rigCameras = null
                 });
 
                 return true;
@@ -225,14 +230,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             String layerName = String.Format("projectLayer_{0}", layer.Id);
-            RenderTexture leftRT = new RenderTexture((int)width, (int)height, 0, RenderTextureFormat.ARGB32) {name = layerName + "_left", depthStencilFormat = Experimental.Rendering.GraphicsFormat.D32_SFloat_S8_UInt };
+            RenderTexture leftRT = new RenderTexture((int)width, (int)height, 0, RenderTextureFormat.ARGB32) { name = layerName + "_left", depthStencilFormat = Experimental.Rendering.GraphicsFormat.D32_SFloat_S8_UInt };
             leftRT.Create();
-            RenderTexture rightRT = new RenderTexture((int)width, (int)height, 0, RenderTextureFormat.ARGB32) {name = layerName + "_right", depthStencilFormat = Experimental.Rendering.GraphicsFormat.D32_SFloat_S8_UInt };
+            RenderTexture rightRT = new RenderTexture((int)width, (int)height, 0, RenderTextureFormat.ARGB32) { name = layerName + "_right", depthStencilFormat = Experimental.Rendering.GraphicsFormat.D32_SFloat_S8_UInt };
             rightRT.Create();
 
-            TexturesExtension texExt = layer.Layer.GetComponent<TexturesExtension>();
-            texExt.LeftTexture = leftRT;
-            texExt.RightTexture = rightRT;
+            texturesExtension = layer.Layer.GetComponent<TexturesExtension>();
+            texturesExtension.LeftTexture = leftRT;
+            texturesExtension.RightTexture = rightRT;
 
             if (leftCamera)
             {
@@ -249,8 +254,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 layer = layer,
                 nativeViews = nativeViews,
-                renderTextures = new RenderTexture[2] { leftRT, rightRT },
-                cameras = new Camera[2] { leftCamera, rightCamera }
+                texturesExtension = texturesExtension,
+                rigTextures = new RenderTexture[2] { leftRT, rightRT },
+                rigCameras = new Camera[2] { leftCamera, rightCamera }
             });
 
             return true;
@@ -316,8 +322,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
-            OpenXRLayerUtility.FindAndWriteToStereoRenderTextures(layerInfo, out RenderTexture renderTextureLeft, out RenderTexture renderTextureRight);
-            OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
+            OpenXRLayerUtility.RequestStereoRenderTextureIds(layerInfo.Id, OnStereoRenderTextureIdsCallback);
+
             return true;
         }
 
@@ -339,34 +345,46 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         void OnBeforeRender()
         {
             m_isOnBeforeRender = true;
-            UpdateProjectionRigs();
-            m_isOnBeforeRender = false;
-        }
-
-        void UpdateProjectionRigs()
-        {
             foreach (var projectionData in m_ProjectionData.Values)
             {
                 // Only projection rig layers will have associated camera data.
-                if (projectionData.cameras == null || projectionData.layer.Layer == null)
-                    continue;
+                if (projectionData.rigCameras != null && projectionData.layer.Layer != null)
+                    UpdateProjectionRig(projectionData);
 
-                var mainCamera = CompositionLayerManager.mainCameraCache;
-                var leftCamera = projectionData.cameras[0];
-                var rightCamera = projectionData.cameras[1];
-
-                if (m_isMainCameraRendered && leftCamera != null && rightCamera != null)
-                {
-                    leftCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
-                    rightCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
-
-                    leftCamera.Render();
-                    rightCamera.Render();
-                }
-
-                this.ModifyLayer(projectionData.layer);
-                this.SetActiveLayer(projectionData.layer);
+                WriteToRenderTexture(projectionData);
             }
+
+            m_isOnBeforeRender = false;
+        }
+
+        void UpdateProjectionRig(ProjectionData projectionData)
+        {
+            var mainCamera = CompositionLayerManager.mainCameraCache;
+            var leftCamera = projectionData.rigCameras[0];
+            var rightCamera = projectionData.rigCameras[1];
+
+            if (m_isMainCameraRendered && leftCamera != null && rightCamera != null)
+            {
+                leftCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+                rightCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+
+                leftCamera.Render();
+                rightCamera.Render();
+            }
+
+            this.ModifyLayer(projectionData.layer);
+            this.SetActiveLayer(projectionData.layer);
+        }
+
+        void WriteToRenderTexture(ProjectionData projectionData)
+        {
+            if (projectionData.renderTextureIds == null || projectionData.texturesExtension == null)
+                return;
+
+            var renderTextureLeft = OpenXRLayerUtility.FindRenderTexture(projectionData.renderTextureIds[0]);
+            var renderTextureRight = OpenXRLayerUtility.FindRenderTexture(projectionData.renderTextureIds[1]);
+            OpenXRLayerUtility.WriteToRenderTexture(projectionData.texturesExtension.LeftTexture, renderTextureLeft);
+            OpenXRLayerUtility.WriteToRenderTexture(projectionData.texturesExtension.RightTexture, renderTextureRight);
         }
 
         XrRect2Di GetSubImageOffsetAndExtent(Rect sourceRect, Vector2 textureSize)
@@ -384,6 +402,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             };
 
             return new XrRect2Di { Offset = sourceTextureOffset, Extent = sourceTextureExtent };
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.StereoRenderTextureIdsCallbackDelegate))]
+        static void OnStereoRenderTextureIdsCallback(int layerId, uint leftTexId, uint rightTexId)
+        {
+            if (m_ProjectionData == null)
+                return;
+
+            if (m_ProjectionData.TryGetValue(layerId, out var container))
+            {
+                container.renderTextureIds ??= new uint[2];
+                container.renderTextureIds[0] = leftTexId;
+                container.renderTextureIds[1] = rightTexId;
+            }
         }
 
         [DllImport("UnityOpenXR")]

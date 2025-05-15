@@ -18,7 +18,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private const string kHideMemorylessRenderTexture = "xr-hide-memoryless-render-texture";
         private const string kSkipAudioBufferSizeCheck = "xr-skip-audio-buffer-size-check";
         private const string kUsableCoreMaskEnabled = "xr-usable-core-mask-enabled";
-        private const string kMvpvvEnabled = "xr-mvpvv-enabled";
+        private const string kMvpvvMode = "xr-mvpvv-enabled";
 
         private MetaQuestFeature GetMetaQuestFeature()
         {
@@ -65,7 +65,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             builder.SetBootConfigBoolean(kSkipAudioBufferSizeCheck, true);
             builder.SetBootConfigBoolean(kUsableCoreMaskEnabled, true);
 #if UNITY_6000_1_OR_NEWER
-            builder.SetBootConfigBoolean(kMvpvvEnabled, item.optimizeMultiviewRenderRegions);
+            builder.SetBootConfigValue(kMvpvvMode, ((int)item.multiviewRenderRegionsOptimizationMode).ToString());
 #endif
         }
 

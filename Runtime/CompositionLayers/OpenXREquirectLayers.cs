@@ -127,7 +127,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
     internal class OpenXREquirect2Layer : OpenXRCustomLayerHandler<XrCompositionLayerEquirect2KHR>
     {
-
         public static bool ExtensionEnabled = OpenXRRuntime.IsExtensionEnabled("XR_KHR_composition_layer_equirect2");
 
         protected override unsafe bool CreateSwapchain(CompositionLayerManager.LayerInfo layerInfo, out SwapchainCreateInfo swapchainCreateInfo)

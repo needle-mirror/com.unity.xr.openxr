@@ -1,5 +1,7 @@
 * [About Unity OpenXR](index.md)
-  * [Project Configuration](project-configuration.md)
+  * [Configure your project](project-configuration.md)
+  * [OpenXR settings reference](xref:openxr-settings)
+  * [Validate your project](xref:openxr-project-validation)
 * [OpenXR Features](features.md)
     * [Meta Quest Support](features/metaquest.md)
     * [Foveated Rendering](features/foveatedrendering.md)

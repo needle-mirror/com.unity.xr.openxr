@@ -167,7 +167,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var features = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
             foreach (var f in features.Features)
             {
-                if (f.Feature.nameUi == "Mock Runtime")
+                if (String.Compare(f.Feature.featureIdInternal, MockRuntime.featureId, true) == 0)
                 {
                     var path = Path.GetFullPath(f.PluginPath + "/unity-mock-runtime.json");
                     Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", path);

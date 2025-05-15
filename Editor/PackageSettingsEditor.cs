@@ -178,7 +178,7 @@ namespace UnityEditor.XR.OpenXR
                 "m_optimizeBufferDiscards",
                 "m_vulkanAdditionalGraphicsQueue",
                 "m_vulkanOffscreenSwapchainNoMainDisplay",
-                "m_optimizeMultiviewRenderRegions",
+                "m_multiviewRenderRegionsOptimizationMode",
                 "m_spacewarpMotionVectorTextureFormat"
             );
             if (

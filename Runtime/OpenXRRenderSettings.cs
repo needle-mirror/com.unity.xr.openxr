@@ -8,7 +8,8 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR
 {
-    public partial class OpenXRSettings
+    public partial class OpenXRSettings : ISerializationCallbackReceiver
+
     {
         /// <summary>
         /// Stereo rendering mode.
@@ -297,7 +298,7 @@ namespace UnityEngine.XR.OpenXR
         {
             Internal_SetSymmetricProjection(m_symmetricProjection);
 #if UNITY_6000_1_OR_NEWER
-            Internal_SetOptimizeMultiviewRenderRegions(m_optimizeMultiviewRenderRegions);
+            Internal_SetMultiviewRenderRegionsOptimizationMode(m_multiviewRenderRegionsOptimizationMode);
 #endif
 #if UNITY_6000_2_OR_NEWER
             Internal_SetUseOpenXRPredictedTime(m_useOpenXRPredictedTime);
@@ -333,14 +334,64 @@ namespace UnityEngine.XR.OpenXR
         private bool m_symmetricProjection = false;
 
 #if UNITY_6000_1_OR_NEWER
-        [SerializeField]
+        [SerializeField, HideInInspector]
+        [Obsolete("m_optimizeMultiviewRenderRegions is deprecated. Use m_multiviewRenderRegionsOptimizationMode instead.", false)]
         private bool m_optimizeMultiviewRenderRegions = false;
+
+        /// <summary>
+        /// Multiview Render Regions optimizations modes.
+        /// </summary>
+        public enum MultiviewRenderRegionsOptimizationMode : byte
+        {
+            /// Turn off Multiview Render Regions optimizations.
+            None = 0,
+            /// Turn on Multiview Render Regions Optimizations for final pass only.
+            FinalPass = 1,
+            /// Turn on Multiview Render Regions Optimizations for all compatible passes.
+            AllPasses = 2,
+        }
+
+        [SerializeField, HideInInspector]
+        private MultiviewRenderRegionsOptimizationMode m_multiviewRenderRegionsOptimizationMode = MultiviewRenderRegionsOptimizationMode.None;
+
+        [SerializeField, HideInInspector]
+        private bool m_hasMigratedMultiviewRenderRegionSetting = false;
 #endif
 
 #if UNITY_2023_2_OR_NEWER
         [SerializeField]
         private BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
 #endif
+        /// <summary>OnBeforeSerialize.</summary>
+        public void OnBeforeSerialize()
+        {
+#if UNITY_6000_1_OR_NEWER
+#pragma warning disable CS0618
+            // Keep the boolean value for back compatibility.
+            m_optimizeMultiviewRenderRegions = m_multiviewRenderRegionsOptimizationMode != MultiviewRenderRegionsOptimizationMode.None;
+#pragma warning restore CS0618
+#endif
+        }
+        /// <summary>OnAfterDeserialize.</summary>
+        public void OnAfterDeserialize()
+        {
+#if UNITY_6000_1_OR_NEWER
+            if (!m_hasMigratedMultiviewRenderRegionSetting)
+            {
+#pragma warning disable CS0618
+                if (m_optimizeMultiviewRenderRegions)
+                {
+                    m_multiviewRenderRegionsOptimizationMode = MultiviewRenderRegionsOptimizationMode.FinalPass;
+                }
+                else
+                {
+                    m_multiviewRenderRegionsOptimizationMode = MultiviewRenderRegionsOptimizationMode.None;
+                }
+#pragma warning restore CS0618
+                m_hasMigratedMultiviewRenderRegionSetting = true;
+            }
+#endif
+        }
 
         /// <summary>
         /// If enabled, when the application begins it will create a stereo symmetric view that has the eye buffer resolution change based on the IPD.
@@ -363,17 +414,47 @@ namespace UnityEngine.XR.OpenXR
         /// Activates Multiview Render Regions optimizations at application start.
         /// Requires Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.
         /// </summary>
+        [Obsolete("optimizeMultiviewRenderRegions is deprecated. Use multiviewRenderRegionsMode instead.", false)]
         public bool optimizeMultiviewRenderRegions
         {
-            get { return m_optimizeMultiviewRenderRegions; }
+            get => m_multiviewRenderRegionsOptimizationMode == MultiviewRenderRegionsOptimizationMode.FinalPass || m_multiviewRenderRegionsOptimizationMode == MultiviewRenderRegionsOptimizationMode.AllPasses;
+            set
+            {
+                MultiviewRenderRegionsOptimizationMode newMode = value
+                    ? MultiviewRenderRegionsOptimizationMode.FinalPass
+                    : MultiviewRenderRegionsOptimizationMode.None;
+
+                if (OpenXRLoaderBase.Instance != null)
+                {
+                    Internal_SetMultiviewRenderRegionsOptimizationMode(newMode);
+                }
+                else
+                {
+#pragma warning disable CS0618
+                    m_optimizeMultiviewRenderRegions = value;
+#pragma warning restore CS0618
+
+                    m_multiviewRenderRegionsOptimizationMode = newMode;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Activates Multiview Render Regions optimization modes at application start.
+        /// Requires Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.
+        /// </summary>
+        public MultiviewRenderRegionsOptimizationMode multiviewRenderRegionsOptimizationMode
+        {
+            get => m_multiviewRenderRegionsOptimizationMode;
             set
             {
                 if (OpenXRLoaderBase.Instance != null)
-                    Internal_SetOptimizeMultiviewRenderRegions(value);
+                    Internal_SetMultiviewRenderRegionsOptimizationMode(value);
                 else
-                    m_optimizeMultiviewRenderRegions = value;
+                    m_multiviewRenderRegionsOptimizationMode = value;
             }
         }
+
 #endif
 
         /// <summary>
@@ -459,10 +540,10 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSymmetricProjection")]
         private static extern void Internal_SetSymmetricProjection([MarshalAs(UnmanagedType.I1)] bool enabled);
-
-        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeMultiviewRenderRegions")]
-        private static extern void Internal_SetOptimizeMultiviewRenderRegions([MarshalAs(UnmanagedType.I1)] bool enabled);
-
+#if UNITY_6000_1_OR_NEWER
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetMultiviewRenderRegionsOptimizationMode")]
+        private static extern void Internal_SetMultiviewRenderRegionsOptimizationMode(MultiviewRenderRegionsOptimizationMode mode);
+#endif
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeBufferDiscards")]
         private static extern void Internal_SetOptimizeBufferDiscards([MarshalAs(UnmanagedType.I1)] bool enabled);
 

@@ -1,13 +1,13 @@
 ---
 uid: openxr-project-config
 ---
-# Project configuration
+# Configure your project
 
 Use the **XR Plug-in Management** settings to configure the OpenXR plug-in for your project.
 
 To get started, follow the instructions in [Enable the OpenXR plug-in](#enable-openxr). This also installs the OpenXR package, if needed. Once installed and enabled, you can configure your project settings as described in the [OpenXR Project settings](#project-settings) section.
 
-You can review the [Project validation](#project-validation) section of the **XR Plug-in Management** settings to discover if any setting values are incompatible with OpenXR.
+You can review the [Project validation](xref:openxr-project-validation) section of the **XR Plug-in Management** settings to discover if any setting values are incompatible with OpenXR.
 
 <a name="project-settings"></a>
 ## OpenXR Project settings
@@ -20,10 +20,11 @@ Some OpenXR features require specific Unity Project settings to function properl
 * **[Latency Optimization](#latency-optimization)**: choose how the OpenXR plug-in minimizes latency for input polling or rendering.
 * **[Color Submission Mode](#color-submission-mode)**: choose how color information is passed to the renderer.
 * **[Depth Submission Mode](#depth-submission-mode)**: choose how depth information is passed to the renderer.
-* **[Offscreen Rendering Only (Vulkan)](#offscreen-rendering-only)**: provides an increase in graphical performance when enabled, but must be disabled for handheld platforms.
 * **[Play Mode OpenXR Runtime](#openxr-runtime)** (Editor): choose which OpenXR plug-in to use when running in the Unity Editor Play mode.
 * **[Interaction profiles](#interaction-profile)**: choose which OpenXR interaction profile to use for a platform.
 * **[Color space](#color-space)**: When using the Open GL graphics API, you must set the  **Color Space** to **Linear**.
+
+You can access a list of OpenXR settings in [OpenXR settings reference](xref:openxr-settings).
 
 <a name="enable-openxr"></a>
 ### Enable the OpenXR plug-in
@@ -68,7 +69,7 @@ To enable an OpenXR feature:
 
 If a feature has its own configuration options, you can click its gear icon (![](images/gear.png)) to open the feature's settings window. Some features provide an icon following their name that links to documentation.
 
-See [OpenXR Features](index.md#openxr-features) for more information about features and groups.
+Refer to [OpenXR Features](index.md#openxr-features) for more information about features and groups.
 
 <a name="render-mode"></a>
 ### Set the render mode
@@ -77,7 +78,7 @@ The **Render Mode** determines how OpenXR renders stereo graphics. Different plu
 
 |**Option** | **Description** |
 | --------- | --------------- |
-|**Multi-pass** | Each eye is rendered separately in independent *passes* from slightly different view points. Because the entire scene is rendered twice, multipass rendering is typically slower than other options. However, it is also the most similar to nonstereo rendering and does not require you to adapt your shader code. |
+|**Multi-pass** | Each eye is rendered separately in independent *passes* from slightly different view points. Because the entire scene is rendered twice, multipass rendering is typically slower than other options. However, it's also the most similar to non-stereo rendering and does not require you to adapt your shader code. |
 |**Single Pass Instanced** | Both eyes are rendered in one pass. Scene data is shared between the eyes using instanced draw calls, reducing the amount of data that must be transferred from the CPU to the GPU. Single-pass rendering is typically much faster than multi-pass, but requires compatible shaders. |
 | **Single Pass Instanced / Multi-view** | Some GPU hardware supports instancing, while others support multi-view. The two render modes are otherwise very similar. If an OpenXR plug-in supports both types of hardware, you will see this option instead of the **Single Pass Instanced** option. |
 
@@ -89,7 +90,7 @@ To set the render mode:
 4. Select the tab for a platform build target to view the features for that target.
 5. Choose the desired **Render Mode**.
 
-For more information see:
+For more information visit:
 
 * [SinglePassStereoMode](xref:UnityEngine.Rendering.SinglePassStereoMode)
 * [Single Pass Instanced rendering](xref:SinglePassInstancing)
@@ -149,9 +150,7 @@ public class LatencyOptimizationAtBuildTime : IPreprocessBuildWithReport
 ### Set the color submission mode
 
 Some OpenXR runtimes support rendering to additional swapchain formats, such as 10- or 16-bit
-high-dynamic range (HDR). Alternately, some performance may be gained on some devices by choosing
-lower fidelity as a trade-off. The available formats depend on both the Unity version you are using
-and the device and runtime that the Player is run on.
+high-dynamic range (HDR). You might experience better performance on some devices by choosing lower fidelity as a trade-off. The available formats depend on both the Unity version you are using and the device and active runtime for the Player.
 
 *Auto Color Submission Mode* currently selects the default platforms which is typically an 8bpc RGBA/BGRA format.
 
@@ -201,7 +200,7 @@ Many OpenXR runtimes can use depth information to perform more accurate and stab
 
 The best choice can depend on the platform and specific target devices. Depth can significantly reduce judder and other XR rendering artifacts, especially with mixed reality (MR) content that combines rendered graphics with real-world video. The 16-bit option uses less bandwidth to transfer data between the CPU and GPU, which can improve rendering performance and battery life on mobile-type devices. However, the 24-bit option can minimize sorting issues and "z-fighting".
 
-A reasonable rule of thumb to use when choosing a setting is:
+A reasonable guide to use when choosing a setting is:
 
 * use 24-bit depth on PC XR devices
 * use 16-bit depth for battery powered XR devices -- unless judder or sorting issues occur
@@ -217,21 +216,10 @@ To set the depth submission mode:
 
 Setting the mode to anything other than **None** enables the OpenXR [XR_KHR_composition_layer depth extension](https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#XR_KHR_composition_layer_depth). Unity ignores the **Depth Submission Mode** for OpenXR plug-ins that do not support this extension.
 
-
-<a name="Offscreen Rendering Only"></a>
-### Offscreen Rendering Only (Vulkan)
-
-**Offscreen Rendering Only** lets Unity know that the main display will not be used for rendering and to not allocate backbuffers for the main display. It is expected that the device's runtime will render it's own buffers to an offscreen display instead. This feature is only available on Android build targets.
-
-> [!NOTE]
-> If you enable **Offscreen Rendering Only** and the device's runtime does not allocate offscreen buffers then the app will not render.
-> If you disbale **Offscreen Rendering Only** then Unity will assume the main display is being used and allocate resources for backbuffers to blit with.
-> Apps meant to run on handheld devices must disable **Offscreen Rendering Only**.
-
 <a name="openxr-runtime"></a>
 ### Choose an OpenXR runtime to use in Play mode
 
-By default, Unity uses the OpenXR runtime that is setup as the active runtime for your computer. You can specify a different OpenXR runtime with the **Play Mode OpenXR Runtime** setting. Unity uses the selected runtime when you run a Scene using the Editor Play mode. See [Runtime Discovery](https://www.khronos.org/registry/OpenXR/specs/1.0/loader.html#runtime-discovery) for more information about how the active OpenXR runtime is determined.
+By default, Unity uses the OpenXR runtime that is setup as the active runtime for your computer. You can specify a different OpenXR runtime with the **Play Mode OpenXR Runtime** setting. Unity uses the selected runtime when you run a Scene using the Unity Editor Play mode. Refer to [Runtime Discovery](https://www.khronos.org/registry/OpenXR/specs/1.0/loader.html#runtime-discovery) for more information about how the active OpenXR runtime is determined.
 
 > [!NOTE]
 > The **Play Mode OpenXR Runtime** setting is not saved between Editor sessions. It reverts to the **System Default** option on exit.
@@ -272,7 +260,7 @@ To add an OpenXR interaction profile:
 
 ![Choose Interaction Profile](images/openxr-choose-interaction-profile.png)<br />*Choose an interaction profile*
 
-See [Input in OpenXR](xref:openxr-input) for more information.
+Refer to [Input in OpenXR](xref:openxr-input) for more information.
 
 <a name="color-space"></a>
 ### Set the rendering color space
@@ -286,41 +274,7 @@ To change the color space:
 3. Scroll to the **Other Settings** section. (Click **Other Settings** to open the section, if necessary.)
 4. Under the **Rendering** area, choose a **Color Space**.
 
-<a name="project-validation"></a>
-## Project validation
+## Additional resources
 
-The OpenXR package defines a set of rules for the Project Validation system. These rules check for possible incompatibilities between OpenXR and the project configuration.
-
-Some of the rules serve as warnings for possible configuration problems; you are not required to fix these. Other rules flag configuration errors that would result in your app failing to build or not working once built. You must fix these errors.
-
-If you have the [XR Core Utilities](https://docs.unity3d.com/Packages/com.unity.xr.core-utils@latest) 2.1.0 or later installed, you can access the Project Validation status in the **Project Settings** window under **XR Plug-in Management** (menu: **Edit &gt; Project Settings**). These results include the checks for all XR plug-ins that provide validation rules.
-
-![project-validation](images/ProjectValidation/project-validation-core-utils.png)
-
-You can also open a separate **OpenXR Project Validation** window for OpenXR (menu: **Window &gt; XR &gt; OpenXR &gt; Project Validation**). This window only shows the validation results related to the OpenXR plug-in and features.
-
-![feature-validation](images/ProjectValidation/feature-validation.png)
-
-Rules that pass validation are not shown unless you enable **Show all**.
-
-Some rules provide a **Fix** button that updates the configuration so that the rule passes validation. Other rules provide an **Edit** button that takes you to the relevant setting so that you can make the necessary adjustments yourself.
-
-You can enable **Ignore build errors** to bypass the pre-build validation check. However, any misconfigured features in your app might not work at runtime.
-
-### Validation issues reported in XR Plug-in Management
-
-![loader-with-issues](images/ProjectValidation/loader-with-issues.png)
-
-Clicking on either the validation warning or the error icon brings up the Validation window.
-
-### Validation issues reported in features pane
-
-![features-with-issues](images/ProjectValidation/features-with-issues.png)
-
-Clicking on either the validation warning or the error icon brings up the Validation window.
-
-### Validation issues reported in build
-
-![build-with-issues](images/ProjectValidation/build-with-issues.png)
-
-Double-clicking on build warnings or errors from validation brings up the Validation window.
+* [OpenXR settings reference](xref:openxr-settings)
+* [Validate your OpenXR project](xref:openxr-project-validation)

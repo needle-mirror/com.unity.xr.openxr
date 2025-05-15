@@ -10,11 +10,12 @@
         "Unity.XR.OpenXR.Editor",
         "Unity.InputSystem",
         "Unity.XR.OpenXR.Features.MockRuntime",
-        "Unity.XR.OpenXR.Features.ConformanceAutomation"
+        "Unity.XR.OpenXR.Features.ConformanceAutomation",
+        "Unity.XR.OpenXR.TestTooling"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll"
@@ -26,4 +27,3 @@
     "versionDefines": [],
     "noEngineReferences": false
 }
-

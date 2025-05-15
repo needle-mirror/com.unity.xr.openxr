@@ -16,6 +16,7 @@ using UnityEditor.Build;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
 namespace UnityEngine.XR.OpenXR.Features.Mock
 {
 #if UNITY_EDITOR
@@ -312,9 +313,16 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         protected internal override IntPtr HookGetInstanceProcAddr(IntPtr func)
         {
             var ret = TestCallback(MethodBase.GetCurrentMethod().Name, func);
-            if (!(ret is IntPtr))
-                return HookCreateInstance(func);
-            return HookCreateInstance((IntPtr)ret);
+
+            // Make sure existing behaviour for Mock Runtime hooks is preserved
+            var nextFunc = !(ret is IntPtr) ?
+                HookCreateInstance(func) :
+                HookCreateInstance((IntPtr)ret);
+
+            // Add mock function interceptors to the hook chain
+            nextFunc = MockFunctionInterceptor?.Invoke(nextFunc) ?? nextFunc;
+
+            return nextFunc;
         }
 
         protected internal override void OnSystemChange(ulong xrSystem)
@@ -616,6 +624,18 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #else
             return 0;
 #endif
+        }
+
+        internal Func<IntPtr, IntPtr> MockFunctionInterceptor;
+
+        internal void AddTestHookGetInstanceProcAddr(Func<IntPtr, IntPtr> nativeFunctionHook)
+        {
+            MockFunctionInterceptor = nativeFunctionHook;
+        }
+
+        internal void ClearTestHookGetInstanceProcAddr()
+        {
+            MockFunctionInterceptor = null;
         }
     }
 }

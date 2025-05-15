@@ -135,6 +135,18 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME,
         XR_EXT_performance_settings_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_FB_FOVEATION_EXTENSION_NAME,
+        XR_FB_foveation_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_FB_FOVEATION_CONFIGURATION_EXTENSION_NAME,
+        XR_FB_foveation_configuration_SPEC_VERSION
     }
 #if defined(XR_USE_PLATFORM_ANDROID)
     ,{
@@ -799,7 +811,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrStopHapticFeedback(XrSess
 extern uint32_t s_VisibilityMaskVerticesSizes[2][3];
 extern uint32_t s_VisibilityMaskIndicesSizes[2][3];
 extern XrVector2f s_VisibilityMaskVertices[2][3][99];
-extern uint32_t s_VisibilityMaskIndices[2][3][200];
+extern uint32_t s_VisibilityMaskIndices[2][3][99];
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetVisibilityMaskKHR(XrSession session, XrViewConfigurationType viewConfigurationType, uint32_t viewIndex, XrVisibilityMaskTypeKHR visibilityMaskType, XrVisibilityMaskKHR* visibilityMask)
 {

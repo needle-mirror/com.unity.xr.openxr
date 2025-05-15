@@ -37,12 +37,12 @@ This adds a `Samples` folder to your project with a Scene named `ControllerSampl
 
 ### Locking input to the game window
 
-Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view.  To work around this issue, use the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or follow these steps:
+Versions V1.0.0 to V1.1.0 of the Unity Input System only route data to or from XR devices to the Unity Editor while the Editor is in the **Game** view. To work around this issue, use the [Unity OpenXR Project Validator](xref:openxr-project-validation) or follow these steps:
 
 * Access the Input System Debugger window (menu: **Window &gt; Analysis &gt; Input Debugger**).
 * In the **Options** section, enable the **Lock Input to the Game Window** option.
 
-Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](xref:openxr-project-config#project-validation) or the Input System Debugger window
+Unity recommends that you enable the **Lock Input to the Game Window** option from either the [Unity OpenXR Project Validator](xref:openxr-project-validation) or the Input System Debugger window
 
 ![lock-input-to-game-view](images/lock-input-to-game-view.png)
 

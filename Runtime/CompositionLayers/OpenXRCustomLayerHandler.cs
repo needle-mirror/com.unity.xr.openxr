@@ -103,12 +103,18 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         class LayerRenderInfo
         {
-            public Dictionary<int, SwapchainImageInfo> SwapchainImageInfos = new Dictionary<int, SwapchainImageInfo>();
+            public Dictionary<uint, SwapchainImageInfo> SwapchainImageInfos = new Dictionary<uint, SwapchainImageInfo>();
             public Texture Texture;
 #if UNITY_VIDEO
-            public VideoPlayer videoPlayer;
+            public VideoPlayer VideoPlayer;
 #endif
-            public MeshCollider meshCollider;
+            public MeshCollider MeshCollider;
+
+            public uint RenderTextureId;
+
+            public bool IsActiveLayer;
+
+            public bool IsNewTexture;
 
             public class SwapchainImageInfo
             {
@@ -296,6 +302,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         protected ConcurrentQueue<Action> actionsForMainThread = new ConcurrentQueue<Action>();
 
+        bool isRegistedOnBeforeRender;
         Dictionary<int, LayerRenderInfo> m_renderInfos = new Dictionary<int, LayerRenderInfo>();
         Dictionary<int, CompositionLayerManager.LayerInfo> m_layerInfos = new Dictionary<int, CompositionLayerManager.LayerInfo>();
         NativeArray<T> m_ActiveNativeLayers;
@@ -321,7 +328,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             unsafe
             {
-                if (m_ActiveNativeLayerCount > 0)
+                if (m_ActiveNativeLayerCount > 0 && CompositionLayerManager.Instance != null)
                     OpenXRLayerUtility.AddActiveLayersToEndFrame(m_ActiveNativeLayers.GetUnsafePtr(), m_ActiveNativeLayerOrders.GetUnsafePtr(), m_ActiveNativeLayerCount, UnsafeUtility.SizeOf<T>());
             }
 
@@ -337,7 +344,53 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// being created.</param>
         public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
+            if (!isRegistedOnBeforeRender)
+            {
+                Application.onBeforeRender += OnBeforeRender;
+                isRegistedOnBeforeRender = true;
+            }
+
             CreateSwapchainAsync(layerInfo);
+        }
+
+        private void OnBeforeRender()
+        {
+            foreach(var container in m_renderInfos.Values)
+            {
+                if (!container.IsActiveLayer)
+                    continue;
+
+                var renderTexture = OpenXRLayerUtility.FindRenderTexture(container.RenderTextureId);
+
+                LayerRenderInfo.SwapchainImageInfo SwapchainImageInfo = null;
+                if (!container.SwapchainImageInfos.ContainsKey(container.RenderTextureId))
+                {
+                    SwapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo { RenderTexture = renderTexture, IsWritten = false };
+                    container.SwapchainImageInfos.Add(container.RenderTextureId, SwapchainImageInfo);
+                }
+
+                SwapchainImageInfo = container.SwapchainImageInfos[container.RenderTextureId];
+
+                var isVideo = false;
+#if UNITY_VIDEO
+                isVideo = container.VideoPlayer != null && container.VideoPlayer.enabled;
+#endif
+                var isUI = container.MeshCollider != null && container.MeshCollider.enabled;
+
+                // Layers that have a new texture or have video or ui components must always have their swapchain image written to.
+                if (container.IsNewTexture || isVideo || isUI)
+                {
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
+                    SwapchainImageInfo.IsWritten = true;
+                }
+
+                // For all other layers only write to the swapchain image if it has not already been written.
+                else if (!SwapchainImageInfo.IsWritten)
+                {
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
+                    SwapchainImageInfo.IsWritten = true;
+                }
+            }
         }
 
         /// <summary>
@@ -430,6 +483,12 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 m_ActiveNativeLayers.Dispose();
             if (m_ActiveNativeLayerOrders.IsCreated)
                 m_ActiveNativeLayerOrders.Dispose();
+
+            if (isRegistedOnBeforeRender)
+            {
+                Application.onBeforeRender -= OnBeforeRender;
+                isRegistedOnBeforeRender = false;
+            }
         }
 
         /// <summary>
@@ -514,9 +573,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (m_renderInfos.TryGetValue(layerInfo.Id, out var container))
             {
-                bool isNewTexture = container.Texture != texturesExtension.LeftTexture;
+                container.IsNewTexture = container.Texture != texturesExtension.LeftTexture;
 
-                if (isNewTexture)
+                if (container.IsNewTexture)
                 {
                     // If we have a new texture with different dimensions then we need to release the current swapchain and create another.
                     // This is an async procedure that also creates a new native layer object.
@@ -527,77 +586,47 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         return false;
                     }
                     else
+                    {
                         container.Texture = texturesExtension.LeftTexture;
+                    }
 #if UNITY_VIDEO
-                    container.videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
+                    container.VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
 #endif
-                    container.meshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
+                    container.MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
                     container.SwapchainImageInfos.Clear();
                 }
-
-                RenderTexture foundRenderTexture = OpenXRLayerUtility.FindRenderTexture(layerInfo);
-                if (foundRenderTexture == null)
-                {
-                    // We still return true here.
-                    // Nothing is wrong with the layer, there just may not be a swapchain image immediately available yet.
-                    // We still need to make the release call.
-                    OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
-                    return true;
-                }
-
-                var foundRenderTextureId = foundRenderTexture.GetInstanceID();
-                LayerRenderInfo.SwapchainImageInfo SwapchainImageInfo = null;
-                if (!container.SwapchainImageInfos.ContainsKey(foundRenderTextureId))
-                {
-                    SwapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo { RenderTexture = foundRenderTexture, IsWritten = false };
-                    container.SwapchainImageInfos.Add(foundRenderTextureId, SwapchainImageInfo);
-                }
-
-                SwapchainImageInfo = container.SwapchainImageInfos[foundRenderTextureId];
-
-                var isVideo = false;
-#if UNITY_VIDEO
-                isVideo = container.videoPlayer != null && container.videoPlayer.enabled;
-#endif
-                var isUI = container.meshCollider != null && container.meshCollider.enabled;
-
-                // Layers that have a new texture or have video or ui components must always have their swapchain image written to.
-                if (isNewTexture || isVideo || isUI)
-                {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, foundRenderTexture);
-                    SwapchainImageInfo.IsWritten = true;
-                }
-
-                // For all other layers only write to the swapchain image if it has not already been written.
-                else if (!SwapchainImageInfo.IsWritten)
-                {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, foundRenderTexture);
-                    SwapchainImageInfo.IsWritten = true;
-                }
-
-                OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
             }
             else
             {
-                bool isRenderTextureWritten = OpenXRLayerUtility.FindAndWriteToRenderTexture(layerInfo, texturesExtension.LeftTexture, out RenderTexture renderTexture);
-                if (isRenderTextureWritten)
+                var layerRenderInfo = new LayerRenderInfo()
                 {
-                    var layerRenderInfo = new LayerRenderInfo()
-                    {
-                        Texture = texturesExtension.LeftTexture,
+                    Texture = texturesExtension.LeftTexture,
 #if UNITY_VIDEO
-                        videoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
+                    VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
 #endif
-                        meshCollider = layerInfo.Layer.GetComponent<MeshCollider>()
-                    };
-                    layerRenderInfo.SwapchainImageInfos.Add(renderTexture.GetInstanceID(), new LayerRenderInfo.SwapchainImageInfo { RenderTexture = renderTexture, IsWritten = true });
-                    m_renderInfos.Add(layerInfo.Id, layerRenderInfo);
-                }
+                    MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>()
+                };
 
-                OpenXRLayerUtility.ReleaseSwapchain(layerInfo);
+                m_renderInfos.Add(layerInfo.Id, layerRenderInfo);
             }
 
+            m_renderInfos[layerInfo.Id].IsActiveLayer = true;
+
+            OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, OnRenderTextureIdIdCallback);
+
             return true;
+        }
+
+        [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.RenderTextureIdCallbackDelegate))]
+        static void OnRenderTextureIdIdCallback(int layerId, uint texId)
+        {
+            if (Instance == null)
+                return;
+
+            if (Instance.m_renderInfos.TryGetValue(layerId, out var container))
+            {
+                Instance.m_renderInfos[layerId].RenderTextureId = texId;
+            }
         }
 
         [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.SwapchainCallbackDelegate))]

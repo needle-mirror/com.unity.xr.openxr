@@ -1465,5 +1465,51 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(mainThreadFound, "Main thread not found in Android thread settings.");
             Assert.IsTrue(renderThreadFound, "Graphics thread not found in Android thread settings.");
         }
+
+        /// <summary>
+        /// To test out BuiltinExtensions behavior works as expected. Refer to unity_builtin_extension_list.cpp to see all supported buildinExtensions.
+        /// For EnabledByDefault_NoOverride type, when exts are available, exts should be enabled by default. If not available, exts not enabled.
+        /// For EnabledByDefault_AllowOverride type, when exts available, exts enabled externally. ext should be enabled.
+        /// For EnabledExternally_NoOverride type, when exts available, If enabled externally, ext should be enabled.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator BuiltInExtensionsBehavior()
+        {
+            // Enable exts externally for test purposes.
+            AddExtension("XR_META_performance_metrics");
+            AddExtension("XR_FB_swapchain_update_state");
+            AddExtension("XR_EXT_performance_settings");
+            AddExtension("XR_META_vulkan_swapchain_create_info");
+            InitializeAndStart();
+
+            yield return new WaitForXrFrame(1);
+            // EnableByDefault_NoOverride type:
+            // single ext case:  {{"XR_MSFT_holographic_window_attachment"}, CreateMSFTCoreWindowExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
+            // XR_MSFT_holographic_window_attachment is not available, so should not be enabled.
+            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_MSFT_holographic_window_attachment"), "XR_MSFT_holographic_window_attachment EnableByDefault_NoOverride is not available, so should not enabled.");
+
+            // multiple exts case:  {{"XR_FB_foveation", "XR_FB_foveation_configuration"}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
+            // XR_FB_foveation & XR_FB_foveation_configuration are available, so should be enabled by default.
+            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation"), "XR_FB_foveation EnableByDefault_NoOverride is available and should be enabled.");
+            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_configuration"), "XR_FB_foveation_configuration EnableByDefault_NoOverride is available and should be enabled.");
+
+            // EnabledByDefault_AllowOverride type:
+            // {{"XR_META_performance_metrics"}, CreateMetaPerformanceMetricsExtension, kBuiltinExtensionEnableType_EnableByDefault_AllowOverride}
+            // XR_META_performance_metrics is available, and enabled externally, so should be enabled.
+            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_META_performance_metrics"), "XR_META_performance_metrics EnabledByDefault_AllowOverride, should be enabled.");
+
+            // EnabledExternally_NoOverride type:
+            // {{"XR_EXT_performance_settings"}, CreatePerformanceSettingsExtension, kBuiltinExtensionEnableType_EnabledExternally_NoOverride }
+            // XR_EXT_performance_settings is available, and enabled externally, so should be enabled.
+            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_EXT_performance_settings"), "XR_EXT_performance_settings EnabledExternally_NoOverride enabled externally, should be enabled.");
+
+            // {{"XR_META_vulkan_swapchain_create_info"}, CreateMetaVulkanSwapchainExtension, kBuiltinExtensionEnableType_EnabledExternally_NoOverride}
+            // XR_META_performance_metrics is not available, but enabled externally, so should not be enabled.
+            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_META_vulkan_swapchain_create_info"), "XR_META_vulkan_swapchain_create_info EnabledExternally_NoOverride is not available, should not be enabled.");
+
+            // {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state", "XR_FB_foveation_vulkan"}, CreateOculusFoveationExtension, kBuiltinExtensionEnableType_EnabledExternally_NoOverride}
+            // XR_FB_swapchain_update_state is not available, but enabled externally. XR_FB_foveation_vulkan is not availble.
+            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_vulkan"), "XR_FB_foveation_vulkan extension should be EnabledExternally_NoOverride.");
+        }
     }
 }

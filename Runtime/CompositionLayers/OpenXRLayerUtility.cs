@@ -18,6 +18,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         static Dictionary<UInt32, RenderTexture> _textureMap = new Dictionary<UInt32, RenderTexture>();
 
+        public unsafe delegate void RenderTextureIdCallbackDelegate(int layerId, uint texId);
+        public unsafe delegate void StereoRenderTextureIdsCallbackDelegate(int layerId, uint leftTexId, uint rightTexId);
+
         /// <summary>
         /// Calls the methods in its invocation list when a swapchain is created on the graphics thread inside the UnityOpenXR lib.
         /// </summary>
@@ -112,12 +115,34 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Release swapchain according to the id provided.
+        /// Submits a request to create or get an available render texture associated with the swapchain of the given layer id.
+        /// </summary>
+        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="callback">Callback that will be invoked with the current render texture id to use for the layer's swapchain.</param>
+        /// <remarks>The callback will be invoked on the graphics thread. Work on the render texture must be done anywhere within the scene rendering phase (such as Application.OnBeforeRender).</remarks>
+        public static void RequestRenderTextureId(int layerId, RenderTextureIdCallbackDelegate callback)
+        {
+            ext_compositor_layers_RequestRenderTextureId(layerId, callback);
+        }
+
+        /// <summary>
+        /// Submits a request to create or get an available stereo render texture associated with the stereo swapchain of the given layer id.
+        /// </summary>
+        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="callback"> Callback that will be invoked with the current stereo render texture ids to use for the layer's swapchain</param>
+        /// <remarks>The callback will be invoked on the graphics thread. Work on the render textures must be done anywhere within the scene rendering phase (such as Application.OnBeforeRender).</remarks>
+        public static void RequestStereoRenderTextureIds(int layerId, StereoRenderTextureIdsCallbackDelegate callback)
+        {
+            ext_compositor_layers_RequestStereoRenderTextureIds(layerId, callback);
+        }
+
+        /// <summary>
+        /// Release and Destroy the swapchain according to the id provided.
         /// </summary>
         /// <param name="layerId">The instance id of the composition layer object.</param>
         public static void ReleaseSwapchain(int layerId)
         {
-            ext_composition_layers_ReleaseSwapchain(layerId);
+            ext_composition_layers_ReleaseAndDestroySwapchain(layerId);
         }
 
         /// <summary>
@@ -163,6 +188,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
         /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
+        [Obsolete("OpenXRLayerUtility.FindRenderTexture is deprecated. If you want to query for a swapchain render texture then use OpenXRLayerUtility.RequestRenderTextureId instead", false)]
         public static RenderTexture FindRenderTexture(CompositionLayerManager.LayerInfo layerInfo)
         {
             UInt32 texId = ext_compositor_layers_CreateOrGetRenderTextureId(layerInfo.Id);
@@ -174,6 +200,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
         /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
+        [Obsolete("OpenXRLayerUtility.ReleaseSwapchain is deprecated. Swapchains are all automatically released by the graphics thread.", false)]
         public static void ReleaseSwapchain(CompositionLayerManager.LayerInfo layerInfo)
         {
             ext_compositor_layers_ReleaseSwapchain(layerInfo.Id);
@@ -221,6 +248,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <param name="renderTexture">The render texture that will be searched for and written to.
         /// Will be null if no render texture can be found for the provided layerInfo object.</param>
         /// <returns>True if a render texture was found and written to, false if the provided texture is null or if no render texture was found for the provided layerInfo object.</returns>
+        [Obsolete("OpenXRLayerUtility.FindAndWriteToRenderTexture is deprecated. If you want to query for a swapchain render texture then use OpenXRLayerUtility.RequestRenderTextureId instead", false)]
         public static bool FindAndWriteToRenderTexture(CompositionLayerManager.LayerInfo layerInfo, Texture texture, out RenderTexture renderTexture)
         {
             if (texture == null)
@@ -243,7 +271,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <param name="renderTextureRight">The right stereo render texture that will be searched for and written to.
         /// Will be null if no render textures can be found for the provided layerInfo object.</param>
         /// <returns>True if both render textures were found and written to, false if no texture was found on the TexturesExtension component of the layerInfo object or if no render texture was found for the provided layerInfo object.</returns>
-
+        [Obsolete("OpenXRLayerUtility.FindAndWriteToStereoRenderTextures is deprecated. If you want to query for a stereo swapchain render texture then use OpenXRLayerUtility.RequestStereoRenderTextureId instead", false)]
         public static bool FindAndWriteToStereoRenderTextures(CompositionLayerManager.LayerInfo layerInfo, out RenderTexture renderTextureLeft, out RenderTexture renderTextureRight)
         {
             var tex = layerInfo.Layer.GetComponent<TexturesExtension>();
@@ -313,10 +341,16 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName)]
-        internal static extern UInt32 ext_compositor_layers_CreateOrGetRenderTextureId(int id);
+        internal static extern void ext_compositor_layers_RequestRenderTextureId(int id, RenderTextureIdCallbackDelegate callback);
+
+        [DllImport(LibraryName)]
+        internal static extern void ext_compositor_layers_RequestStereoRenderTextureIds(int id, StereoRenderTextureIdsCallbackDelegate callback);
 
         [DllImport(LibraryName)]
         internal static extern void ext_compositor_layers_ReleaseSwapchain(int id);
+
+        [DllImport(LibraryName)]
+        internal static extern UInt32 ext_compositor_layers_CreateOrGetRenderTextureId(int id);
 
         [DllImport(LibraryName)]
         [return: MarshalAs(UnmanagedType.U1)]
@@ -332,7 +366,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         internal static extern Int64 ext_composition_layers_GetUnityDefaultColorFormat();
 
         [DllImport(LibraryName)]
-        internal static extern void ext_composition_layers_ReleaseSwapchain(int id);
+        internal static extern void ext_composition_layers_ReleaseAndDestroySwapchain(int id);
 
         [DllImport(LibraryName)]
         internal static extern unsafe void ext_composition_layers_AddActiveLayers(void* layers, void* orders, int count, int size);

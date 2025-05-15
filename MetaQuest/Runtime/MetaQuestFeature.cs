@@ -31,7 +31,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         FeatureId = featureId
     )]
 #endif
-    public class MetaQuestFeature : OpenXRFeature
+    public class MetaQuestFeature : OpenXRFeature, ISerializationCallbackReceiver
     {
         [Serializable]
         internal struct TargetDevice
@@ -51,6 +51,33 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// Used for validation regarding ambient occlusion on meta quest devices.
         /// </summary>
         private const string ambientOcclusionScriptName = "ScreenSpaceAmbientOcclusion";
+
+        /// <summary>OnBeforeSerialize.</summary>
+        public void OnBeforeSerialize()
+        {
+#if UNITY_6000_1_OR_NEWER && UNITY_EDITOR
+#pragma warning disable CS0618 // suppress obsolete field usage warning
+            optimizeMultiviewRenderRegions = multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
+#pragma warning restore CS0618
+#endif
+        }
+        /// <summary>OnAfterDeserialize.</summary>
+        public void OnAfterDeserialize()
+        {
+#if UNITY_6000_1_OR_NEWER && UNITY_EDITOR
+            if (!m_hasMigratedMultiviewRenderRegions)
+            {
+#pragma warning disable CS0618 // suppress obsolete field usage warning
+                if (optimizeMultiviewRenderRegions)
+                    multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                else
+                    multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
+#pragma warning restore CS0618
+
+                m_hasMigratedMultiviewRenderRegions = true;
+            }
+#endif
+        }
 
 #if UNITY_EDITOR
         /// <summary>
@@ -104,8 +131,19 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// <summary>
         /// If enabled, the application can use Multi-View Per View Viewports functionality. This feature requires Unity 6.1 or later, and usage of the Vulkan renderer.
         /// </summary>
-        [SerializeField]
+        [SerializeField, HideInInspector]
+        [Obsolete("optimizeMultiviewRenderRegions is deprecated. Use multiviewRenderRegionsOptimizationMode instead.", false)]
         internal bool optimizeMultiviewRenderRegions;
+#if UNITY_6000_1_OR_NEWER
+        /// <summary>
+        /// Selected Multiview Render Region Optimization Mode. This feature requires Unity 6.1 or later, and usage of the Vulkan renderer.
+        /// </summary>
+        [SerializeField]
+        internal OpenXRSettings.MultiviewRenderRegionsOptimizationMode multiviewRenderRegionsOptimizationMode;
+
+        [SerializeField, HideInInspector]
+        private bool m_hasMigratedMultiviewRenderRegions = false;
+#endif
 
         /// <summary>
         /// Holding the Space Warp motion vector texture format
@@ -283,14 +321,14 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         fixItAutomatic = false,
                     },
 
-                    // OptimizeMultiviewRenderRegions (aka MVPVV) only supported on Unity 6.1 onwards
+                    // MultiviewRenderRegionsOptimizationMode (aka MVPVV) only supported on Unity 6.1 onwards
 #if UNITY_6000_1_OR_NEWER
                     new ValidationRule(this)
                     {
-                        message = "Optimize Multiview Render Regions requires symmetric projection setting turned on.",
+                        message = "Multiview Render Regions Optimizations Mode requires symmetric projection setting turned on.",
                         checkPredicate = () =>
                         {
-                            if (optimizeMultiviewRenderRegions)
+                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
                                 return symmetricProjection;
                             }
@@ -307,10 +345,10 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
                     new ValidationRule(this)
                     {
-                        message = "Optimize Multiview Render Regions requires Render Mode set to \"Single Pass Instanced / Multi-view\".",
+                        message = "Multiview Render Regions Optimizations Mode requires Render Mode set to \"Single Pass Instanced / Multi-view\".",
                         checkPredicate = () =>
                         {
-                            if (optimizeMultiviewRenderRegions)
+                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
                                 var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                                 return (settings.renderMode == OpenXRSettings.RenderMode.SinglePassInstanced);
@@ -327,11 +365,11 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
                     new ValidationRule(this)
                     {
-                        message = "Optimize Multiview Render Regions needs the Vulkan Graphics API to be the default Graphics API to work at runtime.",
-                        helpText = "The Optimize Multiview Render Regions feature only works with the Vulkan Graphics API, which needs to be set as the first Graphics API to be loaded at application startup. Choosing other Graphics API may require to switch to Vulkan and restart the application.",
+                        message = "Multiview Render Regions Optimizations Mode needs the Vulkan Graphics API to be the default Graphics API to work at runtime.",
+                        helpText = "The Multiview Render Regions Optimizations Mode feature only works with the Vulkan Graphics API, which needs to be set as the first Graphics API to be loaded at application startup. Choosing other Graphics API may require to switch to Vulkan and restart the application.",
                         checkPredicate = () =>
                         {
-                            if (optimizeMultiviewRenderRegions)
+                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
                                 var graphicsApis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
                                 return graphicsApis[0] == GraphicsDeviceType.Vulkan;
@@ -340,6 +378,30 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         },
                         error = false
                     },
+
+                    new ValidationRule(this)
+                    {
+                        message = "Multiview Render Regions Optimizations - All Passes mode is only supported on Unity 6.2+ versions",
+                        checkPredicate = () =>
+                        {
+#if !UNITY_6000_2_OR_NEWER
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            if (settings.multiviewRenderRegionsOptimizationMode == OpenXRSettings.MultiviewRenderRegionsOptimizationMode.AllPasses)
+                                return false;
+#endif
+                            return true;
+                        },
+                        error = true,
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            var feature = settings.GetFeature<MetaQuestFeature>();
+                            feature.multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                        },
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Multiview Render Regions Optimization Mode to Final Pass."
+                    },
+
 #endif
 
 #if UNITY_ANDROID
@@ -358,7 +420,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         {
                             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan });
                         },
-                        error = true,
                         fixItAutomatic = true,
                         fixItMessage = "Set Vulkan as Graphics API"
                     },
@@ -444,7 +505,13 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             }
 
                             return true;
-                        }
+                        },
+                        fixIt = () =>
+                        {
+                            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan });
+                        },
+                        fixItAutomatic = true,
+                        fixItMessage = "Set Vulkan as Graphics API"
                     },
 #endif
                     new ValidationRule(this)

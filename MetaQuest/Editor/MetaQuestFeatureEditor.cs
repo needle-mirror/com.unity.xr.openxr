@@ -18,7 +18,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private static GUIContent s_LateLatchingDebugLabel = EditorGUIUtility.TrTextContent("Late Latching Debug Mode");
         private static GUIContent s_ShowAndroidExperimentalLabel = EditorGUIUtility.TrTextContent("Experimental", "Experimental settings that are under active development and should be used with caution.");
 #if UNITY_6000_1_OR_NEWER
-        private static GUIContent s_OptimizeMultiviewRenderRegionsLabel = EditorGUIUtility.TrTextContent("Optimize Multiview Render Regions (Vulkan)", "Activates Multiview Render Regions optimizations at application start. Requires usage of Unity 6.1 or later, Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.");
+        private static GUIContent s_MultiviewRenderRegionsOptimizationsLabel = EditorGUIUtility.TrTextContent("Multiview Render Regions Optimizations (Vulkan)", "Activates Multiview Render Regions optimizations at application start. Requires usage of Unity 6.1 or later, Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.");
 #endif
 
         struct TargetDeviceProperty
@@ -39,7 +39,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
         private SerializedProperty optimizeBufferDiscards;
 #if UNITY_6000_1_OR_NEWER
-        private SerializedProperty optimizeMultiviewRenderRegions;
+        private SerializedProperty multiviewRenderRegionsOptimizationMode;
 #endif
 
         private SerializedProperty spacewarpMotionVectorTextureFormat;
@@ -73,8 +73,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             optimizeBufferDiscards =
                 serializedObject.FindProperty("optimizeBufferDiscards");
 #if UNITY_6000_1_OR_NEWER
-            optimizeMultiviewRenderRegions =
-                serializedObject.FindProperty("optimizeMultiviewRenderRegions");
+            multiviewRenderRegionsOptimizationMode =
+                serializedObject.FindProperty("multiviewRenderRegionsOptimizationMode");
 #endif
 
             targetDeviceProperties = new List<TargetDeviceProperty>();
@@ -107,7 +107,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         public override void OnInspectorGUI()
         {
             // Update anything from the serializable object
-            EditorGUIUtility.labelWidth = 275.0f;
+            EditorGUIUtility.labelWidth = 300.0f;
 
             serializedObject.Update();
             EditorGUILayout.LabelField("Rendering Settings", EditorStyles.boldLabel);
@@ -115,7 +115,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             EditorGUILayout.PropertyField(optimizeBufferDiscards, new GUIContent("Optimize Buffer Discards (Vulkan)"));
             // OptimizeMultiviewRenderRegions (aka MVPVV) only supported on Unity 6.1 onwards
 #if UNITY_6000_1_OR_NEWER
-            EditorGUILayout.PropertyField(optimizeMultiviewRenderRegions, s_OptimizeMultiviewRenderRegionsLabel);
+            EditorGUILayout.PropertyField(multiviewRenderRegionsOptimizationMode, s_MultiviewRenderRegionsOptimizationsLabel);
 #endif
             EditorGUILayout.PropertyField(spacewarpMotionVectorTextureFormat, new GUIContent("Space Warp motion vector texture format"));
 
@@ -156,7 +156,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             androidOpenXRSettings.symmetricProjection = symmetricProjection.boolValue;
 #if UNITY_6000_1_OR_NEWER
-            androidOpenXRSettings.optimizeMultiviewRenderRegions = optimizeMultiviewRenderRegions.boolValue;
+            androidOpenXRSettings.multiviewRenderRegionsOptimizationMode = (OpenXRSettings.MultiviewRenderRegionsOptimizationMode)multiviewRenderRegionsOptimizationMode.intValue;
 #endif
             androidOpenXRSettings.optimizeBufferDiscards = optimizeBufferDiscards.boolValue;
             androidOpenXRSettings.spacewarpMotionVectorTextureFormat = (OpenXRSettings.SpaceWarpMotionVectorTextureFormat)spacewarpMotionVectorTextureFormat.enumValueIndex;

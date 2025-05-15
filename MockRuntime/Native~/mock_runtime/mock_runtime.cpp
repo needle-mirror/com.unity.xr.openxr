@@ -41,12 +41,13 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     stereoViewConfig.enabled = true;
     stereoViewConfig.active = true;
     stereoViewConfig.stateFlags = defaultViewStateFlags;
-    stereoViewConfig.views = {{defaultViewConfig,
-                                  {{0.0f, 0.0f, 0.0f, 1.0f}, {-0.011f, 0.0f, 0.0f}},
-                                  {-0.995535672f, 0.811128199f, 0.954059243f, -0.954661012f}},
-        {defaultViewConfig,
-            {{0.0f, 0.0f, 0.0f, 1.0f}, {0.011f, 0.0f, 0.0f}},
-            {-0.812360585f, 0.995566666f, 0.955580175f, -0.953877985f}}};
+    stereoViewConfig.views =
+        {{defaultViewConfig,
+             {{0.0f, 0.0f, 0.0f, 1.0f}, {-0.011f, 0.0f, 0.0f}},
+             {-0.995535672f, 0.811128199f, 0.954059243f, -0.954661012f}},
+            {defaultViewConfig,
+                {{0.0f, 0.0f, 0.0f, 1.0f}, {0.011f, 0.0f, 0.0f}},
+                {-0.812360585f, 0.995566666f, 0.955580175f, -0.953877985f}}};
     viewConfigurations[XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO] = stereoViewConfig;
 
     // Add quad view poses if the extension is enabled

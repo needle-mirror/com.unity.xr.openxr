@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.XR.OpenXR;
+using UnityEditor.MPE;
 
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
@@ -23,6 +24,9 @@ namespace UnityEditor.XR.OpenXR.Features
             void OnFirstUpdate()
             {
                 EditorApplication.update -= OnFirstUpdate;
+                // Early out if this is invoked inside a secondary process (e.g. Standalone Profiler)
+                if ((uint)ProcessService.level == (uint)ProcessLevel.Secondary)
+                    return;
                 InitializeFeatureSets();
             }
 
