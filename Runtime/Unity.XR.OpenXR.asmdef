@@ -46,8 +46,7 @@
             "name": "com.unity.render-pipelines.universal",
             "expression": "7.0.0",
             "define": "UNITY_RENDER_PIPELINES_UNIVERSAL"
-        }
-        ,
+        },
         {
             "name": "com.unity.modules.video",
             "expression": "1.0.0",

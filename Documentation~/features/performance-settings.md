@@ -53,40 +53,21 @@ By choosing the lowest level that gives your application good performance, you c
 
 Here are some examples of how you might use performance level hints in different scenarios:
 
-
 - The application shows static pictures without any interactive elements:
 
-  ```c#
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.CPU, PerformanceLevelHint.PowerSavings);
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.GPU, PerformanceLevelHint.PowerSavings);
-
-  // Show a picture sequence and continue with app loading
-  ```
-
+  [!code-csharp[PowerSavingsHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#PowerSavingsHintExample)]
+  
 - The application is in a normal state, with simple interactivity and low complexity scenes:
 
-  ```c#
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.CPU, PerformanceLevelHint.SustainedLow);
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.GPU, PerformanceLevelHint.SustainedLow);
-
-  // Run regular app process
-  ```
-
+  [!code-csharp[SustainedLowHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#SustainedLowHintExample)]
+  
 - The application needs to render a complex scene with multiple, interactive composition layers:
 
-  ```c#
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.GPU, PerformanceLevelHint.SustainedHigh);
-
-  // Load and process action scene
-  ```
-
+  [!code-csharp[SustainedHighHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#SustainedHighHintExample)]
+  
 - The application needs to process a large amount of data on device:
 
-  ```c#
-  XrPerformanceSettingsFeature.SetPerformanceLevelHint(PerformanceDomain.CPU, PerformanceLevelHint.Boost);
-
-  // Run complex logic
-  ```
+  [!code-csharp[SustainedHighHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#BoostHintExample)]
 
 <a name="performance-settings-notifications"></a>
 ## Performance notifications
@@ -156,27 +137,4 @@ A notification event provides the following data (as a [PerformanceChangeNotific
 
 The following code snippet illustrates how you can subscribe to the performance notification event and handle performance changes (by calling your own application-defined functions that modify performance):
 
-```c#
-// Subscribe to the performance notification event at runtime
-XrPerformanceSettingsFeature.OnXrPerformanceChangeNotification += OnPerformanceChangeNotification;
-
-// Process the notification when it happens
-void OnPerformanceChangeNotification(PerformanceChangeNotification notification)
-{
-    switch (notification.toLevel)
-    {
-        case PerformanceNotificationLevel.Normal:
-            // Let the application run as normal execution
-            RestorePerformance(notification.domain, notification.subDomain);
-            break;
-        case PerformanceNotificationLevel.Warning:
-            // Reduce workload of low priority tasks
-            LimitPerformance(notification.domain, notification.subDomain);
-            break;
-        case PerformanceNotificationLevel.Impaired:
-            // Execute app with the minimum required processes for the given domain and subdomain
-            ReducePerformance(notification.domain, notification.subDomain);
-            break;
-    }
-}
-```
+[!code-csharp[PerformanceNotificationExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceNotificationExample.cs#PerformanceNotificationExample)]

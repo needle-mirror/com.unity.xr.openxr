@@ -136,27 +136,7 @@ To set either of these foveated rendering APIs, you must first get a reference t
 
 The following code example illustrates how to set foveated rendering to full strength and enable gaze-based foveation after getting the instance of the active `XRDisplaySubsystem`:
 
-```C#
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.XR;
-
-public class FoveationStarter : MonoBehaviour
-{
-  List<XRDisplaySubsystem> xrDisplays = new List<XRDisplaySubsystem>();
-
-  void Start()
-  {
-    SubsystemManager.GetSubsystems(xrDisplays);
-    if (xrDisplays.Count == 1)
-    {
-      xrDisplays[0].foveatedRenderingLevel = 1.0f; // Full strength
-      xrDisplays[0].foveatedRenderingFlags
-          = XRDisplaySubsystem.FoveatedRenderingFlags.GazeAllowed;
-    }
-  }
-}
-```
+[!code-csharp[FoveationSrpApiExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/FoveationSrpApiExample.cs#FoveationSrpApiExample)]
 
 > [!NOTE]
 > This code example relies on methods available in Unity 6+. It does not compile in earlier versions.
@@ -170,7 +150,7 @@ After you configured foveated rendering in the OpenXR settings, you must also tu
 
 The following code example illustrates how to set foveated rendering to High and enable gaze-based foveation using the **Legacy API** and the Meta Core XR SDK package:
 
-```C#
+``` csharp
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -178,6 +158,7 @@ public class FoveationStarter : MonoBehaviour
 {
     private void Start()
     {
+        // Only use with the Meta Core SDK.
         OVRManager.foveatedRenderingLevel = OVRManager.FoveatedRenderingLevel.High;
         OVRManager.eyeTrackedFoveatedRenderingEnabled = true;
     }

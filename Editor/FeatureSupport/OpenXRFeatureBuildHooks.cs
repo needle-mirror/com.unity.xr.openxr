@@ -13,7 +13,8 @@ using Unity.XR.Management.AndroidManifest.Editor;
 namespace UnityEditor.XR.OpenXR.Features
 {
     /// <summary>
-    /// Inherit from this class to get callbacks to hook into the build process when your OpenXR Extension is enabled.
+    /// Inherit from this class to implement callback functions that will hook into the build process.
+    /// They will be called when a project with the corresponding OpenXR feature enabled is being built.
     /// </summary>
 #pragma warning disable 0618
     public abstract class OpenXRFeatureBuildHooks : IPostGenerateGradleAndroidProject, IPostprocessBuildWithReport, IPreprocessBuildWithReport
@@ -27,7 +28,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
         private bool IsExtensionEnabled(BuildTarget target, BuildTargetGroup group)
         {
-            if (!BuildHelperUtils.HasLoader(group, typeof(OpenXRLoaderBase)))
+            if (!BuildHelperUtils.HasActiveLoader(group, typeof(OpenXRLoaderBase)))
                 return false;
 
             OpenXRSettings buildTargetOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildPipeline.GetBuildTargetGroup(target));
@@ -58,7 +59,7 @@ namespace UnityEditor.XR.OpenXR.Features
         public abstract int callbackOrder { get; }
 
         /// <summary>
-        /// Post process build step for checking if a feature is enabled. If so will call to the feature to run their build pre processing.
+        /// Pre process build step for checking if a feature is enabled. If so will call to the feature to run their build pre processing.
         /// </summary>
         /// <param name="report">Build report.</param>
         public virtual void OnPreprocessBuild(BuildReport report)
@@ -128,14 +129,14 @@ namespace UnityEditor.XR.OpenXR.Features
         /// Called during the build process when extension is enabled. Implement this function to add Boot Config Settings.
         /// </summary>
         /// <param name="report">BuildReport that contains information about the build, such as the target platform and output path.</param>
-        /// <param name="builder">This is the Boot Config interface tha can be used to write boot configs</param>
+        /// <param name="builder">This is the Boot Config interface that can be used to write boot configs</param>
         protected virtual void OnProcessBootConfigExt(BuildReport report, BootConfigBuilder builder)
         {
         }
 
 #if XR_MGMT_4_4_0_OR_NEWER
         /// <summary>
-        /// Post process build step for checking if the hooks' related feature is enabled for Android builds If so, the hook can safely provide its Android manifest requirements.
+        /// Post process build step for checking if the hooks' related feature is enabled for Android builds. If so, the hook can safely provide its Android manifest requirements.
         /// </summary>
         public virtual ManifestRequirement ProvideManifestRequirement()
         {

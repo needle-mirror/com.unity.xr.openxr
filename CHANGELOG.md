@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.15.0] - 2025-06-12
+
+### Added
+
+* Added settings and a component to enable URP Application Spacewarp for compatible devices. Refer to [URP Application Spacewarp](xref: openxr-spacewarp) for information.
+* Added a validation rule for warning of Magic Leap 2 limit to existing projects from Unity 6.3.
+
+### Changed
+
+* Check whether the requested eye tracking permission has been granted before requesting permission.
+* Changed the Composition Layers native implementation to create global references of Android surface objects.
+
+### Fixed
+
+* Fixed compile errors due to `TreeView`, `TreeViewState` and `TreeViewItem` were deprecated in Unity 6.2 and newer.
+* Fixed an issue to only apply OpenXR related bootconfig when OpenXR Loader is enabled.
+* Enabled `XR_FB_swapchain_update_state` extension by default if available to fix `XR_ERROR_EXTENSION_DEPENDENCY_NOT_ENABLED` runtime error when `XR_FB_foveation` extension was enabled by default.
+* Fixed incorrect display of the `Use OpenXR Predicted Time` toggle in Unity versions below 6.2.
+* Fixed a crash that could occur when changing scenes containing an `OpenXRDefaultLayer` with extensions.
+* Fixed compile errors due to `EditorUtility.InstanceIDToObject` being deprecated in Unity 6.3 and newer.
+* Fixed foveation data corruption leading to visual anomalies when the OpenXR swapchain was frequently resized.
+* Fixed an increase in memory that was seen in older editors that are not checking for the OffScreen Rendering Only bootconfig value.
+  
 ## [1.15.0-pre.2] - 2025-05-15
 
 ### Added
@@ -19,7 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 * Changed the Symmetric Projection validation rule that checks for Vulkan api to a warning instead of an error.
-* Deprecated  `OpenXRLayerUtility.FindRenderTexture`, `OpenXRLayerUtility.FindAndWriteToRenderTexture`, `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`, and `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`. 
+* Deprecated  `OpenXRLayerUtility.FindRenderTexture`, `OpenXRLayerUtility.FindAndWriteToRenderTexture`, `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`, and `OpenXRLayerUtility.FindAndWriteToStereoRenderTextures`.
 * Swapchain images are acquired on the graphics thread with `OpenXRLayerUtility.RequestRenderTextureId` and `OpenXRLayerUtility.RequestStereoRenderTextureIds` and automatically released by the OpenXR plugin on the graphics thread.
 * Enable `XR_FB_foveation` and `XR_FB_foveation_configuration` extensions by default if available for runtime.
 * Changed Multiview Render Regions (Vulkan) setting for Meta Quest Support from a check box to dropdown menu with three options: None, FinalPass and AllPasses.

@@ -48,6 +48,7 @@ namespace UnityEngine.XR.OpenXR
         internal void ApplySettings()
         {
             ApplyRenderSettings();
+            ApplyPermissionSettings();
         }
 
 #if UNITY_EDITOR

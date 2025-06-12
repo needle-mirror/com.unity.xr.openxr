@@ -28,53 +28,7 @@ In addition to the built-in layer types supported by the Composition Layers feat
 ### Custom Layer Example
 The following example demonstrates how to create a custom layer handler for a custom layer type. This handler is responsible for managing the lifecycle of the layer, rendering, and other properties.
 
-```c#
-#if UNITY_EDITOR
-[UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "OpenXR Custom Layer Handler Example",
-    BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android },
-    Company = "Unity",
-    Desc = "An example to demonstrate how to enable a handler for a customized composition layer type.",
-    DocumentationLink = "",
-    FeatureId = "com.unity.openxr.features.customlayerexample",
-    OpenxrExtensionStrings = "",
-    Version = "1")]
-#endif
-
-public class CustomFeature : OpenXRFeature
-{
-    bool isSubscribed;
-
-    protected override void OnEnable()
-    {
-        if (OpenXRLayerProvider.isStarted)
-            CreateAndRegisterLayerHandler();
-        else
-        {
-            OpenXRLayerProvider.Started += CreateAndRegisterLayerHandler;
-            isSubscribed = true;
-        }
-    }
-
-    protected override void OnDisable()
-    {
-        if (isSubscribed)
-        {
-            OpenXRLayerProvider.Started -= CreateAndRegisterLayerHandler;
-            isSubscribed = false;
-        }
-    }
-
-    protected void CreateAndRegisterLayerHandler()
-    {
-        if (enabled)
-        {
-            var layerHandler = new CustomLayerHandler();
-            OpenXRLayerProvider.RegisterLayerHandler(typeof(CustomQuadLayerData), layerHandler);
-        }
-    }
-}
-#endif
-```
+[!code-csharp[CustomLayerHandlerExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/CustomLayerHandlerExample.cs#CustomLayerHandlerExample)]
 
 This code can also be imported from the OpenXR Samples in the Package Manager.
 

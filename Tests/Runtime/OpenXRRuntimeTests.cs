@@ -1488,7 +1488,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // XR_MSFT_holographic_window_attachment is not available, so should not be enabled.
             Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_MSFT_holographic_window_attachment"), "XR_MSFT_holographic_window_attachment EnableByDefault_NoOverride is not available, so should not enabled.");
 
-            // multiple exts case:  {{"XR_FB_foveation", "XR_FB_foveation_configuration"}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
+            // multiple exts case:  {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state"}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
             // XR_FB_foveation & XR_FB_foveation_configuration are available, so should be enabled by default.
             Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation"), "XR_FB_foveation EnableByDefault_NoOverride is available and should be enabled.");
             Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_configuration"), "XR_FB_foveation_configuration EnableByDefault_NoOverride is available and should be enabled.");

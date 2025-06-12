@@ -27,26 +27,7 @@ A feature can add public fields for user configuration at build time. Unity rend
 
 A feature must also provide an `OpenXRFeature` attribute when running in the Editor.
 
-```c#
- #if UNITY_EDITOR
-    [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Example Intercept Create Session",
-        BuildTargetGroups = new []{BuildTargetGroup.Standalone, BuildTargetGroup.WSA},
-        Company = "Unity",
-        Desc = "Example feature extension showing how to intercept a single OpenXR function.",
-        DocumentationLink = "https://docs.unity3d.com/Packages/com.unity.xr.openxr@0.1/manual/index.html",
-        OpenxrExtensionStrings = "XR_test", // this extension doesn't exist, a log message will be printed that it couldn't be enabled
-        Version = "0.0.1",
-        FeatureId = featureId)]
-    #endif
-    public class InterceptCreateSessionFeature : OpenXRFeature
-    {
-        /// <summary>
-        /// The feature id string. This is used to give the feature a well known id for reference.
-        /// </summary>
-        public const string featureId = "com.unity.openxr.feature.example.intercept";
-
-    }
-```
+[!code-csharp[InterceptCreateSessionFeatureExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/InterceptCreateSessionFeatureExample.cs#InterceptCreateSessionFeatureExample)]
 
 Unity uses this information at build time, either to build the Player or to display it to the user in the UI.
 
@@ -56,22 +37,7 @@ Unity OpenXR allows you to define a feature group you can use to enable or disab
 
 Declare a feature group through the definition of one or more `OpenXRFeatureSetAttribute` declarations in your code. You can place the attribute anywhere because the feature group functionality only depends on the attribute existing and not on the actual class it's declared on.
 
-```c#
-      [OpenXRFeatureSet(
-          FeatureIds = new string[] {   // The list of features that this feature group is defined for.
-              EyeGazeInteraction.featureId,
-              KHRSimpleControllerProfile.featureId,
-              "com.mycompany.myprovider.mynewfeature",
-              },
-          UiName = "Feature_Set_Name",
-          Description = "Feature group that allows for setting up the best environment for My Company's hardware.",
-          // Unique ID for this feature group
-          FeatureSetId = "com.mycompany.myprovider.mynewfeaturegroup",
-          SupportedBuildTargets = new BuildTargetGroup[]{ BuildTargetGroup.Standalone, BuildTargetGroup.Android }
-      )]
-      class MyCompanysFeatureSet
-      {}
-```
+[!code-csharp[FeatureSetDefinitionExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/FeatureSetDefinitionExample.cs#FeatureSetDefinitionExample)]
 
 You can configure feature groups in the **XR Plug-in Management** plug-in selection window. When you select the **OpenXR** plug-in from this window, the section under the plug-in displays the groups of features available. Not all feature groups are configurable. Some require you to install third-party definitions. The window displays information on where to get the required packages if needed.
 
@@ -79,25 +45,7 @@ You can configure feature groups in the **XR Plug-in Management** plug-in select
 
 Unity will attempt to enable any extension strings listed in `OpenXRFeatureAttribute.OpenxrExtensionStrings` (separated via spaces) on startup. Your feature can check the enabled extensions in order to see if the requested extension was enabled (via `OpenXRRuntime.IsExtensionEnabled`).
 
-```c#
-protected virtual bool OnInstanceCreate(ulong xrInstance)
-{
-  if (!OpenXRRuntime.IsExtensionEnabled("XR_UNITY_mock_driver"))
-  {
-    Debug.LogWarning("XR_UNITY_mock_driver is not enabled, disabling Mock Driver.");
-
-    // Return false here to indicate the system should disable your feature for this execution.
-    // Note that if a feature is marked required, returning false will cause the OpenXRLoader to abort and try another loader.
-    return false;
-  }
-
-  // Initialize your feature, check version to make sure you are compatible with it
-  if(OpenXRRuntime.GetExtensionVersion("XR_UNITY_mock_driver") < 100)
-    return false;
-
-  return true;
-}
-```
+[!code-csharp[OnInstanceCreateExtensionCheckExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/OnInstanceCreateExtensionCheckExample.cs#OnInstanceCreateExtensionCheckExample)]
 
 ### OpenXRFeature call order
 
@@ -121,7 +69,7 @@ The initialize sequence allows features to initialize Unity subsystems in the Lo
 
 The Start sequence allows features to start Unity subsystems in the Loader callbacks and execute them when the session is created.
 
-#### Gameloop
+#### Game loop
 
 Several: `OnSessionStateChange`
 
@@ -129,13 +77,13 @@ Several: `OnSessionStateChange`
 
 Maybe: `OnSessionEnd`
 
-Callbacks during the gameloop can react to session state changes.
+Callbacks during the game loop can react to session state changes.
 
 #### Stop
 
 `OnSubsystemStop => OnSessionEnd`
 
-#### Shutdown
+#### Shut down
 
 `OnSessionExiting => OnSubsystemDestroy => OnAppSpaceChange => OnSessionDestroy => OnInstanceDestroy`
 
@@ -153,26 +101,11 @@ Features **should not** implement these classes, but should instead implement `O
 
 ### Build time validation
 
-If your feature has project setup requirements or suggestions that require user acceptance, implement `GetValidationChecks`.  Features can add to a list of validation rules which Unity evaluates at build time. If any validation rule fails, Unity displays a dialogue asking you to fix the error before proceeding. Unity can also presents warning through the same mechanism. It's important to note which build target the rules apply to.
+If your feature has project setup requirements or suggestions that require user acceptance, implement `GetValidationChecks`.  Features can add to a list of validation rules which Unity evaluates at build time. If any validation rule fails, Unity displays a dialog asking you to fix the error before proceeding. Unity can also presents warning through the same mechanism. It's important to note which build target the rules apply to.
 
 Example:
 
-```c#
-#if UNITY_EDITOR
-protected override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup targetGroup)
-{
-    if (targetGroup == BuildTargetGroup.WSA)
-    {
-        results.Add( new ValidationRule(this){
-            message = "Eye Gaze support requires the Gaze Input capability.",
-            error = false,
-            checkPredicate = () => PlayerSettings.WSA.GetCapability(PlayerSettings.WSACapability.GazeInput),
-            fixIt = () => PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true)
-        } );
-    }
-}
-#endif
-```
+[!code-csharp[BuildTimeValidationExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/BuildTimeValidationExample.cs#BuildTimeValidationExample)]
 
 ![feature-validation](images/ProjectValidation/feature-validation.png)
 

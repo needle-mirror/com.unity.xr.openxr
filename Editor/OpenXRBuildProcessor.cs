@@ -26,6 +26,9 @@ namespace UnityEditor.XR.OpenXR
         {
             base.OnPreprocessBuild(report);
 
+            if (!BuildHelperUtils.HasActiveLoader(BuildPipeline.GetBuildTargetGroup(report.summary.platform), typeof(OpenXRLoaderBase)))
+                return;
+
             _bootConfigBuilder.ReadBootConfig(report);
 
 #if UNITY_STANDALONE_WIN || UNITY_ANDROID
@@ -43,7 +46,6 @@ namespace UnityEditor.XR.OpenXR
             }
 #endif
         }
-
 
         public override void OnPostprocessBuild(BuildReport report)
         {

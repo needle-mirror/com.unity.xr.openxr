@@ -77,7 +77,7 @@ namespace UnityEditor.XR.OpenXR
                 IsRuleEnabled = () =>
                 {
                     // If OpenXR isn't enabled, no need to show the rule
-                    if (!BuildHelperUtils.HasLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
+                    if (!BuildHelperUtils.HasActiveLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
                         return false;
 
                     // If a  rule specific feature isn't enabled, don't show this rule
@@ -120,7 +120,11 @@ namespace UnityEditor.XR.OpenXR
                 if (!isOpenXRSupportedPlatform)
                     continue;
 
-                var coreIssues = new List<BuildValidationRule>() { GetDefaultBuildValidationRule(buildTargetGroup) };
+                var coreIssues = new List<BuildValidationRule>()
+                {
+                    GetDefaultBuildValidationRule(buildTargetGroup),
+                    VulkanOffscreenSwapchainAndroidValidationRule()
+                };
                 var issues = new List<OpenXRFeature.ValidationRule>();
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
@@ -144,7 +148,7 @@ namespace UnityEditor.XR.OpenXR
                     return ExistsOpenXRFeaturesEnabledForBuildTarget(targetGroup);
                 },
                 Message = "[OpenXR] Enabled OpenXR Features require OpenXR to be selected as the active loader for this platform",
-                CheckPredicate = () => BuildHelperUtils.HasLoader(targetGroup, typeof(OpenXRLoaderBase)),
+                CheckPredicate = () => BuildHelperUtils.HasActiveLoader(targetGroup, typeof(OpenXRLoaderBase)),
                 Error = false,
                 FixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management"); },
                 FixItAutomatic = false,
@@ -152,6 +156,41 @@ namespace UnityEditor.XR.OpenXR
             };
 
             return defaultRule;
+        }
+
+        static BuildValidationRule VulkanOffscreenSwapchainAndroidValidationRule()
+        {
+            // validation rule to inform user that main display will be disabled on all platofmr when
+            // OpenXREditorSettings.VulkanOffscreenSwapchainNoMainDisplay setting is enabled.
+            return new BuildValidationRule
+            {
+                // If OpenXR isn't enabled, no need to show the rule
+                IsRuleEnabled = () => BuildHelperUtils.HasActiveLoader(BuildTargetGroup.Android, typeof(OpenXRLoaderBase)),
+                Message = "When OpenXR loader is enabled and the OpenXR setting 'Offscreen Rendering Only (Vulkan)' is checked then main display " +
+                          "is disabled on all Android platforms.",
+                CheckPredicate = () =>
+                {
+                    if (!OpenXREditorSettings.Instance.VulkanOffscreenSwapchainNoMainDisplay)
+                        return true;
+
+                    var generalSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+                    if (generalSettings == null)
+                        return true;
+
+                    if (generalSettings.Manager == null)
+                        return true;
+
+                    // check whether any other Android loader are enabled besides OpenXR
+                    return generalSettings.Manager.activeLoaders.Count == 1;
+                },
+                FixItMessage = $"Disables the Offscreen Rendering Only (Vulkan) setting in Project Settings > XR Plug-in Management > OpenXR.",
+                FixIt = () =>
+                {
+                    OpenXREditorSettings.Instance.VulkanOffscreenSwapchainNoMainDisplay = false;
+                },
+                Category = "OpenXR",
+                Error = false,
+            };
         }
 
         /// <summary>
@@ -203,7 +242,11 @@ namespace UnityEditor.XR.OpenXR
         [OnOpenAsset(0)]
         static bool ConsoleErrorDoubleClicked(int instanceId, int line)
         {
+#if UNITY_6000_3_OR_NEWER
+            var objName = EditorUtility.EntityIdToObject(instanceId).name;
+#else
             var objName = EditorUtility.InstanceIDToObject(instanceId).name;
+#endif
             if (objName == "OpenXRProjectValidation")
             {
                 OpenXRProjectValidationRulesSetup.ShowWindow();
@@ -217,7 +260,7 @@ namespace UnityEditor.XR.OpenXR
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            if (!BuildHelperUtils.HasLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase)))
+            if (!BuildHelperUtils.HasActiveLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase)))
                 return;
 
             if (OpenXRProjectValidation.LogBuildValidationIssues(report.summary.platformGroup))

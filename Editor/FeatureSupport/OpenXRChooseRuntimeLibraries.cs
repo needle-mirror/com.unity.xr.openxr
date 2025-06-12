@@ -73,7 +73,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            var enabled = BuildHelperUtils.HasLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase));
+            var enabled = BuildHelperUtils.HasActiveLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase));
 
             var extensions = FeatureHelpersInternal.GetAllFeatureInfo(report.summary.platformGroup);
 

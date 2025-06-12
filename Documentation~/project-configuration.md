@@ -123,24 +123,34 @@ Below is an example made using a custom Editor class extending [`IPreprocessBuil
 > [!NOTE]
 > The Latency Optimization settings cannot be changed at runtime. Trying to set `OpenXRSettings.latencyOptimization` to any value will not change the priority.
 
-```c#
+``` csharp
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 
-public class LatencyOptimizationAtBuildTime : IPreprocessBuildWithReport
+namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
 {
-    public int callbackOrder => -200;
-
-    public void OnPreprocessBuild(BuildReport report)
+    public class LatencyOptimizationAtBuildTimeExample : IPreprocessBuildWithReport
     {
-        var buildTargetSettings = OpenXRSettings.ActiveBuildTargetInstance;
+        public int callbackOrder => -200;
 
-        if (buildTargetSettings.latencyOptimization != OpenXRSettings.LatencyOptimization.PrioritizeInputPolling)
+        public void OnPreprocessBuild(BuildReport report)
         {
-            Debug.Log($"Changing LatencyOptimization settings from \"{buildTargetSettings.latencyOptimization}\" to \"{OpenXRSettings.LatencyOptimization.PrioritizeInputPolling}\"");
-            buildTargetSettings.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+            var buildTargetSettings = OpenXRSettings.ActiveBuildTargetInstance;
+
+            if (buildTargetSettings.latencyOptimization !=
+                    OpenXRSettings.LatencyOptimization.PrioritizeInputPolling)
+            {
+                Debug.Log(
+                $"Changing LatencyOptimization settings from " +
+                "\"{buildTargetSettings.latencyOptimization}\" to " +
+                "\"{OpenXRSettings.LatencyOptimization.PrioritizeInputPolling}\""
+                );
+
+                buildTargetSettings.latencyOptimization =
+                    OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+            }
         }
     }
 }

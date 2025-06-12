@@ -147,6 +147,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_FB_FOVEATION_CONFIGURATION_EXTENSION_NAME,
         XR_FB_foveation_configuration_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_FB_SWAPCHAIN_UPDATE_STATE_EXTENSION_NAME,
+        XR_FB_swapchain_update_state_SPEC_VERSION
     }
 #if defined(XR_USE_PLATFORM_ANDROID)
     ,{

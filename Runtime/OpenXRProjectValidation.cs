@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor.XR.Management;
 using UnityEditor.Build;
+using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR;
@@ -231,6 +232,18 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                     feature.enabled = true;
                 },
                 error = true,
+            },
+#endif
+
+#if UNITY_6000_1_OR_NEWER
+            new OpenXRFeature.ValidationRule()
+            {
+                message = MagicLeapDeprecationMessage,
+                checkPredicate = () =>
+                {
+                    return !ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup) || !IsMagicLeapAndroidArchitectureSupportEnabled();
+                },
+                fixItMessage = "This validation rule cannot be fixed and is intended to warn developers that from Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only."
             }
 #endif
         };
@@ -497,6 +510,66 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
             Debug.LogWarning("Unable to disable URP upscaling.");
         }
+
+#if UNITY_6000_1_OR_NEWER
+        private const string MagicLeapDeprecationMessage = "From Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only.";
+
+        private static bool ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
+        {
+            var magicLeapFeatureId = "magicleap";
+            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
+            foreach (var feature in openXrSettings?.features)
+            {
+                if (feature != null && feature.enabled && (feature.name.ToLower().Contains(magicLeapFeatureId) || feature.featureIdInternal.ToLower().Contains(magicLeapFeatureId)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool IsMagicLeapAndroidArchitectureSupportEnabled()
+        {
+            if (EditorUserBuildSettings.selectedBuildTargetGroup != BuildTargetGroup.Android)
+                return false;
+
+            if (PlayerSettings.Android.targetArchitectures.HasFlag(AndroidArchitecture.X86_64))
+            {
+                return true;
+            }
+
+            return false;
+        }
+#endif
+
+#if UNITY_6000_3_OR_NEWER
+        [PostProcessBuildAttribute(1)]
+        private static void OnPostprocessBuildMagicLeapDeprecation(BuildTarget target, string pathToBuiltProject)
+        {
+            BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown;
+            switch (target)
+            {
+                case BuildTarget.StandaloneLinux64:
+                case BuildTarget.StandaloneOSX:
+                case BuildTarget.StandaloneWindows:
+                case BuildTarget.StandaloneWindows64:
+                    buildTargetGroup = BuildTargetGroup.Standalone;
+                    break;
+
+                case BuildTarget.Android:
+                    buildTargetGroup = BuildTargetGroup.Android;
+                    break;
+            }
+
+            if (buildTargetGroup != BuildTargetGroup.Standalone && buildTargetGroup != BuildTargetGroup.Android)
+                return;
+
+            if (!ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(buildTargetGroup))
+                return;
+
+            UnityEngine.Debug.LogWarning(MagicLeapDeprecationMessage);
+        }
+#endif
     }
 }
 #endif

@@ -3,21 +3,20 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.Management;
 using UnityEngine.XR.Management;
+using UnityEngine.XR.OpenXR;
 
 namespace UnityEditor.XR.OpenXR
 {
     [InitializeOnLoad]
     internal class BuildHelperUtils : IPreprocessBuildWithReport
     {
-        public static bool HasLoader(BuildTargetGroup targetGroup, System.Type loader)
+        public static bool HasActiveLoader(BuildTargetGroup targetGroup, System.Type loader)
         {
             var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup);
 
             if (settings)
             {
-#pragma warning disable CS0618
-                return settings.Manager.loaders.Any(loader.IsInstanceOfType);
-#pragma warning restore CS0618
+                return settings.Manager.activeLoaders.Any(loader.IsInstanceOfType);
             }
 
             return false;

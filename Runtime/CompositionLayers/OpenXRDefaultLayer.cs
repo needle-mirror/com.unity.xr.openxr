@@ -29,13 +29,15 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         public void RemoveLayer(int id)
         {
-            return;
+            ClearDefaultSceneLayerExtensions();
         }
 
         public void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
             return;
         }
+
+        unsafe void ClearDefaultSceneLayerExtensions() => OpenXRLayerUtility.SetDefaultSceneLayerExtensions(null);
     }
 }
 #endif

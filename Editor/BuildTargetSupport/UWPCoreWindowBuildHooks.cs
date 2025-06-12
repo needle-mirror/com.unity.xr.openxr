@@ -24,7 +24,7 @@ namespace UnityEditor.XR.OpenXR
             if (report.summary.platform != BuildTarget.WSAPlayer)
                 return;
 
-            if (!BuildHelperUtils.HasLoader(BuildTargetGroup.WSA, typeof(OpenXRLoaderBase)))
+            if (!BuildHelperUtils.HasActiveLoader(BuildTargetGroup.WSA, typeof(OpenXRLoaderBase)))
                 return;
 
             var bootConfig = new BootConfig(report);
@@ -58,7 +58,7 @@ namespace UnityEditor.XR.OpenXR
             if (report.summary.platform != BuildTarget.WSAPlayer)
                 return;
 
-            if (!BuildHelperUtils.HasLoader(BuildTargetGroup.WSA, typeof(OpenXRLoaderBase)))
+            if (!BuildHelperUtils.HasActiveLoader(BuildTargetGroup.WSA, typeof(OpenXRLoaderBase)))
                 return;
 
             // Clean up boot settings after build

@@ -30,7 +30,7 @@ To help the community as a whole, Unity will continue to submit any runtime issu
 
 Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
 
-This release is linked against the OpenXR-SDK version [1.1.36](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.36).
+This release is linked against the OpenXR-SDK version [1.1.45](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.45).
 
 Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
 
@@ -149,56 +149,23 @@ You can also access all the settings in the **Features** window through script. 
 
 #### Iterating over all features
 
-```c#
-    BuildTargetGroup buildTargetGroup = BuildTargetGroup.Standalone;
-    FeatureHelpers.RefreshFeatures(buildTargetGroup);
-    var features = OpenXRSettings.Instance.GetFeatures();
-    foreach (var feature in features)
-    {
-        // Toggle feature on/off
-        feature.enabled = ...;
-    }
-```
+[!code-csharp[IterateAllFeaturesExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/IterateAllFeaturesExample.cs#IterateAllFeaturesExample)]
 
 #### Getting a specific feature by type
 
-```c#
-    var feature = OpenXRSettings.Instance.GetFeature<MockRuntime>();
-
-    // Toggle feature on/off
-    feature.enabled = ...;
-```
+[!code-csharp[GetFeatureByTypeExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/GetFeatureByTypeExample.cs#GetFeatureByTypeExample)]
 
 #### Iterating over all feature groups
 
 Feature groups are an Editor-only concept and as such can only be accessed in the Unity Editor.
 
-```c#
-#if UNITY_EDITOR
-    BuildTargetGroup buildTargetGroup = BuildTargetGroup.Standalone;
-    var featureSets = OpenXRFeatureSetManager.FeatureSetsForBuildTarget(buildTargetGroup);
-    foreach(var featureSet in featureSets)
-    {
-        var featureSetId = featureSet.featureSetId;
-        // ...
-    }
-#endif
-```
+[!code-csharp[IterateAllFeatureGroupsEditorExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/IterateAllFeatureGroupsEditorExample.cs#IterateAllFeatureGroupsEditorExample)]
 
 #### Iterating over features in a feature group
 
 Feature groups are an Editor-only concept and as such can only be accessed in the Unity Editor.
 
-```c#
-#if UNITY_EDITOR
-    var featureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(buildTargetGroup, featureSetId); // featureSetId set earlier
-    var features = FeatureHelpers.GetFeaturesWithIdsForActiveBuildTarget(featureSet.featureIds);
-    foreach (var feature in features)
-    {
-        // ... Do something with the feature.
-    }
-#endif
-```
+[!code-csharp[IterateFeaturesInFeatureGroupEditorExample](../../com.unity.xr.openxr/Tests/Editor/CodeSamples/IterateFeaturesInFeatureGroupEditorExample.cs#IterateFeaturesInFeatureGroupEditorExample)]
 
 ### Implementing a feature
 
