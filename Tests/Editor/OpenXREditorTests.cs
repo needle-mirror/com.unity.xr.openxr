@@ -19,7 +19,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsTrue(typeof(KHRSimpleControllerProfile).GetCustomAttribute<OpenXRFeatureAttribute>().InternalDocumentationLink.Contains(majorminor));
         }
 
-        [Test]
         public void PluginVersion()
         {
             var version = PackageManager.PackageInfo.FindForAssembly(typeof(OpenXREditorTests).Assembly)?.version;

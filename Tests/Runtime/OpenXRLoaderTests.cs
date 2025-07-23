@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 
 namespace UnityEngine.XR.OpenXR.Tests
 {

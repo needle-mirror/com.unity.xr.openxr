@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.Mock;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
     public static class GetFeatureByTypeExample
     {

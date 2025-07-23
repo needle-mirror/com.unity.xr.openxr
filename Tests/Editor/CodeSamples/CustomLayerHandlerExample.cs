@@ -8,7 +8,7 @@ using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.CompositionLayers;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
 #if UNITY_EDITOR
 [UnityEditor.XR.OpenXR.Features.OpenXRFeature(

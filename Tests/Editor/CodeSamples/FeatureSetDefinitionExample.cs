@@ -4,7 +4,7 @@ using UnityEditor.XR.OpenXR.Features;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
     [OpenXRFeatureSet(
         FeatureIds = new string[] {

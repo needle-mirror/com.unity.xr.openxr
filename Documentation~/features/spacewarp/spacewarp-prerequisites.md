@@ -7,10 +7,21 @@ uid: openxr-spacewarp-prerequisites
 To use Application SpaceWarp, your project must meet the following prerequisites:
 
 * Unity 6.1+
-* OpenXR 1.11.0+  
-* Universal Render Pipeline (URP) 17.0.3+  
-* Rendergraph (SpaceWarp is not supported in [URP compatibility mode](xref:urp-compatibility-mode))  
-* Vulkan graphics API  
+
+  > [!IMPORTANT]
+  > Android XR devices use right-handed normalized device coordinates (NDC) for motion vectors.
+  > Right-handed NDCs for motion vectors are only supported in Unity 6000.1.13f1+.
+  > Refer to [Enable and use Application SpaceWarp](xref:openxr-spacewarp-workflow) for more information on how to set up SpaceWarp in your project.
+
+* OpenXR 1.11.0+
+
+  > [!IMPORTANT]
+  > Android XR devices use right-handed normalized device coordinates (NDC) for motion vectors.
+  > Right-handed NDCs for motion vectors are only supported in OpenXR 1.15.1+.
+
+* Universal Render Pipeline (URP) 17.0.3+
+* Rendergraph (SpaceWarp is not supported in [URP compatibility mode](xref:urp-compatibility-mode))
+* Vulkan graphics API
 * An OpenXR device package, such as [Unity OpenXR Meta](https://docs.unity3d.com/Packages/com.unity.xr.meta-openxr@latest) or [Unity OpenXR Android XR](https://docs.unity3d.com/Packages/com.unity.xr.androidxr-openxr@latest), that supports the OpenXR Application SpaceWarp feature.
 * XR Headset that supports the Khronos OpenXR Application SpaceWarp extension.
 

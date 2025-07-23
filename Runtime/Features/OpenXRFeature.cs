@@ -19,7 +19,7 @@ using System.Linq;
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
 [assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Testing")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling.Tests")]
 namespace UnityEngine.XR.OpenXR.Features
 {
     /// <summary>

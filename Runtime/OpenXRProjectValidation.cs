@@ -474,7 +474,11 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
             if (urpAsset != null)
             {
+#if UNITY_6000_3_OR_NEWER
+                var urpAssetID = urpAsset.GetEntityId();
+#else
                 var urpAssetID = urpAsset.GetInstanceID();
+#endif
                 if (AssetDatabase.CanOpenAssetInEditor(urpAssetID))
                     AssetDatabase.OpenAsset(urpAssetID);
                 else
@@ -497,7 +501,11 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
             if (urpAsset != null)
             {
+#if UNITY_6000_3_OR_NEWER
+                var urpAssetID = urpAsset.GetEntityId();
+#else
                 var urpAssetID = urpAsset.GetInstanceID();
+#endif
                 if (AssetDatabase.CanOpenAssetInEditor(urpAssetID))
                 {
                     AssetDatabase.OpenAsset(urpAssetID);

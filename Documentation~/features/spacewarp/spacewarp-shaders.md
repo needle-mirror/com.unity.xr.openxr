@@ -10,15 +10,15 @@ Application SpaceWarp requires shaders that record XR motion vectors, which are 
 
 The following URP base shaders are SpaceWarp compatible:
 
-* [Lit](xref:urp-lit-shader)  
-* [Unlit](xref:urp-unlit-shader)  
-* [Complex Lit](xref:urp-shader-complex-lit)  
-* [Simple Lit](xref:urp-simple-lit-shader)  
+* [Lit](xref:urp-lit-shader)
+* [Unlit](xref:urp-unlit-shader)
+* [Complex Lit](xref:urp-shader-complex-lit)
+* [Simple Lit](xref:urp-simple-lit-shader)
 * [Baked Lit](xref:urp-baked-lit-shader)
 
 For Shadergraph, the following **Material** options for the **Universal** [Graph Target](https://docs.unity3d.com/Packages/com.unity.shadergraph@17.0/manual/Graph-Target.html) are SpaceWarp compatible:
 
-* Lit 
+* Lit
 * Unlit
 
 ## Modify custom shaders {#modify-custom-shaders}
@@ -36,27 +36,27 @@ Next, add the following shader subpass declaration:
 ``` lang-hlsl
 Pass
 {
-     	Name "XRMotionVectors"
-      	Tags { "LightMode" = "XRMotionVectors" }
-      	ColorMask RGBA
+        Name "XRMotionVectors"
+        Tags { "LightMode" = "XRMotionVectors" }
+        ColorMask RGBA
 
-      	// Stencil write for obj motion pixels
-      	Stencil
-      	{
-       	WriteMask 1
-            	Ref 1
-            	Comp Always
-            	Pass Replace
-      	}
+        // Stencil write for obj motion pixels
+        Stencil
+        {
+        WriteMask 1
+                Ref 1
+                Comp Always
+                Pass Replace
+        }
 
-      	HLSLPROGRAM
-      	#pragma shader_feature_local _ALPHATEST_ON
-      	#pragma multi_compile _ LOD_FADE_CROSSFADE
-      	#pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
-      	#define APPLICATION_SPACE_WARP_MOTION 1
+        HLSLPROGRAM
+        #pragma shader_feature_local _ALPHATEST_ON
+        #pragma multi_compile _ LOD_FADE_CROSSFADE
+        #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
+        #define APPLICATION_SPACE_WARP_MOTION 1
 
-      	#include "Packages/com.unity.render-pipelines.universal/Shaders/BakedLitInput.hlsl"
-      	#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
-      	ENDHLSL
-  }
+        #include "Packages/com.unity.render-pipelines.universal/Shaders/BakedLitInput.hlsl"
+        #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+        ENDHLSL
+}
 ```

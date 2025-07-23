@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
     public static class IterateFeaturesInFeatureGroupEditorExample
     {

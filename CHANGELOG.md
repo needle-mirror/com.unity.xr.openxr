@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.15.1] - 2025-07-23
+
+### Fixed
+
+* Fixed compile errors due to `AssetDatabase.CanOpenAssetInEditor(int)` and `AssetDatabase.OpenAsset(int)` were deprecated in Unity 6.3 and newer.
+* Fixed an issue in which the wrong normalized device coordinates (NDC) convention was used for SpaceWarp motion vectors. Application developers must now specify whether the current device uses right- or left-handed NDC for motion vectors when SpaceWarp is enabled.
+
 ## [1.15.0] - 2025-06-12
 
 ### Added
@@ -31,7 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed compile errors due to `EditorUtility.InstanceIDToObject` being deprecated in Unity 6.3 and newer.
 * Fixed foveation data corruption leading to visual anomalies when the OpenXR swapchain was frequently resized.
 * Fixed an increase in memory that was seen in older editors that are not checking for the OffScreen Rendering Only bootconfig value.
-  
+
 ## [1.15.0-pre.2] - 2025-05-15
 
 ### Added
@@ -115,7 +122,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 * Fixed the OpenXRFeatureBuildHooks class so it now grabs the OpenXRSettings object from the given build target during build processing.
-* Fixed duplicate OpenXR feature assets being added to the OpenXRSettings asset when upgrading to a newer OpenXR package.
+* Fixed duplicate OpenXR feature assets being added to the OpenXRSettings asset when upgrading to a newer OpenXR package version.
 * Fixed rendering problems with Mixed Reality Capture.
 * Fixed a debug log spamming issue regarding ignored event types. This message could be logged multiple times per frame and was not helpful.
 * Fixed Meta-specific eye-tracking manifest permissions to be added only to apps targeting Meta Quest Pro devices.
@@ -157,7 +164,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 * Conformance Automation Feature:  Removed assert for optional entry point xrSetInputDeviceVelocityUNITY.
-* Fixed an issue where `OpenXRInput.TryGetInputSourceName` failed to retrieve the input source name
+* Fixed an issue where `OpenXRInput.TryGetInputSourceName` failed to retrieve the input source name.
 
 ## [1.13.0] - 2024-09-16
 
@@ -266,7 +273,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added the option to enable `Subsampled Layout` when creating a Vulkan swapchain.
 * Added support for recentering Floor tracking origin using new API, `OpenXRSettings.SetAllowRecentering`. This static method allows the app to recenter the tracking origin space when requested by the runtime. Note that calling the method won't trigger a recenter event.
 * Added support for Meta XR feature `System Splash Screen`.
-* Added public API for MetaQuestFeature.forceRemoveInternetPermission
+* Added public API for MetaQuestFeature.forceRemoveInternetPermission.
 
 ### Changed
 * Updated Input System package dependency to 1.6.3.
@@ -315,6 +322,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed issue on Android where screen captures only capture the view on one eye.
 
 ## [1.7.0] - 2023-02-21
+
 ### Added
 * Added API `OpenXRRuntime.retryInitializationOnFormFactorErrors` to retry xrGetSystem during initialization if xrGetSystem returns a form factor error.
 * Enable XR_META_performance_metrics. This enables performance stats for Meta Quest devices on OpenXR.
@@ -438,7 +446,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 * Improved `OpenXRFeatureSetManager.SetFeaturesFromEnabledFeatureSets` so that no internal methods are required after calling this.
-* Updated `Controller` sample to improve the visuals and use the new APIs
+* Updated `Controller` sample to improve the visuals and use the new APIs.
 
 ### Fixed
 * Fixed ARM32 crash when OpenXR API layers were present
@@ -462,20 +470,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed a bug that would cause Asset Bundles to fail building in some circumstances when OpenXR was included in the project.
 * Fixed a crash that would occur if XR was shut down from within a Feature callback.
 * Fixed a bug that was causing duplicate entries in the OpenXR Package Settings file.
-* Fixed a bug causing angular velocities on both the HMD and controllers to have the wrong sign when compared to the other Unity XR plugins
+* Fixed a bug causing angular velocities on both the HMD and controllers to have the wrong sign when compared to the other Unity XR plugins.
 
 ## [1.2.3] - 2021-06-17
 ### Added
-* Ensured a deterministic order of features within the OpenXR Settings
+* Ensured a deterministic order of features within the OpenXR Settings.
 
 ### Changed
-* Updated OpenXR Loader to 1.0.17
-* Changed `feature set` text to `feature group` in the top level XR-Management list
+* Updated OpenXR Loader to 1.0.17.
+* Changed `feature set` text to `feature group` in the top level XR-Management list.
 
 ### Fixed
-* Fixed missing haptic output on HTC Vive controller profile
+* Fixed missing haptic output on HTC Vive controller profile.
 * Fixed bug that caused `ThumbstickTouched` binding on the `ValveIndex` controller profile to not work.
-* Fixed issue that would cause the app to not exit when closed by the runtime
+* Fixed issue that would cause the app to not exit when closed by the runtime.
 
 ## [1.2.2] - 2021-06-01
 ### Added
@@ -513,9 +521,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.1] - 2021-04-06
 ### Added
 * Oculus controller profile now exposes both grip and aim poses.
-* Added support for `XR_VARJO_QUAD_VIEWS` extension
-* Added `XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT` and `XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT` bits to the composition layer flags
-* Added `XrSecondaryViewConfigurationSwapchainCreateInfoMSFT` to to `XrSwapchainCreateInfo` when using a secondary view
+* Added support for `XR_VARJO_QUAD_VIEWS` extension.
+* Added `XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT` and `XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT` bits to the composition layer flags.
+* Added `XrSecondaryViewConfigurationSwapchainCreateInfoMSFT` to to `XrSwapchainCreateInfo` when using a secondary view.
 * MockRuntime First Person Observer View support
 * MockRuntime input support
 * MockRuntime vulkan_enable2 support

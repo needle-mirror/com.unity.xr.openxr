@@ -38,6 +38,44 @@ namespace UnityEngine.XR.OpenXR.Features
         /// </summary>
         public const string k_SpaceWarpFeatureId = "com.unity.openxr.feature.spacewarp";
 
+#if SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+        /// <summary>
+        /// SpaceWarp NDC space handedness (default is false, for left-handed NDC space).
+        /// </summary>
+        [SerializeField]
+        [Tooltip("Check this box if motion vector uses right-handed normalized device coordinates")]
+        internal bool m_UseRightHandedNDC = false;
+
+        /// <summary>
+        /// Selects the NDC space handedness for SpaceWarp.
+        /// If <c>true</c>, motion vector data must use the right-handed NDC space.
+        /// If <c>false</c>, motion vector data must use the left-handed NDC space.
+        /// </summary>
+        public bool useRightHandedNDC
+        {
+            get => m_UseRightHandedNDC;
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                {
+                    bool success = Internal_SetSpaceWarpRightHandedNDC(value);
+                    if (success)
+                        m_UseRightHandedNDC = value;
+                }
+            }
+        }
+#endif // SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+
+        /// <inheritdoc />
+        protected internal override bool OnInstanceCreate(ulong xrInstance)
+        {
+            return OpenXRRuntime.IsExtensionEnabled(k_OpenXRRequestedExtensions)
+#if SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+                && Internal_SetSpaceWarpRightHandedNDC(m_UseRightHandedNDC)
+#endif // SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+                && base.OnInstanceCreate(xrInstance);
+        }
+
         /// <summary>
         /// Enable or disable SpaceWarp.
         /// </summary>
@@ -76,6 +114,27 @@ namespace UnityEngine.XR.OpenXR.Features
             return MetaSetAppSpaceRotation(rotation.x, rotation.y, rotation.z, rotation.w) == XrResult.Success;
         }
 
+#if UNITY_EDITOR && SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+        [CustomEditor(typeof(SpaceWarpFeature))]
+        internal class SpaceWarpFeatureSettingsEditor : Editor
+        {
+            private SerializedProperty useRightHandedNDC;
+            static GUIContent s_UseRightHandedNDC = EditorGUIUtility.TrTextContent("Use Right Handed NDC");
+
+            void OnEnable()
+            {
+                useRightHandedNDC = serializedObject.FindProperty("m_UseRightHandedNDC");
+            }
+
+            public override void OnInspectorGUI()
+            {
+                serializedObject.Update();
+                EditorGUILayout.PropertyField(useRightHandedNDC, s_UseRightHandedNDC);
+                serializedObject.ApplyModifiedProperties();
+            }
+        }
+#endif // UNITY_EDITOR && SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+
         // Import functions from the UnityOpenXR dll
         private const string k_Library = "UnityOpenXR";
 
@@ -87,5 +146,11 @@ namespace UnityEngine.XR.OpenXR.Features
 
         [DllImport(k_Library, EntryPoint = "MetaSetAppSpaceRotation")]
         private static extern XrResult MetaSetAppSpaceRotation(float x, float y, float z, float w);
+
+#if SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
+        [DllImport(k_Library, EntryPoint = "NativeConfig_SetSpaceWarpRightHandedNDC")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool Internal_SetSpaceWarpRightHandedNDC([MarshalAs(UnmanagedType.I1)] bool useRightHandedNDC);
+#endif // SPACEWARP_RIGHT_HAND_NDC_SUPPORTED
     }
 }

@@ -9,9 +9,9 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling.Tests")]
 namespace UnityEditor.XR.OpenXR.Features
 {
     /// <summary>

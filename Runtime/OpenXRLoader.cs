@@ -23,7 +23,7 @@ using UnityEditor.XR.OpenXR;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestHelpers")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
 namespace UnityEngine.XR.OpenXR
 {

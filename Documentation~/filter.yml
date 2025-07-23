@@ -4,4 +4,4 @@ apiRules:
   - exclude:
       uidRegex: ^UnityEditor\.XR\.OpenXR\.Samples\..*$
   - exclude:
-      uidRegex: ^UnityEngine.XR.OpenXR.CodeSamples.Tests\..*$
+      uidRegex: ^UnityEngine\.XR\.OpenXR\.CodeSamples\.Editor\.Tests\..*$

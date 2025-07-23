@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
     public class PerformanceNotificationExample : MonoBehaviour
     {

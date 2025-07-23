@@ -56,15 +56,15 @@ Here are some examples of how you might use performance level hints in different
 - The application shows static pictures without any interactive elements:
 
   [!code-csharp[PowerSavingsHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#PowerSavingsHintExample)]
-  
+
 - The application is in a normal state, with simple interactivity and low complexity scenes:
 
   [!code-csharp[SustainedLowHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#SustainedLowHintExample)]
-  
+
 - The application needs to render a complex scene with multiple, interactive composition layers:
 
   [!code-csharp[SustainedHighHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#SustainedHighHintExample)]
-  
+
 - The application needs to process a large amount of data on device:
 
   [!code-csharp[SustainedHighHintExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/PerformanceSettingsSnippets.cs#BoostHintExample)]
@@ -90,7 +90,7 @@ If the performance state of a subdomain changes, the [XrPerformanceSettingsFeatu
 
 When the performance state of a domain and subdomain changes for the worse, you should take mitigation measures that reduce application workload in that area. If you do not, the OpenXR runtime might impose its own, more drastic, measures.
 
-After a sufficient period (determined by the runtime) of improved performance, a performance state can change from impaired to warning, and from warning to normal. Leaving the impaired state means that the runtime has stopped its own mitigation measures.
+After a sufficient period (determined by the runtime) of improved performance, a performance state can change from impaired to warning, and from warning to normal.Leaving the impaired state means that the runtime has stopped its own mitigation measures.
 
 > [!TIP]
 > Performance impairment may not be caused directly by your application, but by situational causes, such as high room temperature or a large amount of background tasks running on the device. Even so, the better you can tune your app to avoid performance degradation, the better the user experience will be across variable operating conditions.

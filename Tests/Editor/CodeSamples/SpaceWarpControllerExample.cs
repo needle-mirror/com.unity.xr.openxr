@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
-namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
+namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
 {
     // Add to main scene camera
     public class SpaceWarpController : MonoBehaviour
@@ -31,8 +31,15 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
 
         void Update()
         {
-            // Update SpaceWarp with camera position and
-            // rotation if it is enabled in Project Settings
+            // Update SpaceWarp with camera position and rotation
+            // if it is enabled in Project Settings.
+            // Note, Depending on the headset, SpaceWarp may not need
+            // to be updated with the main camera’s current position
+            // or rotation. Refer to the headset’s specifications to
+            // determine if it’s required. If the headset *does not*
+            // require SpaceWarp to be updated with the main camera's
+            // current position and rotation, then comment out the
+            // following code.
             if (m_SpaceWarpFeatureEnabled)
             {
                 SpaceWarpFeature.SetAppSpacePosition(transform.position);

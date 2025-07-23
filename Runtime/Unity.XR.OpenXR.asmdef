@@ -51,6 +51,11 @@
             "name": "com.unity.modules.video",
             "expression": "1.0.0",
             "define": "UNITY_VIDEO"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.1.10f1",
+            "define": "SPACEWARP_RIGHT_HAND_NDC_SUPPORTED"
         }
     ],
     "noEngineReferences": false

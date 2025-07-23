@@ -19,7 +19,7 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using Assert = UnityEngine.Assertions.Assert;
 
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 [assembly: UnityPlatform(RuntimePlatform.WindowsPlayer, RuntimePlatform.WindowsEditor, RuntimePlatform.Android, RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer)]
 
 namespace UnityEngine.XR.OpenXR.Tests
