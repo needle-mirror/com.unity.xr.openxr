@@ -6,11 +6,11 @@ using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class NoRuntimeTests : OpenXRLoaderSetup
+    class NoRuntimeTests : OpenXRLoaderSetup
     {
-        private XRManagerSettings manager => XRGeneralSettings.Instance?.Manager ?? null;
+        static XRManagerSettings manager => XRGeneralSettings.Instance?.Manager;
 
-        private XRLoader activeLoader => manager?.activeLoader ?? null;
+        static XRLoader activeLoader => manager?.activeLoader;
 
         public override void BeforeTest()
         {
@@ -33,7 +33,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
         public IEnumerator NoInitNoCrash()
         {
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
@@ -45,7 +45,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })]
         public IEnumerator LoadRuntimeAfterNoRuntime()
         {
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
@@ -55,7 +55,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", "");
             EnableMockRuntime();
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 

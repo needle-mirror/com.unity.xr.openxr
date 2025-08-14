@@ -1,20 +1,17 @@
 using System;
 using NUnit.Framework;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.XR.OpenXR.Features;
-using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR;
 using Unity.XR.CoreUtils.Editor;
+using UnityEngine.XR.OpenXR.Tests;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class OpenXRValidationTests
+    class OpenXRValidationTests : OpenXRLoaderSetup
     {
         internal class FakeFeature : OpenXRFeature
-        {
-        }
+        { }
 
         /// <summary>
         /// Test that IsRuleEnabled will be true at the correct time for a BuildValidationRule.

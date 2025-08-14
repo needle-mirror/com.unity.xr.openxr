@@ -2,35 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-using UnityEngine.TestTools.Utils;
-using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
-using UnityEngine.XR.OpenXR;
-using UnityEngine.XR.OpenXR.NativeTypes;
 using ProviderXRStats = UnityEngine.XR.Provider.XRStats;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class MetaPerformanceMetricsTests : OpenXRLoaderSetup
+    class MetaPerformanceMetricsTests : OpenXRLoaderSetup
     {
-        private static readonly string kAppCPUFrametimeStr = "/perfmetrics_meta/app/cpu_frametime";
-        private static readonly string kAppGPUFrametimeStr = "/perfmetrics_meta/app/gpu_frametime";
-        private static readonly string kAppMotionToPhotonLatencyStr =
+        static readonly string kAppCPUFrametimeStr = "/perfmetrics_meta/app/cpu_frametime";
+        static readonly string kAppGPUFrametimeStr = "/perfmetrics_meta/app/gpu_frametime";
+        static readonly string kAppMotionToPhotonLatencyStr =
             "/perfmetrics_meta/app/motion_to_photon_latency";
-        private static readonly string kCompositorCPUFrametimeStr =
+        static readonly string kCompositorCPUFrametimeStr =
             "/perfmetrics_meta/compositor/cpu_frametime";
-        private static readonly string kCompositorGPUFrametimeStr =
+        static readonly string kCompositorGPUFrametimeStr =
             "/perfmetrics_meta/compositor/gpu_frametime";
-        private static readonly string kCompositorDroppedFrameCountStr =
+        static readonly string kCompositorDroppedFrameCountStr =
             "/perfmetrics_meta/compositor/dropped_frame_count";
-        private static readonly string kDeviceCPUUtilizationAvgStr =
+        static readonly string kDeviceCPUUtilizationAvgStr =
             "/perfmetrics_meta/device/cpu_utilization_average";
-        private static readonly string kDeviceCPUUtilizationWorstStr =
+        static readonly string kDeviceCPUUtilizationWorstStr =
             "/perfmetrics_meta/device/cpu_utilization_worst";
-        private static readonly string kDeviceGPUUtilizationStr =
+        static readonly string kDeviceGPUUtilizationStr =
             "/perfmetrics_meta/device/gpu_utilization";
 
-        private readonly List<string> xrPathStrings = new List<string>
+        readonly List<string> xrPathStrings = new()
         {
             kAppCPUFrametimeStr,
             kAppGPUFrametimeStr,
@@ -46,23 +42,23 @@ namespace UnityEngine.XR.OpenXR.Tests
             kDeviceGPUUtilizationStr
         };
 
-        private static readonly string kUnityStatsAppCpuTime = "perfmetrics.appcputime";
-        private static readonly string kUnityStatsAppGpuTime = "perfmetrics.appgputime";
-        private static readonly string kUnityStatsAppGpuTimeFunc = "GPUAppLastFrameTime";
-        private static readonly string kUnityStatsCompositorCpuTime =
+        static readonly string kUnityStatsAppCpuTime = "perfmetrics.appcputime";
+        static readonly string kUnityStatsAppGpuTime = "perfmetrics.appgputime";
+        static readonly string kUnityStatsAppGpuTimeFunc = "GPUAppLastFrameTime";
+        static readonly string kUnityStatsCompositorCpuTime =
             "perfmetrics.compositorcputime";
-        private static readonly string kUnityStatsCompositorGpuTime =
+        static readonly string kUnityStatsCompositorGpuTime =
             "perfmetrics.compositorgputime";
-        private static readonly string kUnityStatsCompositorGpuTimeFunc =
+        static readonly string kUnityStatsCompositorGpuTimeFunc =
             "GPUCompositorLastFrameTime";
-        private static readonly string kUnityStatsGpuUtil = "perfmetrics.gpuutil";
-        private static readonly string kUnityStatsCpuUtilAvg = "perfmetrics.cpuutilavg";
-        private static readonly string kUnityStatsCpuUtilWorst = "perfmetrics.cpuutilworst";
-        private static readonly string kUnityStatsDroppedFrameCount = "appstats.compositordroppedframes";
-        private static readonly string kUnityStatsDroppedFrameCountFunc = "droppedFrameCount";
-        private static readonly string kUnityStatsMotionToPhotonFunc = "motionToPhoton";
+        static readonly string kUnityStatsGpuUtil = "perfmetrics.gpuutil";
+        static readonly string kUnityStatsCpuUtilAvg = "perfmetrics.cpuutilavg";
+        static readonly string kUnityStatsCpuUtilWorst = "perfmetrics.cpuutilworst";
+        static readonly string kUnityStatsDroppedFrameCount = "appstats.compositordroppedframes";
+        static readonly string kUnityStatsDroppedFrameCountFunc = "droppedFrameCount";
+        static readonly string kUnityStatsMotionToPhotonFunc = "motionToPhoton";
 
-        private readonly List<string> unityStatStrings = new List<string>
+        readonly List<string> unityStatStrings = new()
         {
             kUnityStatsAppCpuTime,
             kUnityStatsAppGpuTime,
@@ -78,8 +74,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             kUnityStatsMotionToPhotonFunc
         };
 
-        private readonly Dictionary<string, XrPerformanceMetricsCounterUnitMETA> unitMap =
-            new Dictionary<string, XrPerformanceMetricsCounterUnitMETA>()
+        readonly Dictionary<string, XrPerformanceMetricsCounterUnitMETA> unitMap = new()
         {
             {
                 kAppCPUFrametimeStr,
@@ -119,7 +114,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             }
         };
 
-        private enum XrPerformanceMetricsCounterUnitMETA
+        enum XrPerformanceMetricsCounterUnitMETA
         {
             XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META = 0,
             XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META = 1,

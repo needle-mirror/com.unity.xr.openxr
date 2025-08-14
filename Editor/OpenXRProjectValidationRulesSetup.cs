@@ -80,7 +80,7 @@ namespace UnityEditor.XR.OpenXR
                     if (!BuildHelperUtils.HasActiveLoader(buildTargetGroup, typeof(OpenXRLoaderBase)))
                         return false;
 
-                    // If a  rule specific feature isn't enabled, don't show this rule
+                    // If a rule specific feature isn't enabled, don't show this rule
                     if (featureType != null)
                     {
                         OpenXRSettings openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
@@ -122,10 +122,10 @@ namespace UnityEditor.XR.OpenXR
 
                 var coreIssues = new List<BuildValidationRule>()
                 {
-                    GetDefaultBuildValidationRule(buildTargetGroup),
                     VulkanOffscreenSwapchainAndroidValidationRule()
                 };
                 var issues = new List<OpenXRFeature.ValidationRule>();
+                Features.FeatureHelpers.RefreshFeatures(buildTargetGroup);
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
                 foreach (var issue in issues)
@@ -135,27 +135,6 @@ namespace UnityEditor.XR.OpenXR
 
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);
             }
-        }
-
-        static BuildValidationRule GetDefaultBuildValidationRule(BuildTargetGroup targetGroup)
-        {
-            var defaultRule = new BuildValidationRule()
-            {
-                // This will hide the rules given a condition so that when you click "Show all" it doesn't show up as passed
-                IsRuleEnabled = () =>
-                {
-                    // Only show this rule if there are enabled OpenXR features that aren't interaction profiles
-                    return ExistsOpenXRFeaturesEnabledForBuildTarget(targetGroup);
-                },
-                Message = "[OpenXR] Enabled OpenXR Features require OpenXR to be selected as the active loader for this platform",
-                CheckPredicate = () => BuildHelperUtils.HasActiveLoader(targetGroup, typeof(OpenXRLoaderBase)),
-                Error = false,
-                FixIt = () => { SettingsService.OpenProjectSettings("Project/XR Plug-in Management"); },
-                FixItAutomatic = false,
-                FixItMessage = "Open Project Settings to select OpenXR as the active loader for this platform."
-            };
-
-            return defaultRule;
         }
 
         static BuildValidationRule VulkanOffscreenSwapchainAndroidValidationRule()
@@ -191,22 +170,6 @@ namespace UnityEditor.XR.OpenXR
                 Category = "OpenXR",
                 Error = false,
             };
-        }
-
-        /// <summary>
-        /// Check if there are any features enabled for this build target
-        /// </summary>
-        static bool ExistsOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
-        {
-            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
-            foreach (var feature in openXrSettings?.features)
-            {
-                if (feature != null && feature.enabled && !(feature is OpenXRInteractionFeature interactionFeature && !interactionFeature.IsAdditive))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         [MenuItem("Window/XR/OpenXR/Project Validation")]

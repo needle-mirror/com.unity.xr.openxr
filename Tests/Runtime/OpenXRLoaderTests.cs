@@ -3,7 +3,6 @@
 #endif
 
 #if TEST_SUPPORT
-
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -14,7 +13,7 @@ using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRLoaderTests : OpenXRLoaderSetup
+    class OpenXRLoaderTests : OpenXRLoaderSetup
     {
         public override void BeforeTest()
         {
@@ -42,7 +41,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         public struct StateTransition
         {
-            public OpenXRLoader.LoaderState targetState;
+            public OpenXRLoaderBase.LoaderState targetState;
             public bool expectedInitializeReturn;
             public bool expectedStartReturn;
             public bool expectedStopReturn;
@@ -50,65 +49,65 @@ namespace UnityEngine.XR.OpenXR.Tests
             public ExpectedLogMessage[] expectedLogMessages;
         }
 
-        public static List<StateTransition> stateTransitions = new List<StateTransition>()
+        public static List<StateTransition> stateTransitions = new()
         {
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.InitializeAttempted,
+                targetState = OpenXRLoaderBase.LoaderState.InitializeAttempted,
                 expectedInitializeReturn = false,
                 expectedStartReturn = false,
                 expectedStopReturn = false,
                 expectedDeinitializeReturn = true,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.Initialized,
+                targetState = OpenXRLoaderBase.LoaderState.Initialized,
                 expectedInitializeReturn = true,
                 expectedStartReturn = true,
                 expectedStopReturn = true,
                 expectedDeinitializeReturn = true,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.StartAttempted,
+                targetState = OpenXRLoaderBase.LoaderState.StartAttempted,
                 expectedInitializeReturn = true,
                 expectedStartReturn = false,
                 expectedStopReturn = true,
                 expectedDeinitializeReturn = true,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.Started,
+                targetState = OpenXRLoaderBase.LoaderState.Started,
                 expectedInitializeReturn = true,
                 expectedStartReturn = true,
                 expectedStopReturn = true,
                 expectedDeinitializeReturn = true,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.StopAttempted,
+                targetState = OpenXRLoaderBase.LoaderState.StopAttempted,
                 expectedInitializeReturn = true,
                 expectedStartReturn = true,
                 expectedStopReturn = false,
                 expectedDeinitializeReturn = false,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.Stopped,
+                targetState = OpenXRLoaderBase.LoaderState.Stopped,
                 expectedInitializeReturn = true,
                 expectedStartReturn = true,
                 expectedStopReturn = true,
                 expectedDeinitializeReturn = true,
                 expectedLogMessages = new ExpectedLogMessage[] { },
             },
-            new StateTransition()
+            new StateTransition
             {
-                targetState = OpenXRLoader.LoaderState.DeinitializeAttempted,
+                targetState = OpenXRLoaderBase.LoaderState.DeinitializeAttempted,
                 expectedInitializeReturn = true,
                 expectedStartReturn = true,
                 expectedStopReturn = true,
@@ -119,7 +118,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
-        public IEnumerator StateTransitionValidation([ValueSource("stateTransitions")] StateTransition stateTransition)
+        public IEnumerator StateTransitionValidation([ValueSource(nameof(stateTransitions))] StateTransition stateTransition)
         {
             Assert.IsNotNull(Loader);
             if (Loader != null)
@@ -158,7 +157,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             bool ret = Loader.Initialize();
             Assert.IsTrue(ret);
             yield return null;
-            Assert.AreEqual(OpenXRLoader.LoaderState.Initialized, Loader.currentLoaderState);
+            Assert.AreEqual(OpenXRLoaderBase.LoaderState.Initialized, Loader.currentLoaderState);
 
 
             for (int i = 0; i < 5; i++)
@@ -166,18 +165,18 @@ namespace UnityEngine.XR.OpenXR.Tests
                 ret = Loader.Start();
                 Assert.IsTrue(ret);
                 yield return null;
-                Assert.AreEqual(OpenXRLoader.LoaderState.Started, Loader.currentLoaderState);
+                Assert.AreEqual(OpenXRLoaderBase.LoaderState.Started, Loader.currentLoaderState);
 
                 ret = Loader.Stop();
                 Assert.IsTrue(ret);
                 yield return null;
-                Assert.AreEqual(OpenXRLoader.LoaderState.Stopped, Loader.currentLoaderState);
+                Assert.AreEqual(OpenXRLoaderBase.LoaderState.Stopped, Loader.currentLoaderState);
             }
 
             ret = Loader.Deinitialize();
             Assert.IsTrue(ret);
             yield return null;
-            Assert.AreEqual(OpenXRLoader.LoaderState.Uninitialized, Loader.currentLoaderState);
+            Assert.AreEqual(OpenXRLoaderBase.LoaderState.Uninitialized, Loader.currentLoaderState);
         }
     }
 }

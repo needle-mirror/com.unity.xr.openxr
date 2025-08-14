@@ -2,21 +2,19 @@ using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
 using UnityEngine.TestTools;
 using UnityEngine.XR.Management;
 
-
 namespace UnityEngine.XR.TestTooling
 {
-    internal abstract class LoaderTestSetup<L, S> : ManagementTestSetup, IPrebuildSetup, IPostBuildCleanup
-        where L : XRLoader
-        where S : ScriptableObject
+    abstract class LoaderTestSetup<TLoader, TSettings> : ManagementTestSetup, IPrebuildSetup, IPostBuildCleanup
+        where TLoader : XRLoader
+        where TSettings : ScriptableObject
     {
         protected abstract string settingsKey { get; }
 
-        protected L loader = null;
-        protected S settings = null;
+        protected TLoader loader;
+        protected TSettings settings;
 
         public bool IsRunning<T>()
             where T : class, ISubsystem
@@ -25,9 +23,9 @@ namespace UnityEngine.XR.TestTooling
         }
 
 #if UNITY_EDITOR
-        T GetOrCreateAsset<T>(string path) where T : UnityEngine.ScriptableObject
+        static T GetOrCreateAsset<T>(string path) where T : ScriptableObject
         {
-            T asset = default(T);
+            T asset;
 
             if (!File.Exists(path))
             {
@@ -40,20 +38,18 @@ namespace UnityEngine.XR.TestTooling
                 asset = AssetDatabase.LoadAssetAtPath<T>(path);
             }
 
-            return asset as T;
+            return asset;
         }
-
 #endif
 
         protected void DestroyLoaderAndSettings()
         {
 #if UNITY_EDITOR
-
             var path = GetAssetPathForComponents(s_TempSettingsPath);
-            var settingsPath = Path.Combine(path, $"Test_{typeof(S).Name}.asset");
+            var settingsPath = Path.Combine(path, $"Test_{typeof(TSettings).Name}.asset");
             AssetDatabase.DeleteAsset(settingsPath);
 
-            var loaderPath = Path.Combine(path, $"Test_{typeof(L).Name}.asset");
+            var loaderPath = Path.Combine(path, $"Test_{typeof(TLoader).Name}.asset");
             AssetDatabase.DeleteAsset(loaderPath);
 #endif
         }
@@ -63,13 +59,13 @@ namespace UnityEngine.XR.TestTooling
 #if UNITY_EDITOR
             // Setup Loader
             var path = GetAssetPathForComponents(s_TempSettingsPath);
-            var loaderPath = Path.Combine(path, $"Test_{typeof(L).Name}.asset");
-            loader = GetOrCreateAsset<L>(loaderPath);
+            var loaderPath = Path.Combine(path, $"Test_{typeof(TLoader).Name}.asset");
+            loader = GetOrCreateAsset<TLoader>(loaderPath);
 
             if (xrGeneralSettings == null)
             {
                 xrGeneralSettings = XRGeneralSettings.Instance;
-                testManager = xrGeneralSettings?.Manager ?? null;
+                testManager = xrGeneralSettings?.Manager;
             }
 
 #pragma warning disable CS0618
@@ -78,8 +74,8 @@ namespace UnityEngine.XR.TestTooling
 #pragma warning restore CS0618
 
             // Setup Settings
-            var settingsPath = Path.Combine(path, $"Test_{typeof(S).Name}.asset");
-            settings = GetOrCreateAsset<S>(settingsPath);
+            var settingsPath = Path.Combine(path, $"Test_{typeof(TSettings).Name}.asset");
+            settings = GetOrCreateAsset<TSettings>(settingsPath);
 
             EditorBuildSettings.AddConfigObject(settingsKey, settings, true);
 
@@ -129,7 +125,7 @@ namespace UnityEngine.XR.TestTooling
         protected void Start()
         {
             var manager = XRGeneralSettings.Instance?.Manager;
-            if ((manager?.activeLoader ?? null) != null)
+            if (manager?.activeLoader != null)
             {
                 manager.StartSubsystems();
             }
@@ -145,7 +141,7 @@ namespace UnityEngine.XR.TestTooling
         {
             var manager = XRGeneralSettings.Instance?.Manager;
             if (manager != null && manager.activeLoader != null)
-                manager?.StopSubsystems();
+                manager.StopSubsystems();
             else if (loader != null)
                 loader.Stop();
         }
@@ -154,7 +150,7 @@ namespace UnityEngine.XR.TestTooling
         {
             var manager = XRGeneralSettings.Instance?.Manager;
             if (manager != null && manager.activeLoader != null)
-                manager?.DeinitializeLoader();
+                manager.DeinitializeLoader();
             else if (loader != null)
                 loader.Deinitialize();
         }

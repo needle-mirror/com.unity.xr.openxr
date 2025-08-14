@@ -25,6 +25,7 @@ using UnityEditor.XR.OpenXR;
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
 namespace UnityEngine.XR.OpenXR
 {
     /// <summary>
@@ -58,6 +59,8 @@ namespace UnityEngine.XR.OpenXR
 #endif
     public partial class OpenXRLoaderBase : XRLoaderHelper
     {
+        internal static Action<OpenXRLoaderBase> deinitializedInternal;
+
         private class FeatureLoggingInfo
         {
             public FeatureLoggingInfo(string nameUi, string version, string company, string extensionStrings)
@@ -254,13 +257,14 @@ namespace UnityEngine.XR.OpenXR
             if (null != OpenXRSettings.Instance)
                 OpenXRSettings.Instance.ApplySettings();
 
+            SetApplicationInfo();
+
             if (!CreateSubsystems())
                 return false;
 
             if (OpenXRFeature.requiredFeatureFailed)
                 return false;
 
-            SetApplicationInfo();
             OpenXRAnalytics.SendInitializeEvent(true);
 
             OpenXRFeature.ReceiveLoaderEvent(this, OpenXRFeature.LoaderEvent.SubsystemCreate);
@@ -488,6 +492,7 @@ namespace UnityEngine.XR.OpenXR
                     unhandledExceptionHandler = null;
                 }
 
+                deinitializedInternal?.Invoke(this);
                 return base.Deinitialize();
             }
             finally
@@ -571,6 +576,7 @@ namespace UnityEngine.XR.OpenXR
                 // We need to log this after we've determined the version of the OpenXR Runtime
                 featureLoggingInfo.Add(new FeatureLoggingInfo(feature.nameUi, feature.version, feature.company, feature.openxrExtensionStrings));
 
+                // First try to enable any of the feature's OpenXR extension Strings
                 if (!string.IsNullOrEmpty(feature.openxrExtensionStrings))
                 {
                     // Check to see if any of the required extensions are not supported by the runtime
@@ -581,6 +587,12 @@ namespace UnityEngine.XR.OpenXR
                         Internal_RequestEnableExtensionString(extensionString);
                     }
                 }
+
+                // Then try to request any OpenXR API Versions requested by the extensions
+                OpenXRApiVersion apiVersion = OpenXRApiVersion.TryParse(feature.targetOpenXRApiVersion, out var version) ? version : null;
+
+                if (apiVersion != null)
+                    Internal_RequestOpenXRApiVersion(apiVersion.Major, apiVersion.Minor, apiVersion.Patch);
             }
         }
 

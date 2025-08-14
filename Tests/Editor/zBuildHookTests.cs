@@ -17,7 +17,7 @@ namespace UnityEditor.XR.OpenXR.Tests
     // If you change this file, be sure to run the "no players" tests on yamato.
     // APV jobs don't include "players" such as standalone, so `BuildMockPlayer()`
     // will fail during APV.  The "no players" job on yamato will catch this.
-    internal class zBuildHookTests : OpenXRLoaderSetup
+    class zBuildHookTests : OpenXRLoaderSetup
     {
         internal static BuildReport BuildMockPlayer()
         {
@@ -45,16 +45,16 @@ namespace UnityEditor.XR.OpenXR.Tests
             bool preprocessCalled = false;
             bool postprocessCalled = false;
 
-            BuildCallbacks.TestCallback = (methodName, param) =>
+            BuildCallbacks.TestCallback = (methodName, _) =>
             {
-                if (methodName == "OnPreprocessBuildExt")
+                switch (methodName)
                 {
-                    preprocessCalled = true;
-                }
-
-                if (methodName == "OnPostprocessBuildExt")
-                {
-                    postprocessCalled = true;
+                    case "OnPreprocessBuildExt":
+                        preprocessCalled = true;
+                        break;
+                    case "OnPostprocessBuildExt":
+                        postprocessCalled = true;
+                        break;
                 }
 
                 return true;
@@ -77,16 +77,16 @@ namespace UnityEditor.XR.OpenXR.Tests
             bool preprocessCalled = false;
             bool postprocessCalled = false;
 
-            BuildCallbacks.TestCallback = (methodName, param) =>
+            BuildCallbacks.TestCallback = (methodName, _) =>
             {
-                if (methodName == "OnPreprocessBuildExt")
+                switch (methodName)
                 {
-                    preprocessCalled = true;
-                }
-
-                if (methodName == "OnPostprocessBuildExt")
-                {
-                    postprocessCalled = true;
+                    case "OnPreprocessBuildExt":
+                        preprocessCalled = true;
+                        break;
+                    case "OnPostprocessBuildExt":
+                        postprocessCalled = true;
+                        break;
                 }
 
                 return true;
@@ -105,16 +105,16 @@ namespace UnityEditor.XR.OpenXR.Tests
             bool preprocessCalled = false;
             bool postprocessCalled = false;
 
-            BuildCallbacks.TestCallback = (methodName, param) =>
+            BuildCallbacks.TestCallback = (methodName, _) =>
             {
-                if (methodName == "OnPreprocessBuildExt")
+                switch (methodName)
                 {
-                    preprocessCalled = true;
-                }
-
-                if (methodName == "OnPostprocessBuildExt")
-                {
-                    postprocessCalled = true;
+                    case "OnPreprocessBuildExt":
+                        preprocessCalled = true;
+                        break;
+                    case "OnPostprocessBuildExt":
+                        postprocessCalled = true;
+                        break;
                 }
 
                 return true;
@@ -135,16 +135,16 @@ namespace UnityEditor.XR.OpenXR.Tests
             bool preprocessCalled = false;
             bool postprocessCalled = false;
 
-            BootConfigTests.TestCallback = (methodName, param) =>
+            BootConfigTests.TestCallback = (methodName, _) =>
             {
-                if (methodName == "OnPreprocessBuildExt")
+                switch (methodName)
                 {
-                    preprocessCalled = true;
-                }
-
-                if (methodName == "OnPostprocessBuildExt")
-                {
-                    postprocessCalled = true;
+                    case "OnPreprocessBuildExt":
+                        preprocessCalled = true;
+                        break;
+                    case "OnPostprocessBuildExt":
+                        postprocessCalled = true;
+                        break;
                 }
 
                 return true;
@@ -158,7 +158,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             BootConfigTests.EnsureCleanupFromLastRun();
         }
 
-        private bool HasOpenXRLibraries(BuildReport report)
+        static bool HasOpenXRLibraries(BuildReport report)
         {
             var path = Path.GetDirectoryName(report.summary.outputPath);
             var dir = new DirectoryInfo(path);
@@ -192,14 +192,12 @@ namespace UnityEditor.XR.OpenXR.Tests
         public void VerifyBuildWithoutAnalytics()
         {
             var packageName = "com.unity.analytics";
-            UnityEditor.PackageManager.Client.Remove(packageName);
+            PackageManager.Client.Remove(packageName);
 
             var result = BuildMockPlayer();
 
             if (Environment.GetEnvironmentVariable("UNITY_OPENXR_YAMATO") == "1")
                 Assert.IsTrue(result.summary.result == BuildResult.Succeeded);
-            else if (result.summary.result != BuildResult.Succeeded)
-                return;
         }
 
         internal class BuildCallbacks : OpenXRFeatureBuildHooks
@@ -284,7 +282,7 @@ namespace UnityEditor.XR.OpenXR.Tests
                 Assert.IsFalse(result04);
                 builder.SetBootConfigValue("key-05", "remove-me");
                 Assert.IsTrue(builder.TryRemoveBootConfigEntry("key-05"));
-                Assert.IsFalse(builder.TryGetBootConfigValue("key-05", out var result05));
+                Assert.IsFalse(builder.TryGetBootConfigValue("key-05", out var result05)); // unused in the test?
                 Assert.IsFalse(builder.TryGetBootConfigBoolean("key-999", out var result06));
                 Assert.IsFalse(result06);
             }
@@ -297,11 +295,11 @@ namespace UnityEditor.XR.OpenXR.Tests
 
                 var bootConfig = new BootConfig(s_lastRunBuildReport);
                 bootConfig.ReadBootConfig();
-                Assert.IsFalse(bootConfig.TryGetValue("key-01", out var key01Value));
-                Assert.IsFalse(bootConfig.TryGetValue("key-02", out var key02Value));
-                Assert.IsFalse(bootConfig.TryGetValue("key-03", out var key03Value));
-                Assert.IsFalse(bootConfig.TryGetValue("key-04", out var key04Value));
-                Assert.IsFalse(bootConfig.TryGetValue("key-05", out var key05Value));
+                Assert.IsFalse(bootConfig.TryGetValue("key-01", out _));
+                Assert.IsFalse(bootConfig.TryGetValue("key-02", out _));
+                Assert.IsFalse(bootConfig.TryGetValue("key-03", out _));
+                Assert.IsFalse(bootConfig.TryGetValue("key-04", out _));
+                Assert.IsFalse(bootConfig.TryGetValue("key-05", out _));
 
                 s_lastRunBuildReport = null;
             }

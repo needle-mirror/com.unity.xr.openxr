@@ -113,7 +113,7 @@ namespace UnityEditor.XR.OpenXR
 
         public string GetActiveLoaderLibraryPath()
         {
-            return OpenXRChooseRuntimeLibraries.GetLoaderLibraryPath();
+            return OpenXRChooseRuntimeLibraries.DefineEditorLoaderLibraryPath();
         }
 
         void IPackageSettings.RefreshFeatureSets()

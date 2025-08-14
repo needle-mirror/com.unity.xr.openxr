@@ -53,6 +53,18 @@ namespace UnityEngine.XR.OpenXR
         public static bool IsExtensionEnabled(string extensionName) => Internal_IsExtensionEnabled(extensionName);
 
         /// <summary>
+        /// Convenience overload to add logging capabilities to `OnInstanceCreate`.
+        /// </summary>
+        internal static bool IsExtensionEnabled(string extension, string featureName)
+        {
+            if (IsExtensionEnabled(extension))
+                return true;
+
+            Debug.Log($"This OpenXR runtime failed to enable {extension}. <b>{featureName}</b> will be disabled.");
+            return false;
+        }
+
+        /// <summary>
         /// Returns the version number of the given extension.
         /// </summary>
         /// <param name="extensionName">Name of the extension</param>

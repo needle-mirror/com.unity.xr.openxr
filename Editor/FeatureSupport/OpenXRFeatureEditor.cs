@@ -96,7 +96,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
         OpenXRFeatureSettingsEditor featureSetSettingsEditor = null;
 
-        bool mustInitializeFeatures = false;
+        bool mustInitializeFeatures = true;
 
         static readonly string s_AllFeatures = "All Features";
 

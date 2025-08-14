@@ -114,6 +114,12 @@ namespace UnityEngine.XR.OpenXR.Features
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
+        /// OpenXR API version that the feature requests to be used when creating the XR Instance.
+        /// </summary>
+        [HideInInspector] [SerializeField] internal string targetOpenXRApiVersion = null;
+
+        /// <summary>
+        /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// True if the feature is required, false otherwise.
         /// </summary>
         [HideInInspector] [SerializeField] internal bool required = false;
@@ -425,24 +431,35 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <param name="targetGroup">Build target group these validation rules will be evaluated for.</param>
         protected internal virtual void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
         {
-        }
-
-        internal static void GetFullValidationList(List<ValidationRule> rules, BuildTargetGroup targetGroup)
-        {
-            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
-            if (openXrSettings == null)
+            // Check if this feature has an OpenXR API Version that it targets. If it does, validate that it targets an API Version
+            // that is higher than the API version that our package is currently built against.
+            OpenXRApiVersion apiVersion = OpenXRApiVersion.TryParse(targetOpenXRApiVersion, out var version) ? version : null;
+            if (apiVersion != null)
             {
-                return;
-            }
-
-            var tempList = new List<ValidationRule>();
-            foreach (var feature in openXrSettings.features)
-            {
-                if (feature != null)
+                if(apiVersion.Major != OpenXRApiVersion.Current.Major)
                 {
-                    feature.GetValidationChecks(tempList, targetGroup);
-                    rules.AddRange(tempList);
-                    tempList.Clear();
+                    rules.Add(new ValidationRule(this)
+                    {
+                        message = $"The targeted OpenXR API version uses an unsupported major version and will be ignored. Please check the latest supported versions at: https://github.com/KhronosGroup/OpenXR-SDK-Source/releases",
+                        checkPredicate = () =>
+                        {
+                            return apiVersion.Major == OpenXRApiVersion.Current.Major;
+                        },
+                        fixItMessage = "Update the OpenXR Features to target the appropriate API version, or disable it"
+                    });
+
+                }
+                else
+                {
+                    rules.Add(new ValidationRule(this)
+                    {
+                        message = $"This OpenXR Feature targets an API version with a patch version lower than {OpenXRApiVersion.Current}, which is the recommended version for this package. The requested API version will be ignored.",
+                        checkPredicate = () =>
+                        {
+                            return apiVersion.Patch >= OpenXRApiVersion.Current.Patch;
+                        },
+                        fixItMessage = "Update the OpenXR Features to target the appropriate API version, or disable it"
+                    });
                 }
             }
         }

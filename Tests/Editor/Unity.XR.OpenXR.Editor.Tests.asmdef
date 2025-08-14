@@ -10,13 +10,15 @@
         "GUID:2023fa18bf9504e98b11fe2174802802",
         "GUID:6150739e4dc7bff4d833306fd9d5a4f0",
         "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:4ddd23ea56a3a40f0aa0036d1624a53e"
+        "GUID:4ddd23ea56a3a40f0aa0036d1624a53e",
+        "GUID:9de2e6a33a93480478eaf8469cfe8f10",
+        "GUID:f9fe0089ec81f4079af78eb2287a6163"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll"
@@ -27,9 +29,9 @@
     ],
     "versionDefines": [
         {
-          "name": "com.unity.inputsystem",
-          "expression": "1.6.3",
-          "define": "INPUT_SYSTEM_BINDING_VALIDATOR"
+            "name": "com.unity.inputsystem",
+            "expression": "1.6.3",
+            "define": "INPUT_SYSTEM_BINDING_VALIDATOR"
         }
     ],
     "noEngineReferences": false

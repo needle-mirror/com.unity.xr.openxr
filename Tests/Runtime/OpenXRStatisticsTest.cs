@@ -7,7 +7,7 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRStatisticsTests : OpenXRLoaderSetup
+    class OpenXRStatisticsTests : OpenXRLoaderSetup
     {
         [UnityTest]
         public IEnumerator RegisterAndSetTestStatistic_UsingStatFlagStatOptionNone()
@@ -15,7 +15,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var feature = ScriptableObject.CreateInstance<SingleStatTestFeature>();
             feature.ClearStatOnUpdate = false;
 
-            base.InitializeAndStart();
+            InitializeAndStart();
             yield return null;
 
             feature.CreateStat();
@@ -26,7 +26,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var stat1Success =
                 Provider.XRStats.TryGetStat(GetFirstDisplaySubsystem(), SingleStatTestFeature.StatName, out float value1);
 
-            base.StopAndShutdown();
+            StopAndShutdown();
             Object.DestroyImmediate(feature);
 
             Assert.IsTrue(stat1Success);
@@ -39,7 +39,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var feature = ScriptableObject.CreateInstance<SingleStatTestFeature>();
             feature.ClearStatOnUpdate = true;
 
-            base.InitializeAndStart();
+            InitializeAndStart();
             yield return null;
 
             feature.CreateStat();
@@ -54,7 +54,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var afterUpdateSuccess =
                 Provider.XRStats.TryGetStat(GetFirstDisplaySubsystem(), SingleStatTestFeature.StatName, out float afterUpdateValue);
 
-            base.StopAndShutdown();
+            StopAndShutdown();
             Object.DestroyImmediate(feature);
 
             Assert.IsTrue(beforeUpdateSuccess);
@@ -64,7 +64,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.AreEqual(0.0f, afterUpdateValue);
         }
 
-        private static IntegratedSubsystem GetFirstDisplaySubsystem()
+        static IntegratedSubsystem GetFirstDisplaySubsystem()
         {
             List<XRDisplaySubsystem> displays = new();
             SubsystemManager.GetSubsystems(displays);
@@ -77,12 +77,12 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
     }
 
-    internal class SingleStatTestFeature : OpenXRFeature
+    class SingleStatTestFeature : OpenXRFeature
     {
         public const string StatName = "TestStat";
 
         [NonSerialized]
-        private ulong m_statId;
+        ulong m_statId;
 
         public bool ClearStatOnUpdate { get; set; } = false;
 

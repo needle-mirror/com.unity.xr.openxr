@@ -6,7 +6,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class OpenXRCallbackTests : OpenXRLoaderSetup
+    class OpenXRCallbackTests : OpenXRLoaderSetup
     {
         [Test]
         public void InstanceCreated()
@@ -24,7 +24,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             Assert.IsTrue(instanceCreated);
         }
@@ -43,7 +43,7 @@ namespace UnityEditor.XR.OpenXR.Tests
                 return true;
             };
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             Assert.IsTrue(sessionCreated);
         }

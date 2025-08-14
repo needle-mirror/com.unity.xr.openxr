@@ -6,14 +6,14 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRPerformanceSettingsTest : OpenXRLoaderSetup
+    class OpenXRPerformanceSettingsTest : OpenXRLoaderSetup
     {
         [UnityTest]
         public IEnumerator PerformanceLevelHintIsSet()
         {
-            base.EnableMockRuntime();
-            base.EnableFeature<XrPerformanceSettingsFeature>();
-            base.InitializeAndStart();
+            EnableMockRuntime();
+            EnableFeature<XrPerformanceSettingsFeature>();
+            InitializeAndStart();
             yield return new WaitForXrFrame(2);
 
             const PerformanceDomain performanceDomain = PerformanceDomain.Cpu;
@@ -27,7 +27,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // Get performance level hint in MockRuntime
             PerformanceLevelHint performanceHintInMock = MockRuntime.PerformanceSettings_GetPerformanceLevelHint(performanceDomain);
 
-            base.StopAndShutdown();
+            StopAndShutdown();
 
             Assert.IsTrue(callSuccess, "Setting performance level hint failed.");
             Assert.AreEqual(expectedPerformanceLevel, performanceHintInMock, "Performance level hint wasn't set correctly.");
@@ -36,9 +36,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator ReceiveEventNotification_NormalToWarning()
         {
-            base.EnableMockRuntime();
-            base.EnableFeature<XrPerformanceSettingsFeature>();
-            base.InitializeAndStart();
+            EnableMockRuntime();
+            EnableFeature<XrPerformanceSettingsFeature>();
+            InitializeAndStart();
             yield return new WaitForXrFrame(2);
 
             PerformanceChangeNotification expectedNotification = new()
@@ -62,7 +62,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.PerformanceSettings_CauseNotification(PerformanceDomain.Cpu, PerformanceSubDomain.Thermal, PerformanceNotificationLevel.Warning);
             yield return new WaitForXrFrame(2);
 
-            base.StopAndShutdown();
+            StopAndShutdown();
 
             // Verify that the event was received
             Assert.IsTrue(receivedEvent, "Performance change notification event wasn't received.");
@@ -72,8 +72,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator ExtensionNotInitialized()
         {
-            base.EnableFeature<XrPerformanceSettingsFeature>(false);
-            base.InitializeAndStart();
+            EnableFeature<XrPerformanceSettingsFeature>(false);
+            InitializeAndStart();
             yield return new WaitForXrFrame(2);
 
             try

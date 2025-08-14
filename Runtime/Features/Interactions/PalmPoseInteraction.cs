@@ -154,6 +154,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 fixItAutomatic = false,
                 fixItMessage = "Open Project Settings to select one or more non Additive interaction profiles."
             });
+
+            base.GetValidationChecks(results, target);
         }
 #endif
 

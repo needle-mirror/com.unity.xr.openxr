@@ -9,13 +9,8 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRLatencyOptimizationTests : OpenXRLoaderSetup
+    class OpenXRLatencyOptimizationTests : OpenXRLoaderSetup
     {
-        private static readonly Tuple<OpenXRSettings.LatencyOptimization, OpenXRSettings.LatencyOptimization>[] s_latencyOptimizationSwitchCases = {
-            new ( OpenXRSettings.LatencyOptimization.PrioritizeRendering, OpenXRSettings.LatencyOptimization.PrioritizeInputPolling ),
-            new ( OpenXRSettings.LatencyOptimization.PrioritizeInputPolling, OpenXRSettings.LatencyOptimization.PrioritizeRendering )
-        };
-
         public override void BeforeTest()
         {
             NativeApi.EnableLatencyStats = true;
@@ -28,8 +23,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             base.AfterTest();
         }
 
-        private static readonly OpenXRSettings.LatencyOptimization[] s_latencyOptimizations = new[]
-        {
+        static readonly OpenXRSettings.LatencyOptimization[] s_latencyOptimizations = {
             OpenXRSettings.LatencyOptimization.PrioritizeRendering,
             OpenXRSettings.LatencyOptimization.PrioritizeInputPolling,
         };
@@ -44,7 +38,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return new WaitForXrFrame(50); // Warm up
 
-            if (!TryGetFirstDisplaySubsytem(out var displaySubsytem))
+            if (!TryGetFirstDisplaySubsytem(out var displaySubsystem))
             {
                 Assert.Inconclusive("No XRDisplaySubsystem instance found during testing. Make sure XR is set up correctly.");
             }
@@ -53,13 +47,14 @@ namespace UnityEngine.XR.OpenXR.Tests
                 Assert.Inconclusive("Latency Stat measurement wasn't enabled. Make sure that the test is set up for latency measurements.");
             }
 
-            yield return MeasureLatencyFromStats(displaySubsytem, priorityStrategy);
+            yield return MeasureLatencyFromStats(displaySubsystem, priorityStrategy);
 
             StopAndShutdown();
         }
 
         [UnityTest]
-        public IEnumerator CheckFrameSyncFunctionsCalledOncePerFrame([ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
+        public IEnumerator CheckFrameSyncFunctionsCalledOncePerFrame(
+            [ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
         {
             var waitFrameCallCount = 0;
             var beginFrameCallCount = 0;
@@ -68,21 +63,21 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetFunctionCallback(
                 "xrWaitFrame",
                 null,
-                (name, _) =>
+                (_, _) =>
                 {
                     waitFrameCallCount++;
                 });
             MockRuntime.SetFunctionCallback(
                 "xrBeginFrame",
                 null,
-                (name, _) =>
+                (_, _) =>
                 {
                     beginFrameCallCount++;
                 });
             MockRuntime.SetFunctionCallback(
                 "xrEndFrame",
                 null,
-                (name, _) =>
+                (_, _) =>
                 {
                     endFrameCallCount++;
                 });
@@ -107,7 +102,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
-        public IEnumerator CheckFrameSynchronizationFunctionsAreCalledInOrder([ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
+        public IEnumerator CheckFrameSynchronizationFunctionsAreCalledInOrder(
+            [ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
         {
             bool xrWaitFrameCalled = false;
             bool xrBeginFrameCalled = false;
@@ -178,9 +174,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             StopAndShutdown();
         }
 
-        private IEnumerator MeasureLatencyFromStats(XRDisplaySubsystem displaySubsytem, OpenXRSettings.LatencyOptimization priorityStrategy)
+        static IEnumerator MeasureLatencyFromStats(XRDisplaySubsystem displaySubsystem, OpenXRSettings.LatencyOptimization priorityStrategy)
         {
-            var frames = 1000;
+            const int frames = 1000;
             var framesFailed = 0;
 
             float[] inputLatencyMeasurements = new float[frames];
@@ -190,9 +186,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 yield return null; // Let a frame be run
 
-                var waitFrameTime = GetTimeFromProfilerMarker(displaySubsytem, "waitFrameTime");
-                var inputTickTime = GetTimeFromProfilerMarker(displaySubsytem, "inputTickTime");
-                var beginFrameTime = GetTimeFromProfilerMarker(displaySubsytem, "beginFrameTime");
+                var waitFrameTime = GetTimeFromProfilerMarker(displaySubsystem, "waitFrameTime");
+                var inputTickTime = GetTimeFromProfilerMarker(displaySubsystem, "inputTickTime");
+                var beginFrameTime = GetTimeFromProfilerMarker(displaySubsystem, "beginFrameTime");
 
                 var inputLatency = Mathf.Abs(inputTickTime - waitFrameTime);
                 var renderLatency = Mathf.Abs(beginFrameTime - waitFrameTime);
@@ -224,7 +220,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 $"Optimization fails per frame: {framesFailed}/{frames} ({failureRate * 100}%)");
         }
 
-        private static bool TryGetFirstDisplaySubsytem(out XRDisplaySubsystem subsystem)
+        static bool TryGetFirstDisplaySubsytem(out XRDisplaySubsystem subsystem)
         {
             var displays = new List<XRDisplaySubsystem>();
             SubsystemManager.GetSubsystems(displays);
@@ -232,19 +228,18 @@ namespace UnityEngine.XR.OpenXR.Tests
             return subsystem != null;
         }
 
-        private static float GetTimeFromProfilerMarker(XRDisplaySubsystem displaySubsytem, string markerMame)
+        static float GetTimeFromProfilerMarker(XRDisplaySubsystem displaySubsytem, string markerMame)
         {
-            if (UnityEngine.XR.Provider.XRStats.TryGetStat(displaySubsytem, markerMame, out float time))
+            if (Provider.XRStats.TryGetStat(displaySubsytem, markerMame, out float time))
             {
                 return time;
             }
             return 0;
         }
 
-        private static class NativeApi
+        static class NativeApi
         {
-
-            private const string LibraryName = "UnityOpenXR";
+            const string LibraryName = "UnityOpenXR";
 
             public static bool EnableLatencyStats
             {
@@ -257,13 +252,13 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             [DllImport(LibraryName, EntryPoint = "NativeConfig_GetEnableLatencyStats")]
             [return: MarshalAs(UnmanagedType.U1)]
-            private static extern bool Internal_GetEnableLatencyStats();
+            static extern bool Internal_GetEnableLatencyStats();
 
             [DllImport(LibraryName, EntryPoint = "NativeConfig_SetEnableLatencyStats")]
-            private static extern void Internal_SetEnableLatencyStats([MarshalAs(UnmanagedType.U1)] bool unityVersion);
+            static extern void Internal_SetEnableLatencyStats([MarshalAs(UnmanagedType.U1)] bool unityVersion);
 
             [DllImport(LibraryName, EntryPoint = "NativeConfig_SetLatencyOptimization")]
-            private static extern void Internal_SetLatencyOptimization(OpenXRSettings.LatencyOptimization latencyOptimzation);
+            static extern void Internal_SetLatencyOptimization(OpenXRSettings.LatencyOptimization latencyOptimzation);
         }
     }
 }

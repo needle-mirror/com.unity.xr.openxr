@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR && OPENXR_USE_KHRONOS_LOADER
 using System.IO;
+#endif
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -24,17 +26,18 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRLoaderSetup : LoaderTestSetup<OpenXRLoader, OpenXRSettings>
+    class OpenXRLoaderSetup : LoaderTestSetup<OpenXRLoader, OpenXRSettings>
     {
+        bool m_HasSetupRun;
         protected override string settingsKey => "OpenXRTestSettings";
 
-        private OpenXRFeature[] savedFeatures = null;
+        OpenXRFeature[] savedFeatures;
 
         /// <summary>
         /// Save the previous value of OpenXRRestarter.DisableApplicationQuit.
         /// We want to set it to true when running the test, and then restore the value after the test.
         /// </summary>
-        private bool oldDisableApplicationQuit = false;
+        bool oldDisableApplicationQuit;
 
         /// <summary>
         /// Helper method to return a feature of the given type
@@ -54,7 +57,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// Enables a required feature of a given type.
         /// </summary>
-        /// <param name="featureType">Type of feature to enable</param>
         /// <returns>Feature that was enabled or null</returns>
         protected OpenXRFeature EnableFeature(Type featureType, bool enable = true)
         {
@@ -94,7 +96,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.Instance.openxrExtensionStrings += $" {extensionName}";
         }
 
-        private void DisableAllFeatures()
+        static void DisableAllFeatures()
         {
             foreach (var ext in OpenXRSettings.ActiveBuildTargetInstance.features)
             {
@@ -106,21 +108,22 @@ namespace UnityEngine.XR.OpenXR.Tests
         public OpenXRLoader Loader => XRGeneralSettings.Instance?.Manager?.loaders[0] as OpenXRLoader;
 #pragma warning restore CS0618
 
-
         public override void SetupTest()
         {
             base.SetupTest();
 
 #if UNITY_EDITOR
-            UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
-            UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget));
+            FeatureHelpers.RefreshFeatures(BuildTargetGroup.Standalone);
+            FeatureHelpers.RefreshFeatures(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget));
 #endif
 
             // Enable all build features
             var featureTypes = new List<Type>();
             QueryBuildFeatures(featureTypes);
             featureTypes.Add(typeof(MockRuntime));
-            foreach (var feature in featureTypes.Select(featureType => OpenXRSettings.ActiveBuildTargetInstance.GetFeature(featureType)).Where(feature => null != feature))
+            foreach (var feature in featureTypes.Select(
+                         featureType => OpenXRSettings.ActiveBuildTargetInstance.GetFeature(featureType))
+                         .Where(feature => null != feature))
             {
                 feature.enabled = true;
             }
@@ -130,8 +133,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Override to return a list of feature types that should be enabled in the build
         /// </summary>
         protected virtual void QueryBuildFeatures(List<Type> featureTypes)
-        {
-        }
+        { }
 
         // NOTE: If you override this function, do NOT add the SetUp test attribute.
         // If you do the overriden function and this function will be called separately
@@ -167,7 +169,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var features = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
             foreach (var f in features.Features)
             {
-                if (String.Compare(f.Feature.featureIdInternal, MockRuntime.featureId, true) == 0)
+                if (string.Compare(f.Feature.featureIdInternal, MockRuntime.featureId, true) == 0)
                 {
                     var path = Path.GetFullPath(f.PluginPath + "/unity-mock-runtime.json");
                     Environment.SetEnvironmentVariable("XR_RUNTIME_JSON", path);
@@ -180,7 +182,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         public IEnumerator TearDown()
         {
             AfterTest();
-
             yield return null;
         }
 
@@ -199,7 +200,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             OpenXRRestarter.Instance.ResetCallbacks();
             StopAndShutdown();
             EnableMockRuntime(false);
-            MockRuntime.Instance.TestCallback = (methodName, param) => true;
+            MockRuntime.Instance.TestCallback = (_, _) => true;
             MockRuntime.KeepFunctionCallbacks = false;
             MockRuntime.ClearFunctionCallbacks();
 
@@ -211,7 +212,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             WaitForRestarterToFinish();
         }
 
-        private IEnumerable WaitForRestarterToFinish()
+        IEnumerable WaitForRestarterToFinish()
         {
             // It is possible that a test may have done something to initiate the OpenXRRestarter.  To ensure
             // that the restarter does not impact other tests we must make sure it finishes before continuing.
@@ -221,31 +222,41 @@ namespace UnityEngine.XR.OpenXR.Tests
             OpenXRRestarter.DisableApplicationQuit = oldDisableApplicationQuit;
         }
 
+        [OneTimeSetUp]
         public override void Setup()
         {
+            if (m_HasSetupRun)
+                return;
+
             SetupTest();
             EnableMockRuntime();
             base.Setup();
+            m_HasSetupRun = true;
         }
 
+        [OneTimeTearDown]
         public override void Cleanup()
         {
+            if (!m_HasSetupRun)
+                return;
+
             base.Cleanup();
             TearDownTest();
             EnableMockRuntime(false);
+            m_HasSetupRun = false;
         }
 
-        static Dictionary<XrSessionState, HashSet<XrSessionState>> s_AllowedStateTransitions = new Dictionary<XrSessionState, HashSet<XrSessionState>>()
+        static Dictionary<XrSessionState, HashSet<XrSessionState>> s_AllowedStateTransitions = new()
         {
-            {XrSessionState.Unknown, new HashSet<XrSessionState>() {XrSessionState.Unknown}},
-            {XrSessionState.Idle, new HashSet<XrSessionState>() {XrSessionState.Unknown, XrSessionState.Unknown, XrSessionState.Exiting, XrSessionState.LossPending, XrSessionState.Stopping}},
-            {XrSessionState.Ready, new HashSet<XrSessionState>() {XrSessionState.Idle}},
-            {XrSessionState.Synchronized, new HashSet<XrSessionState>() {XrSessionState.Ready, XrSessionState.Visible}},
-            {XrSessionState.Visible, new HashSet<XrSessionState>() {XrSessionState.Synchronized, XrSessionState.Focused}},
-            {XrSessionState.Focused, new HashSet<XrSessionState>() {XrSessionState.Visible}},
-            {XrSessionState.Stopping, new HashSet<XrSessionState>() {XrSessionState.Synchronized}},
-            {XrSessionState.LossPending, new HashSet<XrSessionState>() {XrSessionState.Unknown, XrSessionState.Idle, XrSessionState.Ready, XrSessionState.Synchronized, XrSessionState.Visible, XrSessionState.Focused, XrSessionState.Stopping, XrSessionState.Exiting, XrSessionState.LossPending}},
-            {XrSessionState.Exiting, new HashSet<XrSessionState>() {XrSessionState.Idle}},
+            { XrSessionState.Unknown, new HashSet<XrSessionState> { XrSessionState.Unknown } },
+            { XrSessionState.Idle, new HashSet<XrSessionState> { XrSessionState.Unknown, XrSessionState.Unknown, XrSessionState.Exiting, XrSessionState.LossPending, XrSessionState.Stopping } },
+            { XrSessionState.Ready, new HashSet<XrSessionState> { XrSessionState.Idle } },
+            { XrSessionState.Synchronized, new HashSet<XrSessionState> { XrSessionState.Ready, XrSessionState.Visible } },
+            { XrSessionState.Visible, new HashSet<XrSessionState> { XrSessionState.Synchronized, XrSessionState.Focused } },
+            { XrSessionState.Focused, new HashSet<XrSessionState> { XrSessionState.Visible } },
+            { XrSessionState.Stopping, new HashSet<XrSessionState> { XrSessionState.Synchronized } },
+            { XrSessionState.LossPending, new HashSet<XrSessionState> { XrSessionState.Unknown, XrSessionState.Idle, XrSessionState.Ready, XrSessionState.Synchronized, XrSessionState.Visible, XrSessionState.Focused, XrSessionState.Stopping, XrSessionState.Exiting, XrSessionState.LossPending } },
+            { XrSessionState.Exiting, new HashSet<XrSessionState> { XrSessionState.Idle } },
         };
 
         public void CheckValidStateTransition(XrSessionState oldState, XrSessionState newState)
@@ -255,11 +266,10 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             Debug.LogWarning($"Attempting to transition from {oldState} to {newState}");
             if (!hasNewState)
-                Debug.LogError($"Has {newState} : {hasNewState}");
+                Debug.LogError($"Has {newState} : {false}");
 
             if (!canTransitionTo)
-                Debug.LogError($"Can transition from {oldState} to {newState} : {canTransitionTo}");
-
+                Debug.LogError($"Can transition from {oldState} to {newState} : {false}");
 
             NUnit.Framework.Assert.IsTrue(hasNewState);
             NUnit.Framework.Assert.IsTrue(canTransitionTo);

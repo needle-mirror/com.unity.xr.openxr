@@ -9,7 +9,7 @@ OpenXR is an open, royalty-free standard developed by Khronos that aims to simpl
 
 This version of OpenXR is compatible with the following versions of the Unity Editor:
 
-* 2021.3 LTS+
+* 2022.3 LTS+
 
 ## Runtimes
 
@@ -18,7 +18,6 @@ Unity's OpenXR plug-in should work with any device that supports conformant Open
 |**Runtime**|**Build target**|**Preferred Graphics API**|**Feature Parity**|**Known Limitations**|
 |---|---|---|---|---|
 |Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/mixed-reality-openxr-plugin)||
-|HoloLens 2|UWP arm64|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/mixed-reality-openxr-plugin)||
 |Oculus PC + Link|Windows 64-bit|DX11|HMD + Controllers|Oculus Integration package features not available|
 |Meta Quest|Android arm64|Vulkan|HMD + Controllers via [Meta Quest Support Feature](./features/metaquest.md)|
 |Magic Leap 2|Android x64|Vulkan|Full feature parity via [Magic Leap Unity Overview OpenXR](https://developer-docs.magicleap.cloud/docs/guides/unity/unity-overview-openxr/)||
@@ -30,7 +29,7 @@ To help the community as a whole, Unity will continue to submit any runtime issu
 
 Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
 
-This release is linked against the OpenXR-SDK version [1.1.45](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.45).
+This release is linked against the OpenXR-SDK version [1.1.49](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.49).
 
 Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
 
@@ -65,7 +64,7 @@ For more information on how project validation works in OpenXR, see [Project val
 
 ## Troubleshooting
 
-If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/2021.3/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
+If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/2022.3/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
 
 Unity generates a diagnostic log in either the Player or Editor log, depending on where you run the application. The diagnostic log starts with `==== Start Unity OpenXR Diagnostic Report ====` and ends with `==== End Unity OpenXR Diagnostic Report ====` log entries. It contains information about your application, Unity version, OpenXR runtime, OpenXR Extensions, and other aspects that can help diagnose issues.
 
@@ -97,7 +96,6 @@ The most important part of the diagnostic log is the section marked `==== OpenXR
 
 ## Known issues
 
-* For projects targeting HoloLens 2 that are using Out of the Box Unity OpenXR support, **Project Settings - &gt; Player - &gt; Resolution and Presentation - &gt; Run in Background** must be enabled. For projects that are using the Microsoft OpenXR extended support package this is not required.
 * An issue with an invalid stage space during startup may cause problems with the XR Origin component from the `com.unity.xr.interaction.toolkit` package, or the camera offset component in the `com.unity.xr.legacyinputhelpers` package. These packages will be updated shortly to contain fixes for this issue. Until then the workaround is to use the `Floor` Device Tracking Option setting.
 * OpenXR doesn't currently provide a way to get Acceleration and AngularAcceleration values on input devices, so these values will always be zero.
 

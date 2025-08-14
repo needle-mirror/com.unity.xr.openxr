@@ -12,7 +12,7 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// <summary>
     /// Defines tests that validate the MockRuntime itself.
     /// </summary>
-    internal class MockRuntimeTests : OpenXRLoaderSetup
+    class MockRuntimeTests : OpenXRLoaderSetup
     {
         [UnityTest]
         public IEnumerator TransitionToState()
@@ -44,7 +44,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         public IEnumerator CreateSessionFailure()
         {
             bool sawCreateSession = false;
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (methodName, _) =>
             {
                 if (methodName == nameof(OpenXRFeature.OnSessionCreate))
                 {
@@ -54,16 +54,16 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return true;
             };
 
-            MockRuntime.SetFunctionCallback("xrCreateSession", (name) => XrResult.RuntimeFailure);
+            MockRuntime.SetFunctionCallback("xrCreateSession", _ => XrResult.RuntimeFailure);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
             Assert.IsFalse(sawCreateSession);
         }
 
-        static XrResult[] beginSessionSuccessResults = new XrResult[]
+        static XrResult[] beginSessionSuccessResults =
         {
             XrResult.Success,
             XrResult.LossPending
@@ -85,9 +85,9 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return true;
             };
 
-            MockRuntime.SetFunctionCallback("xrBeginSession", (name) => successResult);
+            MockRuntime.SetFunctionCallback("xrBeginSession", (_) => successResult);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
@@ -126,13 +126,13 @@ namespace UnityEngine.XR.OpenXR.Tests
                 return true;
             };
 
-            MockRuntime.SetFunctionCallback("xrBeginSession", (name) => XrResult.RuntimeFailure);
+            MockRuntime.SetFunctionCallback("xrBeginSession", _ => XrResult.RuntimeFailure);
 
             InitializeAndStart();
 
             yield return null;
 
-            Assert.IsTrue(base.IsRunning<XRDisplaySubsystem>());
+            Assert.IsTrue(IsRunning<XRDisplaySubsystem>());
 
             Assert.IsTrue(states.Contains(XrSessionState.Ready));
             Assert.IsFalse(states.Contains(XrSessionState.Synchronized));
@@ -193,7 +193,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         public IEnumerator CauseInstanceLoss()
         {
             bool instanceLost = false;
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (methodName, _) =>
             {
                 if (methodName == nameof(OpenXRFeature.OnInstanceLossPending))
                 {
@@ -219,7 +219,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (methodName, _) =>
             {
                 if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
                 {
@@ -240,7 +240,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator DisplayOpaque()
         {
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
             var displays = new List<XRDisplaySubsystem>();
@@ -253,7 +253,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             //Mock available environmentBlendModes are Opaque and Additive in mock_runtime.cpp EnumerateEnvironmentBlendModes.
             AddExtension(MockRuntime.XR_UNITY_mock_test);
-            base.InitializeAndStart();
+            InitializeAndStart();
             yield return null;
 
             //check default mode is Opaque.
@@ -275,11 +275,11 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
-            Assert.IsTrue(base.IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
+            Assert.IsTrue(IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
 
             MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 { x = 1.0f, y = 3.0f });
 
@@ -309,11 +309,11 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
-            Assert.IsTrue(base.IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
+            Assert.IsTrue(IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
 
             var input = Loader.GetLoadedSubsystem<XRInputSubsystem>();
             Assert.That(() => input, Is.Not.Null);
@@ -332,11 +332,11 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             yield return null;
 
-            Assert.IsTrue(base.IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
+            Assert.IsTrue(IsRunning<XRInputSubsystem>(), "Input subsystem failed to properly start!");
 
             MockRuntime.SetReferenceSpaceBounds(XrReferenceSpaceType.Stage, new Vector2 { x = 1.0f, y = 3.0f });
 
@@ -367,7 +367,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             var createInstanceCalled = false;
 
-            MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
+            MockRuntime.SetFunctionCallback("xrCreateInstance", _ =>
             {
                 createInstanceCalled = true;
                 return XrResult.Success;
@@ -385,7 +385,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             var createInstanceCalled = false;
 
-            MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
+            MockRuntime.SetFunctionCallback("xrCreateInstance", _ =>
             {
                 createInstanceCalled = true;
                 return XrResult.RuntimeFailure;
@@ -406,7 +406,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var createInstanceCalled = false;
             var createInstanceSuccess = false;
 
-            MockRuntime.SetFunctionCallback("xrCreateInstance", (name, result) =>
+            MockRuntime.SetFunctionCallback("xrCreateInstance", (_, result) =>
             {
                 createInstanceCalled = true;
                 createInstanceSuccess = result == XrResult.Success;
@@ -423,7 +423,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator CallbacksClearedOnLoaderShutdown()
         {
-            MockRuntime.SetFunctionCallback("xrBeginSession", (func) => XrResult.Success);
+            MockRuntime.SetFunctionCallback("xrBeginSession", _ => XrResult.Success);
 
             InitializeAndStart();
 
@@ -431,7 +431,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             StopAndShutdown();
 
-            Assert.IsTrue(OpenXRLoader.Instance == null, "OpenXR should not be running");
+            Assert.IsTrue(OpenXRLoaderBase.Instance == null, "OpenXR should not be running");
             Assert.IsNull(MockRuntime.GetBeforeFunctionCallback("xrBeginSession"), "Callback should have been cleared when loader shut down");
         }
     }

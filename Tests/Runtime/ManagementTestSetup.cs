@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.Management;
@@ -10,7 +9,7 @@ using UnityEngine.XR.Management;
 namespace UnityEngine.XR.TestTooling
 {
     // Mostly borrowed from XRManagement - this should probably live in that package.
-    internal abstract class ManagementTestSetup
+    abstract class ManagementTestSetup
     {
         protected static readonly string[] s_TestGeneralSettings = { "Temp", "Test" };
         protected static readonly string[] s_TempSettingsPath = { "Temp", "Test", "Settings" };
@@ -27,10 +26,10 @@ namespace UnityEngine.XR.TestTooling
         private UnityEngine.Object currentSettings = null;
 #pragma warning restore 0414
 
-        protected XRManagerSettings testManager = null;
-        protected XRGeneralSettings xrGeneralSettings = null;
+        protected XRManagerSettings testManager;
+        protected XRGeneralSettings xrGeneralSettings;
 #if UNITY_EDITOR
-        protected XRGeneralSettingsPerBuildTarget buildTargetSettings = null;
+        protected XRGeneralSettingsPerBuildTarget buildTargetSettings;
 #endif
 
         public virtual void SetupTest()
@@ -44,6 +43,7 @@ namespace UnityEngine.XR.TestTooling
                     var projectSettingsWindow = EditorWindow.GetWindow(wt);
                     if (projectSettingsWindow != null)
                     {
+                        Debug.Log($"{nameof(ManagementTestSetup)} is closing the Project Settings window to run tests.");
                         projectSettingsWindow.Close();
                     }
                 }
@@ -69,12 +69,13 @@ namespace UnityEngine.XR.TestTooling
 
             testManager = ScriptableObject.CreateInstance<XRManagerSettings>();
 
-            xrGeneralSettings = ScriptableObject.CreateInstance<XRGeneralSettings>() as XRGeneralSettings;
+            xrGeneralSettings = ScriptableObject.CreateInstance<XRGeneralSettings>();
             XRGeneralSettings.Instance = xrGeneralSettings;
 
             xrGeneralSettings.Manager = testManager;
             buildTargetSettings.SetSettingsForBuildTarget(BuildTargetGroup.Standalone, xrGeneralSettings);
-            buildTargetSettings.SetSettingsForBuildTarget(BuildPipeline.GetBuildTargetGroup(UnityEditor.EditorUserBuildSettings.activeBuildTarget), xrGeneralSettings);
+            buildTargetSettings.SetSettingsForBuildTarget(
+                BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget), xrGeneralSettings);
 
             AssetDatabase.CreateAsset(xrGeneralSettings, testPathToSettings);
             AssetDatabase.AddObjectToAsset(testManager, xrGeneralSettings);
@@ -124,7 +125,6 @@ namespace UnityEngine.XR.TestTooling
 
             return path;
         }
-
 #endif
     }
 }

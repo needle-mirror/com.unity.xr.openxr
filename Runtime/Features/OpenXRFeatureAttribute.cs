@@ -67,8 +67,63 @@ namespace UnityEditor.XR.OpenXR.Features
         /// Only one feature per platform can have a custom runtime loader.
         /// Unity will skip copying the default loader to the build and use this feature's loader instead on these platforms.
         /// Loader must be placed alongside the OpenXRFeature script or in a subfolder of it.
+        ///
+        /// If this field is populated, it signifies that this OpenXRFeature provides its own OpenXR Loader
         /// </summary>
         public BuildTarget[] CustomRuntimeLoaderBuildTargets;
+
+        /// <summary>
+        /// OpenXR API version that the <see cref="OpenXRFeature"/>'s custom runtime loader (that is, openxr_loader.dll) supports, as a string.
+        /// Refer to <see href="https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#fundamentals-api-version-numbers-and-semantics">OpenXR: API Version Numbers and Semantics</see>
+        /// for specific details on the OpenXR versioning format.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unity uses the custom runtime loader with the highest OpenXR loader version supported
+        /// and the highest <see cref="Priority"/> set.
+        /// </para>
+        /// <para>
+        /// If no <see cref="CustomRuntimeLoaderVersion"/> is provided, Unity overrides all other custom loaders with the
+        /// one provided in this feature. Only one feature per platform can override all other custom runtime loaders.
+        /// </para>
+        /// <para>
+        /// If more than one feature attempts to override other custom loaders on the same platform,
+        /// Unity emits an error when an application developer attempts to enter Play mode or build
+        /// their application. To successfully build a project, the application developer must
+        /// disable all but one of the conflicting features. To avoid this scenario, you should only
+        /// override other custom loaders when absolutely necessary.
+        /// </para>
+        /// <para>
+        /// If no <see cref="CustomRuntimeLoaderBuildTargets"/> is specified for the OpenXRFeature, this field is ignored. CustomRuntimeLoaderBuildTargets must be populated to
+        /// signal that this OpenXRFeature provides its own OpenXR Loader
+        /// </para>
+         /// <para>
+        /// This field does not control the OpenXR API version that is used when launching the application. Use <see cref="TargetOpenXRApiVersion"/> to indicate that the application should
+        /// target a specific version of the OpenXR API.
+        /// </para>
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// [OpenXRFeature(
+        ///     CustomRuntimeLoaderBuildTargets = new []{ BuildTarget.StandaloneWindows64 },
+        ///     CustomRuntimeLoaderVersion = "1.1.45")]
+        /// public class MyCustomLoaderFeature : OpenXRFeature
+        /// {
+        ///     // Implementation code for the custom loader feature
+        /// }
+        /// </code>
+        ///
+        /// Examples of supported version strings:
+        /// - "1.1.45"
+        /// - "1.0.40"
+        /// - "1.0.0"
+        ///
+        /// Example of unsupported version strings:
+        /// - "1.0" (requires 3 version numbers major, minor, and patch)
+        /// - "1.1.45.0" (extra version numbers)
+        /// - "1.4.0f" (version numbers can't include a letter)
+        /// </example>
+        public string CustomRuntimeLoaderVersion;
 
         /// <summary>
         /// BuildTargetsGroups that this feature supports. The feature will only be shown or included on these platforms.
@@ -92,6 +147,38 @@ namespace UnityEditor.XR.OpenXR.Features
         /// be called first in the event list.
         /// </summary>
         [CopyField(nameof(OpenXRFeature.priority))] public int Priority = 0;
+
+        /// <summary>
+        /// The OpenXR API version required by the <see cref="OpenXRFeature"/> for full functionality
+        /// Refer to <see href="https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#fundamentals-api-version-numbers-and-semantics">OpenXR: API Version Numbers and Semantics</see>
+        /// for specific details on the OpenXR versioning format.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Unity applications will use the highest OpenXR API version requested among all OpenXR Features and the default loader.
+        /// If the targetted OpenXR API Version is lower than the version specified by the default loader, the default version is used instead.
+        /// </para>
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// [OpenXRFeature(
+        ///     TargetOpenXRApiVersion = "1.1.45")]
+        /// public class MyCustomLoaderFeature : OpenXRFeature
+        /// {
+        /// }
+        /// </code>
+        ///
+        /// Examples of supported version strings:
+        /// - "1.1.45"
+        /// - "1.0.40"
+        /// - "1.0.0"
+        ///
+        /// Example of unsupported version strings:
+        /// - "1.0" (requires 3 version numbers major, minor, and patch)
+        /// - "1.1.45.0" (extra version numbers)
+        /// - "1.4.0f" (version numbers can't include a letter)
+        /// </example>
+        [CopyField(nameof(OpenXRFeature.targetOpenXRApiVersion))] public string TargetOpenXRApiVersion;
 
         /// <summary>
         /// A well known string id for this feature. It is recommended that that id be in reverse DNS naming format (com.foo.bar.feature).

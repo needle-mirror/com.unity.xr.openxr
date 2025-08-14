@@ -13,7 +13,7 @@ using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class FeatureTests : OpenXRLoaderSetup
+    class FeatureTests : OpenXRLoaderSetup
     {
         [Test]
         public void EnableFeatures()
@@ -107,12 +107,12 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void GetFeaturesWithIdsReturnsFeatures()
         {
-            var featureIds = new string[] { MockRuntime.featureId, EyeGazeInteraction.featureId };
+            var featureIds = new[] { MockRuntime.featureId, EyeGazeInteraction.featureId };
             var features = FeatureHelpers.GetFeaturesWithIdsForActiveBuildTarget(featureIds);
             Assert.IsNotNull(features);
             Assert.IsTrue(features.Length == 2);
 
-            var expectedTypes = new Type[] { typeof(MockRuntime), typeof(EyeGazeInteraction) };
+            var expectedTypes = new[] { typeof(MockRuntime), typeof(EyeGazeInteraction) };
             foreach (var feature in features)
             {
                 Assert.IsTrue(Array.IndexOf(expectedTypes, feature.GetType()) > -1);

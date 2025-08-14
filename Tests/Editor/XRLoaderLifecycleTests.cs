@@ -11,7 +11,7 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class XRLoaderLifecycleTests : OpenXRLoaderSetup
+    class XRLoaderLifecycleTests : OpenXRLoaderSetup
     {
         [Test]
         public void FullLifecycleOrder()
@@ -19,7 +19,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             bool subsystemCreate = false;
             bool subsystemStart = false;
             bool hookInstanceProc = false;
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (methodName, _) =>
             {
                 switch (methodName)
                 {
@@ -45,7 +45,7 @@ namespace UnityEditor.XR.OpenXR.Tests
                 return true;
             };
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             ProcessOpenXRMessageLoop();
 
@@ -55,7 +55,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             bool subsystemStop = false;
             bool subsystemDestroy = false;
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (methodName, _) =>
             {
                 switch (methodName)
                 {
@@ -72,7 +72,7 @@ namespace UnityEditor.XR.OpenXR.Tests
                 return true;
             };
 
-            base.StopAndShutdown();
+            StopAndShutdown();
 
             Assert.IsTrue(subsystemStop);
             Assert.IsTrue(subsystemDestroy);
@@ -117,7 +117,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             };
 
             MockRuntime.Instance.required = required;
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             Assert.IsTrue(instanceCreated);
             Assert.IsTrue(hookInstanceProcAddr);
@@ -131,7 +131,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             if (!result && !required)
                 Assert.IsFalse(MockRuntime.Instance.enabled);
 
-            base.StopAndShutdown();
+            StopAndShutdown();
 
             if (result)
                 Assert.IsTrue(other);
@@ -144,13 +144,13 @@ namespace UnityEditor.XR.OpenXR.Tests
         public void DeinitWithoutInit()
         {
             bool callback = false;
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
+            MockRuntime.Instance.TestCallback = (_, _) =>
             {
                 callback = true;
                 return true;
             };
 
-            base.StopAndShutdown();
+            StopAndShutdown();
 
             Assert.IsFalse(callback);
         }

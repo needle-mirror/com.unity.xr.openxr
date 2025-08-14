@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.16.0-pre.1] - 2025-08-14
+
+### Added
+
+* Added support for OpenXR features to define the OpenXR API version required to fully function.
+* Added members to the `XrStructureType` enum. `XrStructureType` now contains all OpenXR values as of OpenXR version 1.1.49.
+* Added support for multiple OpenXR features to define a custom loader and define the OpenXR API version that is supported by the feature's loader.
+* Added the [OpenXR native API](xref:openxr-native-api) with initial support for the following extensions:
+  * `XR_EXT_future`
+  * `XR_EXT_spatial_anchor`
+  * `XR_EXT_spatial_entity`
+  * `XR_EXT_spatial_marker_tracking`
+  * `XR_EXT_spatial_persistence`
+  * `XR_EXT_spatial_persistence_operations`
+  * `XR_EXT_spatial_plane_tracking`
+* Added `RenderTexture` support for Composition Layers.
+* Added class `MockOpenXREnvironment` and `MockOpenXREnvironmentSettings` for testing low-level runtime functionality using the Mock Runtime feature.
+* Added [PollEventRouter](xref:UnityEngine.XR.OpenXR.NativeTypes.PollEventRouter), a new type that allows you to subscribe to `xrPollEvent` events.
+* Added feature to enable Automatic Viewport Dynamic Resolution for compatible devices. Refer to [Automatic Viewport Dynamic Resolution](xref:openxr-automatic-dynamic-resolution) for information.
+* Added MSAA support for Windows+Vulkan builds.
+
+### Changed
+* Changed OpenXR loader version to 1.1.49.
+* Changed sample count of SwapchainCreateInfo to 1 as default instead of recommendedSwapchainSampleCount returning from the runtime.
+* Updated minimum supported version from 2021.3 to 2022.3.
+* Changed the OpenXR Validation for the minimum Android API level to only apply to Unity 6.2 and older versions.
+
+### Removed
+* Removed the validation warning to enable the OpenXR package if an OpenXR feature is enabled. Instead, OpenXR validation will only run when the OpenXR loader is selected as active loader.
+* Remove HoloLens documentation as Unity has deprecated its support. Refer to [the public announcement](https://discussions.unity.com/t/hololens-2-deprecation/1661529) for more information.
+
 ## [1.15.1] - 2025-07-23
 
 ### Fixed

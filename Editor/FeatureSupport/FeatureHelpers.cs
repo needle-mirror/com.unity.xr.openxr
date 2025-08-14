@@ -11,7 +11,7 @@ using UnityEngine.XR.OpenXR;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
 namespace UnityEditor.XR.OpenXR.Features
 {
     /// <summary>
@@ -100,12 +100,10 @@ namespace UnityEditor.XR.OpenXR.Features
 
     internal static class FeatureHelpersInternal
     {
-        private static bool hasLoggedOpenXRSettingsWarning = false;
-
         public class AllFeatureInfo
         {
             public List<FeatureInfo> Features;
-            public BuildTarget[] CustomLoaderBuildTargets;
+            public FeatureInfo? ActiveCustomLoaderFeature;
         }
 
         public enum FeatureInfoCategory
@@ -120,6 +118,8 @@ namespace UnityEditor.XR.OpenXR.Features
             public OpenXRFeatureAttribute Attribute;
             public OpenXRFeature Feature;
             public FeatureInfoCategory Category;
+            public OpenXRApiVersion LoaderVersion;
+            public bool HasLoaderForBuildTarget;
         }
 
         private static FeatureInfoCategory DetermineExtensionCategory(string extensionCategoryString)
@@ -139,7 +139,11 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>feature info</returns>
         public static AllFeatureInfo GetAllFeatureInfo(BuildTargetGroup group)
         {
-            AllFeatureInfo ret = new AllFeatureInfo { Features = new List<FeatureInfo>() };
+            AllFeatureInfo ret = new()
+            {
+                Features = new List<FeatureInfo>(),
+                ActiveCustomLoaderFeature = null
+            };
             var openXrPackageSettings = OpenXRPackageSettings.GetOrCreateInstance();
             var openXrSettings = openXrPackageSettings.GetSettingsForBuildTargetGroup(group);
             if (openXrSettings == null)
@@ -160,12 +164,6 @@ namespace UnityEditor.XR.OpenXR.Features
 
                     if (candidateAssets.Any(obj => obj != null && obj.name == openXrPackageSettings.name))
                     {
-                        if (path.StartsWith("Packages/") && !hasLoggedOpenXRSettingsWarning)
-                        {
-                            Debug.LogWarning("OpenXR settings assets are stored inside a package and won't persist changes. Please move it under Assets/XR/Settings.");
-                            hasLoggedOpenXRSettingsWarning = true;
-                        }
-
                         openXrExtensionAssets = candidateAssets;
                         break;
                     }
@@ -192,9 +190,6 @@ namespace UnityEditor.XR.OpenXR.Features
                     }
                 }
             }
-
-            // only one custom loader is allowed per platform.
-            string customLoaderExtName = "";
 
             // Find any extensions that haven't yet been added to the feature list and create instances of them
             List<OpenXRFeature> all = new List<OpenXRFeature>();
@@ -231,23 +226,28 @@ namespace UnityEditor.XR.OpenXR.Features
                         var dir = "";
                         if (!String.IsNullOrEmpty(path))
                             dir = Path.GetDirectoryName(path);
-                        ret.Features.Add(new FeatureInfo()
+                        var featureInfo = new FeatureInfo()
                         {
                             PluginPath = dir,
                             Attribute = extAttr,
                             Feature = extObj,
                             Category = DetermineExtensionCategory(extAttr.Category)
-                        });
+                        };
 
-                        if (enabled && extAttr.CustomRuntimeLoaderBuildTargets?.Length > 0)
+                        if (extAttr.CustomRuntimeLoaderBuildTargets?.Length > 0)
                         {
-                            if (ret.CustomLoaderBuildTargets != null && (bool)extAttr.CustomRuntimeLoaderBuildTargets?.Intersect(ret.CustomLoaderBuildTargets).Any())
+                            featureInfo.HasLoaderForBuildTarget = extAttr.CustomRuntimeLoaderBuildTargets
+                                .Select(target => BuildPipeline.GetBuildTargetGroup(target))
+                                .Where(targetGroup => targetGroup == group)
+                                .Any();
+
+                            if (featureInfo.HasLoaderForBuildTarget)
                             {
-                                Debug.LogError($"Only one OpenXR feature may have a custom runtime loader per platform. Disable {customLoaderExtName} or {extAttr.UiName}.");
+                                featureInfo.LoaderVersion =
+                                    OpenXRApiVersion.TryParse(extAttr.CustomRuntimeLoaderVersion, out var version) ? version : null;
                             }
-                            ret.CustomLoaderBuildTargets = extAttr.CustomRuntimeLoaderBuildTargets?.Union(ret?.CustomLoaderBuildTargets ?? new BuildTarget[] { }).ToArray();
-                            customLoaderExtName = extAttr.UiName;
                         }
+                        ret.Features.Add(featureInfo);
 
                         all.Add(extObj);
                         break;
@@ -306,7 +306,84 @@ namespace UnityEditor.XR.OpenXR.Features
 #endif
             }
 
+            // Decide which loader to use and API version to request
+            if (TryFindCustomLoaderWithHighestPriority(ret.Features, out var customLoader))
+            {
+                ret.ActiveCustomLoaderFeature = customLoader;
+            }
+
+            // Save all changes to the openXrSettings at the end.
+            if (EditorUtility.IsDirty(openXrSettings))
+            {
+                AssetDatabase.SaveAssetIfDirty(openXrSettings);
+            }
+
             return ret;
         }
+
+        internal static bool TryFindCustomLoaderWithHighestPriority(IEnumerable<FeatureInfo> features, out FeatureInfo loaderFeatureInfo)
+        {
+            var activeCustomLoaderFeatures = features
+                .Where(feature => feature.Feature.enabled && feature.HasLoaderForBuildTarget);
+
+            if (!activeCustomLoaderFeatures.Any())
+            {
+                loaderFeatureInfo = default;
+                return false;
+            }
+
+            if (TryGetForcedLoaderOverride(activeCustomLoaderFeatures, out var loader))
+            {
+                // Using the forced custom loader override, when a feature doesn't specify an API version
+                Debug.Log($"Using forced custom loader override provided by the OpenXR Feature {loader.Feature.nameUi}, with version {loader.LoaderVersion}");
+                loaderFeatureInfo = loader;
+                return true;
+            }
+
+            // Find loader with highest version
+            var loaderFeatureWithHighestApiVersion = activeCustomLoaderFeatures
+                .Where(feature => feature.LoaderVersion > OpenXRApiVersion.Current); // Ignore custom loaders with lower version than default loader
+
+            if (loaderFeatureWithHighestApiVersion.Any())
+            {
+                // Pick loader with highest version and highest Feature order priority
+                loaderFeatureInfo = loaderFeatureWithHighestApiVersion
+                    .GroupBy(feature => feature.LoaderVersion)
+                    .OrderByDescending(group => group.First().LoaderVersion)
+                    .First()
+                    .OrderByDescending(feature => feature.Attribute.Priority)
+                    .First();
+                return true;
+            }
+
+            // Return default loader
+            loaderFeatureInfo = default;
+            return false;
+        }
+
+        private static bool TryGetForcedLoaderOverride(
+            IEnumerable<FeatureInfo> customLoaderFeatures,
+            out FeatureInfo overrideLoaderFeature)
+        {
+            var overrideLoaderFeatures = customLoaderFeatures
+                .Where(feature => feature.LoaderVersion == null);
+            if (overrideLoaderFeatures.Count() > 1)
+            {
+                Debug.LogError(
+                    "Only one OpenXR feature may force a custom runtime loader override per platform." +
+                    "Verify that only one of the following extensions doesn't specify a custom loader OpenXR API version:" +
+                    $"{string.Join(",", overrideLoaderFeatures.Select(features => features.Attribute.UiName))}.");
+            }
+
+            if (overrideLoaderFeatures.Any())
+            {
+                overrideLoaderFeature = overrideLoaderFeatures.First();
+                return true;
+            }
+
+            overrideLoaderFeature = default;
+            return false;
+        }
+
     }
 }

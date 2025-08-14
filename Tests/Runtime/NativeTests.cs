@@ -1,11 +1,9 @@
 using NUnit.Framework;
 using UnityEngine.XR.OpenXR.Input;
-using System.Text;
-using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class NativeTests : OpenXRLoaderSetup
+    class NativeTests : OpenXRLoaderSetup
     {
         public override void BeforeTest()
         {
@@ -52,7 +50,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [Test]
         public void OpenXRInput_TryGetInputSourceName_BeforeInitializing()
         {
-            Assert.IsFalse(OpenXRInput.Internal_TryGetInputSourceName(0, 0, 0, 0, out var name));
+            Assert.IsFalse(OpenXRInput.Internal_TryGetInputSourceName(0, 0, 0, 0, out _));
         }
 
         [Test]

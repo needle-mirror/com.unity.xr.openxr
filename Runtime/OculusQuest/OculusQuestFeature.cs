@@ -82,6 +82,8 @@ namespace UnityEngine.XR.OpenXR.Features.OculusQuestSupport
                     }
                 }
             });
+
+            base.GetValidationChecks(rules, targetGroup);
         }
 
         [Obsolete("OpenXR.Features.OculusQuestSupport.OculusQuestFeatureEditorWindow is deprecated.", false)]

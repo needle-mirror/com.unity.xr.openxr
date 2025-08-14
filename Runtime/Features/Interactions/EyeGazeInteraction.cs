@@ -90,6 +90,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                     fixIt = () => PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true)
                 });
             }
+
+            base.GetValidationChecks(results, target);
         }
 
 #endif

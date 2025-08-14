@@ -375,10 +375,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 #if UNITY_VIDEO
                 isVideo = container.VideoPlayer != null && container.VideoPlayer.enabled;
 #endif
-                var isUI = container.MeshCollider != null && container.MeshCollider.enabled;
+                var isRenderTexture = container.Texture is RenderTexture;
 
-                // Layers that have a new texture or have video or ui components must always have their swapchain image written to.
-                if (container.IsNewTexture || isVideo || isUI)
+                // Layers that have a new texture or have video or are a RenderTexture must always have their swapchain image written to.
+                if (container.IsNewTexture || isVideo || isRenderTexture)
                 {
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
                     SwapchainImageInfo.IsWritten = true;

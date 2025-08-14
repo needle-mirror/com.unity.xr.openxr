@@ -1,8 +1,8 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.15.1",
-  "unity": "2021.3",
+  "version": "1.16.0-pre.1",
+  "unity": "2022.3",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
     "openxr",
@@ -44,15 +44,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Fixed\n\n* Fixed compile errors due to `AssetDatabase.CanOpenAssetInEditor(int)` and `AssetDatabase.OpenAsset(int)` were deprecated in Unity 6.3 and newer.\n* Fixed an issue in which the wrong normalized device coordinates (NDC) convention was used for SpaceWarp motion vectors. Application developers must now specify whether the current device uses right- or left-handed NDC for motion vectors when SpaceWarp is enabled."
+    "changelog": "### Added\n\n* Added support for OpenXR features to define the OpenXR API version required to fully function.\n* Added members to the `XrStructureType` enum. `XrStructureType` now contains all OpenXR values as of OpenXR version 1.1.49.\n* Added support for multiple OpenXR features to define a custom loader and define the OpenXR API version that is supported by the feature's loader.\n* Added the [OpenXR native API](xref:openxr-native-api) with initial support for the following extensions:\n  * `XR_EXT_future`\n  * `XR_EXT_spatial_anchor`\n  * `XR_EXT_spatial_entity`\n  * `XR_EXT_spatial_marker_tracking`\n  * `XR_EXT_spatial_persistence`\n  * `XR_EXT_spatial_persistence_operations`\n  * `XR_EXT_spatial_plane_tracking`\n* Added `RenderTexture` support for Composition Layers.\n* Added class `MockOpenXREnvironment` and `MockOpenXREnvironmentSettings` for testing low-level runtime functionality using the Mock Runtime feature.\n* Added [PollEventRouter](xref:UnityEngine.XR.OpenXR.NativeTypes.PollEventRouter), a new type that allows you to subscribe to `xrPollEvent` events.\n* Added feature to enable Automatic Viewport Dynamic Resolution for compatible devices. Refer to [Automatic Viewport Dynamic Resolution](xref:openxr-automatic-dynamic-resolution) for information.\n* Added MSAA support for Windows+Vulkan builds.\n\n### Changed\n* Changed OpenXR loader version to 1.1.49.\n* Changed sample count of SwapchainCreateInfo to 1 as default instead of recommendedSwapchainSampleCount returning from the runtime.\n* Updated minimum supported version from 2021.3 to 2022.3.\n* Changed the OpenXR Validation for the minimum Android API level to only apply to Unity 6.2 and older versions.\n\n### Removed\n* Removed the validation warning to enable the OpenXR package if an OpenXR feature is enabled. Instead, OpenXR validation will only run when the OpenXR loader is selected as active loader.\n* Remove HoloLens documentation as Unity has deprecated its support. Refer to [the public announcement](https://discussions.unity.com/t/hololens-2-deprecation/1661529) for more information."
   },
   "upmCi": {
-    "footprint": "36216aad6296fbc8721333bb82a7bffb0e83ffc7"
+    "footprint": "3ff5dbd7351d23b10e71bcd0d00b9fe8578ce5fc"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.15/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.16/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "ba2c0d2fbb9ace406408c0ac62486fb08b372201"
+    "revision": "c4934f986eb238f95f5d456dad7446b39732bd86"
   }
 }

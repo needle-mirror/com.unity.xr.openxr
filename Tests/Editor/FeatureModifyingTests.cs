@@ -1,29 +1,19 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using NUnit.Framework;
-using UnityEditor.Build.Reporting;
-using UnityEditor.VersionControl;
-using UnityEditor.XR.OpenXR.Features;
 using UnityEngine;
-using UnityEngine.XR.OpenXR;
-using UnityEngine.XR.OpenXR.Features;
-using UnityEngine.XR.OpenXR.Features.Interactions;
-using UnityEngine.XR.OpenXR.Features.Mock;
 using Assert = UnityEngine.Assertions.Assert;
 using UnityEngine.XR.OpenXR.Tests;
-using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class FeatureModifyingTests : OpenXRLoaderSetup
+    class FeatureModifyingTests : OpenXRLoaderSetup
     {
         // Override AfterTest to prevent OpenXRSettings.Instance.features from getting reset.
         // This test suite destroys and restores OpenXRSettings.Instance.features manually.
         public override void AfterTest()
-        {
-        }
+        { }
 
         [Test]
         public void DuplicateSettingAssetTest()

@@ -9,16 +9,15 @@ namespace UnityEngine.XR.OpenXR.Tests
 {
     class OpenXRFeatureTests : OpenXRLoaderSetup
     {
-        private class FakeFeature : OpenXRFeature
-        {
-        }
+        class FakeFeature : OpenXRFeature
+        { }
 
         [Test]
         public void HighPriority()
         {
             MockRuntime.Instance.priority = Int32.MaxValue;
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             Assert.IsTrue(OpenXRSettings.Instance.features[0] == MockRuntime.Instance);
         }
@@ -28,15 +27,15 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             MockRuntime.Instance.priority = Int32.MinValue;
 
-            base.InitializeAndStart();
+            InitializeAndStart();
 
-            Assert.IsTrue(OpenXRSettings.Instance.features[OpenXRSettings.Instance.features.Length - 1] == MockRuntime.Instance);
+            Assert.IsTrue(OpenXRSettings.Instance.features[^1] == MockRuntime.Instance);
         }
 
         [Test]
         public void ChangeEnabledAtRuntime()
         {
-            base.InitializeAndStart();
+            InitializeAndStart();
 
             MockRuntime.Instance.enabled = false;
             LogAssert.Expect(LogType.Error, "OpenXRFeature.enabled cannot be changed while OpenXR is running");
@@ -45,16 +44,10 @@ namespace UnityEngine.XR.OpenXR.Tests
         [Test]
         public void FeatureFailedInitialization()
         {
-            bool enableStatus = true;
             //Force OnInstanceCreate returning false so that failedInitialization is true.
-            MockRuntime.Instance.TestCallback = (methodName, param) =>
-            {
-                if (methodName == nameof(OpenXRFeature.OnInstanceCreate))
-                    return false;
-                return true;
-            };
-            base.InitializeAndStart();
-            enableStatus = MockRuntime.Instance.enabled;
+            MockRuntime.Instance.TestCallback = (methodName, _) => methodName != nameof(OpenXRFeature.OnInstanceCreate);
+            InitializeAndStart();
+            var enableStatus = MockRuntime.Instance.enabled;
             MockRuntime.Instance.enabled = enableStatus;
             Assert.IsTrue(MockRuntime.Instance.enabled == enableStatus);
         }
@@ -82,8 +75,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         {
             var feature = OpenXRSettings.Instance.GetFeature<MockRuntime>();
             Assert.IsNotNull(feature);
-            Assert.IsTrue(feature is MockRuntime);
-
             Assert.IsNotNull(OpenXRSettings.Instance.GetFeature(typeof(MockRuntime)) as MockRuntime);
         }
 

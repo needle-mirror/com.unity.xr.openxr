@@ -1,3 +1,4 @@
+//#define VERBOSE_LOGGING
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,8 +7,6 @@ using System.Runtime.InteropServices;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.XR.OpenXR.Features.Extensions;
 using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
-
-
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
@@ -16,26 +15,25 @@ using UnityEditor.Build;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling.Tests")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling")]
 namespace UnityEngine.XR.OpenXR.Features.Mock
 {
+    /// <summary>
+    /// OpenXR Mock Runtime
+    /// </summary>
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Mock Runtime",
-        BuildTargetGroups = new[] {UnityEditor.BuildTargetGroup.Standalone, UnityEditor.BuildTargetGroup.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Mock runtime extension for automated testing.",
         DocumentationLink = Constants.k_DocumentationURL,
 #if !OPENXR_USE_KHRONOS_LOADER
-        CustomRuntimeLoaderBuildTargets = new[] { UnityEditor.BuildTarget.StandaloneWindows64, UnityEditor.BuildTarget.StandaloneOSX, UnityEditor.BuildTarget.Android },
+        CustomRuntimeLoaderBuildTargets = new[] { BuildTarget.StandaloneWindows64, BuildTarget.StandaloneOSX, BuildTarget.Android },
 #endif
-        OpenxrExtensionStrings = MockRuntime.XR_UNITY_null_gfx + " " + XR_UNITY_android_present,
+        OpenxrExtensionStrings = XR_UNITY_null_gfx + " " + XR_UNITY_android_present,
         Version = "0.0.2",
         FeatureId = featureId)]
 #endif
-
-    /// <summary>
-    /// OpenXR Mock Runtime
-    /// </summary>
     public class MockRuntime : OpenXRFeature
     {
         /// <summary>
@@ -85,8 +83,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="result">The XrResult of the function.</param>
         public delegate void AfterFunctionDelegate(string functionName, XrResult result);
 
-        private static Dictionary<string, AfterFunctionDelegate> s_AfterFunctionCallbacks = null;
-        private static Dictionary<string, BeforeFunctionDelegate> s_BeforeFunctionCallbacks = null;
+        static Dictionary<string, AfterFunctionDelegate> s_AfterFunctionCallbacks;
+        static Dictionary<string, BeforeFunctionDelegate> s_BeforeFunctionCallbacks;
 
         /// <summary>
         /// Subscribe delegates to ScriptEvents.
@@ -101,7 +99,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <summary>
         /// Don't fail to build if there are validation errors.
         /// </summary>
-        public bool ignoreValidationErrors = false;
+        public bool ignoreValidationErrors;
 
         /// <summary>
         /// Return the singleton instance of the Mock Runtime feature.
@@ -109,26 +107,20 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         public static MockRuntime Instance => OpenXRSettings.Instance.GetFeature<MockRuntime>();
 
         [AOT.MonoPInvokeCallback(typeof(ScriptEventDelegate))]
-        private static void ReceiveScriptEvent(ScriptEvent evt, ulong param) => onScriptEvent?.Invoke(evt, param);
+        static void ReceiveScriptEvent(ScriptEvent evt, ulong param) => onScriptEvent?.Invoke(evt, param);
 
         [AOT.MonoPInvokeCallback(typeof(BeforeFunctionDelegate))]
-        private static XrResult BeforeFunctionCallback(string function)
+        static XrResult BeforeFunctionCallback(string function)
         {
             var callback = GetBeforeFunctionCallback(function);
-            if (null == callback)
-                return XrResult.Success;
-
-            return callback(function);
+            return callback?.Invoke(function) ?? XrResult.Success;
         }
 
-        [AOT.MonoPInvokeCallback(typeof(BeforeFunctionDelegate))]
-        private static void AfterFunctionCallback(string function, XrResult result)
+        [AOT.MonoPInvokeCallback(typeof(AfterFunctionDelegate))]
+        static void AfterFunctionCallback(string function, XrResult result)
         {
             var callback = GetAfterFunctionCallback(function);
-            if (null == callback)
-                return;
-
-            callback(function, result);
+            callback?.Invoke(function, result);
         }
 
         /// <summary>
@@ -143,13 +135,12 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="function">OpenXR function name</param>
         /// <param name="beforeCallback">Callback to call before the OpenXR function is called (null to clear)</param>
         /// <param name="afterCallback">Callback to call after the OpenXR function is called (null to clear)</param>
-        public static void SetFunctionCallback(string function, BeforeFunctionDelegate beforeCallback, AfterFunctionDelegate afterCallback)
+        public static void SetFunctionCallback(
+            string function, BeforeFunctionDelegate beforeCallback, AfterFunctionDelegate afterCallback)
         {
             if (beforeCallback != null)
             {
-                if (null == s_BeforeFunctionCallbacks)
-                    s_BeforeFunctionCallbacks = new Dictionary<string, BeforeFunctionDelegate>();
-
+                s_BeforeFunctionCallbacks ??= new Dictionary<string, BeforeFunctionDelegate>();
                 s_BeforeFunctionCallbacks[function] = beforeCallback;
             }
             else if (s_BeforeFunctionCallbacks != null)
@@ -161,9 +152,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
             if (afterCallback != null)
             {
-                if (null == s_AfterFunctionCallbacks)
-                    s_AfterFunctionCallbacks = new Dictionary<string, AfterFunctionDelegate>();
-
+                s_AfterFunctionCallbacks ??= new Dictionary<string, AfterFunctionDelegate>();
                 s_AfterFunctionCallbacks[function] = afterCallback;
             }
             else if (s_AfterFunctionCallbacks != null)
@@ -174,8 +163,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             }
 
             MockRuntime_RegisterFunctionCallbacks(
-                s_BeforeFunctionCallbacks != null ? BeforeFunctionCallback : (BeforeFunctionDelegate)null,
-                s_AfterFunctionCallbacks != null ? AfterFunctionCallback : (AfterFunctionDelegate)null);
+                s_BeforeFunctionCallbacks != null ? BeforeFunctionCallback : null,
+                s_AfterFunctionCallbacks != null ? AfterFunctionCallback : null);
         }
 
         /// <summary>
@@ -207,13 +196,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <returns>Callback or null if no callback is set</returns>
         public static BeforeFunctionDelegate GetBeforeFunctionCallback(string function)
         {
-            if (null == s_BeforeFunctionCallbacks)
-                return null;
-
-            if (!s_BeforeFunctionCallbacks.TryGetValue(function, out var callback))
-                return null;
-
-            return callback;
+            return s_BeforeFunctionCallbacks?.GetValueOrDefault(function);
         }
 
         /// <summary>
@@ -223,13 +206,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <returns>Callback or null if no callback is set</returns>
         public static AfterFunctionDelegate GetAfterFunctionCallback(string function)
         {
-            if (null == s_AfterFunctionCallbacks)
-                return null;
-
-            if (!s_AfterFunctionCallbacks.TryGetValue(function, out var callback))
-                return null;
-
-            return callback;
+            return s_AfterFunctionCallbacks?.GetValueOrDefault(function);
         }
 
         /// <summary>
@@ -249,7 +226,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         {
 #if UNITY_INCLUDE_TESTS
             var instance = Instance;
-            instance.TestCallback = (methodName, param) => true;
+            instance.TestCallback = (_, _) => true;
 #endif
 
             onScriptEvent = null;
@@ -271,14 +248,13 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             // were set up to ensure they do not linger around for the next usage of the mock runtime.
             ClearFunctionCallbacks();
 #if UNITY_INCLUDE_TESTS
-        }
-
+            }
 #endif
         }
 
 
 #if UNITY_INCLUDE_TESTS
-        [NonSerialized] public Func<string, object, object> TestCallback = (methodName, param) => true;
+        [NonSerialized] public Func<string, object, object> TestCallback = (_, _) => true;
 
         public const string XR_UNITY_mock_test = "XR_UNITY_mock_test";
 
@@ -290,14 +266,11 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         public ulong XrSession { get; private set; } = 0ul;
 
-        private static bool s_KeepFunctionCallbacks;
+        static bool s_KeepFunctionCallbacks;
 
         internal static bool KeepFunctionCallbacks
         {
-            get
-            {
-                return s_KeepFunctionCallbacks;
-            }
+            get => s_KeepFunctionCallbacks;
             set
             {
                 s_KeepFunctionCallbacks = value;
@@ -312,6 +285,9 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         protected internal override IntPtr HookGetInstanceProcAddr(IntPtr func)
         {
+#if VERBOSE_LOGGING
+            Debug.Log("Hook Get Instance Proc Addr");
+#endif
             var ret = TestCallback(MethodBase.GetCurrentMethod().Name, func);
 
             // Make sure existing behaviour for Mock Runtime hooks is preserved
@@ -327,11 +303,17 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         protected internal override void OnSystemChange(ulong xrSystem)
         {
+#if VERBOSE_LOGGING
+            Debug.Log("On System Change");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSystem);
         }
 
         protected internal override bool OnInstanceCreate(ulong xrInstance)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Instance Create: {xrInstance}");
+#endif
             var result = (bool)TestCallback(MethodBase.GetCurrentMethod().Name, xrInstance);
             if (result)
                 XrInstance = xrInstance;
@@ -343,78 +325,123 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         protected internal override void OnSessionCreate(ulong xrSession)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session Create: {xrSession}");
+#endif
             XrSession = xrSession;
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnSessionBegin(ulong xrSession)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session Begin: {xrSession}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnAppSpaceChange(ulong xrSpace)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On App Space Change: {xrSpace}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSpace);
         }
 
         protected internal override void OnSessionEnd(ulong xrSession)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session End: {xrSession}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnSessionDestroy(ulong session)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session Destroy: {session}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, session);
             XrSession = 0ul;
         }
 
         protected internal override void OnSessionLossPending(ulong xrSession)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session Loss Pending: {xrSession}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnInstanceLossPending(ulong xrInstance)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Instance Loss Pending: {xrInstance}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrInstance);
         }
 
         protected internal override void OnSubsystemCreate()
         {
+#if VERBOSE_LOGGING
+            Debug.Log("On Subsystem Create");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, 0);
         }
 
         protected internal override void OnSubsystemStart()
         {
+#if VERBOSE_LOGGING
+            Debug.Log("On Subsystem Start");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, 0);
         }
 
         protected internal override void OnSessionExiting(ulong xrSession)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session Exiting: {xrSession}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrSession);
         }
 
         protected internal override void OnSubsystemDestroy()
         {
+#if VERBOSE_LOGGING
+            Debug.Log("On Subsystem Destroy");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, 0);
         }
 
         protected internal override void OnSubsystemStop()
         {
+#if VERBOSE_LOGGING
+            Debug.Log("On Subsystem Stop");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, 0);
         }
 
         protected internal override void OnFormFactorChange(int xrFormFactor)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Form Factor Change: {xrFormFactor}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrFormFactor);
         }
 
         protected internal override void OnEnvironmentBlendModeChange(XrEnvironmentBlendMode xrEnvironmentBlendMode)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On Environment Blend Mode Change: {xrEnvironmentBlendMode}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrEnvironmentBlendMode);
         }
 
         protected internal override void OnViewConfigurationTypeChange(int xrViewConfigurationType)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"On View Configuration Type Change: {xrViewConfigurationType}");
+#endif
             TestCallback(MethodBase.GetCurrentMethod().Name, xrViewConfigurationType);
         }
 
@@ -426,16 +453,18 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 
         protected internal override void OnSessionStateChange(int oldState, int newState)
         {
-            TestCallback(MethodBase.GetCurrentMethod().Name, new XrSessionStateChangedParams() {OldState = oldState, NewState = newState});
+#if VERBOSE_LOGGING
+            Debug.Log($"On Session State Change: {oldState} -> {newState}");
+#endif
+            TestCallback(
+                MethodBase.GetCurrentMethod().Name,
+                new XrSessionStateChangedParams {OldState = oldState, NewState = newState});
         }
 
         public static bool TransitionToState(XrSessionState state, bool forceTransition)
         {
             var instance = Instance;
-            if (instance.XrSession == 0)
-                return false;
-
-            return Internal_TransitionToState(state, forceTransition);
+            return instance.XrSession != 0 && Internal_TransitionToState(state, forceTransition);
         }
 
         public static void ChooseEnvironmentBlendMode(XrEnvironmentBlendMode mode)
@@ -463,6 +492,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             }
 
             TestCallback(MethodBase.GetCurrentMethod().Name, results);
+            base.GetValidationChecks(results, target);
         }
 
 #endif
@@ -494,7 +524,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="orientation">Orientation of the view.</param>
         /// <param name="fov">Field of View.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetView")]
-        public static extern void SetViewPose(XrViewConfigurationType viewConfigurationType, int viewIndex, Vector3 position, Quaternion orientation, Vector4 fov);
+        public static extern void SetViewPose(
+            XrViewConfigurationType viewConfigurationType, int viewIndex, Vector3 position, Quaternion orientation, Vector4 fov);
 
         /// <summary>
         /// Set the runtime ViewState.
@@ -512,7 +543,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="orientation">Orientation of the space.</param>
         /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpace")]
-        public static extern void SetSpace(XrReferenceSpaceType referenceSpace, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
+        public static extern void SetSpace(
+            XrReferenceSpaceType referenceSpace, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
 
         /// <summary>
         /// Set the reference space to use for input actions.
@@ -560,7 +592,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         internal static extern void GetEndFrameStats(out int primaryLayerCount, out int secondaryLayerCount);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_ActivateSecondaryView")]
-        internal static extern void ActivateSecondaryView(XrViewConfigurationType viewConfigurationType, [MarshalAs(UnmanagedType.I1)] bool activate);
+        internal static extern void ActivateSecondaryView(
+            XrViewConfigurationType viewConfigurationType, [MarshalAs(UnmanagedType.I1)] bool activate);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterFunctionCallbacks")]
         private static extern void MockRuntime_RegisterFunctionCallbacks(BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);
@@ -569,7 +602,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(string xrPathString, float value, uint unit);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_CauseNotification")]
-        internal static extern void PerformanceSettings_CauseNotification(PerformanceDomain domain, PerformanceSubDomain subDomain, PerformanceNotificationLevel level);
+        internal static extern void PerformanceSettings_CauseNotification(
+            PerformanceDomain domain, PerformanceSubDomain subDomain, PerformanceNotificationLevel level);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_GetPerformanceLevelHint")]
         internal static extern PerformanceLevelHint PerformanceSettings_GetPerformanceLevelHint(PerformanceDomain domain);
@@ -577,17 +611,9 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #if UNITY_EDITOR
         static void UseGenericLoaderAndroid()
         {
-#if UNITY_2021_3_OR_NEWER
             var defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android);
-#else
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
-#endif
             defines += ";OPENXR_USE_KHRONOS_LOADER";
-#if UNITY_2021_3_OR_NEWER
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, defines);
-#else
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, defines);
-#endif
 
 #if UNITY_2023_1_OR_NEWER
             // Use GameActivity if possible so we have test coverage there.

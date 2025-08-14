@@ -1,17 +1,17 @@
 using System;
+using System.Collections;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Features;
 using Assert = UnityEngine.Assertions.Assert;
-using static UnityEditor.XR.OpenXR.Features.OpenXRFeatureSetManager;
-using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 using UnityEngine.XR.OpenXR.Tests;
+using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class FeatureSetTests : OpenXRLoaderSetup
+    class FeatureSetTests : OpenXRLoaderSetup
     {
         const string k_KnownFeatureSetName = "Known Test";
         const string k_TestFeatureSetName = "Test Feature Set";
@@ -24,21 +24,21 @@ namespace UnityEditor.XR.OpenXR.Tests
         const string k_TestFeatureSetIdFour = "com.unity.xr.test.featureset4";
 
         [OpenXRFeatureSet(
-            FeatureIds = new string[]
+            FeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId
             },
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetId,
-            SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone },
-            RequiredFeatureIds = new string[]
+            SupportedBuildTargets = new[] { BuildTargetGroup.Standalone },
+            RequiredFeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId
             }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[]
+            FeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
@@ -46,29 +46,29 @@ namespace UnityEditor.XR.OpenXR.Tests
             UiName = k_TestFeatureSetNameHandAndEye,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdTwo,
-            SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.WSA },
-            RequiredFeatureIds = new string[]
+            SupportedBuildTargets = new[] { BuildTargetGroup.WSA },
+            RequiredFeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
             }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[]
+            FeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
             },
             UiName = k_TestFeatureSetNameHand,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdThree,
-            SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.WSA },
-            RequiredFeatureIds = new string[]
+            SupportedBuildTargets = new[] { BuildTargetGroup.WSA },
+            RequiredFeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
             }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[]
+            FeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
@@ -76,15 +76,15 @@ namespace UnityEditor.XR.OpenXR.Tests
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetId,
-            SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Android },
-            RequiredFeatureIds = new string[]
+            SupportedBuildTargets = new[] { BuildTargetGroup.Android },
+            RequiredFeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
             }
         )]
         [OpenXRFeatureSet(
-            FeatureIds = new string[]
+            FeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
@@ -94,13 +94,13 @@ namespace UnityEditor.XR.OpenXR.Tests
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
             FeatureSetId = k_TestFeatureSetIdFour,
-            SupportedBuildTargets = new BuildTargetGroup[] { BuildTargetGroup.Standalone },
-            RequiredFeatureIds = new string[]
+            SupportedBuildTargets = new[] { BuildTargetGroup.Standalone },
+            RequiredFeatureIds = new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
             },
-            DefaultFeatureIds = new string[]
+            DefaultFeatureIds = new[]
             {
                 HTCViveControllerProfile.featureId,
             }
@@ -120,7 +120,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// Initialize the feature sets by disabling all features sets and all features
         /// </summary>
         /// <param name="addTestFeatures">True to include test features</param>
-        private void InitializeFeatureSets(bool addTestFeatures)
+        static void InitializeFeatureSets(bool addTestFeatures)
         {
             // Initialize first with test feature sets so we can make sure all feature sets are disabled
             OpenXRFeatureSetManager.InitializeFeatureSets(true);
@@ -128,7 +128,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             foreach (var buildTargetGroup in GetBuildTargetGroups())
             {
                 // Disable all feature sets for this build target
-                foreach (var featureSetInfo in FeatureSetInfosForBuildTarget(buildTargetGroup))
+                foreach (var featureSetInfo in OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(buildTargetGroup))
                 {
                     featureSetInfo.isEnabled = false;
                     featureSetInfo.wasEnabled = false;
@@ -150,7 +150,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             foreach (var buildTargetGroup in GetBuildTargetGroups())
             {
                 // No feature sets should be enabled for any build target
-                Assert.IsFalse(FeatureSetInfosForBuildTarget(buildTargetGroup).Any(f => f.isEnabled));
+                Assert.IsFalse(OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(buildTargetGroup).Any(f => f.isEnabled));
 
                 // No features should be enabled
                 AssertAllFeatures(buildTargetGroup, FeatureDisabled);
@@ -166,7 +166,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void NoFeatureSetsReturnsEmptyList()
         {
-            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.iOS);
+            var featureSets = OpenXRFeatureSetManager.FeatureSetsForBuildTarget(BuildTargetGroup.iOS);
             Assert.AreEqual(0, featureSets.Count);
         }
 
@@ -175,12 +175,11 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             InitializeFeatureSets(false);
 
-            string[] expectedFeatureSets = new string[]
-            {
+            string[] expectedFeatureSets = {
                 KnownFeatureSetsContent.s_MicrosoftHoloLensFeatureSetId
             };
 
-            var featureSets = FeatureSetsForBuildTarget(BuildTargetGroup.WSA);
+            var featureSets = OpenXRFeatureSetManager.FeatureSetsForBuildTarget(BuildTargetGroup.WSA);
             Assert.IsNotNull(featureSets);
             Assert.AreEqual(expectedFeatureSets.Length, featureSets.Count);
 
@@ -196,16 +195,16 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             // For this test we do not want the test features enabled so rerun the initilization with
             InitializeFeatureSets(false);
-            var foundFeatureSet = GetFeatureSetWithId(BuildTargetGroup.iOS, k_TestFeatureSetId);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.iOS, k_TestFeatureSetId);
             Assert.IsNull(foundFeatureSet);
-            foundFeatureSet = GetFeatureSetWithId(BuildTargetGroup.Standalone, "BAD FEATURE SET ID");
+            foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.Standalone, "BAD FEATURE SET ID");
             Assert.IsNull(foundFeatureSet);
         }
 
         [Test]
         public void OverrideKnownTestFeatureSet()
         {
-            var foundFeatureSet = GetFeatureSetWithId(BuildTargetGroup.Standalone, k_TestFeatureSetId);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.Standalone, k_TestFeatureSetId);
             Assert.IsNotNull(foundFeatureSet);
             Assert.AreEqual(0, String.Compare(foundFeatureSet.name, k_TestFeatureSetName, true));
         }
@@ -213,7 +212,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void NonoverrideKnownTestFeatureSet()
         {
-            var foundFeatureSet = GetFeatureSetWithId(BuildTargetGroup.WSA, k_TestFeatureSetId);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.WSA, k_TestFeatureSetId);
             Assert.IsNotNull(foundFeatureSet);
             Assert.AreEqual(0, String.Compare(foundFeatureSet.name, k_KnownFeatureSetName, true));
         }
@@ -222,15 +221,15 @@ namespace UnityEditor.XR.OpenXR.Tests
         public void EnableFeatureSetEnablesFeatures()
         {
             EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, enabled: true);
-            AssertOnlyFeatures(BuildTargetGroup.Standalone, new string[] { MicrosoftHandInteraction.featureId }, FeatureEnabled);
+            AssertOnlyFeatures(BuildTargetGroup.Standalone, new[] { MicrosoftHandInteraction.featureId }, FeatureEnabled);
         }
 
         [Test]
         public void DisableFeatureSetDisabledFeatures()
         {
             // Enable the feature set and make sure only its features are enabled
-            EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, true);
-            AssertOnlyFeatures(BuildTargetGroup.Standalone, new string[] { MicrosoftHandInteraction.featureId }, FeatureEnabled);
+            EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId);
+            AssertOnlyFeatures(BuildTargetGroup.Standalone, new[] { MicrosoftHandInteraction.featureId }, FeatureEnabled);
 
             // Disable the feature set an make sure its features are disabled
             EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, false);
@@ -240,10 +239,10 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void DisableSharedFeaturesLeaveSharedFeaturesEnabled()
         {
-            // Ensable all WSA feature sets and make sure only the WSA feature set features are enabled
+            // Enable all WSA feature sets and make sure only the WSA feature set features are enabled
             EnableFeatureSets(BuildTargetGroup.WSA, enabled: true);
 
-            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[]
+            AssertOnlyFeatures(BuildTargetGroup.WSA, new[]
             {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
@@ -251,7 +250,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             // Disable the feature seth with both features set as required
             EnableFeatureSet(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo, enabled: false);
-            AssertOnlyFeatures(BuildTargetGroup.WSA, new string[]
+            AssertOnlyFeatures(BuildTargetGroup.WSA, new[]
             {
                 MicrosoftHandInteraction.featureId,
             }, FeatureEnabled);
@@ -264,27 +263,25 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void DisableSharedFeaturesLeaveOthersFeaturesEnabled()
         {
-            string[] allFeatureIds = new string[]
-            {
+            string[] allFeatureIds = {
                 MicrosoftHandInteraction.featureId,
                 EyeGazeInteraction.featureId,
                 MicrosoftMotionControllerProfile.featureId,
             };
 
-            string[] otherFeatureIds = new string[]
-            {
+            string[] otherFeatureIds = {
                 MicrosoftMotionControllerProfile.featureId,
             };
 
             EnableFeatureInfos(BuildTargetGroup.WSA, otherFeatureIds, true);
 
             // Enable the second feature set and ensure that only features in the `all` list are enabled
-            var featureSetToEnable = GetFeatureSetInfoWithId(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo);
-            EnableFeatureSet(BuildTargetGroup.WSA, featureSetToEnable.featureSetId, true);
+            var featureSetToEnable = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo);
+            EnableFeatureSet(BuildTargetGroup.WSA, featureSetToEnable.featureSetId);
             AssertOnlyFeatures(BuildTargetGroup.WSA, allFeatureIds, FeatureEnabled);
 
             // Disable the second feature set and ensure only features in the `others` list are enabled
-            var featureSetToDisable = GetFeatureSetInfoWithId(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo);
+            var featureSetToDisable = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.WSA, k_TestFeatureSetIdTwo);
             Assert.IsNotNull(featureSetToDisable);
             EnableFeatureSet(BuildTargetGroup.WSA, featureSetToDisable.featureSetId, enabled: false);
             AssertOnlyFeatures(BuildTargetGroup.WSA, otherFeatureIds, FeatureEnabled);
@@ -293,48 +290,48 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void EnablingFeatureSetEnabledDefaultFeatures()
         {
-            var foundFeatureSet = GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
             Assert.IsNotNull(foundFeatureSet);
-            EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, true);
+            EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId);
 
             // Ensure that only the non-optional features are enabled
-            AssertOnlyFeatures(BuildTargetGroup.Standalone, foundFeatureSet.featureIds, (f) => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
+            AssertOnlyFeatures(BuildTargetGroup.Standalone, foundFeatureSet.featureIds, f => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
         }
 
         [Test]
         public void EnablingFeatureSetLeavesOptionFeaturesEnabled()
         {
             // Enable the feature set
-            var foundFeatureSet = GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
             Assert.IsNotNull(foundFeatureSet);
-            EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, true);
+            EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId);
 
             // Ensure the Optional features are all disabled
-            AssertAllFeatures(BuildTargetGroup.Standalone, (f) => !FeatureIsOptional(foundFeatureSet, f) || !f.Feature.enabled);
+            AssertAllFeatures(BuildTargetGroup.Standalone, f => !FeatureIsOptional(foundFeatureSet, f) || !f.Feature.enabled);
 
             // Disable the feature set and ensure the optional features are disabled
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, false);
-            AssertAllFeatures(BuildTargetGroup.Standalone, (f) => !FeatureIsOptional(foundFeatureSet, f) || !f.Feature.enabled);
+            AssertAllFeatures(BuildTargetGroup.Standalone, f => !FeatureIsOptional(foundFeatureSet, f) || !f.Feature.enabled);
 
             // Enable the optional features and the feature set and ensure the optional features are still enabled
-            EnableFeatureInfos(BuildTargetGroup.Standalone, true, (f) => FeatureIsOptional(foundFeatureSet, f));
+            EnableFeatureInfos(BuildTargetGroup.Standalone, true, f => FeatureIsOptional(foundFeatureSet, f));
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, enabled: true);
-            AssertAllFeatures(BuildTargetGroup.Standalone, (f) => !FeatureIsOptional(foundFeatureSet, f) || f.Feature.enabled);
+            AssertAllFeatures(BuildTargetGroup.Standalone, f => !FeatureIsOptional(foundFeatureSet, f) || f.Feature.enabled);
 
             // Enable the feature set again and make sure the optional features are still enabled
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, enabled: true);
-            AssertAllFeatures(BuildTargetGroup.Standalone, (f) => !FeatureIsOptional(foundFeatureSet, f) || f.Feature.enabled);
+            AssertAllFeatures(BuildTargetGroup.Standalone, f => !FeatureIsOptional(foundFeatureSet, f) || f.Feature.enabled);
         }
 
         [Test]
         public void DisablingFeatureSetLeavesDefaultFeaturesEnabled()
         {
-            var foundFeatureSet = GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
             Assert.IsNotNull(foundFeatureSet);
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, true);
 
             // Ensure that the only enabled features are the non optional features
-            AssertAllFeatures(BuildTargetGroup.Standalone, foundFeatureSet.featureIds, (f) => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
+            AssertAllFeatures(BuildTargetGroup.Standalone, foundFeatureSet.featureIds, f => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
 
             // Disabling the feature set should disable the required components but not the default ones
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, enabled: false);
@@ -346,13 +343,13 @@ namespace UnityEditor.XR.OpenXR.Tests
         public void DisablingFeatureSetLeavesDisabledDefaultFeaturesDisabled()
         {
             var buildTargetGroup = BuildTargetGroup.Standalone;
-            var foundFeatureSet = GetFeatureSetInfoWithId(buildTargetGroup, k_TestFeatureSetIdFour);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(buildTargetGroup, k_TestFeatureSetIdFour);
             Assert.IsNotNull(foundFeatureSet);
 
             EnableFeatureSet(buildTargetGroup, foundFeatureSet.featureSetId, enabled: true);
 
             // Ensure that only the non optional features are enabled
-            AssertOnlyFeatures(buildTargetGroup, foundFeatureSet.featureIds, (f) => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
+            AssertOnlyFeatures(buildTargetGroup, foundFeatureSet.featureIds, f => f.Feature.enabled == !FeatureIsOptional(foundFeatureSet, f));
 
             // Disable all features in the default feature list
             EnableFeatureInfos(buildTargetGroup, foundFeatureSet.defaultFeatureIds, enable: false);
@@ -367,7 +364,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             OpenXRFeatureSetManager.activeBuildTarget = BuildTargetGroup.Standalone;
 
-            var foundFeatureSet = GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
             Assert.IsNotNull(foundFeatureSet);
 
             var featureInfos = GetFeatureInfos(BuildTargetGroup.Standalone, foundFeatureSet.requiredFeatureIds);
@@ -375,7 +372,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             {
                 AssertFeatureEnabled(featureInfo, false);
                 featureInfo.Feature.enabled = true;
-                AssertFeatureEnabled(featureInfo, true);
+                AssertFeatureEnabled(featureInfo);
                 featureInfo.Feature.enabled = false;
                 AssertFeatureEnabled(featureInfo, false);
             }
@@ -386,9 +383,9 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             foreach (var featureInfo in featureInfos)
             {
-                AssertFeatureEnabled(featureInfo, true);
+                AssertFeatureEnabled(featureInfo);
                 featureInfo.Feature.enabled = false;
-                AssertFeatureEnabled(featureInfo, true);
+                AssertFeatureEnabled(featureInfo);
             }
 
             EnableFeatureSet(BuildTargetGroup.Standalone, foundFeatureSet.featureSetId, enabled: false);
@@ -397,7 +394,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             {
                 AssertFeatureEnabled(featureInfo, false);
                 featureInfo.Feature.enabled = true;
-                AssertFeatureEnabled(featureInfo, true);
+                AssertFeatureEnabled(featureInfo);
                 featureInfo.Feature.enabled = false;
                 AssertFeatureEnabled(featureInfo, false);
             }

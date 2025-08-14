@@ -13,7 +13,7 @@ using UnityEngine.Diagnostics;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRRuntimeTests : OpenXRLoaderSetup
+    class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
         [Test]
         public void TestAvailableExtensions()
@@ -239,9 +239,6 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             var expectedCallbackOrder = new List<string>()
             {
-#if UNITY_EDITOR
-                nameof(OpenXRFeature.GetValidationChecks),
-#endif
                 nameof(OpenXRFeature.HookGetInstanceProcAddr),
                 nameof(OpenXRFeature.OnInstanceCreate),
                 nameof(OpenXRFeature.OnSystemChange),
@@ -261,6 +258,16 @@ namespace UnityEngine.XR.OpenXR.Tests
                 nameof(OpenXRFeature.OnInstanceDestroy)
             };
 
+#if UNITY_EDITOR
+            var activeBuildTarget = UnityEditor.EditorUserBuildSettings.activeBuildTarget;
+            var activeBuildTargetGroup = UnityEditor.BuildPipeline.GetBuildTargetGroup(activeBuildTarget);
+            var settings = UnityEditor.XR.Management.XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(activeBuildTargetGroup);
+            // Validations only occur if the OpenXRLoader is active.
+            var isLoaderActive = !(settings == null || !settings.Manager.activeLoaders.Any(loader => loader is OpenXRLoader));
+            if (isLoaderActive)
+                expectedCallbackOrder.Insert(0,nameof(OpenXRFeature.GetValidationChecks));
+            Assert.AreEqual(expectedCallbackOrder, callbackQueue);
+#endif
             Assert.AreEqual(expectedCallbackOrder, callbackQueue);
         }
 
@@ -538,7 +545,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
             {
                 attemptCount += 1;
-                if (attemptCount <= 1)
+                if (attemptCount < 2)
                 {
                     return XrResult.ApiVersionUnsupported;
                 }
@@ -895,7 +902,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
             {
                 attemptCount += 1;
-                if (attemptCount <= 1)
+                if (attemptCount < 2)
                 {
                     return XrResult.ApiVersionUnsupported;
                 }
@@ -974,7 +981,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             MockRuntime.SetFunctionCallback("xrCreateInstance", (name) =>
             {
                 attemptCount += 1;
-                if (attemptCount <= 1)
+                if (attemptCount < 2)
                 {
                     return XrResult.ApiVersionUnsupported;
                 }

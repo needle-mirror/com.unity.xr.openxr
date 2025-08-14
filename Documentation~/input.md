@@ -212,7 +212,6 @@ If you use OpenXR input with controllers or interactions such as eye gaze, Unity
 |Valve Index controller|`<ValveIndexController>`|[ValveIndexControllerProfile](./features/valveindexcontrollerprofile.md)|
 |Khronos Simple Controller|`<KHRSimpleController>`|[KHRSimpleControllerProfile](./features/khrsimplecontrollerprofile.md)|
 |Eye Gaze Interaction|`<EyeGaze>`|[EyeGazeInteraction](./features/eyegazeinteraction.md)|
-|Microsoft Hand Interaction|`<HololensHand>`|[MicrosoftHandInteraction](./features/microsofthandinteraction.md)|
 
 ## Haptics
 

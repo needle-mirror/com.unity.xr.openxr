@@ -10,7 +10,7 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// Computes the inverse of the given pose.
         /// </summary>
-        private static Pose Inverse(Pose p)
+        static Pose Inverse(Pose p)
         {
             Pose ret;
             ret.rotation = Quaternion.Inverse(p.rotation);
@@ -29,12 +29,12 @@ namespace UnityEngine.XR.OpenXR
             if (camera == null)
                 return default;
 
-            Transform cameraTransform = camera.transform;
-            Pose headPose = new Pose(cameraTransform.localPosition, cameraTransform.localRotation);
-            Pose camPose = new Pose(cameraTransform.position, cameraTransform.rotation);
-            Pose transformPose = new Pose(t.position, t.rotation);
+            var cameraTransform = camera.transform;
+            var headPose = new Pose(cameraTransform.localPosition, cameraTransform.localRotation);
+            var camPose = new Pose(cameraTransform.position, cameraTransform.rotation);
+            var transformPose = new Pose(t.position, t.rotation);
 
-            Pose headSpacePose = transformPose.GetTransformedBy(Inverse(camPose));
+            var headSpacePose = transformPose.GetTransformedBy(Inverse(camPose));
             return headSpacePose.GetTransformedBy(headPose);
         }
 
@@ -43,22 +43,23 @@ namespace UnityEngine.XR.OpenXR
         /// See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#session-states">XR_SESSION_STATE_FOCUSED.</a> for reference.
         /// </summary>
         public static bool IsSessionFocused => Internal_IsSessionFocused();
+
         /// <summary>
-        ///  Returns the change of user presence, such as when the user has taken off or put on an XR headset.
-        ///  If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True.
-        ///  If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.
-        ///  See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_user_presence">XR_EXT_user_presence.</a> for reference.
+        /// Returns the change of user presence, such as when the user has taken off or put on an XR headset.
+        /// If the system does not support user presence sensing, runtime assumes that the user is always present and IsUserPresent always returns True.
+        /// If the system supports the sensing of user presence, returns true when detected the presence of a user and returns false when detected the absence of a user.
+        /// See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_user_presence">XR_EXT_user_presence.</a> for reference.
         /// </summary>
         public static bool IsUserPresent => Internal_GetUserPresence();
 
-        private const string LibraryName = "UnityOpenXR";
+        const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_IsSessionFocused")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_IsSessionFocused();
+        static extern bool Internal_IsSessionFocused();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetUserPresence")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetUserPresence();
+        static extern bool Internal_GetUserPresence();
     }
 }

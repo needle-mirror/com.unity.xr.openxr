@@ -1,23 +1,12 @@
 using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
 using NUnit.Framework;
-using UnityEditor.Build.Reporting;
-using UnityEditor.VersionControl;
-using UnityEditor.XR.OpenXR.Features;
 using UnityEngine;
-using UnityEngine.XR.OpenXR;
-using UnityEngine.XR.OpenXR.Features;
-using UnityEngine.XR.OpenXR.Features.Interactions;
-using UnityEngine.XR.OpenXR.Features.Mock;
 using Assert = UnityEngine.Assertions.Assert;
 using UnityEngine.XR.OpenXR.Tests;
-using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal class BootConfigEditorTests : OpenXRLoaderSetup
+    class BootConfigEditorTests : OpenXRLoaderSetup
     {
         [Test]
         public void TestCanCreateBootConfigAndroid()
@@ -32,7 +21,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             TestBuildTarget(BuildTarget.StandaloneWindows64);
         }
 
-        private void TestBuildTarget(BuildTarget buildTarget)
+        static void TestBuildTarget(BuildTarget buildTarget)
         {
             var bootConfig = new BootConfig(buildTarget);
             bootConfig.ReadBootConfig();
@@ -56,7 +45,6 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.IsTrue(cloneBootConfig.TryGetValue("xr-sample-bootconfig-key02", out key02value));
             Assert.AreEqual(key02value, "primary value");
             Assert.IsTrue(cloneBootConfig.CheckValuePairExists("xr-sample-bootconfig-key02", "primary value"));
-
         }
     }
 }

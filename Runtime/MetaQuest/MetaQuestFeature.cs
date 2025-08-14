@@ -402,6 +402,31 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         fixItMessage = "Set Multiview Render Regions Optimization Mode to Final Pass."
                     },
 
+                    new ValidationRule(this)
+                    {
+                        message = "The Multiview Render Regions Optimization - All Passes mode does not work well with Dynamic Resolution. It's advised to use Final Pass with Dynamic Resolution instead.",
+                        checkPredicate = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                            var feature = settings.GetFeature<MetaQuestFeature>();
+                            bool allPassesUsed = feature.multiviewRenderRegionsOptimizationMode == OpenXRSettings.MultiviewRenderRegionsOptimizationMode.AllPasses;
+
+                            OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+                            var automaticDynamicResolutionFeature = androidOpenXRSettings != null ? androidOpenXRSettings.GetFeature<AutomaticDynamicResolutionFeature>() : null;
+                            bool usingDynamicResolution = automaticDynamicResolutionFeature != null ? automaticDynamicResolutionFeature.enabled : false;
+
+                            return !(allPassesUsed && usingDynamicResolution);
+                        },
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                            var feature = settings.GetFeature<MetaQuestFeature>();
+                            feature.multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                        },
+                        fixItMessage = "Switch to Multiview Render Regions Optimization - Final Pass.",
+                        error = false,
+                        fixItAutomatic = true,
+                    },
 #endif
 
 #if UNITY_ANDROID

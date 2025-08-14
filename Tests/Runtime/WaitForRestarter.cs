@@ -7,9 +7,9 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// Note that ulink WaitForLoaderRestart and WaitForLoaderShutdown this yield instruction
     /// will not wait if the restarter is not already running.
     /// </summary>
-    internal sealed class WaitForRestarter : CustomYieldInstruction
+    sealed class WaitForRestarter : CustomYieldInstruction
     {
-        private float m_Timeout = 0;
+        float m_Timeout;
 
         public WaitForRestarter(float timeout = 5.0f)
         {

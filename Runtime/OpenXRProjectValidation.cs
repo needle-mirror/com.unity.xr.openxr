@@ -13,7 +13,6 @@ using UnityEngine.XR.OpenXR.Features;
 #if XR_COMPOSITION_LAYERS
 using UnityEngine.XR.OpenXR.Features.CompositionLayers;
 #endif
-
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
 using UnityEngine.Rendering.Universal;
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
@@ -25,18 +24,22 @@ namespace UnityEditor.XR.OpenXR
     /// </summary>
     public static class OpenXRProjectValidation
     {
-        private static readonly OpenXRFeature.ValidationRule[] BuiltinValidationRules =
+        static bool isValidationMessagePrinted;
+        static bool isValidPath;
+        static string invalidPath = "";
+
+        static readonly OpenXRFeature.ValidationRule[] BuiltinValidationRules =
         {
-            new OpenXRFeature.ValidationRule
+            new()
             {
                 message = "The OpenXR package has been updated and Unity must be restarted to complete the update.",
-                checkPredicate = () => OpenXRSettings.Instance == null || (!OpenXRSettings.Instance.versionChanged),
+                checkPredicate = () => OpenXRSettings.Instance == null || !OpenXRSettings.Instance.versionChanged,
                 fixIt = RequireRestart,
                 error = true,
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
-            new OpenXRFeature.ValidationRule
+            new()
             {
                 message = "The OpenXR Package Settings asset has duplicate settings and must be regenerated.",
                 checkPredicate = AssetHasNoDuplicates,
@@ -44,7 +47,34 @@ namespace UnityEditor.XR.OpenXR
                 error = false,
                 errorEnteringPlaymode = false
             },
-            new OpenXRFeature.ValidationRule()
+            new()
+            {
+                message = "[Optional] OpenXR settings assets are stored inside a package and won't persist changes. Please move it under Assets/XR/Settings.",
+                checkPredicate = () =>
+                {
+                    invalidPath = CheckSettingsPathUnderAssets(out isValidPath);
+
+                    if (!isValidPath && !string.IsNullOrEmpty(invalidPath))
+                    {
+                        if (!isValidationMessagePrinted)
+                        {
+                            Debug.Log($"OpenXR Settings asset is stored at {invalidPath}. This is inside a package and settings inside will not persist. Please move it under Assets/XR/Settings.");
+                            isValidationMessagePrinted = true;
+                        }
+                        return false;
+                    }
+
+                    return true;
+                },
+                fixIt = () =>
+                {
+                    HighlightFolderInProjectWindow(invalidPath);
+                },
+                fixItAutomatic = false,
+                error = false,
+                errorEnteringPlaymode = false
+            },
+            new()
             {
                 message = "Gamma Color Space is not supported when using OpenGLES.",
                 checkPredicate = () =>
@@ -83,7 +113,7 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Android,
             },
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "At least one interaction profile must be added.  Please select which controllers you will be testing against in the Features menu.",
                 checkPredicate = () =>
@@ -100,24 +130,20 @@ namespace UnityEditor.XR.OpenXR
                     windowTitle = "Project Settings",
                 }
             },
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "Only arm64 or x86_x64 is supported on Android with OpenXR.  Other architectures are not supported.",
                 checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || ((PlayerSettings.Android.targetArchitectures & (~(AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64))) == 0) && (PlayerSettings.Android.targetArchitectures != AndroidArchitecture.None),
                 fixIt = () =>
                 {
-#if UNITY_2021_3_OR_NEWER
                     PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-#else
-                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
-#endif
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 },
                 fixItMessage = "Change android build to arm64 or x86_64 and enable il2cpp.",
                 error = true,
                 buildTargetGroup = BuildTargetGroup.Android,
             },
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "The only standalone targets supported are Windows x64 and OSX with OpenXR.  Other architectures and operating systems are not supported at this time.",
                 checkPredicate = () => (BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget) != BuildTargetGroup.Standalone) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64) || (EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneOSX),
@@ -127,7 +153,8 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = true,
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
-            new OpenXRFeature.ValidationRule()
+#if !UNITY_6000_3_OR_NEWER
+            new()
             {
                 message = "The project's minimum Android API level is lower than 24, which is the lowest level supported by the OpenXR plug-in.",
                 helpText = "This API level is required by the OpenXR plug-in's loader library. If your project is using a custom loader library, ensure that the project's minimum API level is supported by your library, which may be lower than 24.",
@@ -136,8 +163,9 @@ namespace UnityEditor.XR.OpenXR
                 fixItMessage = "Set Player Settings minimum Android API Level to 24.",
                 buildTargetGroup = BuildTargetGroup.Android,
             },
+#endif
 #if ENABLE_INPUT_SYSTEM
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "Lock Input to Game View in order for tracked pose driver to work in editor playmode.",
                 checkPredicate = () =>
@@ -162,7 +190,7 @@ namespace UnityEditor.XR.OpenXR
             },
 #endif // ENABLE_INPUT_SYSTEM
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
-            new OpenXRFeature.ValidationRule() {
+            new() {
                 message = "[Optional] Enabling URP upscaling decreases performance significantly because it is currently not supported by XR. Please disable it by setting Upscaling Filter to Automatic in the Universal Render Pipeline Asset.",
                 checkPredicate = URPUpscalingValidationPredicate,
                 fixIt = URPUpscalingFix,
@@ -171,7 +199,7 @@ namespace UnityEditor.XR.OpenXR
                 errorEnteringPlaymode = false,
             },
 #endif
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",
                 checkPredicate = () =>
@@ -186,7 +214,7 @@ namespace UnityEditor.XR.OpenXR
                 error = false,
                 errorEnteringPlaymode = false,
             },
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "[Optional] Switch to use StickControl thumbsticks instead of Vector2Control, but may break existing projects that have code dependencies to the Vector2Control type. StickControl allows more input options for thumbstick-based control, such as acting as both a combined 2D vector, two independent axes or a four-way Dpad with 4 independent buttons.",
                 checkPredicate = () =>
@@ -201,7 +229,7 @@ namespace UnityEditor.XR.OpenXR
                 error = false,
                 errorEnteringPlaymode = false,
             },
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = "[Optional] Soft shadows can negatively impact performance on HoloLens, disabling soft shadows is recommended",
                 checkPredicate = SoftShadowValidationPredicate,
@@ -213,9 +241,8 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 error = false,
                 buildTargetGroup = BuildTargetGroup.WSA
             },
-
 #if XR_COMPOSITION_LAYERS
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = $"The <b>{OpenXRCompositionLayersFeature.FeatureName}</b> feature is required to use the Composition Layers package.",
                 checkPredicate = () =>
@@ -236,7 +263,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 #endif
 
 #if UNITY_6000_1_OR_NEWER
-            new OpenXRFeature.ValidationRule()
+            new()
             {
                 message = MagicLeapDeprecationMessage,
                 checkPredicate = () =>
@@ -248,7 +275,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 #endif
         };
 
-        private static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new List<OpenXRFeature.ValidationRule>(BuiltinValidationRules.Length);
+        static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new(BuiltinValidationRules.Length);
 
         internal static void EnableInputSystemPoseControlDefine()
         {
@@ -260,9 +287,8 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             AddDefineToBuildTarget("USE_STICK_CONTROL_THUMBSTICKS");
         }
 
-        private static void AddDefineToBuildTarget(string defineName)
+        static void AddDefineToBuildTarget(string defineName)
         {
-#if UNITY_2021_3_OR_NEWER
             NamedBuildTarget[] targets = { NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps };
             for (var index = 0; index < targets.Length; index++)
             {
@@ -270,16 +296,6 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 defines += $";{defineName}";
                 PlayerSettings.SetScriptingDefineSymbols(targets[index], defines);
             }
-
-#else
-            BuildTargetGroup[] buildTargets = {BuildTargetGroup.Android, BuildTargetGroup.Standalone, BuildTargetGroup.WSA};
-            for (var index = 0; index < buildTargets.Length; index++)
-            {
-                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargets[index]);
-                defines += $";{defineName}";
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargets[index], defines);
-            }
-#endif
         }
 
         internal static bool AssetHasNoDuplicates()
@@ -317,6 +333,29 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return true;
         }
 
+        internal static string CheckSettingsPathUnderAssets(out bool isValidPath)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:OpenXRSettings");
+            foreach (string guid in guids)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                var assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+                foreach (var asset in assets)
+                {
+                    if (asset is OpenXRSettings)
+                    {
+                        if (assetPath.StartsWith("Packages/"))
+                        {
+                            isValidPath = false;
+                            return assetPath;
+                        }
+                    }
+                }
+            }
+            isValidPath = true;
+            return null;
+        }
+
         internal static void RegenerateXRPackageSettingsAsset()
         {
             // Deleting the OpenXR PackageSettings asset also destroys the OpenXRPackageSettings object.
@@ -337,6 +376,36 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             createAssetCallback();
         }
 
+        internal static void HighlightFolderInProjectWindow(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                Debug.LogWarning("[OpenXR Validation] Cannot highlight folder: asset path is null or empty.");
+                return;
+            }
+
+            string folderPath = System.IO.Path.GetDirectoryName(assetPath);
+            if (string.IsNullOrEmpty(folderPath))
+            {
+                Debug.LogWarning($"[OpenXR Validation] Could not determine folder path of asset: {assetPath}");
+                return;
+            }
+
+            string folderAssetPath = folderPath.Replace("\\", "/");
+            UnityEngine.Object folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folderAssetPath);
+            if (folder != null)
+            {
+                Selection.activeObject = folder;
+                EditorApplication.ExecuteMenuItem("Window/General/Project");
+                EditorGUIUtility.PingObject(folder);
+                CheckSettingsPathUnderAssets(out isValidPath);
+            }
+            else
+            {
+                Debug.LogWarning($"[OpenXR Validation] Failed to locate folder at path: {folderPath}");
+            }
+        }
+
         /// <summary>
         /// Open the OpenXR project settings
         /// </summary>
@@ -346,7 +415,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         {
             issues.Clear();
             issues.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
-            OpenXRFeature.GetFullValidationList(issues, buildTargetGroup);
+            OpenXRFeature.GetValidationList(issues, buildTargetGroup);
         }
 
         /// <summary>
@@ -356,9 +425,12 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         /// <param name="buildTarget">Build target group to check for validation issues</param>
         public static void GetCurrentValidationIssues(List<OpenXRFeature.ValidationRule> issues, BuildTargetGroup buildTargetGroup)
         {
-            CachedValidationList.Clear();
-            CachedValidationList.AddRange(BuiltinValidationRules.Where(s => s.buildTargetGroup == buildTargetGroup || s.buildTargetGroup == BuildTargetGroup.Unknown));
-            OpenXRFeature.GetValidationList(CachedValidationList, buildTargetGroup);
+            var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
+            // Ignore validations if the OpenXRLoader is not active.
+            if (settings == null || !settings.Manager.activeLoaders.Any(loader => loader is OpenXRLoader))
+                return;
+
+            GetAllValidationIssues(CachedValidationList, buildTargetGroup);
 
             issues.Clear();
             foreach (var validation in CachedValidationList)
@@ -422,7 +494,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return playmodeErrors;
         }
 
-        private static void RequireRestart()
+        static void RequireRestart()
         {
             // There is no public way to change the input handling backend .. so resorting to non-public way for now.
             if (!EditorUtility.DisplayDialog("Unity editor restart required", "The Unity editor must be restarted for this change to take effect.  Cancel to revert changes.", "Apply", "Cancel"))
@@ -431,7 +503,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             typeof(EditorApplication).GetMethod("RestartEditorAndRecompileScripts", BindingFlags.NonPublic | BindingFlags.Static)?.Invoke(null, null);
         }
 
-        private static bool SoftShadowValidationPredicate()
+        static bool SoftShadowValidationPredicate()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
             // If current render pipeline is Built-In Render Pipeline
@@ -445,7 +517,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return true;
         }
 
-        private static bool URPUpscalingValidationPredicate()
+        static bool URPUpscalingValidationPredicate()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
             if (currentRenderPipelineAsset == null)
@@ -461,7 +533,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return false;
         }
 
-        private static void SoftShadowFixItButtonPress()
+        static void SoftShadowFixItButtonPress()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
             // If current render pipeline is Built-In Render Pipeline
@@ -488,7 +560,8 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
             Debug.LogWarning("Unable to disable soft shadows.");
         }
-        private static void URPUpscalingFix()
+
+        static void URPUpscalingFix()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
             // If current render pipeline is Built-In Render Pipeline
@@ -520,9 +593,9 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         }
 
 #if UNITY_6000_1_OR_NEWER
-        private const string MagicLeapDeprecationMessage = "From Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only.";
+        const string MagicLeapDeprecationMessage = "From Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only.";
 
-        private static bool ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
+        static bool ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
         {
             var magicLeapFeatureId = "magicleap";
             var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
@@ -536,23 +609,16 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             return false;
         }
 
-        private static bool IsMagicLeapAndroidArchitectureSupportEnabled()
+        static bool IsMagicLeapAndroidArchitectureSupportEnabled()
         {
-            if (EditorUserBuildSettings.selectedBuildTargetGroup != BuildTargetGroup.Android)
-                return false;
-
-            if (PlayerSettings.Android.targetArchitectures.HasFlag(AndroidArchitecture.X86_64))
-            {
-                return true;
-            }
-
-            return false;
+            return EditorUserBuildSettings.selectedBuildTargetGroup == BuildTargetGroup.Android
+                && PlayerSettings.Android.targetArchitectures.HasFlag(AndroidArchitecture.X86_64);
         }
 #endif
 
 #if UNITY_6000_3_OR_NEWER
-        [PostProcessBuildAttribute(1)]
-        private static void OnPostprocessBuildMagicLeapDeprecation(BuildTarget target, string pathToBuiltProject)
+        [PostProcessBuild(1)]
+        static void OnPostprocessBuildMagicLeapDeprecation(BuildTarget target, string pathToBuiltProject)
         {
             BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown;
             switch (target)
@@ -575,7 +641,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             if (!ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(buildTargetGroup))
                 return;
 
-            UnityEngine.Debug.LogWarning(MagicLeapDeprecationMessage);
+            Debug.LogWarning(MagicLeapDeprecationMessage);
         }
 #endif
     }

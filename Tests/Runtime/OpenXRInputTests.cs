@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
@@ -24,9 +22,9 @@ using PoseStruct = UnityEngine.XR.OpenXR.Input.Pose;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
-    internal class OpenXRInputTestsBase : OpenXRLoaderSetup
+    class OpenXRInputTestsBase : OpenXRLoaderSetup
     {
-        private static readonly List<XRNodeState> s_NodeStates = new List<XRNodeState>();
+        static readonly List<XRNodeState> s_NodeStates = new();
 
         protected static bool IsNodeTracked(XRNode node)
         {
@@ -86,7 +84,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     }
 
-    internal class OpenXRInputTests : OpenXRInputTestsBase
+    class OpenXRInputTests : OpenXRInputTestsBase
     {
         protected override void QueryBuildFeatures(List<Type> featureTypes)
         {
@@ -124,7 +122,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, bool value)
+        static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, bool value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetBool(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
@@ -140,7 +138,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, float value)
+        static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, float value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetFloat(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
@@ -156,7 +154,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="value">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, Vector2 value)
+        static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, Vector2 value)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetVec2(userPath, interactionPath, value);
             yield return new WaitForXrFrame(2);
@@ -176,15 +174,15 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="interactionPath">OpenXR interaction path</param>
         /// <param name="expected">Value to verify</param>
         /// <returns></returns>
-        private static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, PoseStruct expected)
+        static IEnumerator ValidateInputAction(InputAction inputAction, string userPath, string interactionPath, PoseStruct expected)
         {
             ConformanceAutomationFeature.ConformanceAutomationSetPose(userPath, interactionPath, expected.position, expected.rotation);
             ConformanceAutomationFeature.ConformanceAutomationSetVelocity(
                 userPath,
                 interactionPath,
-                ((expected.trackingState & InputTrackingState.Velocity) == InputTrackingState.Velocity),
+                (expected.trackingState & InputTrackingState.Velocity) == InputTrackingState.Velocity,
                 expected.velocity,
-                ((expected.trackingState & InputTrackingState.AngularVelocity) == InputTrackingState.AngularVelocity),
+                (expected.trackingState & InputTrackingState.AngularVelocity) == InputTrackingState.AngularVelocity,
                 expected.angularVelocity);
             ConformanceAutomationFeature.ConformanceAutomationSetActive(null, userPath, expected.isTracked);
             yield return new WaitForXrFrame(2);
@@ -250,7 +248,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <param name="amplitude">Amplitude for haptic</param>
         /// <param name="duration">Duration for haptic</param>
         /// <param name="inputDevice">Device to filter with</param>
-        private static IEnumerator ValidateHaptic(InputAction inputAction, float amplitude, float duration, InputSystem.InputDevice inputDevice = null)
+        static IEnumerator ValidateHaptic(InputAction inputAction, float amplitude, float duration, InputSystem.InputDevice inputDevice = null)
         {
             var hapticImpulseCount = 0;
             var hapticStopCount = 0;
@@ -293,14 +291,14 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Validate that data flows from OpenXR to the InputSystem through the given OpenXR interaction path to
         /// the given input ControlItem
         /// </summary>
-        /// <param name="localizedActionMapName">Device layout name to validate</param>
+        /// <param name="layout">Device layout name to validate</param>
         /// <param name="control">Control within the device layout to validate</param>
         /// <param name="userPath">OpenXR User path to bind to</param>
         /// <param name="interactionPath">OpenXR interaction path to bind to</param>
         /// <param name="controlLayoutOverride">Optional override for the control layout</param>
         /// <param name="usageOverride">Optional usage override for the binding</param>
         /// <returns></returns>
-        private static IEnumerator ValidateLayoutControl(InputControlLayout layout, InputControlLayout.ControlItem control, string userPath, string interactionPath, string controlLayoutOverride = null, string usageOverride = null)
+        static IEnumerator ValidateLayoutControl(InputControlLayout layout, InputControlLayout.ControlItem control, string userPath, string interactionPath, string controlLayoutOverride = null, string usageOverride = null)
         {
             // Convert the user path to a usage to limit the bound action
             var usage = userPath switch
@@ -460,7 +458,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
             feature.CreateActionMaps(actionMaps);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
             yield return new WaitForXrFrame(2);
 
             var layoutName = interactionFeature.layoutNameOverride ?? interactionFeature.layoutType.Name;
@@ -543,65 +541,65 @@ namespace UnityEngine.XR.OpenXR.Tests
             }
         }
 
-        private static readonly Regex k_ErrorNoDevices = new Regex("ActionMapConfig contains no `deviceInfos`.*");
-        private static readonly Regex k_ErrorInvalidDeviceName = new Regex(@".*Invalid device name.*");
-        private static readonly Regex k_ErrorInvalidInteractionProfile = new Regex(@".*Invalid interaction profile.*");
-        private static readonly Regex k_ErrorInvalidUserPath = new Regex(@".*Invalid user path.*");
-        private static readonly Regex k_ErrorInvalidUsage = new Regex(@".*Invalid Usage.*");
-        private static readonly Regex k_ErrorInvalidActionSetName = new Regex(@".*Invalid ActionSet name.*");
-        private static readonly Regex k_ErrorInvalidActionType = new Regex(@".*Invalid action type \'\d*' for action '.*'");
+        static readonly Regex k_ErrorNoDevices = new("ActionMapConfig contains no `deviceInfos`.*");
+        static readonly Regex k_ErrorInvalidDeviceName = new(".*Invalid device name.*");
+        static readonly Regex k_ErrorInvalidInteractionProfile = new(".*Invalid interaction profile.*");
+        static readonly Regex k_ErrorInvalidUserPath = new(".*Invalid user path.*");
+        static readonly Regex k_ErrorInvalidUsage = new(".*Invalid Usage.*");
+        static readonly Regex k_ErrorInvalidActionSetName = new(".*Invalid ActionSet name.*");
+        static readonly Regex k_ErrorInvalidActionType = new(@".*Invalid action type \'\d*' for action '.*'");
 
-        private static readonly (Action<OpenXRInteractionFeature.ActionMapConfig> filter, Regex expectLog, Regex expectReport)[] s_ActionMapTests =
+        static readonly (Action<OpenXRInteractionFeature.ActionMapConfig> filter, Regex expectLog, Regex expectReport)[] s_ActionMapTests =
         {
             // One or more device infos must be specified
-            ((c) => c.deviceInfos = null, k_ErrorNoDevices, null),
-            ((c) => c.deviceInfos = new List<OpenXRInteractionFeature.DeviceConfig>(), k_ErrorNoDevices, null),
+            (c => c.deviceInfos = null, k_ErrorNoDevices, null),
+            (c => c.deviceInfos = new List<OpenXRInteractionFeature.DeviceConfig>(), k_ErrorNoDevices, null),
 
             // Desired interaction profile must be specified and be a valid path
-            ((c) => c.desiredInteractionProfile = "", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
-            ((c) => c.desiredInteractionProfile = "bad", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
-            ((c) => c.desiredInteractionProfile = new String('a', 500), k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.desiredInteractionProfile = "", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.desiredInteractionProfile = "bad", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.desiredInteractionProfile = new String('a', 500), k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
 
             // Device user path must be specified and be a valid path
-            ((c) => c.deviceInfos[0].userPath = null, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
-            ((c) => c.deviceInfos[0].userPath = "", k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
-            ((c) => c.deviceInfos[0].userPath = "bad", k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
-            ((c) => c.deviceInfos[0].userPath = "/user/" + new String('a', 500), k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.deviceInfos[0].userPath = null, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.deviceInfos[0].userPath = "", k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.deviceInfos[0].userPath = "bad", k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.deviceInfos[0].userPath = "/user/" + new string('a', 500), k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
 
             // Name must be valid
-            ((c) => c.name = null, k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
-            ((c) => c.name = "", k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
-            ((c) => c.name = new String('a', 500), k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
+            (c => c.name = null, k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
+            (c => c.name = "", k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
+            (c => c.name = new string('a', 500), k_ErrorInvalidActionSetName, k_ErrorInvalidActionSetName),
 
             // Localized name
-            ((c) => c.localizedName = null, k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
-            ((c) => c.localizedName = "", k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
-            ((c) => c.localizedName = new String('a', 500), k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
+            (c => c.localizedName = null, k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
+            (c => c.localizedName = "", k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
+            (c => c.localizedName = new string('a', 500), k_ErrorInvalidDeviceName, k_ErrorInvalidDeviceName),
 
             // Manufacturer or serial number should be allowed to be null or empty
-            ((c) => c.manufacturer = "", null, null),
-            ((c) => c.manufacturer = null, null, null),
-            ((c) => c.serialNumber = "", null, null),
-            ((c) => c.serialNumber = null, null, null),
+            (c => c.manufacturer = "", null, null),
+            (c => c.manufacturer = null, null, null),
+            (c => c.serialNumber = "", null, null),
+            (c => c.serialNumber = null, null, null),
 
             // Invalid action type
-            ((c) => c.actions[0].type = (OpenXRInteractionFeature.ActionType)100, k_ErrorInvalidActionType, k_ErrorInvalidActionType),
+            (c => c.actions[0].type = (OpenXRInteractionFeature.ActionType)100, k_ErrorInvalidActionType, k_ErrorInvalidActionType),
 
             // Action Usages
-            ((c) => c.actions[0].usages = new List<string> {""}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
-            ((c) => c.actions[0].usages = new List<string> {null}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
-            ((c) => c.actions[0].usages = new List<string> {new string('a', 500)}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
+            (c => c.actions[0].usages = new List<string> {""}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
+            (c => c.actions[0].usages = new List<string> {null}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
+            (c => c.actions[0].usages = new List<string> {new string('a', 500)}, k_ErrorInvalidUsage, k_ErrorInvalidUsage),
 
             // Invalid user path on binding
-            ((c) => c.actions[0].bindings[0].userPaths = new List<string> {"bad", "bad"}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
-            ((c) => c.actions[0].bindings[0].userPaths = new List<string> {null, null}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
-            ((c) => c.actions[0].bindings[0].userPaths = new List<string> {"/" + new string('a', 500)}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.actions[0].bindings[0].userPaths = new List<string> {"bad", "bad"}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.actions[0].bindings[0].userPaths = new List<string> {null, null}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
+            (c => c.actions[0].bindings[0].userPaths = new List<string> {"/" + new string('a', 500)}, k_ErrorInvalidUserPath, k_ErrorInvalidUserPath),
 
             // Invalid interaction profile on bindings
-            ((c) => c.actions[0].bindings[0].interactionProfileName = null, null, null),
-            ((c) => c.actions[0].bindings[0].interactionProfileName = "", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
-            ((c) => c.actions[0].bindings[0].interactionProfileName = "/" + new string('a', 500), k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
-            ((c) => c.actions[0].bindings[0].interactionProfileName = "bad", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.actions[0].bindings[0].interactionProfileName = null, null, null),
+            (c => c.actions[0].bindings[0].interactionProfileName = "", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.actions[0].bindings[0].interactionProfileName = "/" + new string('a', 500), k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
+            (c => c.actions[0].bindings[0].interactionProfileName = "bad", k_ErrorInvalidInteractionProfile, k_ErrorInvalidInteractionProfile),
         };
 
         [UnityTest]
@@ -628,12 +626,12 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// Defines a list of OpenXR API methods to test failure with
         /// </summary>
-        private static readonly (string function, XrResult result, Regex expectLog)[] s_RuntimeFailureTests =
+        static readonly (string function, XrResult result, Regex expectLog)[] s_RuntimeFailureTests =
         {
-            ("xrSuggestInteractionProfileBindings", XrResult.FeatureUnsupported, new Regex(@".*Failed to suggest bindings for interaction profile.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
-            ("xrCreateActionSet", XrResult.FeatureUnsupported, new Regex(@".*Failed to create ActionSet.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
-            ("xrCreateAction", XrResult.FeatureUnsupported, new Regex(@".*Failed to create Action.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
-            ("xrAttachSessionActionSets", XrResult.FeatureUnsupported, new Regex(@".*Failed to attach ActionSets.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
+            ("xrSuggestInteractionProfileBindings", XrResult.FeatureUnsupported, new Regex(".*Failed to suggest bindings for interaction profile.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
+            ("xrCreateActionSet", XrResult.FeatureUnsupported, new Regex(".*Failed to create ActionSet.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
+            ("xrCreateAction", XrResult.FeatureUnsupported, new Regex(".*Failed to create Action.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
+            ("xrAttachSessionActionSets", XrResult.FeatureUnsupported, new Regex(".*Failed to attach ActionSets.*XR_ERROR_FEATURE_UNSUPPORTED.*")),
         };
 
         /// <summary>
@@ -642,7 +640,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator RuntimeMethodFailure([ValueSource(nameof(s_RuntimeFailureTests))] (string function, XrResult result, Regex expectLog) test)
         {
-            MockRuntime.SetFunctionCallback(test.function, (name) => test.result);
+            MockRuntime.SetFunctionCallback(test.function, _ => test.result);
 
             EnableFeature<OculusTouchControllerProfile>();
             InitializeAndStart();
@@ -700,12 +698,12 @@ namespace UnityEngine.XR.OpenXR.Tests
             EnableFeature<OculusTouchControllerProfile>();
 
             var tracked = false;
-            InputTracking.trackingAcquired += (ns) =>
+            InputTracking.trackingAcquired += ns =>
             {
                 if (ns.nodeType == XRNode.LeftHand)
                     tracked = ns.tracked;
             };
-            InputTracking.trackingLost += (ns) =>
+            InputTracking.trackingLost += ns =>
             {
                 if (ns.nodeType == XRNode.LeftHand)
                     tracked = ns.tracked;
@@ -746,7 +744,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
             feature.CreateActionMaps(actionMaps);
 
-            base.InitializeAndStart();
+            InitializeAndStart();
             yield return new WaitForXrFrame(1);
 
             var layoutName = nameof(OculusTouchControllerProfile.OculusTouchController);
