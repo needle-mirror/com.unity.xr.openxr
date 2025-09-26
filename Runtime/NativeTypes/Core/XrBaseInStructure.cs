@@ -1,23 +1,36 @@
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.MockRuntime")]
-[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.ConformanceAutomation")]
-
 namespace UnityEngine.XR.OpenXR.NativeTypes
 {
     /// <summary>
     /// Convenience type for iterating (read only).
     /// </summary>
-    internal unsafe struct XrBaseInStructure
+    public unsafe struct XrBaseInStructure
     {
         /// <summary>
-        /// The XrStructureType of this structure. This base structure itself has no associated XrStructureType value.
+        /// The <see cref="XrStructureType"/> of this structure.
         /// </summary>
-        public uint Type;
+        public XrStructureType type { get; }
 
         /// <summary>
-        /// Pointer to the next structure in a structure chain.
+        /// `null` or a pointer to the next structure in a structure chain.
         /// </summary>
-        public void* Next;
+        public void* next { get; set; }
+
+        /// <summary>
+        /// Construct an instance.
+        /// </summary>
+        /// <param name="type">The structure type.</param>
+        /// <param name="next">The next pointer.</param>
+        public XrBaseInStructure(XrStructureType type, void* next)
+        {
+            this.type = type;
+            this.next = next;
+        }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer.
+        /// </summary>
+        /// <param name="type">The structure type.</param>
+        public XrBaseInStructure(XrStructureType type)
+            : this(type, null) { }
     }
 }

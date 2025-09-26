@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string>
 //
 // Platform Headers
 //
@@ -41,3 +41,5 @@ typedef void* PluginFunc;
 PluginHandle Plugin_LoadLibrary(const wchar_t* libName);
 void Plugin_FreeLibrary(PluginHandle handle);
 PluginFunc Plugin_GetSymbol(PluginHandle handle, const char* symbol);
+void Convert_utf16_to_utf8_char(char32_t utf16_codepoint, std::string& utf8_output);
+std::string Convert_utf16_to_utf8(const wchar_t* libName);

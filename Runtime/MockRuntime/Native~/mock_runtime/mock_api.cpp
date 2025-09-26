@@ -213,6 +213,30 @@ MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_CauseInstanceLoss,
 }
 #endif
 
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_ChangeRecommendedResolution,
+    (uint32_t width, uint32_t height),
+    (width, height))
+#if !TRAMPOLINE
+{
+    if (nullptr == s_runtime)
+        return;
+
+    s_runtime->ChangeRecommendedImageRectExtents(width, height);
+}
+#endif
+
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_CauseRecommendedResolutionChangedEvent,
+    (),
+    ())
+#if !TRAMPOLINE
+{
+    if (nullptr == s_runtime)
+        return;
+
+    s_runtime->CauseRecommendedResolutionChangedEvent();
+}
+#endif
+
 MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_CauseUserPresenceChange,
     (bool hasUserPresent),
     (hasUserPresent))
@@ -371,6 +395,8 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_GetSessionState)
     GET_PROC_ADDRESS(MockRuntime_RequestExitSession)
     GET_PROC_ADDRESS(MockRuntime_CauseInstanceLoss)
+    GET_PROC_ADDRESS(MockRuntime_ChangeRecommendedResolution)
+    GET_PROC_ADDRESS(MockRuntime_CauseRecommendedResolutionChangedEvent)
     GET_PROC_ADDRESS(MockRuntime_CauseUserPresenceChange)
     GET_PROC_ADDRESS(MockRuntime_SetReferenceSpaceBounds)
     GET_PROC_ADDRESS(MockRuntime_GetEndFrameStats)

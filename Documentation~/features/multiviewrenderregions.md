@@ -5,15 +5,11 @@ uid: openxr-multiview-render-regions
 
 The Multiview Render Regions feature is an optimization technique that prevents processing on areas of the screen that are not visible to the user.
 
-For a detailed explanation of Multiview Render Regions, refer to [Multiview Render Regions](https://docs.unity3d.com/6000.1/Documentation/Manual/xr-multiview-render-regions.html) in the Unity Manual.
+For a detailed explanation of Multiview Render Regions, refer to [Multiview Render Regions](xref:um-xr-multiview-render-regions) in the Unity Manual.
 
 ## Prerequisites
 
-To enable Multiview Render Regions, your project must meet the following requirements:
-
-* Unity 6.1 or newer.
-* [All Passes](#reference) mode is only available in Unity 6.2 or newer.
-* Use the Vulkan API. This feature isn't available on other graphics APIs. To understand how to choose your graphics API, refer to [Configure graphics APIs](https://docs.unity3d.com/Manual/configure-graphicsAPIs.html).
+To enable Multiview Render Regions, your project must meet the requirements outlined in [Prerequisites](xref:um-xr-multiview-render-regions#prerequisites) (Unity Manual).
 
 ## Enable Multiview Render Regions
 
@@ -36,4 +32,4 @@ You can choose from the following options in the **Multiview Render Regions Opti
 | :--------- | :-------------- |
 | **None**   | Disables Multiview Render regions. OpenXR enables **None** by default. |
 | **Final Pass** | Enables Multiview Render Regions Optimizations for the final render pass only and is only applied to render passes that output to eye textures.  |
-| **All Passes** | Applies Multiview Render Regions Optimizations for all passes that use multiview. <br><strong>Note</strong>: Several post-processing effects aren't compatible with Multiview Render Regions and can result in rendering artifacts. Unity recommends that you disable post-processing effects for XR devices, as outlined in [Optimize for untethered XR devices](https://docs.unity3d.com/6000.2/Documentation/Manual/urp/xr-untethered-device-optimization.html). |
+| **All Passes** | Applies Multiview Render Regions Optimizations for all passes that use multiview. <br><strong>Note</strong>: Several post-processing effects aren't compatible with Multiview Render Regions and can result in rendering artifacts. <br>In Unity 6.3 and newer with render graph, Unity enables Multiview Render Regions only on passes where it increases performance and doesn't result in rendering artifacts. |

@@ -39,7 +39,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         protected static readonly (Type featureType, Type layoutType, string layoutNameOverride)[] s_InteractionFeatureLayouts = {
             (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController), null),
             (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice), "EyeGaze"),
-            (typeof(MicrosoftHandInteraction), typeof(MicrosoftHandInteraction.HoloLensHand), null),
             (typeof(KHRSimpleControllerProfile), typeof(KHRSimpleControllerProfile.KHRSimpleController), null),
             (typeof(HandInteractionProfile), typeof(HandInteractionProfile.HandInteraction), null),
             (typeof(MetaQuestTouchProControllerProfile), typeof(MetaQuestTouchProControllerProfile.QuestProTouchController), null),
@@ -660,6 +659,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var knownInteractionFeatures = OpenXRSettings.Instance.GetFeatures<OpenXRInteractionFeature>()
                 .Select(f => f.GetType())
                 .Where(f => !s_IgnoreInteractionFeatures.Contains(f))
+                .Where(f => !Attribute.IsDefined(f, typeof(ObsoleteAttribute)))
                 .ToArray();
 
             // Array of interaction features being tested

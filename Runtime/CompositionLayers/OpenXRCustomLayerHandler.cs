@@ -1,4 +1,8 @@
+//#define VERBOSE_LOGGING
 #if XR_COMPOSITION_LAYERS
+#if VERBOSE_LOGGING
+using System.Runtime.CompilerServices;
+#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +10,6 @@ using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.XR.CompositionLayers.Extensions;
-using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Services;
 using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_VIDEO
@@ -66,7 +69,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             /// <param name="xrSwapchainCreateInfo">Native structure for the swapchain creation info.</param>
             /// <param name="isExternalSurface">Tells if swapchain is using an external surface.</param>
             /// <param name="isStereo">Tells if swapchain should be stereo.</param>
-            public SwapchainCreateInfo(XrSwapchainCreateInfo xrSwapchainCreateInfo, bool isExternalSurface = false, bool isStereo = false)
+            public SwapchainCreateInfo(
+                XrSwapchainCreateInfo xrSwapchainCreateInfo, bool isExternalSurface = false, bool isStereo = false)
             {
                 this.nativeStruct = xrSwapchainCreateInfo;
                 this.isExternalSurface = isExternalSurface;
@@ -77,7 +81,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             /// Implicit conversion with just a native XrSwapchainCreateInfo struct.
             /// </summary>
             /// <param name="createInfo">The native struct to convert.</param>
-            public static implicit operator SwapchainCreateInfo(XrSwapchainCreateInfo createInfo) => new SwapchainCreateInfo(createInfo);
+            public static implicit operator SwapchainCreateInfo(XrSwapchainCreateInfo createInfo) => new(createInfo);
         }
 
         /// <summary>
@@ -99,11 +103,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Container for grouping render information for each compostion layer.
+        /// Container for grouping render information for each composition layer.
         /// </summary>
         class LayerRenderInfo
         {
-            public Dictionary<uint, SwapchainImageInfo> SwapchainImageInfos = new Dictionary<uint, SwapchainImageInfo>();
+            public Dictionary<uint, SwapchainImageInfo> SwapchainImageInfos = new();
             public Texture Texture;
 #if UNITY_VIDEO
             public VideoPlayer VideoPlayer;
@@ -134,7 +138,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         protected static OpenXRCustomLayerHandler<T> Instance;
 
         /// <summary>
-        /// Deinitializes this instance of c>OpenXRCustomLayerHandler&lt;T&gt;</c>.
+        /// Deinitializes this instance of <c>OpenXRCustomLayerHandler&lt;T&gt;</c>.
         /// </summary>
         ~OpenXRCustomLayerHandler() => Dispose(false);
 
@@ -178,10 +182,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </example>
         /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
         /// that was just created.</param>
-        /// <param name="swapchainCreateInfo"> An <c>XrSwapchainCreateInfo</c> object created and initialized by the concrete implementation of this method.</returns>
+        /// <param name="swapchainCreateInfo"> An <c>XrSwapchainCreateInfo</c> object created and initialized by the concrete implementation of this method.</param>
         /// <returns> A bool indicating success or failure.</returns>
-
-        protected abstract bool CreateSwapchain(CompositionLayerManager.LayerInfo layerInfo, out SwapchainCreateInfo swapchainCreateInfo);
+        protected abstract bool CreateSwapchain(
+            CompositionLayerManager.LayerInfo layerInfo, out SwapchainCreateInfo swapchainCreateInfo);
 
         /// <summary>
         /// Override this method to create the native composition layer struct of type T that is passed to OpenXR.
@@ -245,10 +249,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// that was just created.</param>
         /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer,
         /// such as the associated swapchain handle.</param>
-        /// <param name="nativeLayer"> An object of type T that is created and initialized by the concrete implementation of this method.</returns>
+        /// <param name="nativeLayer"> An object of type T that is created and initialized by the concrete implementation of this method.</param>
         /// <returns> A bool indicating success or failure.</returns>
-
-        protected abstract bool CreateNativeLayer(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput, out T nativeLayer);
+        protected abstract bool CreateNativeLayer(
+            CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput, out T nativeLayer);
 
         /// <summary>
         /// Override this method to modify a native composition layer struct in response to changes on the associated
@@ -256,7 +260,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <see cref="Unity.XR.CompositionLayers.CompositionLayer"/> GameObject.
         /// </summary>
         /// <remarks>
-        /// You must reinitialize the Next pointer with <see cref="OpenXRLayerUtility.GetExtensionsChain(CompositionLayerManager.LayerInfo, Unity.XR.CompositionLayers.CompositionLayerExtension.ExtensionTarget)"/>
+        /// You must reinitialize the Next pointer with
+        /// <see cref="OpenXRLayerUtility.GetExtensionsChain(CompositionLayerManager.LayerInfo, Unity.XR.CompositionLayers.CompositionLayerExtension.ExtensionTarget)"/>
         /// to get any potential updates from extension components.
         /// </remarks>
         /// <example>
@@ -294,17 +299,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Mapping of instance ids and native layer structs to help determine what layers are currently set to be active.
         /// </summary>
-        protected Dictionary<int, T> m_nativeLayers = new Dictionary<int, T>();
+        protected Dictionary<int, T> m_nativeLayers = new();
 
         /// <summary>
         /// Thread safe queue used to dispatch callbacks that may come from other threads such as the swapchain creation
         /// on the graphics thread.
         /// </summary>
-        protected ConcurrentQueue<Action> actionsForMainThread = new ConcurrentQueue<Action>();
+        protected ConcurrentQueue<Action> actionsForMainThread = new();
 
-        bool isRegistedOnBeforeRender;
-        Dictionary<int, LayerRenderInfo> m_renderInfos = new Dictionary<int, LayerRenderInfo>();
-        Dictionary<int, CompositionLayerManager.LayerInfo> m_layerInfos = new Dictionary<int, CompositionLayerManager.LayerInfo>();
+        bool isRegisteredOnBeforeRender;
+        Dictionary<int, LayerRenderInfo> m_RenderInfos = new();
+        Dictionary<int, CompositionLayerManager.LayerInfo> m_LayerInfos = new();
         NativeArray<T> m_ActiveNativeLayers;
         NativeArray<int> m_ActiveNativeLayerOrders;
         int m_ActiveNativeLayerCount;
@@ -316,20 +321,24 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <remarks>
         /// This implementation carries out two tasks. It dequeues actions for the main thread like dispatch when
         /// the swapchain has been
-        /// created and it adds all the active layers to the <c>endFrameInfo</c> struct in the native UnityOpenXR lib.
+        /// created, and it adds all the active layers to the <c>endFrameInfo</c> struct in the native UnityOpenXR lib.
         /// </remarks>
         public virtual void OnUpdate()
         {
             while (actionsForMainThread.Count > 0)
             {
-                if (actionsForMainThread.TryDequeue(out Action action))
+                if (actionsForMainThread.TryDequeue(out var action))
                     action();
             }
 
             unsafe
             {
                 if (m_ActiveNativeLayerCount > 0 && CompositionLayerManager.Instance != null)
-                    OpenXRLayerUtility.AddActiveLayersToEndFrame(m_ActiveNativeLayers.GetUnsafePtr(), m_ActiveNativeLayerOrders.GetUnsafePtr(), m_ActiveNativeLayerCount, UnsafeUtility.SizeOf<T>());
+                    OpenXRLayerUtility.AddActiveLayersToEndFrame(
+                        m_ActiveNativeLayers.GetUnsafePtr(),
+                        m_ActiveNativeLayerOrders.GetUnsafePtr(),
+                        m_ActiveNativeLayerCount,
+                        UnsafeUtility.SizeOf<T>());
             }
 
             m_ActiveNativeLayerCount = 0;
@@ -344,32 +353,35 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// being created.</param>
         public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
-            if (!isRegistedOnBeforeRender)
+            if (!isRegisteredOnBeforeRender)
             {
                 Application.onBeforeRender += OnBeforeRender;
-                isRegistedOnBeforeRender = true;
+                isRegisteredOnBeforeRender = true;
             }
 
             CreateSwapchainAsync(layerInfo);
         }
 
-        private void OnBeforeRender()
+        void OnBeforeRender()
         {
-            foreach(var container in m_renderInfos.Values)
+            foreach(var container in m_RenderInfos.Values)
             {
                 if (!container.IsActiveLayer)
                     continue;
 
                 var renderTexture = OpenXRLayerUtility.FindRenderTexture(container.RenderTextureId);
 
-                LayerRenderInfo.SwapchainImageInfo SwapchainImageInfo = null;
+                LayerRenderInfo.SwapchainImageInfo swapchainImageInfo;
                 if (!container.SwapchainImageInfos.ContainsKey(container.RenderTextureId))
                 {
-                    SwapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo { RenderTexture = renderTexture, IsWritten = false };
-                    container.SwapchainImageInfos.Add(container.RenderTextureId, SwapchainImageInfo);
+                    swapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo
+                    {
+                        RenderTexture = renderTexture, IsWritten = false
+                    };
+                    container.SwapchainImageInfos.Add(container.RenderTextureId, swapchainImageInfo);
                 }
 
-                SwapchainImageInfo = container.SwapchainImageInfos[container.RenderTextureId];
+                swapchainImageInfo = container.SwapchainImageInfos[container.RenderTextureId];
 
                 var isVideo = false;
 #if UNITY_VIDEO
@@ -381,14 +393,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 if (container.IsNewTexture || isVideo || isRenderTexture)
                 {
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
-                    SwapchainImageInfo.IsWritten = true;
+                    swapchainImageInfo.IsWritten = true;
                 }
 
                 // For all other layers only write to the swapchain image if it has not already been written.
-                else if (!SwapchainImageInfo.IsWritten)
+                else if (!swapchainImageInfo.IsWritten)
                 {
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
-                    SwapchainImageInfo.IsWritten = true;
+                    swapchainImageInfo.IsWritten = true;
                 }
             }
         }
@@ -430,8 +442,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             OpenXRLayerUtility.ReleaseSwapchain(removedLayerId);
             m_nativeLayers.Remove(removedLayerId);
-            m_layerInfos.Remove(removedLayerId);
-            m_renderInfos.Remove(removedLayerId);
+            m_LayerInfos.Remove(removedLayerId);
+            m_RenderInfos.Remove(removedLayerId);
         }
 
         /// <summary>
@@ -469,14 +481,18 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Clears all maps and disposes any created native arrays.
         /// </summary>
-        /// <param name="disposing">Determines if this method was called from the Dispose() method or the finalizer.</param>
+        /// <param name="disposing">`true` if this method was called by `Dispose`.
+        /// Otherwise, this method was called by the class finalizer.</param>
         protected virtual void Dispose(bool disposing)
         {
+#if VERBOSE_LOGGING
+            Debug.Log($"Disposing {GetType().Name} with hash: {RuntimeHelpers.GetHashCode(this)}");
+#endif
             if (disposing)
             {
-                m_layerInfos.Clear();
+                m_LayerInfos.Clear();
                 m_nativeLayers.Clear();
-                m_renderInfos.Clear();
+                m_RenderInfos.Clear();
             }
 
             if (m_ActiveNativeLayers.IsCreated)
@@ -484,10 +500,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             if (m_ActiveNativeLayerOrders.IsCreated)
                 m_ActiveNativeLayerOrders.Dispose();
 
-            if (isRegistedOnBeforeRender)
+            if (isRegisteredOnBeforeRender)
             {
                 Application.onBeforeRender -= OnBeforeRender;
-                isRegistedOnBeforeRender = false;
+                isRegisteredOnBeforeRender = false;
             }
         }
 
@@ -502,15 +518,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// that was just created.</param>
         protected virtual void CreateSwapchainAsync(CompositionLayerManager.LayerInfo layerInfo)
         {
-            m_layerInfos[layerInfo.Id] = layerInfo;
+            m_LayerInfos[layerInfo.Id] = layerInfo;
             var success = CreateSwapchain(layerInfo, out var swapChainInfo);
             if (!success)
                 return;
 
             if (swapChainInfo.isStereo)
-                OpenXRLayerUtility.CreateStereoSwapchain(layerInfo.Id, swapChainInfo.nativeStruct, OnCreatedStereoSwapchainCallback);
+                OpenXRLayerUtility.CreateStereoSwapchain(
+                    layerInfo.Id, swapChainInfo.nativeStruct, OnCreatedStereoSwapchainCallback);
             else
-                OpenXRLayerUtility.CreateSwapchain(layerInfo.Id, swapChainInfo.nativeStruct, swapChainInfo.isExternalSurface, OnCreatedSwapchainCallback);
+                OpenXRLayerUtility.CreateSwapchain(
+                    layerInfo.Id,
+                    swapChainInfo.nativeStruct,
+                    swapChainInfo.isExternalSurface,
+                    OnCreatedSwapchainCallback);
         }
 
         /// <summary>
@@ -522,11 +543,16 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// that was just created.</param>
         /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer, such as
         /// the associated swapchain handle.</param>
-        protected virtual void OnCreatedSwapchain(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput)
+        protected virtual void OnCreatedSwapchain(
+            CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput)
         {
             var success = CreateNativeLayer(layerInfo, swapchainOutput, out var nativeLayer);
             if (success)
                 m_nativeLayers[layerInfo.Id] = nativeLayer;
+#if VERBOSE_LOGGING
+            else
+                Debug.LogError("CreateNativeLayer failed");
+#endif
         }
 
         /// <summary>
@@ -559,19 +585,22 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         /// <summary>
         /// Override this method to modify a native composition layer struct in response to when it is active.
-        /// An active compositon layer will invoke this every frame.
+        /// An active composition layer will invoke this every frame.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition
+        /// <param name="layerInfo">Container for the instance id and CompositionLayer component of the composition
         /// layer that is active.</param>
-        /// <param name="nativeLayer"> A reference to the native OpenXR structure of the composition layer that is active.</param>
-        /// <returns>Bool indicating success or failure. A failure case will result in the native composition layer struct not being added into the final XrFrameEndInfo struct.</returns>
+        /// <param name="nativeLayer">A reference to the native OpenXR structure of the composition layer that is active.</param>
+        /// <returns>Bool indicating success or failure.
+        /// A failure case will result in the native composition layer struct not being added into the final XrFrameEndInfo struct.</returns>
         protected virtual bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref T nativeLayer)
         {
             var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
-            if (texturesExtension == null || texturesExtension.LeftTexture == null || texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.AndroidSurface)
+            if (texturesExtension == null
+                || texturesExtension.LeftTexture == null
+                || texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.AndroidSurface)
                 return true;
 
-            if (m_renderInfos.TryGetValue(layerInfo.Id, out var container))
+            if (m_RenderInfos.TryGetValue(layerInfo.Id, out var container))
             {
                 container.IsNewTexture = container.Texture != texturesExtension.LeftTexture;
 
@@ -579,7 +608,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 {
                     // If we have a new texture with different dimensions then we need to release the current swapchain and create another.
                     // This is an async procedure that also creates a new native layer object.
-                    if (container.Texture.width != texturesExtension.LeftTexture.width || container.Texture.height != texturesExtension.LeftTexture.height)
+                    if (container.Texture.width != texturesExtension.LeftTexture.width
+                        || container.Texture.height != texturesExtension.LeftTexture.height)
                     {
                         RemoveLayer(layerInfo.Id);
                         CreateSwapchainAsync(layerInfo);
@@ -598,7 +628,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
             else
             {
-                var layerRenderInfo = new LayerRenderInfo()
+                var layerRenderInfo = new LayerRenderInfo
                 {
                     Texture = texturesExtension.LeftTexture,
 #if UNITY_VIDEO
@@ -607,10 +637,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>()
                 };
 
-                m_renderInfos.Add(layerInfo.Id, layerRenderInfo);
+                m_RenderInfos.Add(layerInfo.Id, layerRenderInfo);
             }
 
-            m_renderInfos[layerInfo.Id].IsActiveLayer = true;
+            m_RenderInfos[layerInfo.Id].IsActiveLayer = true;
 
             OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, OnRenderTextureIdIdCallback);
 
@@ -623,28 +653,35 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             if (Instance == null)
                 return;
 
-            if (Instance.m_renderInfos.TryGetValue(layerId, out var container))
+            if (Instance.m_RenderInfos.TryGetValue(layerId, out _))
             {
-                Instance.m_renderInfos[layerId].RenderTextureId = texId;
+                Instance.m_RenderInfos[layerId].RenderTextureId = texId;
             }
         }
 
         [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.SwapchainCallbackDelegate))]
         static void OnCreatedSwapchainCallback(int layerId, ulong swapchainHandle)
         {
-            if (Instance == null)
-                return;
-
-            Instance.actionsForMainThread.Enqueue(() => { Instance.OnCreatedSwapchain(Instance.m_layerInfos[layerId], new SwapchainCreatedOutput { handle = swapchainHandle });});
+            Instance?.actionsForMainThread.Enqueue(() =>
+            {
+                Instance.OnCreatedSwapchain(
+                    Instance.m_LayerInfos[layerId],
+                    new SwapchainCreatedOutput { handle = swapchainHandle });
+            });
         }
 
         [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.StereoSwapchainCallbackDelegate))]
         static void OnCreatedStereoSwapchainCallback(int layerId, ulong swapchainHandleLeft, ulong swapchainHandleRight)
         {
-            if (Instance == null)
-                return;
-
-            Instance.actionsForMainThread.Enqueue(() => { Instance.OnCreatedSwapchain(Instance.m_layerInfos[layerId], new SwapchainCreatedOutput { handle = swapchainHandleLeft, secondStereoHandle = swapchainHandleRight}); });
+            Instance?.actionsForMainThread.Enqueue(() =>
+            {
+                Instance.OnCreatedSwapchain(
+                    Instance.m_LayerInfos[layerId],
+                    new SwapchainCreatedOutput
+                    {
+                        handle = swapchainHandleLeft, secondStereoHandle = swapchainHandleRight
+                    });
+            });
         }
     }
 }

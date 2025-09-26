@@ -68,13 +68,13 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 serializedObject.FindProperty("systemSplashScreen");
 
             symmetricProjection =
-                serializedObject.FindProperty("symmetricProjection");
+                serializedObject.FindProperty("m_symmetricProjection");
 
             optimizeBufferDiscards =
-                serializedObject.FindProperty("optimizeBufferDiscards");
+                serializedObject.FindProperty("m_optimizeBufferDiscards");
 #if UNITY_6000_1_OR_NEWER
             multiviewRenderRegionsOptimizationMode =
-                serializedObject.FindProperty("multiviewRenderRegionsOptimizationMode");
+                serializedObject.FindProperty("m_multiviewRenderRegionsOptimizationMode");
 #endif
 
             targetDeviceProperties = new List<TargetDeviceProperty>();
@@ -153,13 +153,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
             var serializedOpenXrSettings = new SerializedObject(androidOpenXRSettings);
-
-            androidOpenXRSettings.symmetricProjection = symmetricProjection.boolValue;
-#if UNITY_6000_1_OR_NEWER
-            androidOpenXRSettings.multiviewRenderRegionsOptimizationMode = (OpenXRSettings.MultiviewRenderRegionsOptimizationMode)multiviewRenderRegionsOptimizationMode.intValue;
-#endif
-            androidOpenXRSettings.optimizeBufferDiscards = optimizeBufferDiscards.boolValue;
-            androidOpenXRSettings.spacewarpMotionVectorTextureFormat = (OpenXRSettings.SpaceWarpMotionVectorTextureFormat)spacewarpMotionVectorTextureFormat.enumValueIndex;
+            ((MetaQuestFeature)target).ApplySettingsOverride(androidOpenXRSettings);
             serializedOpenXrSettings.ApplyModifiedProperties();
 
             EditorGUIUtility.labelWidth = 0.0f;

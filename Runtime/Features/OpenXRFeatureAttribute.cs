@@ -12,7 +12,6 @@ namespace UnityEditor.XR.OpenXR.Features
         public const string Interaction = "Interaction";
     }
 
-
     [AttributeUsage(AttributeTargets.Class)]
     public class OpenXRFeatureAttribute : Attribute
     {
@@ -124,6 +123,21 @@ namespace UnityEditor.XR.OpenXR.Features
         /// - "1.4.0f" (version numbers can't include a letter)
         /// </example>
         public string CustomRuntimeLoaderVersion;
+
+        /// <summary>
+        /// Name of the custom loader library to be used for this feature. The name must be the same for all custom loaders provided by this feature.
+        /// </summary>
+        /// <remarks>
+        /// The customized name should not specify an extension, otherwise features that override loaders for multiple platforms may have some of
+        /// their libraries removed from the built project.
+        /// <para>
+        /// If no <see cref="CustomRuntimeLoaderName"> is defined, the loader name will be assumed to be "openxr_loader".
+        ///</para>
+        ///<para>
+        /// If no <see cref="CustomRuntimeLoaderBuildTargets"/> is specified for the OpenXRFeature, this loader name is ignored.
+        /// </para>
+        /// </remarks>
+        [CopyField(nameof(OpenXRFeature.customRuntimeLoaderName))] public string CustomRuntimeLoaderName;
 
         /// <summary>
         /// BuildTargetsGroups that this feature supports. The feature will only be shown or included on these platforms.

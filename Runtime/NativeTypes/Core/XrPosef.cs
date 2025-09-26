@@ -19,14 +19,75 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         public XrVector3f Position;
 
         /// <summary>
-        /// Initializes and returns an instance of XrPosef with the provided parameters.
+        /// Construct an instance from a position and rotation in Unity space relative to your XR Origin.
         /// </summary>
-        /// <param name="vec3">vector3 position.</param>
-        /// <param name="quaternion">quaternion orientation.</param>
+        /// <param name="vec3">The position in Unity space relative to your XR Origin.</param>
+        /// <param name="quaternion">The rotation in Unity space relative to your XR Origin.</param>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > This constructor negates the position `z` value and the rotation `x` and `y` values to convert from
+        /// Unity's left-handed coordinate system to the right-handed system used by OpenXR.
+        /// </remarks>
         public XrPosef(Vector3 vec3, Quaternion quaternion)
         {
             Position = new XrVector3f(vec3);
             Orientation = new XrQuaternionf(quaternion);
+        }
+
+        /// <summary>
+        /// Construct an instance from a `pose` in Unity space relative to your XR Origin.
+        /// </summary>
+        /// <param name="pose">The pose in Unity space relative to your XR Origin.</param>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > This constructor negates the position `z` value and the rotation `x` and `y` values to convert from
+        /// Unity's left-handed coordinate system to the right-handed system used by OpenXR.
+        /// </remarks>
+        public XrPosef(Pose pose)
+        {
+            Position = new XrVector3f(pose.position);
+            Orientation = new XrQuaternionf(pose.rotation);
+        }
+
+        /// <summary>
+        /// Construct an instance from a position and rotation in session space.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="position">The position in session space.</param>
+        /// <param name="rotation">The rotation in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrPosef FromSessionSpaceCoordinates(Vector3 position, Quaternion rotation)
+        {
+            return new XrPosef
+            {
+                Position = XrVector3f.FromSessionSpaceCoordinates(position),
+                Orientation = XrQuaternionf.FromSessionSpaceCoordinates(rotation)
+            };
+        }
+
+        /// <summary>
+        /// Construct an instance from a pose in session space.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="pose">The pose in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrPosef FromSessionSpaceCoordinates(Pose pose)
+        {
+            return new XrPosef
+            {
+                Position = XrVector3f.FromSessionSpaceCoordinates(pose.position),
+                Orientation = XrQuaternionf.FromSessionSpaceCoordinates(pose.rotation)
+            };
+        }
+
+        /// <summary>
+        /// Convert this instance to a Unity `Pose`. This method applies no transformation to
+        /// <see cref="Position"/> or <see cref="Orientation"/>.
+        /// </summary>
+        /// <returns>The `Pose`.</returns>
+        public Pose ToSessionSpacePose()
+        {
+            return new Pose(Position.ToSessionSpaceVector3(), Orientation.ToSessionSpaceQuaternion());
         }
 
         /// <summary>

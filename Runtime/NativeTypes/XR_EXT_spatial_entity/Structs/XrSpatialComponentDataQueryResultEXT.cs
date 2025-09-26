@@ -1,3 +1,5 @@
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using XrSpatialEntityIdEXT = System.UInt64;
 
 namespace UnityEngine.XR.OpenXR.NativeTypes
@@ -129,5 +131,39 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
                 entityStateCountOutput,
                 entityStates)
         { }
+
+        /// <summary>
+        /// Construct an instance with default values for all members except the next pointer.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        public XrSpatialComponentDataQueryResultEXT(void* next)
+        {
+            type = XrStructureType.SpatialComponentDataQueryResultEXT;
+            this.next = next;
+            entityIdCapacityInput = 0;
+            entityIdCountOutput = 0;
+            entityIds = null;
+            entityStateCapacityInput = 0;
+            entityStateCountOutput = 0;
+            entityStates = null;
+        }
+
+        /// <summary>
+        /// Set <see cref="entityIds"/> using the unsafe pointer of a native array.
+        /// </summary>
+        /// <param name="ids">The native array.</param>
+        public void SetEntityIds(NativeArray<XrSpatialEntityIdEXT> ids)
+        {
+            entityIds = (XrSpatialEntityIdEXT*)ids.GetUnsafePtr();
+        }
+
+        /// <summary>
+        /// Set <see cref="entityStates"/> using the unsafe pointer of a native array.
+        /// </summary>
+        /// <param name="states">The native array.</param>
+        public void SetEntityStates(NativeArray<XrSpatialEntityTrackingStateEXT> states)
+        {
+            entityStates = (XrSpatialEntityTrackingStateEXT*)states.GetUnsafePtr();
+        }
     }
 }

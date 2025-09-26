@@ -91,5 +91,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
                 (uint)persistenceContexts.Length,
                 (XrSpatialPersistenceContextEXT*)persistenceContexts.GetUnsafePtr())
         { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="persistenceContexts">Read-only native array of persistence contexts. Must be non-empty.</param>
+        public XrSpatialContextPersistenceConfigEXT(
+            void* next, NativeArray<XrSpatialPersistenceContextEXT>.ReadOnly persistenceContexts)
+            : this(
+                next,
+                (uint)persistenceContexts.Length,
+                (XrSpatialPersistenceContextEXT*)persistenceContexts.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="persistenceContexts">Read-only native array of persistence contexts. Must be non-empty.</param>
+        public XrSpatialContextPersistenceConfigEXT(
+            NativeArray<XrSpatialPersistenceContextEXT>.ReadOnly persistenceContexts)
+            : this(
+                null,
+                (uint)persistenceContexts.Length,
+                (XrSpatialPersistenceContextEXT*)persistenceContexts.GetUnsafeReadOnlyPtr())
+        { }
     }
 }

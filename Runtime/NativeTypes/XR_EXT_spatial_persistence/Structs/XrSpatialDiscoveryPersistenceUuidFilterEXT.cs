@@ -68,15 +68,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="persistedUuids">The array of persisted UUIDs.</param>
+        /// <param name="persistedUuids">Native array of persisted UUIDs.</param>
         public XrSpatialDiscoveryPersistenceUuidFilterEXT(void* next, NativeArray<XrUuid> persistedUuids)
             : this(next, (uint)persistedUuids.Length, (XrUuid*)persistedUuids.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="persistedUuids">The array of persisted UUIDs.</param>
+        /// <param name="persistedUuids">Native array of persisted UUIDs.</param>
         public XrSpatialDiscoveryPersistenceUuidFilterEXT(NativeArray<XrUuid> persistedUuids)
             : this((uint)persistedUuids.Length, (XrUuid*)persistedUuids.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="persistedUuids">Read-only native array of persisted UUIDs.</param>
+        public XrSpatialDiscoveryPersistenceUuidFilterEXT(void* next, NativeArray<XrUuid>.ReadOnly persistedUuids)
+            : this(next, (uint)persistedUuids.Length, (XrUuid*)persistedUuids.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a native array.
+        /// </summary>
+        /// <param name="persistedUuids">Read-only native array of persisted UUIDs.</param>
+        public XrSpatialDiscoveryPersistenceUuidFilterEXT(NativeArray<XrUuid>.ReadOnly persistedUuids)
+            : this((uint)persistedUuids.Length, (XrUuid*)persistedUuids.GetUnsafeReadOnlyPtr()) { }
     }
 }

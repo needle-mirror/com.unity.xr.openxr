@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.16.0-pre.2] - 2025-09-26
+
+### Added
+
+* Added the following members to the [OpenXR native API](xref:openxr-native-api):
+  * `ISpatialConfiguration`
+  * `XrBaseInStructure`
+  * `OpenXRResultStatus.ToString`
+  * `XrFovf` (removing the previous `COMPOSITION_LAYERS` preprocessor directive)
+  * Added constructor overloads to structs that take `NativeArray<T>.ReadOnly` as input parameters.
+  * `XrSpatialDiscoverySnapshotCreateInfoEXT.defaultValue`
+  * `OpenXRNativeApi.xrPollFutureEXT(XrFutureEXT)`
+  * `OpenXRNativeApi.xrCancelFutureEXT(XrFutureEXT)`
+  * `OpenXRResultStatus.StatusCode.Unsupported`
+  * static factory methods to construct `XrPosef`, `XrVector3f`, and `XrQuaternionf` from session-space data
+  * `XrVector3f.ToSessionSpaceVector3`
+  * `XrQuaternionf.ToSessionSpaceQuaternion`
+  * `XrPosef.ToSessionSpacePose`
+  * `XrPosef(UnityEngine.Pose)` constructor
+  * `XrSpatialComponentDataQueryResultEXT(void*)` constructor
+  * `XrSpatialComponentDataQueryResult.SetEntityIds` and `XrSpatialComponentDataQueryResult.SetEntityStates`
+* Added a new validation rule for Meta Quest feature to ensure Application entry point being set to GameActivity for Unity 6.0+.
+
+### Deprecated
+
+* Deprecated Hololens Microsoft Hand Interaction Profile.
+
+### Removed
+
+* Removed a pre-release overload for `OpenXRNativeAPI.xrQuerySpatialComponentDataEXT` that didn't allow you to receive component data chained to the next pointer of the query condition.
+
+### Fixed
+
+* Fixed the Render Mode setting dropdown in OpenXR Settings to align consistently with the UI of other settings.
+* Fixed `MockOpenXREnvironmentSettings` so that changes made to mock runtime settings don't affect the serialized settings assets in your project.
+* Fixed `MockOpenXREnvironmentSettings` so that it doesn't save any unwanted changes to your EditorBuildSettings.
+* Fixed swapchain diagnostic reports not being removed from cache after swapchains are destroyed.
+* Fixed a compile error when using this package in Unity 6000.3.0b1 or newer, which was caused by the deprecation of the VR module in that Editor version.
+* Fixed a crash when the OpenXR library was loaded with a path containing emojis on OSX.
+
 ## [1.16.0-pre.1] - 2025-08-14
 
 ### Added
@@ -29,6 +69,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added [PollEventRouter](xref:UnityEngine.XR.OpenXR.NativeTypes.PollEventRouter), a new type that allows you to subscribe to `xrPollEvent` events.
 * Added feature to enable Automatic Viewport Dynamic Resolution for compatible devices. Refer to [Automatic Viewport Dynamic Resolution](xref:openxr-automatic-dynamic-resolution) for information.
 * Added MSAA support for Windows+Vulkan builds.
+* Added support for enabling Subsampled Layout on Vulkan devices.
+  * Added `Subsampled Layout (Vulkan)` setting to the Foveated Rendering Feature as an additional setting.
+  * Added `FoveatedRenderingFeature.TrySetSubsampledLayoutEnabled` and `FoveatedRenderingFeature.isSubsampledLayoutEnabled` for runtime control.
+* Added `OpenXRFeatureAttribute.CustomRuntimeLoaderName` for customizing the name used by a custom OpenXR loader provided by an OpenXR feature.
 
 ### Changed
 * Changed OpenXR loader version to 1.1.49.

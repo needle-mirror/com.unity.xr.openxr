@@ -60,15 +60,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="polygons">Pointer to an array of polygon 2D components. Must be non-null.</param>
+        /// <param name="polygons">Native array of polygon 2D components. Must be non-null.</param>
         public XrSpatialComponentPolygon2DListEXT(void* next, NativeArray<XrSpatialPolygon2DDataEXT> polygons)
             : this(next, (uint)polygons.Length, (XrSpatialPolygon2DDataEXT*)polygons.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="polygons">Pointer to an array of polygon 2D components. Must be non-null.</param>
+        /// <param name="polygons">Native array of polygon 2D components. Must be non-null.</param>
         public XrSpatialComponentPolygon2DListEXT(NativeArray<XrSpatialPolygon2DDataEXT> polygons)
             : this(null, (uint)polygons.Length, (XrSpatialPolygon2DDataEXT*)polygons.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="polygons">Read-only native array of polygon 2D components. Must be non-null.</param>
+        public XrSpatialComponentPolygon2DListEXT(void* next, NativeArray<XrSpatialPolygon2DDataEXT>.ReadOnly polygons)
+            : this(next, (uint)polygons.Length, (XrSpatialPolygon2DDataEXT*)polygons.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a native array.
+        /// </summary>
+        /// <param name="polygons">Read-only native array of polygon 2D components. Must be non-null.</param>
+        public XrSpatialComponentPolygon2DListEXT(NativeArray<XrSpatialPolygon2DDataEXT>.ReadOnly polygons)
+            : this(null, (uint)polygons.Length, (XrSpatialPolygon2DDataEXT*)polygons.GetUnsafeReadOnlyPtr()) { }
     }
 }

@@ -36,7 +36,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             NativeApi.SetLatencyOptimization(priorityStrategy);
             Start();
 
-            yield return new WaitForXrFrame(50); // Warm up
+            yield return new WaitForXrFrame(100); // Warm up
 
             if (!TryGetFirstDisplaySubsytem(out var displaySubsystem))
             {

@@ -68,15 +68,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="bounds">The native array. Must be non-empty.</param>
+        /// <param name="bounds">Native array of bounded 2D components. Must be non-empty.</param>
         public XrSpatialComponentBounded2DListEXT(void* next, NativeArray<XrSpatialBounded2DDataEXT> bounds)
             : this(next, (uint)bounds.Length, (XrSpatialBounded2DDataEXT*)bounds.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="bounds">The native array. Must be non-empty.</param>
+        /// <param name="bounds">Native array of bounded 2D components. Must be non-empty.</param>
         public XrSpatialComponentBounded2DListEXT(NativeArray<XrSpatialBounded2DDataEXT> bounds)
             : this(null, (uint)bounds.Length, (XrSpatialBounded2DDataEXT*)bounds.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="bounds">Read-only native array of bounded 2D components. Must be non-empty.</param>
+        public XrSpatialComponentBounded2DListEXT(void* next, NativeArray<XrSpatialBounded2DDataEXT>.ReadOnly bounds)
+            : this(next, (uint)bounds.Length, (XrSpatialBounded2DDataEXT*)bounds.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="bounds">Read-only native array of bounded 2D components. Must be non-empty.</param>
+        public XrSpatialComponentBounded2DListEXT(NativeArray<XrSpatialBounded2DDataEXT>.ReadOnly bounds)
+            : this(null, (uint)bounds.Length, (XrSpatialBounded2DDataEXT*)bounds.GetUnsafeReadOnlyPtr()) { }
     }
 }

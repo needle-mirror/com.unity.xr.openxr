@@ -14,7 +14,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationArucoMarkerEXT"/>.
     /// </remarks>
-    public readonly unsafe struct XrSpatialCapabilityConfigurationArucoMarkerEXT
+    public readonly unsafe struct XrSpatialCapabilityConfigurationArucoMarkerEXT : ISpatialCapabilityConfiguration
     {
         /// <summary>
         /// The `XrStructureType` of this struct:
@@ -127,6 +127,40 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
                 null,
                 (uint)enabledComponents.Length,
                 (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr(),
+                arUcoDict)
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        /// <param name="arUcoDict">The marker dictionary to detect.</param>
+        public XrSpatialCapabilityConfigurationArucoMarkerEXT(
+            void* next,
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents,
+            XrSpatialMarkerArucoDictEXT arUcoDict)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr(),
+                arUcoDict)
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        /// <param name="arUcoDict">The marker dictionary to detect.</param>
+        public XrSpatialCapabilityConfigurationArucoMarkerEXT(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents,
+            XrSpatialMarkerArucoDictEXT arUcoDict)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr(),
                 arUcoDict)
         { }
     }

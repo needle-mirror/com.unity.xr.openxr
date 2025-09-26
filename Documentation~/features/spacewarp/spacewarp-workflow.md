@@ -26,7 +26,7 @@ To enable Application SpaceWarp, do the following:
 4. Enable the **OpenXR** checkbox, if necessary.
 5. Enable the appropriate checkbox under the **OpenXR** checkbox according to the feature group for your device:
 
-   ![Select OpenXR feature group in XR Plug-in Management](../../images/SpaceWarp/spacewarp-xr-plugin-management.png)<br/>*Select the OpenXR Plug-in and correct feature group for the current device*
+   ![Select OpenXR feature group in XR Plug-in Management](../../images/openxr-xr-plugin-management.png)<br/>*Select the OpenXR Plug-in and correct feature group for the current device*
 
    > [!NOTE]
    > If the options to enable the feature group for your device are missing, you might need to install an OpenXR device package. Refer to [Prerequisites](xref:openxr-spacewarp-prerequisites) for more information.

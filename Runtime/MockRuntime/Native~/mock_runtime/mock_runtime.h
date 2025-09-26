@@ -102,6 +102,7 @@ public:
 
     XrResult CauseInstanceLoss();
     XrResult CauseUserPresenceChange(bool hasUserPresent);
+    XrResult CauseRecommendedResolutionChangedEvent();
 
     bool IsInstanceLost(XrInstance instance) const
     {
@@ -214,6 +215,10 @@ public:
     XrResult GetSystemProperties(XrSystemId systemId, XrSystemProperties* properties);
 
     XrResult CausePerformanceSettingsNotification(XrPerfSettingsDomainEXT domain, XrPerfSettingsSubDomainEXT subdomain, XrPerfSettingsNotificationLevelEXT nextLevel);
+
+    void ChangeRecommendedImageRectExtents(uint32_t recommendedImageWidth, uint32_t recommendedImageHeight);
+
+    XrResult GetRecommendedLayerResolution(XrSession session, XrRecommendedLayerResolutionGetInfoMETA* recommendedLayerResolutionGetInfo, XrRecommendedLayerResolutionMETA* recommendedLayerResolution);
 
 private:
     struct MockView
@@ -384,6 +389,8 @@ private:
     int secondaryLayersRendered;
 
     uint64_t nextHandle;
+
+    bool recommendedResolutionChanged;
 
     std::vector<MockActionSet> actionSets;
     std::vector<MockInputState> inputStates;

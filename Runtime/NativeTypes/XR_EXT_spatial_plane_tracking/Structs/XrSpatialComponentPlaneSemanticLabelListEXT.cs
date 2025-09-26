@@ -72,7 +72,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="semanticLabels">The native array. Must be non-empty.</param>
+        /// <param name="semanticLabels">Native array of plane semantic label components. Must be non-empty.</param>
         public XrSpatialComponentPlaneSemanticLabelListEXT(
             void* next, NativeArray<XrSpatialPlaneSemanticLabelEXT> semanticLabels)
             : this(
@@ -82,10 +82,37 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="semanticLabels">The native array. Must be non-empty.</param>
+        /// <param name="semanticLabels">Native array of plane semantic label components. Must be non-empty.</param>
         public XrSpatialComponentPlaneSemanticLabelListEXT(NativeArray<XrSpatialPlaneSemanticLabelEXT> semanticLabels)
             : this(
                 null, (uint)semanticLabels.Length, (XrSpatialPlaneSemanticLabelEXT*)semanticLabels.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="semanticLabels">Read-only native array of plane semantic label components.
+        /// Must be non-empty.</param>
+        public XrSpatialComponentPlaneSemanticLabelListEXT(
+            void* next, NativeArray<XrSpatialPlaneSemanticLabelEXT>.ReadOnly semanticLabels)
+            : this(
+                next,
+                (uint)semanticLabels.Length,
+                (XrSpatialPlaneSemanticLabelEXT*)semanticLabels.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="semanticLabels">Read-only native array of plane semantic label components.
+        /// Must be non-empty.</param>
+        public XrSpatialComponentPlaneSemanticLabelListEXT(
+            NativeArray<XrSpatialPlaneSemanticLabelEXT>.ReadOnly semanticLabels)
+            : this(
+                null,
+                (uint)semanticLabels.Length,
+                (XrSpatialPlaneSemanticLabelEXT*)semanticLabels.GetUnsafeReadOnlyPtr())
         { }
     }
 }

@@ -43,7 +43,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </summary>
         /// <param name="next">The next pointer.</param>
         /// <param name="parentCount">The count of elements in <paramref name="parents"/>.</param>
-        /// <param name="parents">Pointer to an array of type `XrSpatialEntityIdEXT`.</param>
+        /// <param name="parents">Pointer to an array of parent components.</param>
         public XrSpatialComponentParentListEXT(void* next, uint parentCount, XrSpatialEntityIdEXT* parents)
         {
             Assert.IsTrue(parentCount > 0);
@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance with a `null` next pointer.
         /// </summary>
         /// <param name="parentCount">The count of elements in <paramref name="parents"/>.</param>
-        /// <param name="parents">Pointer to an array of type `XrSpatialEntityIdEXT`.</param>
+        /// <param name="parents">Pointer to an array of parent components.</param>
         public XrSpatialComponentParentListEXT(uint parentCount, XrSpatialEntityIdEXT* parents)
             : this(null, parentCount, parents) { }
 
@@ -67,15 +67,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="parents">The native array. Must be non-empty.</param>
+        /// <param name="parents">Native array of parent components. Must be non-empty.</param>
         public XrSpatialComponentParentListEXT(void* next, NativeArray<XrSpatialEntityIdEXT> parents)
             : this(next, (uint)parents.Length, (XrSpatialEntityIdEXT*)parents.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="parents">The native array. Must be non-empty.</param>
+        /// <param name="parents">Native array of parent components. Must be non-empty.</param>
         public XrSpatialComponentParentListEXT(NativeArray<XrSpatialEntityIdEXT> parents)
             : this(null, (uint)parents.Length, (XrSpatialEntityIdEXT*)parents.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="parents">Read-only native array of parent components. Must be non-empty.</param>
+        public XrSpatialComponentParentListEXT(void* next, NativeArray<XrSpatialEntityIdEXT>.ReadOnly parents)
+            : this(next, (uint)parents.Length, (XrSpatialEntityIdEXT*)parents.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="parents">Read-only native array of parent components. Must be non-empty.</param>
+        public XrSpatialComponentParentListEXT(NativeArray<XrSpatialEntityIdEXT>.ReadOnly parents)
+            : this(null, (uint)parents.Length, (XrSpatialEntityIdEXT*)parents.GetUnsafeReadOnlyPtr()) { }
     }
 }

@@ -76,7 +76,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="capabilityConfigs">The native array of capability configs. Must be non-empty.</param>
+        /// <param name="capabilityConfigs">Native array of capability configs. Must be non-empty.</param>
         public XrSpatialContextCreateInfoEXT(void* next, NativeArray<IntPtr> capabilityConfigs)
             : this(
                 next,
@@ -87,12 +87,35 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="capabilityConfigs">The native array of capability configs. Must be non-empty.</param>
+        /// <param name="capabilityConfigs">Native array of capability configs. Must be non-empty.</param>
         public XrSpatialContextCreateInfoEXT(NativeArray<IntPtr> capabilityConfigs)
             : this(
                 null,
                 (uint)capabilityConfigs.Length,
                 (XrSpatialCapabilityConfigurationBaseHeaderEXT**)capabilityConfigs.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="capabilityConfigs">Read-only native array of capability configs. Must be non-empty.</param>
+        public XrSpatialContextCreateInfoEXT(void* next, NativeArray<IntPtr>.ReadOnly capabilityConfigs)
+            : this(
+                next,
+                (uint)capabilityConfigs.Length,
+                (XrSpatialCapabilityConfigurationBaseHeaderEXT**)capabilityConfigs.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="capabilityConfigs">Read-only native array of capability configs. Must be non-empty.</param>
+        public XrSpatialContextCreateInfoEXT(NativeArray<IntPtr>.ReadOnly capabilityConfigs)
+            : this(
+                null,
+                (uint)capabilityConfigs.Length,
+                (XrSpatialCapabilityConfigurationBaseHeaderEXT**)capabilityConfigs.GetUnsafeReadOnlyPtr())
         { }
     }
 }

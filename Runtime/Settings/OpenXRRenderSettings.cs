@@ -9,7 +9,6 @@ using UnityEngine.XR.OpenXR.Features;
 namespace UnityEngine.XR.OpenXR
 {
     public partial class OpenXRSettings : ISerializationCallbackReceiver
-
     {
         /// <summary>
         /// Stereo rendering mode.
@@ -31,7 +30,7 @@ namespace UnityEngine.XR.OpenXR
         /// Stereo rendering mode.
         /// </summary>
         [SerializeField]
-        private RenderMode m_renderMode = RenderMode.SinglePassInstanced;
+        RenderMode m_renderMode = RenderMode.SinglePassInstanced;
 
         /// <summary>
         /// Runtime Stereo rendering mode.
@@ -271,7 +270,7 @@ namespace UnityEngine.XR.OpenXR
             }
         }
 
-        private void ApplyRenderSettings()
+        void ApplyRenderSettings()
         {
             Internal_SetSymmetricProjection(m_symmetricProjection);
 #if UNITY_6000_1_OR_NEWER
@@ -294,14 +293,34 @@ namespace UnityEngine.XR.OpenXR
             Internal_SetOptimizeBufferDiscards(m_optimizeBufferDiscards);
         }
 
+        void LogRendererSettings(ulong diagnosticsSectionHandle)
+        {
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Symmetric Projection", $"{m_symmetricProjection}");
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Stereo Rendering Mode", $"{m_renderMode}");
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Latency Optimization", $"{m_latencyOptimization}");
+            var colorSubmissionModesStr = string.Join(",", m_colorSubmissionModes.m_List);
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Color Submission Modes", $"{colorSubmissionModesStr}");
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Depth Submission Mode", $"{m_depthSubmissionMode}");
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Space Warp Motion Vector Texture Format", $"{m_spacewarpMotionVectorTextureFormat}");
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Optimize Buffer Discards", $"{m_optimizeBufferDiscards}");
+#if UNITY_6000_1_OR_NEWER
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Multiview Render Regions Optimization Mode", $"{m_multiviewRenderRegionsOptimizationMode}");
+#endif
+#if UNITY_6000_2_OR_NEWER
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Use OpenXR Predicted Time", $"{m_useOpenXRPredictedTime}");
+#endif
+#if UNITY_2023_2_OR_NEWER
+            DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Foveated Rendering API", $"{m_foveatedRenderingApi}");
+#endif
+        }
 
         [SerializeField]
-        private bool m_symmetricProjection = false;
+        bool m_symmetricProjection;
 
 #if UNITY_6000_1_OR_NEWER
         [SerializeField, HideInInspector]
         [Obsolete("m_optimizeMultiviewRenderRegions is deprecated. Use m_multiviewRenderRegionsOptimizationMode instead.", false)]
-        private bool m_optimizeMultiviewRenderRegions = false;
+        bool m_optimizeMultiviewRenderRegions = false;
 
         /// <summary>
         /// Multiview Render Regions optimizations modes.
@@ -317,15 +336,15 @@ namespace UnityEngine.XR.OpenXR
         }
 
         [SerializeField, HideInInspector]
-        private MultiviewRenderRegionsOptimizationMode m_multiviewRenderRegionsOptimizationMode = MultiviewRenderRegionsOptimizationMode.None;
+        MultiviewRenderRegionsOptimizationMode m_multiviewRenderRegionsOptimizationMode = MultiviewRenderRegionsOptimizationMode.None;
 
         [SerializeField, HideInInspector]
-        private bool m_hasMigratedMultiviewRenderRegionSetting = false;
+        bool m_hasMigratedMultiviewRenderRegionSetting;
 #endif
 
 #if UNITY_2023_2_OR_NEWER
         [SerializeField]
-        private BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
+        BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
 #endif
         /// <summary>OnBeforeSerialize.</summary>
         public void OnBeforeSerialize()
@@ -364,7 +383,7 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         public bool symmetricProjection
         {
-            get { return m_symmetricProjection; }
+            get => m_symmetricProjection;
             set
             {
                 if (OpenXRLoaderBase.Instance != null)
@@ -475,77 +494,77 @@ namespace UnityEngine.XR.OpenXR
         }
 #endif
 
-        private const string LibraryName = "UnityOpenXR";
+        const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetRenderMode")]
-        private static extern void Internal_SetRenderMode(RenderMode renderMode);
+        static extern void Internal_SetRenderMode(RenderMode renderMode);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRenderMode")]
-        private static extern RenderMode Internal_GetRenderMode();
+        static extern RenderMode Internal_GetRenderMode();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetLatencyOptimization")]
-        private static extern void Internal_SetLatencyOptimization(LatencyOptimization latencyOptimzation);
+        static extern void Internal_SetLatencyOptimization(LatencyOptimization latencyOptimzation);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetLatencyOptimization")]
-        private static extern LatencyOptimization Internal_GetLatencyOptimization();
+        static extern LatencyOptimization Internal_GetLatencyOptimization();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetDepthSubmissionMode")]
-        private static extern void Internal_SetDepthSubmissionMode(
+        static extern void Internal_SetDepthSubmissionMode(
             DepthSubmissionMode depthSubmissionMode
         );
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetDepthSubmissionMode")]
-        private static extern DepthSubmissionMode Internal_GetDepthSubmissionMode();
+        static extern DepthSubmissionMode Internal_GetDepthSubmissionMode();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSpaceWarpMotionVectorTextureFormat")]
-        private static extern void Internal_SetSpaceWarpMotionVectorTextureFormat(
+        static extern void Internal_SetSpaceWarpMotionVectorTextureFormat(
             SpaceWarpMotionVectorTextureFormat spaceWarpMotionVectorTextureFormat
         );
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetSpaceWarpMotionVectorTextureFormat")]
-        private static extern SpaceWarpMotionVectorTextureFormat Internal_GetSpaceWarpMotionVectorTextureFormat();
+        static extern SpaceWarpMotionVectorTextureFormat Internal_GetSpaceWarpMotionVectorTextureFormat();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetSymmetricProjection")]
-        private static extern void Internal_SetSymmetricProjection([MarshalAs(UnmanagedType.I1)] bool enabled);
+        static extern void Internal_SetSymmetricProjection([MarshalAs(UnmanagedType.I1)] bool enabled);
 #if UNITY_6000_1_OR_NEWER
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetMultiviewRenderRegionsOptimizationMode")]
-        private static extern void Internal_SetMultiviewRenderRegionsOptimizationMode(MultiviewRenderRegionsOptimizationMode mode);
+        static extern void Internal_SetMultiviewRenderRegionsOptimizationMode(MultiviewRenderRegionsOptimizationMode mode);
 #endif
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetOptimizeBufferDiscards")]
-        private static extern void Internal_SetOptimizeBufferDiscards([MarshalAs(UnmanagedType.I1)] bool enabled);
+        static extern void Internal_SetOptimizeBufferDiscards([MarshalAs(UnmanagedType.I1)] bool enabled);
 
         [DllImport(LibraryName, EntryPoint = "OculusFoveation_SetUsedApi")]
-        private static extern void Internal_SetUsedFoveatedRenderingApi(BackendFovationApi api);
+        static extern void Internal_SetUsedFoveatedRenderingApi(BackendFovationApi api);
 
         [DllImport(LibraryName, EntryPoint = "OculusFoveation_GetUsedApi")]
         internal static extern BackendFovationApi Internal_GetUsedFoveatedRenderingApi();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetColorSubmissionMode")]
-        private static extern void Internal_SetColorSubmissionMode(
+        static extern void Internal_SetColorSubmissionMode(
             ColorSubmissionModeGroup[] colorSubmissionMode
         );
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetColorSubmissionModes")]
-        private static extern void Internal_SetColorSubmissionModes(
+        static extern void Internal_SetColorSubmissionModes(
             int[] colorSubmissionMode,
             int arraySize
         );
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetColorSubmissionModes")]
-        private static extern int Internal_GetColorSubmissionModes(
+        static extern int Internal_GetColorSubmissionModes(
             [Out] int[] colorSubmissionMode,
             int arraySize
         );
 
         [DllImport("UnityOpenXR", EntryPoint = "NativeConfig_GetIsUsingLegacyXRDisplay")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetIsUsingLegacyXRDisplay();
+        static extern bool Internal_GetIsUsingLegacyXRDisplay();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetUseOpenXRPredictedTime")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetUseOpenXRPredictedTime();
+        static extern bool Internal_GetUseOpenXRPredictedTime();
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_SetUseOpenXRPredictedTime")]
-        private static extern void Internal_SetUseOpenXRPredictedTime([MarshalAs(UnmanagedType.I1)] bool enabled);
+        static extern void Internal_SetUseOpenXRPredictedTime([MarshalAs(UnmanagedType.I1)] bool enabled);
     }
 }

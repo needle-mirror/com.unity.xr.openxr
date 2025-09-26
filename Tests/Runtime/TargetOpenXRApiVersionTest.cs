@@ -51,7 +51,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             EnableFeatureWithApiVersion<OculusTouchControllerProfile>(validVersion, true);
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(invalidVersion1, true);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(invalidVersion2, true);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(invalidVersion2, true);
 
             base.InitializeAndStart();
             yield return null;
@@ -67,7 +67,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             string invalidVersion3 = "1.0.100";
 
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(invalidVersion1, true);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(invalidVersion2, true);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(invalidVersion2, true);
             EnableFeatureWithApiVersion<OculusTouchControllerProfile>(invalidVersion3, true);
 
             base.InitializeAndStart();
@@ -84,7 +84,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             string validVersion = "1.2.100";
 
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(invalidVersion1, true);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(invalidVersion2, true);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(invalidVersion2, true);
             EnableFeatureWithApiVersion<OculusTouchControllerProfile>(validVersion, true);
 
             base.InitializeAndStart();
@@ -100,7 +100,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             string invalidVersion2 = "1.3.20";
 
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(invalidVersion1, true);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(invalidVersion2, true);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(invalidVersion2, true);
 
             base.InitializeAndStart();
             yield return null;
@@ -116,7 +116,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             string version3 = "1.0.300";
 
             EnableFeatureWithApiVersion<OculusTouchControllerProfile>(version1, true);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(version2, true);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(version2, true);
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(version3, true);
 
             base.InitializeAndStart();
@@ -133,7 +133,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             string version3 = "";
 
             EnableFeatureWithApiVersion<OculusTouchControllerProfile>(version1, false);
-            EnableFeatureWithApiVersion<MicrosoftHandInteraction>(version2, false);
+            EnableFeatureWithApiVersion<MetaQuestTouchPlusControllerProfile>(version2, false);
             EnableFeatureWithApiVersion<MetaQuestTouchProControllerProfile>(version3, false);
 
             base.InitializeAndStart();

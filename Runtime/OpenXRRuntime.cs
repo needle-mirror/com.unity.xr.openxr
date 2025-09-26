@@ -143,7 +143,7 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         /// <param name="func">Event function</param>
         /// <returns>True if all event invocations return true</returns>
-        private static bool InvokeEvent(Func<bool> func)
+        static bool InvokeEvent(Func<bool> func)
         {
             if (func == null)
                 return true;
@@ -182,46 +182,46 @@ namespace UnityEngine.XR.OpenXR
         internal static bool ShouldQuit() => InvokeEvent(wantsToQuit);
         internal static bool ShouldRestart() => InvokeEvent(wantsToRestart);
 
-        private const string LibraryName = "UnityOpenXR";
+        const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRuntimeName")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetRuntimeName(out IntPtr runtimeNamePtr);
+        static extern bool Internal_GetRuntimeName(out IntPtr runtimeNamePtr);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetRuntimeVersion")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetRuntimeVersion(out ushort major, out ushort minor, out uint patch);
+        static extern bool Internal_GetRuntimeVersion(out ushort major, out ushort minor, out uint patch);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetAPIVersion")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetAPIVersion(out ushort major, out ushort minor, out uint patch);
+        static extern bool Internal_GetAPIVersion(out ushort major, out ushort minor, out uint patch);
 
         [DllImport(LibraryName, EntryPoint = "NativeConfig_GetPluginVersion")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetPluginVersion(out IntPtr pluginVersionPtr);
+        static extern bool Internal_GetPluginVersion(out IntPtr pluginVersionPtr);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionEnabled")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_IsExtensionEnabled(string extensionName);
+        static extern bool Internal_IsExtensionEnabled(string extensionName);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetExtensionVersion")]
-        private static extern uint Internal_GetExtensionVersion(string extensionName);
+        static extern uint Internal_GetExtensionVersion(string extensionName);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetEnabledExtensionCount")]
-        private static extern uint Internal_GetEnabledExtensionCount();
+        static extern uint Internal_GetEnabledExtensionCount();
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetEnabledExtensionName", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetEnabledExtensionNamePtr(uint index, out IntPtr outName);
+        static extern bool Internal_GetEnabledExtensionNamePtr(uint index, out IntPtr outName);
 
         [DllImport(LibraryName, EntryPoint = "session_SetSoftRestartLoopAtInitialization")]
-        private static extern void Internal_SetSoftRestartLoopAtInitialization([MarshalAs(UnmanagedType.I1)] bool value);
+        static extern void Internal_SetSoftRestartLoopAtInitialization([MarshalAs(UnmanagedType.I1)] bool value);
 
         [DllImport(LibraryName, EntryPoint = "session_GetSoftRestartLoopAtInitialization")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetSoftRestartLoopAtInitialization();
+        static extern bool Internal_GetSoftRestartLoopAtInitialization();
 
-        private static bool Internal_GetEnabledExtensionName(uint index, out string extensionName)
+        static bool Internal_GetEnabledExtensionName(uint index, out string extensionName)
         {
             if (!Internal_GetEnabledExtensionNamePtr(index, out var extensionNamePtr))
             {
@@ -234,13 +234,13 @@ namespace UnityEngine.XR.OpenXR
         }
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetAvailableExtensionCount")]
-        private static extern uint Internal_GetAvailableExtensionCount();
+        static extern uint Internal_GetAvailableExtensionCount();
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetAvailableExtensionName", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetAvailableExtensionNamePtr(uint index, out IntPtr extensionName);
+        static extern bool Internal_GetAvailableExtensionNamePtr(uint index, out IntPtr extensionName);
 
-        private static bool Internal_GetAvailableExtensionName(uint index, out string extensionName)
+        static bool Internal_GetAvailableExtensionName(uint index, out string extensionName)
         {
             if (!Internal_GetAvailableExtensionNamePtr(index, out var extensionNamePtr))
             {
@@ -254,7 +254,7 @@ namespace UnityEngine.XR.OpenXR
 
         [DllImport(LibraryName, EntryPoint = "session_GetLastError", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_GetLastError(out IntPtr error);
+        static extern bool Internal_GetLastError(out IntPtr error);
 
         /// <summary>
         /// Returns the last error message that was issued in the native code

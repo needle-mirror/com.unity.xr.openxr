@@ -14,7 +14,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationPlaneTrackingEXT"/>.
     /// </remarks>
-    public readonly unsafe struct XrSpatialCapabilityConfigurationPlaneTrackingEXT
+    public readonly unsafe struct XrSpatialCapabilityConfigurationPlaneTrackingEXT : ISpatialCapabilityConfiguration
     {
         /// <summary>
         /// The `XrStructureType` of this struct:
@@ -78,7 +78,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer</param>
-        /// <param name="enabledComponents">The native array of component types to enable for this capability.
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
         /// Must be non-empty.</param>
         public XrSpatialCapabilityConfigurationPlaneTrackingEXT(
             void* next, NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
@@ -89,12 +89,39 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="enabledComponents">The native array of component types to enable for this capability.
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
         /// Must be non-empty.</param>
         public XrSpatialCapabilityConfigurationPlaneTrackingEXT(
             NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
             : this(
                 null, (uint)enabledComponents.Length, (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer</param>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationPlaneTrackingEXT(
+            void* next, NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationPlaneTrackingEXT(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
         { }
     }
 }

@@ -61,15 +61,31 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="persistData">The native array. Must be non-empty.</param>
+        /// <param name="persistData">Native array of persistence components. Must be non-empty.</param>
         public XrSpatialComponentPersistenceListEXT(void* next, NativeArray<XrSpatialPersistenceDataEXT> persistData)
             : this(next, (uint)persistData.Length, (XrSpatialPersistenceDataEXT*)persistData.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="persistData">The native array. Must be non-empty.</param>
+        /// <param name="persistData">Native array of persistence components. Must be non-empty.</param>
         public XrSpatialComponentPersistenceListEXT(NativeArray<XrSpatialPersistenceDataEXT> persistData)
             : this(null, (uint)persistData.Length, (XrSpatialPersistenceDataEXT*)persistData.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="persistData">Read-only native array of persistence components. Must be non-empty.</param>
+        public XrSpatialComponentPersistenceListEXT(
+            void* next, NativeArray<XrSpatialPersistenceDataEXT>.ReadOnly persistData)
+            : this(next, (uint)persistData.Length, (XrSpatialPersistenceDataEXT*)persistData.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="persistData">Read-only native array of persistence components. Must be non-empty.</param>
+        public XrSpatialComponentPersistenceListEXT(NativeArray<XrSpatialPersistenceDataEXT>.ReadOnly persistData)
+            : this(null, (uint)persistData.Length, (XrSpatialPersistenceDataEXT*)persistData.GetUnsafeReadOnlyPtr()) { }
     }
 }

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 using UnityEditor;
 using UnityEngine;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Unity.XRTesting")]
 namespace UnityEditor.XR.OpenXR
 {
     internal class OpenXREditorSettings : ScriptableObject, ISerializationCallbackReceiver

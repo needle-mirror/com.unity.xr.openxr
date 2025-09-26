@@ -66,15 +66,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="locations">The native array. Must be non-empty.</param>
+        /// <param name="locations">Native array of anchor components. Must be non-empty.</param>
         public XrSpatialComponentAnchorListEXT(void* next, NativeArray<XrPosef> locations)
             : this(next, (uint)locations.Length, (XrPosef*)locations.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="locations">The native array. Must be non-empty.</param>
+        /// <param name="locations">Native array of anchor components. Must be non-empty.</param>
         public XrSpatialComponentAnchorListEXT(NativeArray<XrPosef> locations)
             : this(null, (uint)locations.Length, (XrPosef*)locations.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="locations">Read-only native array of anchor components. Must be non-empty.</param>
+        public XrSpatialComponentAnchorListEXT(void* next, NativeArray<XrPosef>.ReadOnly locations)
+            : this(next, (uint)locations.Length, (XrPosef*)locations.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="locations">Read-only native array of anchor components. Must be non-empty.</param>
+        public XrSpatialComponentAnchorListEXT(NativeArray<XrPosef>.ReadOnly locations)
+            : this(null, (uint)locations.Length, (XrPosef*)locations.GetUnsafeReadOnlyPtr()) { }
     }
 }

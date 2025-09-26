@@ -14,7 +14,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationQrCodeEXT"/>.
     /// </remarks>
-    public readonly unsafe struct XrSpatialCapabilityConfigurationQrCodeEXT
+    public readonly unsafe struct XrSpatialCapabilityConfigurationQrCodeEXT : ISpatialCapabilityConfiguration
     {
         /// <summary>
         /// The `XrStructureType` of this struct: <see cref="XrStructureType.SpatialCapabilityConfigurationQrCodeEXT"/>.
@@ -86,7 +86,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="enabledComponents">Pointer to an array of component types to enable for this capability.
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
         /// Must be non-null.</param>
         public XrSpatialCapabilityConfigurationQrCodeEXT(
             void* next, NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
@@ -96,10 +96,37 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="enabledComponents">Pointer to an array of component types to enable for this capability.
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
         /// Must be non-null.</param>
         public XrSpatialCapabilityConfigurationQrCodeEXT(NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
             : this(null, (uint)enabledComponents.Length, (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-null.</param>
+        public XrSpatialCapabilityConfigurationQrCodeEXT(
+            void* next, NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-null.</param>
+        public XrSpatialCapabilityConfigurationQrCodeEXT(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
         { }
     }
 }

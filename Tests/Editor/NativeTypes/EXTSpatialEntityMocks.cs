@@ -14,19 +14,289 @@ using XrSystemId = System.UInt64;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    /// <summary>
+    /// Delegate signature for `xrEnumerateSpatialCapabilitiesEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="instance">The `XrInstance`.</param>
+    /// <param name="systemId">The system ID.</param>
+    /// <param name="capabilityCapacityInput">The capability capacity input.</param>
+    /// <param name="capabilityCountOutput">The capability count output.</param>
+    /// <param name="capabilities">Pointer to an array of capabilities.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrEnumerateSpatialCapabilitiesEXT_delegate(
+        XrInstance instance,
+        XrSystemId systemId,
+        uint capabilityCapacityInput,
+        out uint capabilityCountOutput,
+        XrSpatialCapabilityEXT* capabilities);
+
+    /// <summary>
+    /// Delegate signature for `xrEnumerateSpatialCapabilityComponentTypesEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="instance">The `XrInstance`.</param>
+    /// <param name="systemId">The system ID.</param>
+    /// <param name="capability">The capability.</param>
+    /// <param name="capabilityComponents">The component types.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrEnumerateSpatialCapabilityComponentTypesEXT_delegate(
+        XrInstance instance,
+        XrSystemId systemId,
+        XrSpatialCapabilityEXT capability,
+        ref XrSpatialCapabilityComponentTypesEXT capabilityComponents);
+
+    /// <summary>
+    /// Delegate signature for `xrEnumerateSpatialCapabilityFeaturesEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="instance">The `XrInstance`.</param>
+    /// <param name="systemId">The system ID.</param>
+    /// <param name="capability">The capability.</param>
+    /// <param name="capabilityFeatureCapacityInput">The capability feature capacity input.</param>
+    /// <param name="capabilityFeatureCountOutput">The capability feature count output.</param>
+    /// <param name="capabilityFeatures">Pointer to an array of capability features.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrEnumerateSpatialCapabilityFeaturesEXT_delegate(
+        XrInstance instance,
+        XrSystemId systemId,
+        XrSpatialCapabilityEXT capability,
+        uint capabilityFeatureCapacityInput,
+        out uint capabilityFeatureCountOutput,
+        XrSpatialCapabilityFeatureEXT* capabilityFeatures);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialContextCompleteEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="session">The `XrSession`.</param>
+    /// <param name="future">The future.</param>
+    /// <param name="completion">The completion.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialContextCompleteEXT_delegate(
+        XrSession session, XrFutureEXT future, ref XrCreateSpatialContextCompletionEXT completion);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialContextAsyncEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="session">The `XrSession`.</param>
+    /// <param name="createInfo">The create info.</param>
+    /// <param name="future">The output future.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialContextAsyncEXT_delegate(
+        XrSession session, in XrSpatialContextCreateInfoEXT createInfo, out XrFutureEXT future);
+
+    /// <summary>
+    /// Delegate signature for `xrDestroySpatialContextEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialContext">The spatial context.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrDestroySpatialContextEXT_delegate(XrSpatialContextEXT spatialContext);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialEntityFromIdEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialContext">The spatial context.</param>
+    /// <param name="createInfo">The create info.</param>
+    /// <param name="spatialEntity">The spatial entity.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialEntityFromIdEXT_delegate(
+        XrSpatialContextEXT spatialContext,
+        in XrSpatialEntityFromIdCreateInfoEXT createInfo,
+        out XrSpatialEntityEXT spatialEntity);
+
+    /// <summary>
+    /// Delegate signature for `xrDestroySpatialEntityEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialEntity">The spatial entity.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrDestroySpatialEntityEXT_delegate(XrSpatialEntityEXT spatialEntity);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialDiscoverySnapshotAsyncEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialContext">The spatial context.</param>
+    /// <param name="createInfo">The create info.</param>
+    /// <param name="future">The output future.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialDiscoverySnapshotAsyncEXT_delegate(
+        XrSpatialContextEXT spatialContext,
+        in XrSpatialDiscoverySnapshotCreateInfoEXT createInfo,
+        out XrFutureEXT future);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialDiscoverySnapshotCompleteEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialContext">The spatial context.</param>
+    /// <param name="createSnapshotCompletionInfo">The completion info.</param>
+    /// <param name="completion">The completion.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialDiscoverySnapshotCompleteEXT_delegate(
+        XrSpatialContextEXT spatialContext,
+        in XrCreateSpatialDiscoverySnapshotCompletionInfoEXT createSnapshotCompletionInfo,
+        ref XrCreateSpatialDiscoverySnapshotCompletionEXT completion);
+
+    /// <summary>
+    /// Delegate signature for `xrQuerySpatialComponentDataEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="queryCondition">The query condition.</param>
+    /// <param name="queryResult">The query result.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrQuerySpatialComponentDataEXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialComponentDataQueryConditionEXT queryCondition,
+        ref XrSpatialComponentDataQueryResultEXT queryResult);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferStringEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of bytes.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferStringEXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        byte* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferUint8EXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of bytes.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferUint8EXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        byte* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferUint16EXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of shorts.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferUint16EXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        short* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferUint32EXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of unsigned ints.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferUint32EXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        uint* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferFloatEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of floats.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferFloatEXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        float* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferVector2fEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of `XrVector2f`.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferVector2fEXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        XrVector2f* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrGetSpatialBufferVector3fEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <param name="getInfo">The get info.</param>
+    /// <param name="bufferCapacityInput">The buffer capacity input.</param>
+    /// <param name="bufferCountOutput">The buffer count output.</param>
+    /// <param name="buffer">Pointer to an array of `XrVector3f`.</param>
+    /// <returns>The result of the operation.</returns>
+    public unsafe delegate XrResult xrGetSpatialBufferVector3fEXT_delegate(
+        XrSpatialSnapshotEXT snapshot,
+        in XrSpatialBufferGetInfoEXT getInfo,
+        uint bufferCapacityInput,
+        out uint bufferCountOutput,
+        XrVector3f* buffer);
+
+    /// <summary>
+    /// Delegate signature for `xrCreateSpatialUpdateSnapshotEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="spatialContext">The spatial context.</param>
+    /// <param name="createInfo">The create info.</param>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrCreateSpatialUpdateSnapshotEXT_delegate(
+        XrSpatialContextEXT spatialContext,
+        in XrSpatialUpdateSnapshotCreateInfoEXT createInfo,
+        out XrSpatialSnapshotEXT snapshot);
+
+    /// <summary>
+    /// Delegate signature for `xrDestroySpatialSnapshotEXT`.
+    /// Provided by `XR_EXT_spatial_entity`.
+    /// </summary>
+    /// <param name="snapshot">The snapshot.</param>
+    /// <returns>The result of the operation.</returns>
+    public delegate XrResult xrDestroySpatialSnapshotEXT_delegate(XrSpatialSnapshotEXT snapshot);
+
     static class EXTSpatialEntityMocks
     {
-        internal unsafe delegate XrResult xrEnumerateSpatialCapabilitiesEXT_delegate(
-            XrInstance instance,
-            XrSystemId systemId,
-            uint capabilityCountInput,
-            out uint capabilityCountOutput,
-            XrSpatialCapabilityEXT* capabilities);
-
-        internal static unsafe IntPtr xrEnumerateSpatialCapabilitiesEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrEnumerateSpatialCapabilitiesEXT_delegate)xrEnumerateSpatialCapabilitiesEXT);
-
         [MonoPInvokeCallback(typeof(xrEnumerateSpatialCapabilitiesEXT_delegate))]
         internal static unsafe XrResult xrEnumerateSpatialCapabilitiesEXT(
             XrInstance instance,
@@ -45,15 +315,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrEnumerateSpatialCapabilityComponentTypesEXT_delegate(
-            XrInstance instance,
-            XrSystemId systemId,
-            XrSpatialCapabilityEXT capability,
-            ref XrSpatialCapabilityComponentTypesEXT capabilityComponents);
-
-        internal static IntPtr xrEnumerateSpatialCapabilityComponentTypesEXT_Ptr =
+        internal static unsafe IntPtr xrEnumerateSpatialCapabilitiesEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrEnumerateSpatialCapabilityComponentTypesEXT_delegate)xrEnumerateSpatialCapabilityComponentTypesEXT);
+                (xrEnumerateSpatialCapabilitiesEXT_delegate)xrEnumerateSpatialCapabilitiesEXT);
 
         [MonoPInvokeCallback(typeof(xrEnumerateSpatialCapabilityComponentTypesEXT_delegate))]
         internal static unsafe XrResult xrEnumerateSpatialCapabilityComponentTypesEXT(
@@ -82,17 +346,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             }
         }
 
-        internal unsafe delegate XrResult xrEnumerateSpatialCapabilityFeaturesEXT_delegate(
-            XrInstance instance,
-            XrSystemId systemId,
-            XrSpatialCapabilityEXT capability,
-            uint capabilityFeatureCapacityInput,
-            out uint capabilityFeatureCountOutput,
-            XrSpatialCapabilityFeatureEXT* capabilityFeatures);
-
-        internal static unsafe IntPtr xrEnumerateSpatialCapabilityFeaturesEXT_Ptr =
+        internal static IntPtr xrEnumerateSpatialCapabilityComponentTypesEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrEnumerateSpatialCapabilityFeaturesEXT_delegate)xrEnumerateSpatialCapabilityFeaturesEXT);
+                (xrEnumerateSpatialCapabilityComponentTypesEXT_delegate)xrEnumerateSpatialCapabilityComponentTypesEXT);
 
         [MonoPInvokeCallback(typeof(xrEnumerateSpatialCapabilityFeaturesEXT_delegate))]
         internal static unsafe XrResult xrEnumerateSpatialCapabilityFeaturesEXT(
@@ -124,12 +380,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             }
         }
 
-        internal delegate XrResult xrCreateSpatialContextAsyncEXT_delegate(
-            XrSession session, in XrSpatialContextCreateInfoEXT createInfo, out XrFutureEXT future);
-
-        internal static IntPtr xrCreateSpatialContextAsyncEXT_Ptr =
+        internal static unsafe IntPtr xrEnumerateSpatialCapabilityFeaturesEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialContextAsyncEXT_delegate)xrCreateSpatialContextAsyncEXT);
+                (xrEnumerateSpatialCapabilityFeaturesEXT_delegate)xrEnumerateSpatialCapabilityFeaturesEXT);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialContextAsyncEXT_delegate))]
         internal static XrResult xrCreateSpatialContextAsyncEXT(
@@ -139,12 +392,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrCreateSpatialContextCompleteEXT_delegate(
-            XrSession session, XrFutureEXT future, ref XrCreateSpatialContextCompletionEXT completion);
-
-        internal static IntPtr xrCreateSpatialContextCompleteEXT_Ptr =
+        internal static IntPtr xrCreateSpatialContextAsyncEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialContextCompleteEXT_delegate)xrCreateSpatialContextCompleteEXT);
+                (xrCreateSpatialContextAsyncEXT_delegate)xrCreateSpatialContextAsyncEXT);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialContextCompleteEXT_delegate))]
         internal static XrResult xrCreateSpatialContextCompleteEXT(
@@ -155,10 +405,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrDestroySpatialContextEXT_delegate(XrSpatialContextEXT spatialContext);
-
-        internal static IntPtr xrDestroySpatialContextEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialContextEXT_delegate)xrDestroySpatialContextEXT);
+        internal static IntPtr xrCreateSpatialContextCompleteEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate(
+                (xrCreateSpatialContextCompleteEXT_delegate)xrCreateSpatialContextCompleteEXT);
 
         [MonoPInvokeCallback(typeof(xrDestroySpatialContextEXT_delegate))]
         internal static XrResult xrDestroySpatialContextEXT(XrSpatialContextEXT spatialContext)
@@ -166,14 +415,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrCreateSpatialEntityFromIdEXT_delegate(
-            XrSpatialContextEXT spatialContext,
-            in XrSpatialEntityFromIdCreateInfoEXT createInfo,
-            out XrSpatialEntityEXT spatialEntity);
-
-        internal static IntPtr xrCreateSpatialEntityFromIdEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialEntityFromIdEXT_delegate)xrCreateSpatialEntityFromIdEXT);
+        internal static IntPtr xrDestroySpatialContextEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialContextEXT_delegate)xrDestroySpatialContextEXT);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialEntityFromIdEXT_delegate))]
         internal static XrResult xrCreateSpatialEntityFromIdEXT(
@@ -185,10 +428,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrDestroySpatialEntityEXT_delegate(XrSpatialEntityEXT spatialEntity);
-
-        internal static IntPtr xrDestroySpatialEntityEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialEntityEXT_delegate)xrDestroySpatialEntityEXT);
+        internal static IntPtr xrCreateSpatialEntityFromIdEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate(
+                (xrCreateSpatialEntityFromIdEXT_delegate)xrCreateSpatialEntityFromIdEXT);
 
         [MonoPInvokeCallback(typeof(xrDestroySpatialEntityEXT_delegate))]
         internal static XrResult xrDestroySpatialEntityEXT(XrSpatialEntityEXT spatialEntity)
@@ -196,14 +438,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrCreateSpatialDiscoverySnapshotAsyncEXT_delegate(
-            XrSpatialContextEXT spatialContext,
-            in XrSpatialDiscoverySnapshotCreateInfoEXT createInfo,
-            out XrFutureEXT future);
-
-        internal static IntPtr xrCreateSpatialDiscoverySnapshotAsyncEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialDiscoverySnapshotAsyncEXT_delegate)xrCreateSpatialDiscoverySnapshotAsyncEXT);
+        internal static IntPtr xrDestroySpatialEntityEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialEntityEXT_delegate)xrDestroySpatialEntityEXT);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialDiscoverySnapshotAsyncEXT_delegate))]
         internal static XrResult xrCreateSpatialDiscoverySnapshotAsyncEXT(
@@ -215,14 +451,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrCreateSpatialDiscoverySnapshotCompleteEXT_delegate(
-            XrSpatialContextEXT spatialContext,
-            in XrCreateSpatialDiscoverySnapshotCompletionInfoEXT createSnapshotCompletionInfo,
-            ref XrCreateSpatialDiscoverySnapshotCompletionEXT completion);
-
-        internal static IntPtr xrCreateSpatialDiscoverySnapshotCompleteEXT_Ptr =
+        internal static IntPtr xrCreateSpatialDiscoverySnapshotAsyncEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialDiscoverySnapshotCompleteEXT_delegate)xrCreateSpatialDiscoverySnapshotCompleteEXT);
+                (xrCreateSpatialDiscoverySnapshotAsyncEXT_delegate)xrCreateSpatialDiscoverySnapshotAsyncEXT);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialDiscoverySnapshotCompleteEXT_delegate))]
         internal static XrResult xrCreateSpatialDiscoverySnapshotCompleteEXT(
@@ -235,14 +466,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrQuerySpatialComponentDataEXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialComponentDataQueryConditionEXT queryCondition,
-            ref XrSpatialComponentDataQueryResultEXT queryResult);
-
-        internal static IntPtr xrQuerySpatialComponentDataEXT_Ptr =
+        internal static IntPtr xrCreateSpatialDiscoverySnapshotCompleteEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrQuerySpatialComponentDataEXT_delegate)xrQuerySpatialComponentDataEXT);
+                (xrCreateSpatialDiscoverySnapshotCompleteEXT_delegate)xrCreateSpatialDiscoverySnapshotCompleteEXT);
 
         [MonoPInvokeCallback(typeof(xrQuerySpatialComponentDataEXT_delegate))]
         internal static unsafe XrResult xrQuerySpatialComponentDataEXT(
@@ -262,16 +488,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferStringEXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            byte* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferStringEXT_Ptr =
+        internal static IntPtr xrQuerySpatialComponentDataEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferStringEXT_delegate)xrGetSpatialBufferStringEXT);
+                (xrQuerySpatialComponentDataEXT_delegate)xrQuerySpatialComponentDataEXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferStringEXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferStringEXT(
@@ -299,16 +518,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferUint8EXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            byte* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferUint8EXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferStringEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferUint8EXT_delegate)xrGetSpatialBufferUint8EXT);
+                (xrGetSpatialBufferStringEXT_delegate)xrGetSpatialBufferStringEXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferUint8EXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferUint8EXT(
@@ -336,16 +548,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferUint16EXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            short* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferUint16EXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferUint8EXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferUint16EXT_delegate)xrGetSpatialBufferUint16EXT);
+                (xrGetSpatialBufferUint8EXT_delegate)xrGetSpatialBufferUint8EXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferUint16EXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferUint16EXT(
@@ -371,16 +576,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferUint32EXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            uint* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferUint32EXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferUint16EXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferUint32EXT_delegate)xrGetSpatialBufferUint32EXT);
+                (xrGetSpatialBufferUint16EXT_delegate)xrGetSpatialBufferUint16EXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferUint32EXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferUint32EXT(
@@ -403,16 +601,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferFloatEXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            float* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferFloatEXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferUint32EXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferFloatEXT_delegate)xrGetSpatialBufferFloatEXT);
+                (xrGetSpatialBufferUint32EXT_delegate)xrGetSpatialBufferUint32EXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferFloatEXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferFloatEXT(
@@ -435,16 +626,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferVector2fEXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            XrVector2f* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferVector2fEXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferFloatEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferVector2fEXT_delegate)xrGetSpatialBufferVector2fEXT);
+                (xrGetSpatialBufferFloatEXT_delegate)xrGetSpatialBufferFloatEXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferVector2fEXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferVector2fEXT(
@@ -467,16 +651,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal unsafe delegate XrResult xrGetSpatialBufferVector3fEXT_delegate(
-            XrSpatialSnapshotEXT snapshot,
-            in XrSpatialBufferGetInfoEXT info,
-            uint bufferCapacityInput,
-            out uint bufferCountOutput,
-            XrVector3f* buffer);
-
-        internal static unsafe IntPtr xrGetSpatialBufferVector3fEXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferVector2fEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrGetSpatialBufferVector3fEXT_delegate)xrGetSpatialBufferVector3fEXT);
+                (xrGetSpatialBufferVector2fEXT_delegate)xrGetSpatialBufferVector2fEXT);
 
         [MonoPInvokeCallback(typeof(xrGetSpatialBufferVector3fEXT_delegate))]
         internal static unsafe XrResult xrGetSpatialBufferVector3fEXT(
@@ -499,14 +676,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrCreateSpatialUpdateSnapshotEXT_delegate(
-            XrSpatialContextEXT spatialContext,
-            in XrSpatialUpdateSnapshotCreateInfoEXT createInfo,
-            out XrSpatialSnapshotEXT snapshot);
-
-        internal static IntPtr xrCreateSpatialUpdateSnapshotEXT_Ptr =
+        internal static unsafe IntPtr xrGetSpatialBufferVector3fEXT_Ptr =
             Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialUpdateSnapshotEXT_delegate)xrCreateSpatialUpdateSnapshotEXT);
+                (xrGetSpatialBufferVector3fEXT_delegate)xrGetSpatialBufferVector3fEXT);
 
         internal static XrResult xrCreateSpatialUpdateSnapshotEXT(
             XrSpatialContextEXT spatialContext,
@@ -517,14 +689,16 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal delegate XrResult xrDestroySpatialSnapshotEXT_delegate(XrSpatialSnapshotEXT snapshot);
-
-        internal static IntPtr xrDestroySpatialSnapshotEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialSnapshotEXT_delegate)xrDestroySpatialSnapshotEXT);
+        internal static IntPtr xrCreateSpatialUpdateSnapshotEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate(
+                (xrCreateSpatialUpdateSnapshotEXT_delegate)xrCreateSpatialUpdateSnapshotEXT);
 
         internal static XrResult xrDestroySpatialSnapshotEXT(XrSpatialSnapshotEXT snapshot)
         {
             return XrResult.Success;
         }
+
+        internal static IntPtr xrDestroySpatialSnapshotEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate((xrDestroySpatialSnapshotEXT_delegate)xrDestroySpatialSnapshotEXT);
     }
 }

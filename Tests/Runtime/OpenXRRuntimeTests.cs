@@ -659,21 +659,32 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         }
 
-#if ENABLE_VR
         [UnityTest]
         public IEnumerator RefreshRate()
         {
-            Assert.AreEqual(0.0f, XRDevice.refreshRate);
             base.InitializeAndStart();
 
             yield return null;
             // TODO: 19.4 has an additional frame of latency until fix is backported.
             yield return null;
 
-            Assert.That(XRDevice.refreshRate, Is.EqualTo(60.0f).Within(0.01f));
+            var displaySubsystem = GetFirstDisplaySubsystem();
+            var ret = displaySubsystem.TryGetDisplayRefreshRate(out float refreshRate);
+            Assert.IsTrue(ret);
+            Assert.That(refreshRate, Is.EqualTo(60.0f).Within(0.01f));
         }
 
-#endif
+        static XRDisplaySubsystem GetFirstDisplaySubsystem()
+        {
+            List<XRDisplaySubsystem> displays = new();
+            SubsystemManager.GetSubsystems(displays);
+            if (displays.Count == 0)
+            {
+                Debug.Log("No display subsystem found.");
+                return null;
+            }
+            return displays[0];
+        }
 
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
@@ -815,8 +826,12 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return new WaitForXrFrame(2);
 
-            MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
-            Assert.IsTrue(secondaryLayerCount == 0);
+            if (OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization !=
+                    OpenXRSettings.LatencyOptimization.PrioritizeInputPolling)
+            {
+                MockRuntime.GetEndFrameStats(out primaryLayerCount, out secondaryLayerCount);
+                Assert.IsTrue(secondaryLayerCount == 0);
+            }
         }
 
         [UnityTest]
@@ -1050,6 +1065,244 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             var distinctCount = spaceSequence.Distinct().ToList().Count;
             Assert.IsTrue(spaceSequence.Count == distinctCount, "Some XR Space handles didn't change");
+        }
+
+        /// <summary>
+        /// Tests the Meta Dynamic Resolution extension and specifically chooses a
+        /// resolution that is lesser than the original. The viewport scale will be < 1
+        /// and we check that this is populated on the XRDisplaySubsystem render parameters.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator MetaRecommendedResolutionTest()
+        {
+            AddExtension("XR_META_recommended_layer_resolution");
+            bool oldUsingSuggestedResolutionScale = UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.usingSuggestedResolutionScale;
+            UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(true);
+
+            try
+            {
+                var cameraGO = new GameObject("Test Cam");
+                var camera = cameraGO.AddComponent<Camera>();
+
+#if UNITY_ANDROID
+            if (!SystemInfo.supportsMultiview)
+                LogAssert.ignoreFailingMessages = true;
+#endif
+
+                base.InitializeAndStart();
+                OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                yield return new WaitForXrFrame(2);
+
+                int createSwapchainCalls = 0;
+                MockRuntime.SetFunctionCallback("xrCreateSwapchain", (name) =>
+                {
+                    createSwapchainCalls += 1;
+                    return XrResult.Success;
+                });
+
+                // This will also change the output of xrGetRecommendedLayerResolutionMETA
+                // This is what the extension will check for the new extents.
+                // This test assumes that the values chosen here are less than the default width/height.
+                MockRuntime.ChangeRecommendedImageRectExtents(300, 300);
+
+                yield return new WaitForXrFrame(2);
+
+                Assert.IsTrue(createSwapchainCalls == 0, "We should not have created a new swapchain.");
+
+                // Fetch the viewports on the RenderParameters
+                var displays = new List<XRDisplaySubsystem>();
+                SubsystemManager.GetSubsystems(displays);
+                Assert.That(displays.Count, Is.EqualTo(1));
+                Assert.That(displays[0].GetRenderPassCount(), Is.EqualTo(1));
+                displays[0].GetRenderPass(0, out var renderPass);
+                renderPass.GetRenderParameter(camera, 0, out var renderParam0);
+                renderPass.GetRenderParameter(camera, 1, out var renderParam1);
+
+                // This is the RenderParam viewport that we're setting within OpenXR
+                // This is in normalized device coordinates.
+                // Assuming we've decreased the width/height of the scale, the width should be < 1.
+                Rect renderParamLeftRect = renderParam0.viewport;
+                Rect renderParamRightRect = renderParam1.viewport;
+                Assert.IsTrue(renderParamLeftRect.width < 1.0f, "Left Rectangle scale should be less than 1.");
+                Assert.IsTrue(renderParamRightRect.width < 1.0f, "Right Rectangle scale should be less than 1.");
+
+                yield return null;
+#if UNITY_EDITOR
+            Object.DestroyImmediate(cameraGO);
+#else
+                Object.Destroy(cameraGO);
+#endif
+                LogAssert.ignoreFailingMessages = false;
+            }
+            finally
+            {
+                UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(oldUsingSuggestedResolutionScale);
+            }
+        }
+
+        /// <summary>
+        /// Tests the Android Dynamic Resolution extension and specifically chooses a
+        /// resolution that is lesser than the original. The viewport scale will be < 1
+        /// and we check that this is populated on the XRDisplaySubsystem render parameters.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator AndroidRecommendedResolutionTest()
+        {
+            AddExtension("XR_ANDROID_recommended_resolution");
+            bool oldUsingSuggestedResolutionScale = UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.usingSuggestedResolutionScale;
+            UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(true);
+
+            try
+            {
+                var cameraGO = new GameObject("Test Cam");
+                var camera = cameraGO.AddComponent<Camera>();
+
+#if UNITY_ANDROID
+            if (!SystemInfo.supportsMultiview)
+                LogAssert.ignoreFailingMessages = true;
+#endif
+
+                base.InitializeAndStart();
+                OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                yield return new WaitForXrFrame(2);
+
+                int createSwapchainCalls = 0;
+                MockRuntime.SetFunctionCallback("xrCreateSwapchain", (name) =>
+                {
+                    createSwapchainCalls += 1;
+                    return XrResult.Success;
+                });
+
+                // This will change the output of xrEnumerateViewConfigurationViews
+                // This is what the extension will check for the new extents.
+                // This test assumes that the values chosen here are less than the default width/height.
+                MockRuntime.ChangeRecommendedImageRectExtents(300, 300);
+
+                // Trigger a Recommended Resolution Changed Event, so that the change to the recommended image rect extents will be seen.
+                MockRuntime.CauseRecommendedResolutionChangedEvent();
+
+                yield return new WaitForXrFrame(2);
+
+                Assert.IsTrue(createSwapchainCalls == 0, "We should not have created a new swapchain.");
+
+                // Fetch the viewports on the RenderParameters
+                var displays = new List<XRDisplaySubsystem>();
+                SubsystemManager.GetSubsystems(displays);
+                Assert.That(displays.Count, Is.EqualTo(1));
+                Assert.That(displays[0].GetRenderPassCount(), Is.EqualTo(1));
+                displays[0].GetRenderPass(0, out var renderPass);
+                renderPass.GetRenderParameter(camera, 0, out var renderParam0);
+                renderPass.GetRenderParameter(camera, 1, out var renderParam1);
+
+                // This is the RenderParam viewport that we're setting within OpenXR
+                // This is in normalized device coordinates.
+                // Assuming we've decreased the width/height of the scale, the width should be < 1.
+                Rect renderParamLeftRect = renderParam0.viewport;
+                Rect renderParamRightRect = renderParam1.viewport;
+                Assert.IsTrue(renderParamLeftRect.width < 1.0f, "Left Rectangle scale should be less than 1.");
+                Assert.IsTrue(renderParamRightRect.width < 1.0f, "Right Rectangle scale should be less than 1.");
+
+                yield return null;
+#if UNITY_EDITOR
+            Object.DestroyImmediate(cameraGO);
+#else
+                Object.Destroy(cameraGO);
+#endif
+                LogAssert.ignoreFailingMessages = false;
+            }
+            finally
+            {
+                UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(oldUsingSuggestedResolutionScale);
+            }
+        }
+
+        /// <summary>
+        /// Tests the Meta Dynamic Resolution extension and specifically chooses a
+        /// resolution that is greater than the original. The viewport scale will be > 1
+        /// and will require a swapchain regeneration.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator MetaRecommendedResolutionSwapchainRegenerationTest()
+        {
+            AddExtension("XR_META_recommended_layer_resolution");
+            bool oldUsingSuggestedResolutionScale = UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.usingSuggestedResolutionScale;
+            UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(true);
+
+            try
+            {
+                base.InitializeAndStart();
+                OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                yield return new WaitForXrFrame(2);
+
+                // Modify xrCreateSwapchains so we can keep track of the number of calls
+                int createSwapchainCalls = 0;
+                MockRuntime.SetFunctionCallback("xrCreateSwapchain", (name) =>
+                {
+                    createSwapchainCalls += 1;
+                    return XrResult.Success;
+                });
+
+                // This will also change the output of xrGetRecommendedLayerResolutionMETA
+                // This is what the extension will check for the new extents.
+                // This test assumes that the values chosen here are more than the default width/height.
+                MockRuntime.ChangeRecommendedImageRectExtents(4000, 4000);
+
+                yield return new WaitForXrFrame(2);
+
+                Assert.IsTrue(createSwapchainCalls > 0, "We should have created a new swapchain.");
+
+                yield return null;
+            }
+            finally
+            {
+                UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(oldUsingSuggestedResolutionScale);
+            }
+        }
+
+        /// <summary>
+        /// Tests the Android Dynamic Resolution extension and specifically chooses a
+        /// resolution that is greater than the original. The viewport scale will be > 1
+        /// and will require a swapchain regeneration.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator AndroidRecommendedResolutionSwapchainRegenerationTest()
+        {
+            AddExtension("XR_ANDROID_recommended_resolution");
+            bool oldUsingSuggestedResolutionScale = UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.usingSuggestedResolutionScale;
+            UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(true);
+
+            try
+            {
+                base.InitializeAndStart();
+                OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
+                yield return new WaitForXrFrame(2);
+
+                // Modify xrCreateSwapchains so we can keep track of the number of calls
+                int createSwapchainCalls = 0;
+                MockRuntime.SetFunctionCallback("xrCreateSwapchain", (name) =>
+                {
+                    createSwapchainCalls += 1;
+                    return XrResult.Success;
+                });
+
+                // This will change the output of xrEnumerateViewConfigurationViews
+                // This is what the extension will check for the new extents.
+                // This test assumes that the values chosen here are less than the default width/height.
+                MockRuntime.ChangeRecommendedImageRectExtents(4000, 4000);
+
+                // Trigger a Recommended Resolution Changed Event, so that the change to the recommended image rect extents will be seen.
+                MockRuntime.CauseRecommendedResolutionChangedEvent();
+
+                yield return new WaitForXrFrame(2);
+
+                Assert.IsTrue(createSwapchainCalls > 0, "We should have created a new swapchain.");
+
+                yield return null;
+            }
+            finally
+            {
+                UnityEngine.XR.OpenXR.Features.AutomaticDynamicResolutionFeature.SetUsingSuggestedResolutionScale(oldUsingSuggestedResolutionScale);
+            }
         }
 
         /// <summary>

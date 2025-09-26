@@ -525,7 +525,11 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="fov">Field of View.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetView")]
         public static extern void SetViewPose(
-            XrViewConfigurationType viewConfigurationType, int viewIndex, Vector3 position, Quaternion orientation, Vector4 fov);
+            XrViewConfigurationType viewConfigurationType,
+            int viewIndex,
+            Vector3 position,
+            Quaternion orientation,
+            Vector4 fov);
 
         /// <summary>
         /// Set the runtime ViewState.
@@ -533,7 +537,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="viewConfigurationType">The XrViewConfigurationType to use.</param>
         /// <param name="viewStateFlags">The XrViewStateFlags to set.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetViewState")]
-        public static extern void SetViewState(XrViewConfigurationType viewConfigurationType, XrViewStateFlags viewStateFlags);
+        public static extern void SetViewState(
+            XrViewConfigurationType viewConfigurationType, XrViewStateFlags viewStateFlags);
 
         /// <summary>
         /// Set the reference space to use at Runtime.
@@ -544,7 +549,10 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpace")]
         public static extern void SetSpace(
-            XrReferenceSpaceType referenceSpace, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
+            XrReferenceSpaceType referenceSpace,
+            Vector3 position,
+            Quaternion orientation,
+            XrSpaceLocationFlags locationFlags);
 
         /// <summary>
         /// Set the reference space to use for input actions.
@@ -554,17 +562,19 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <param name="orientation">Orientation of the space.</param>
         /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetActionSpace")]
-        public static extern void SetSpace(ulong actionHandle, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
+        public static extern void SetSpace(
+            ulong actionHandle, Vector3 position, Quaternion orientation, XrSpaceLocationFlags locationFlags);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterScriptEventCallback")]
-        private static extern XrResult Internal_RegisterScriptEventCallback(ScriptEventDelegate callback);
+        static extern XrResult Internal_RegisterScriptEventCallback(ScriptEventDelegate callback);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_TransitionToState")]
         [return: MarshalAs(UnmanagedType.U1)]
-        private static extern bool Internal_TransitionToState(XrSessionState state, [MarshalAs(UnmanagedType.I1)] bool forceTransition);
+        static extern bool Internal_TransitionToState(
+            XrSessionState state, [MarshalAs(UnmanagedType.I1)] bool forceTransition);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_GetSessionState")]
-        private static extern XrSessionState Internal_GetSessionState();
+        static extern XrSessionState Internal_GetSessionState();
 
         /// <summary>
         /// Request to exit the runtime session.
@@ -585,6 +595,20 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockRuntime_CauseUserPresenceChange")]
         public static extern void CauseUserPresenceChange([MarshalAs(UnmanagedType.U1)] bool hasUserPresent);
 
+        /// <summary>
+        ///  Change the recommended image size.
+        /// </summary>
+        /// <param name="width">Recommended Image Width.</param>
+        /// <param name="height">Recommended Image Height.</param>
+        [DllImport(extLib, EntryPoint = "MockRuntime_ChangeRecommendedResolution")]
+        public static extern void ChangeRecommendedImageRectExtents(uint width, uint height);
+
+        /// <summary>
+        /// Trigger a MockRuntime Recommended Resolution Changed Event.
+        /// </summary>
+        [DllImport(extLib, EntryPoint = "MockRuntime_CauseRecommendedResolutionChangedEvent")]
+        public static extern void CauseRecommendedResolutionChangedEvent();
+
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpaceBounds")]
         internal static extern void SetReferenceSpaceBounds(XrReferenceSpaceType referenceSpace, Vector2 bounds);
 
@@ -596,10 +620,12 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             XrViewConfigurationType viewConfigurationType, [MarshalAs(UnmanagedType.I1)] bool activate);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_RegisterFunctionCallbacks")]
-        private static extern void MockRuntime_RegisterFunctionCallbacks(BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);
+        static extern void MockRuntime_RegisterFunctionCallbacks(
+            BeforeFunctionDelegate hookBefore, AfterFunctionDelegate hookAfter);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float")]
-        internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(string xrPathString, float value, uint unit);
+        internal static extern void MetaPerformanceMetrics_SeedCounterOnce_Float(
+            string xrPathString, float value, uint unit);
 
         [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_CauseNotification")]
         internal static extern void PerformanceSettings_CauseNotification(

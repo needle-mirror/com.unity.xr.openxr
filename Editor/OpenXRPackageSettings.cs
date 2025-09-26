@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEditor.Build;
-using UnityEditor.Experimental;
 using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
@@ -13,22 +12,26 @@ using UnityEngine.XR.OpenXR.Features;
 namespace UnityEditor.XR.OpenXR
 {
     [XRConfigurationData("OpenXR", Constants.k_SettingsKey)]
-    internal class OpenXRPackageSettings : ScriptableObject, ISerializationCallbackReceiver, IPackageSettings
+    class OpenXRPackageSettings : ScriptableObject, ISerializationCallbackReceiver, IPackageSettings2
     {
-        [SerializeField]
-        List<BuildTargetGroup> Keys = new List<BuildTargetGroup>();
-        [SerializeField]
-        List<OpenXRSettings> Values = new List<OpenXRSettings>();
+        Func<BuildTargetGroup, OpenXRSettings> m_SettingsLocatorFunc;
 
-        Dictionary<BuildTargetGroup, OpenXRSettings> Settings = new Dictionary<BuildTargetGroup, OpenXRSettings>();
+        internal static readonly string s_PackageSettingsAssetName = "OpenXR Package Settings.asset";
+        internal static readonly string[] s_PackageSettingsDefaultSettingsPath = { "XR", "Settings" };
 
+        Dictionary<BuildTargetGroup, OpenXRSettings> Settings = new();
+
+        [SerializeField]
+        List<BuildTargetGroup> Keys = new();
+
+        [SerializeField]
+        List<OpenXRSettings> Values = new();
 
         public static OpenXRPackageSettings Instance
         {
             get
             {
-                OpenXRPackageSettings ret = null;
-                EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out ret);
+                EditorBuildSettings.TryGetConfigObject(Constants.k_SettingsKey, out OpenXRPackageSettings ret);
                 if (ret == null)
                 {
                     string path = OpenXRPackageSettingsAssetPath();
@@ -56,7 +59,7 @@ namespace UnityEditor.XR.OpenXR
             if (Instance != null)
                 return Instance;
 
-            OpenXRPackageSettings settings = ScriptableObject.CreateInstance<OpenXRPackageSettings>();
+            var settings = CreateInstance<OpenXRPackageSettings>();
             if (settings != null)
             {
                 string path = OpenXRPackageSettingsAssetPath();
@@ -69,10 +72,6 @@ namespace UnityEditor.XR.OpenXR
             }
             return settings;
         }
-
-        internal static readonly string s_PackageSettingsAssetName = "OpenXR Package Settings.asset";
-
-        internal static readonly string[] s_PackageSettingsDefaultSettingsPath = { "XR", "Settings" };
 
         string IPackageSettings.PackageSettingsAssetPath()
         {
@@ -121,7 +120,7 @@ namespace UnityEditor.XR.OpenXR
             OpenXRFeatureSetManager.InitializeFeatureSets();
         }
 
-        private bool IsValidBuildTargetGroup(BuildTargetGroup buildTargetGroup) =>
+        static bool IsValidBuildTargetGroup(BuildTargetGroup buildTargetGroup) =>
             buildTargetGroup == BuildTargetGroup.Standalone ||
             Enum.GetValues(typeof(BuildTarget)).Cast<BuildTarget>().Any(bt =>
             {
@@ -131,29 +130,42 @@ namespace UnityEditor.XR.OpenXR
 
         public OpenXRSettings GetSettingsForBuildTargetGroup(BuildTargetGroup buildTargetGroup)
         {
-            OpenXRSettings ret = null;
-            Settings.TryGetValue(buildTargetGroup, out ret);
+            m_SettingsLocatorFunc ??= GetSettingsForBuildTargetGroupFromPackageSettings;
+            return m_SettingsLocatorFunc(buildTargetGroup);
+        }
+
+        OpenXRSettings GetSettingsForBuildTargetGroupFromPackageSettings(BuildTargetGroup buildTargetGroup)
+        {
+            Settings.TryGetValue(buildTargetGroup, out var ret);
             if (ret == null)
             {
                 if (!IsValidBuildTargetGroup(buildTargetGroup))
                     return null;
 
-                ret = ScriptableObject.CreateInstance<OpenXRSettings>();
-                if (Settings.ContainsKey(buildTargetGroup))
-                {
-                    Settings[buildTargetGroup] = ret;
-                }
-                else
-                {
-                    Settings.Add(buildTargetGroup, ret);
-                }
-
+                ret = CreateInstance<OpenXRSettings>();
+                Settings[buildTargetGroup] = ret;
                 ret.name = buildTargetGroup.ToString();
 
                 AssetDatabase.AddObjectToAsset(ret, this);
             }
 
             return ret;
+        }
+
+        void IPackageSettings2.OverrideSettingsLocatorFunc(Func<BuildTargetGroup, OpenXRSettings> locatorFunc)
+        {
+            m_SettingsLocatorFunc = locatorFunc;
+        }
+
+        void IPackageSettings2.RestoreDefaultSettingsLocatorFunc()
+        {
+            m_SettingsLocatorFunc = GetSettingsForBuildTargetGroupFromPackageSettings;
+        }
+
+        bool IPackageSettings2.IsSettingsLocatorFuncOverriden()
+        {
+            m_SettingsLocatorFunc ??= GetSettingsForBuildTargetGroupFromPackageSettings;
+            return m_SettingsLocatorFunc != GetSettingsForBuildTargetGroupFromPackageSettings;
         }
 
         /// <summary>Pre-serialization action</summary>

@@ -69,7 +69,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="planeAlignments">The native array. Must be non-empty.</param>
+        /// <param name="planeAlignments">Native array of plane alignment components. Must be non-empty.</param>
         public XrSpatialComponentPlaneAlignmentListEXT(
             void* next, NativeArray<XrSpatialPlaneAlignmentEXT> planeAlignments)
             : this(next, (uint)planeAlignments.Length, (XrSpatialPlaneAlignmentEXT*)planeAlignments.GetUnsafePtr()) { }
@@ -77,8 +77,34 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="planeAlignments">The native array. Must be non-empty.</param>
+        /// <param name="planeAlignments">Native array of plane alignment components. Must be non-empty.</param>
         public XrSpatialComponentPlaneAlignmentListEXT(NativeArray<XrSpatialPlaneAlignmentEXT> planeAlignments)
             : this(null, (uint)planeAlignments.Length, (XrSpatialPlaneAlignmentEXT*)planeAlignments.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="planeAlignments">Read-only native array of plane alignment components.
+        /// Must be non-empty.</param>
+        public XrSpatialComponentPlaneAlignmentListEXT(
+            void* next, NativeArray<XrSpatialPlaneAlignmentEXT>.ReadOnly planeAlignments)
+            : this(
+                next,
+                (uint)planeAlignments.Length,
+                (XrSpatialPlaneAlignmentEXT*)planeAlignments.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="planeAlignments">Read-only native array of plane alignment components.
+        /// Must be non-empty.</param>
+        public XrSpatialComponentPlaneAlignmentListEXT(NativeArray<XrSpatialPlaneAlignmentEXT>.ReadOnly planeAlignments)
+            : this(
+                null,
+                (uint)planeAlignments.Length,
+                (XrSpatialPlaneAlignmentEXT*)planeAlignments.GetUnsafeReadOnlyPtr())
+        { }
     }
 }

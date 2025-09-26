@@ -106,17 +106,10 @@ namespace UnityEngine.XR.OpenXR.TestTooling
         /// Tears down the environment and its resources.
         /// </summary>
         /// <remarks>
-        /// <para>
         /// This method stops the Mock Runtime and disposes of the environment settings.
         /// After calling this method, the environment object is in a disposed state and can't be used anymore.
-        /// </para>
         /// </remarks>
         public void Dispose()
-        {
-            TearDown();
-        }
-
-        void TearDown()
         {
             if (m_MockRuntimeIsRunning)
             {
@@ -134,13 +127,10 @@ namespace UnityEngine.XR.OpenXR.TestTooling
         /// Starts the Mock Runtime and initializes the XR subsystems for testing.
         /// </summary>
         /// <remarks>
-        /// <para>
         /// The method does nothing if the environment has been disposed.
-        /// </para>
-        /// <para>
+        ///
         /// If the Mock Runtime is already running, the method calls <see cref="Stop()"/>
         /// before restarting and reinitializing it.
-        /// </para>
         /// </remarks>
         public void Start()
         {
@@ -159,9 +149,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
         /// Stops the Mock Runtime and deinitializes the XR subsystems.
         /// </summary>
         /// <remarks>
-        /// <para>
         /// The method does nothing if the environment has been disposed.
-        /// </para>
         /// </remarks>
         public void Stop()
         {
@@ -299,7 +287,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
             internal static extern void ProcessEventQueue();
         }
 
-        bool SetMockRuntimeEnabled(bool enable)
+        static bool SetMockRuntimeEnabled(bool enable)
         {
             var feature = MockRuntime.Instance;
             if (null == feature)
@@ -311,9 +299,6 @@ namespace UnityEngine.XR.OpenXR.TestTooling
             feature.enabled = enable;
             if (enable)
             {
-#if UNITY_INCLUDE_TESTS
-                feature.openxrExtensionStrings = string.Join(" ", MockRuntime.XR_UNITY_null_gfx, MockRuntime.XR_UNITY_android_present);
-#endif
                 feature.priority = 0;
                 feature.required = false;
                 feature.ignoreValidationErrors = true;
@@ -414,6 +399,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
                     var projectSettingsWindow = EditorWindow.GetWindow(wt);
                     if (projectSettingsWindow != null)
                     {
+                        Debug.Log($"{nameof(MockOpenXREnvironment)} is closing the Project Settings window to run tests.");
                         projectSettingsWindow.Close();
                     }
                 }

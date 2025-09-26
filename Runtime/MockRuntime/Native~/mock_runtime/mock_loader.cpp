@@ -67,6 +67,18 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
     {
         XR_TYPE_EXTENSION_PROPERTIES,
         nullptr,
+        XR_ANDROID_RECOMMENDED_RESOLUTION_EXTENSION_NAME,
+        XR_ANDROID_recommended_resolution_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_META_RECOMMENDED_LAYER_RESOLUTION_EXTENSION_NAME,
+        XR_META_recommended_layer_resolution_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
         XR_MSFT_SECONDARY_VIEW_CONFIGURATION_EXTENSION_NAME,
         XR_MSFT_secondary_view_configuration_SPEC_VERSION
     },
@@ -837,6 +849,15 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetVisibilityMaskKHR(XrSe
     return XR_SUCCESS;
 }
 
+extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetRecommendedLayerResolutionMETA(
+    XrSession session,
+    XrRecommendedLayerResolutionGetInfoMETA* recommendedLayerResolutionGetInfo,
+    XrRecommendedLayerResolutionMETA* recommendedLayerResolution)
+{
+    LOG_FUNC();
+    MOCK_HOOK(s_runtime->GetRecommendedLayerResolution(session, recommendedLayerResolutionGetInfo, recommendedLayerResolution));
+}
+
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetInstanceProcAddr(XrInstance instance, const char* name, PFN_xrVoidFunction* function)
 {
     LOG_FUNC();
@@ -899,6 +920,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetInstanceProcAddr(XrIns
     GET_PROC_ADDRESS(xrApplyHapticFeedback)
     GET_PROC_ADDRESS(xrStopHapticFeedback)
     GET_PROC_ADDRESS(xrGetVisibilityMaskKHR)
+    GET_PROC_ADDRESS(xrGetRecommendedLayerResolutionMETA)
 
     if (XR_SUCCEEDED(GetProcAddrMockAPI(instance, name, function)))
         return XR_SUCCESS;

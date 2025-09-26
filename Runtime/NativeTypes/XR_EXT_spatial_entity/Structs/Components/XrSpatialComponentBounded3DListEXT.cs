@@ -43,7 +43,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <param name="next">The next pointer.</param>
         /// <param name="boundCount">The count of elements in <paramref name="bounds"/>.
         /// Must be greater than `0`.</param>
-        /// <param name="bounds">Pointer to an array of type `XrBoxf`. Must be non-null.</param>
+        /// <param name="bounds">Pointer to an array of bounded 3D components. Must be non-null.</param>
         public XrSpatialComponentBounded3DListEXT(void* next, uint boundCount, XrBoxf* bounds)
         {
             Assert.IsTrue(boundCount > 0);
@@ -60,7 +60,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </summary>
         /// <param name="boundCount">The count of elements in <paramref name="bounds"/>.
         /// Must be greater than `0`.</param>
-        /// <param name="bounds">Pointer to an array of type `XrBoxf`. Must be non-null.</param>
+        /// <param name="bounds">Pointer to an array of bounded 3D components. Must be non-null.</param>
         public XrSpatialComponentBounded3DListEXT(uint boundCount, XrBoxf* bounds)
             : this(null, boundCount, bounds) { }
 
@@ -68,15 +68,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="bounds">The native array. Must be non-empty.</param>
+        /// <param name="bounds">Native array of bounded 3D components. Must be non-empty.</param>
         public XrSpatialComponentBounded3DListEXT(void* next, NativeArray<XrBoxf> bounds)
             : this(next, (uint)bounds.Length, (XrBoxf*)bounds.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="bounds">The native array. Must be non-empty.</param>
+        /// <param name="bounds">Native array of bounded 3D components. Must be non-empty.</param>
         public XrSpatialComponentBounded3DListEXT(NativeArray<XrBoxf> bounds)
             : this(null, (uint)bounds.Length, (XrBoxf*)bounds.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="bounds">Read-only native array of bounded 3D components. Must be non-empty.</param>
+        public XrSpatialComponentBounded3DListEXT(void* next, NativeArray<XrBoxf>.ReadOnly bounds)
+            : this(next, (uint)bounds.Length, (XrBoxf*)bounds.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="bounds">Read-only native array of bounded 3D components. Must be non-empty.</param>
+        public XrSpatialComponentBounded3DListEXT(NativeArray<XrBoxf>.ReadOnly bounds)
+            : this(null, (uint)bounds.Length, (XrBoxf*)bounds.GetUnsafeReadOnlyPtr()) { }
     }
 }

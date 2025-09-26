@@ -16,6 +16,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     public readonly unsafe struct XrSpatialDiscoverySnapshotCreateInfoEXT
     {
         /// <summary>
+        /// Get a default instance with no component types specified.
+        /// </summary>
+        public static XrSpatialDiscoverySnapshotCreateInfoEXT defaultValue = new(0, null);
+
+        /// <summary>
         /// The `XrStructureType` of this struct: <see cref="XrStructureType.SpatialDiscoverySnapshotCreateInfoEXT"/>.
         /// </summary>
         public XrStructureType type { get; }
@@ -62,19 +67,43 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             : this(null, componentTypeCount, componentTypes) { }
 
         /// <summary>
-        /// Construct an instance.
+        /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="componentTypes">The array of component types.</param>
+        /// <param name="componentTypes">Native array of component types.</param>
         public XrSpatialDiscoverySnapshotCreateInfoEXT(
             void* next, NativeArray<XrSpatialComponentTypeEXT> componentTypes)
             : this(next, (uint)componentTypes.Length, (XrSpatialComponentTypeEXT*)componentTypes.GetUnsafePtr()) { }
 
         /// <summary>
-        /// Construct an instance with a `null` next pointer.
+        /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="componentTypes">The array of component types.</param>
+        /// <param name="componentTypes">Native array of component types.</param>
         public XrSpatialDiscoverySnapshotCreateInfoEXT(NativeArray<XrSpatialComponentTypeEXT> componentTypes)
             : this(null, (uint)componentTypes.Length, (XrSpatialComponentTypeEXT*)componentTypes.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="componentTypes">Read-only native array of component types.</param>
+        public XrSpatialDiscoverySnapshotCreateInfoEXT(
+            void* next, NativeArray<XrSpatialComponentTypeEXT>.ReadOnly componentTypes)
+            : this(
+                next,
+                (uint)componentTypes.Length,
+                (XrSpatialComponentTypeEXT*)componentTypes.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="componentTypes">Read-only native array of component types.</param>
+        public XrSpatialDiscoverySnapshotCreateInfoEXT(NativeArray<XrSpatialComponentTypeEXT>.ReadOnly componentTypes)
+            : this(
+                null,
+                (uint)componentTypes.Length,
+                (XrSpatialComponentTypeEXT*)componentTypes.GetUnsafeReadOnlyPtr())
+        { }
     }
 }

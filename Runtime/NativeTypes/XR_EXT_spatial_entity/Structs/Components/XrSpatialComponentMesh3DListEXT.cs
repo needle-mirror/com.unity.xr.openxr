@@ -41,7 +41,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <param name="next">The next pointer.</param>
         /// <param name="meshCount">The count of elements in <paramref name="meshes"/>.
         /// Must be greater than `0`.</param>
-        /// <param name="meshes">Pointer to an array of mesh components. Must be non-null.</param>
+        /// <param name="meshes">Pointer to an array of mesh 3D components. Must be non-null.</param>
         public XrSpatialComponentMesh3DListEXT(void* next, uint meshCount, XrSpatialMeshDataEXT* meshes)
         {
             Assert.IsTrue(meshCount > 0);
@@ -58,7 +58,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </summary>
         /// <param name="meshCount">The count of elements in <paramref name="meshes"/>.
         /// Must be greater than `0`.</param>
-        /// <param name="meshes">Pointer to an array of mesh components. Must be non-null.</param>
+        /// <param name="meshes">Pointer to an array of mesh 3D components. Must be non-null.</param>
         public XrSpatialComponentMesh3DListEXT(uint meshCount, XrSpatialMeshDataEXT* meshes)
             : this(null, meshCount, meshes) { }
 
@@ -66,15 +66,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="meshes">The native array. Must be non-empty.</param>
+        /// <param name="meshes">Native array of mesh 3D components. Must be non-empty.</param>
         public XrSpatialComponentMesh3DListEXT(void* next, NativeArray<XrSpatialMeshDataEXT> meshes)
             : this(next, (uint)meshes.Length, (XrSpatialMeshDataEXT*)meshes.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="meshes">The native array. Must be non-empty.</param>
+        /// <param name="meshes">Native array of mesh 3D components. Must be non-empty.</param>
         public XrSpatialComponentMesh3DListEXT(NativeArray<XrSpatialMeshDataEXT> meshes)
             : this(null, (uint)meshes.Length, (XrSpatialMeshDataEXT*)meshes.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="meshes">Read-only native array of mesh 3D components. Must be non-empty.</param>
+        public XrSpatialComponentMesh3DListEXT(void* next, NativeArray<XrSpatialMeshDataEXT>.ReadOnly meshes)
+            : this(next, (uint)meshes.Length, (XrSpatialMeshDataEXT*)meshes.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="meshes">Read-only native array of mesh 3D components. Must be non-empty.</param>
+        public XrSpatialComponentMesh3DListEXT(NativeArray<XrSpatialMeshDataEXT>.ReadOnly meshes)
+            : this(null, (uint)meshes.Length, (XrSpatialMeshDataEXT*)meshes.GetUnsafeReadOnlyPtr()) { }
     }
 }

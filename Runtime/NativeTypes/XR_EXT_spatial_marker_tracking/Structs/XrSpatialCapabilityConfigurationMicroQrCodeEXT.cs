@@ -14,7 +14,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationMicroQrCodeEXT"/>.
     /// </remarks>
-    public readonly unsafe struct XrSpatialCapabilityConfigurationMicroQrCodeEXT
+    public readonly unsafe struct XrSpatialCapabilityConfigurationMicroQrCodeEXT : ISpatialCapabilityConfiguration
     {
         /// <summary>
         /// The `XrStructureType` of this struct:
@@ -102,6 +102,33 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         public XrSpatialCapabilityConfigurationMicroQrCodeEXT(
             NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
             : this(null, (uint)enabledComponents.Length, (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationMicroQrCodeEXT(
+            void* next, NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationMicroQrCodeEXT(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
         { }
     }
 }

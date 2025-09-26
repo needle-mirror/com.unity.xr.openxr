@@ -8,26 +8,26 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     public struct XrVector3f : IEquatable<XrVector3f>
     {
         /// <summary>
-        /// The x coordinate of the vector, in OpenXR coordinates.
+        /// The x-coordinate of the vector, in OpenXR coordinates.
         /// </summary>
         public float X;
 
         /// <summary>
-        /// The y coordinate of the vector, in OpenXR coordinates.
+        /// The y-coordinate of the vector, in OpenXR coordinates.
         /// </summary>
         public float Y;
 
         /// <summary>
-        /// The z coordinate of the vector, in OpenXR coordinates.
+        /// The z-coordinate of the vector, in OpenXR coordinates.
         /// </summary>
         public float Z;
 
         /// <summary>
-        /// Construct an instance from the given Unity coordinates.
+        /// Construct an instance from the given Unity coordinates relative to your XR Origin.
         /// </summary>
-        /// <param name="x">The x coordinate from Unity's coordinate system.</param>
-        /// <param name="y">The y coordinate from Unity's coordinate system.</param>
-        /// <param name="z">The z coordinate from Unity's coordinate system.</param>
+        /// <param name="x">The x-coordinate from Unity's coordinate system.</param>
+        /// <param name="y">The y-coordinate from Unity's coordinate system.</param>
+        /// <param name="z">The z-coordinate from Unity's coordinate system.</param>
         /// <remarks>
         /// > [!IMPORTANT]
         /// > This constructor negates the <paramref name="z"/> value to convert from Unity's left-handed coordinate
@@ -41,9 +41,9 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
-        /// Construct an instance from the given `Vector3`.
+        /// Construct an instance from the given `Vector3` relative to your XR Origin.
         /// </summary>
-        /// <param name="value">The input `Vector3` from Unity's coordinate system.</param>
+        /// <param name="value">The position from Unity's coordinate system.</param>
         /// <remarks>
         /// > [!IMPORTANT]
         /// > This constructor negates the z value of the input `Vector3` to convert from Unity's left-handed coordinate
@@ -54,6 +54,40 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             X = value.x;
             Y = value.y;
             Z = -value.z;
+        }
+
+        /// <summary>
+        /// Construct an instance from the given session-space coordinates.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="x">The x-coordinate in session space.</param>
+        /// <param name="y">The y-coordinate in session space.</param>
+        /// <param name="z">The z-coordinate in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrVector3f FromSessionSpaceCoordinates(float x, float y, float z)
+        {
+            return new XrVector3f
+            {
+                X = x,
+                Y = y,
+                Z = z
+            };
+        }
+
+        /// <summary>
+        /// Construct an instance from the given session-space coordinates.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="position">The position in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrVector3f FromSessionSpaceCoordinates(Vector3 position)
+        {
+            return new XrVector3f
+            {
+                X = position.x,
+                Y = position.y,
+                Z = position.z
+            };
         }
 
         /// <summary>
@@ -68,6 +102,16 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         public Vector3 AsVector3()
         {
             return new Vector3(X, Y, -Z);
+        }
+
+        /// <summary>
+        /// Convert this instance to a `Vector3`. This method applies no transformation to
+        /// <see cref="X"/>, <see cref="Y"/>, or <see cref="Z"/>.
+        /// </summary>
+        /// <returns>The `Vector3`.</returns>
+        public Vector3 ToSessionSpaceVector3()
+        {
+            return new Vector3(X, Y, Z);
         }
 
         /// <summary>

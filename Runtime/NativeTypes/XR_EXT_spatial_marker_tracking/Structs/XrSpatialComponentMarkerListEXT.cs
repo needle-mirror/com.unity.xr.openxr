@@ -66,15 +66,30 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Construct an instance from a native array.
         /// </summary>
         /// <param name="next">The next pointer.</param>
-        /// <param name="markers">The native array. Must be non-empty.</param>
+        /// <param name="markers">Native array of marker components. Must be non-empty.</param>
         public XrSpatialComponentMarkerListEXT(void* next, NativeArray<XrSpatialMarkerDataEXT> markers)
             : this(next, (uint)markers.Length, (XrSpatialMarkerDataEXT*)markers.GetUnsafePtr()) { }
 
         /// <summary>
         /// Construct an instance with a `null` next pointer from a native array.
         /// </summary>
-        /// <param name="markers">The native array. Must be non-empty.</param>
+        /// <param name="markers">Native array of marker components. Must be non-empty.</param>
         public XrSpatialComponentMarkerListEXT(NativeArray<XrSpatialMarkerDataEXT> markers)
             : this(null, (uint)markers.Length, (XrSpatialMarkerDataEXT*)markers.GetUnsafePtr()) { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="markers">Read-only native array of marker components. Must be non-empty.</param>
+        public XrSpatialComponentMarkerListEXT(void* next, NativeArray<XrSpatialMarkerDataEXT>.ReadOnly markers)
+            : this(next, (uint)markers.Length, (XrSpatialMarkerDataEXT*)markers.GetUnsafeReadOnlyPtr()) { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="markers">Read-only native array of marker components. Must be non-empty.</param>
+        public XrSpatialComponentMarkerListEXT(NativeArray<XrSpatialMarkerDataEXT>.ReadOnly markers)
+            : this(null, (uint)markers.Length, (XrSpatialMarkerDataEXT*)markers.GetUnsafeReadOnlyPtr()) { }
     }
 }

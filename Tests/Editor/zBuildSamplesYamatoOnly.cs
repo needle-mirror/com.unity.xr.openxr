@@ -103,7 +103,7 @@ class zBuildSamplesYamatoOnly
 
     static void EnableStandaloneProfiles()
     {
-        EnableFeature<MicrosoftHandInteraction>();
+        EnableFeature<MetaQuestTouchPlusControllerProfile>();
         EnableFeature<MicrosoftMotionControllerProfile>();
         EnableFeature<HTCViveControllerProfile>();
         EnableFeature<ValveIndexControllerProfile>();
@@ -117,7 +117,6 @@ class zBuildSamplesYamatoOnly
 
     static void EnableWSAProfiles()
     {
-        EnableFeature<MicrosoftHandInteraction>();
         EnableFeature<EyeGazeInteraction>();
         EnableFeature<MicrosoftMotionControllerProfile>();
         EnableFeature<HandInteractionProfile>();
@@ -183,7 +182,7 @@ class zBuildSamplesYamatoOnly
                 EnableSampleFeatures();
                 EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
-                EnableFeature<MicrosoftHandInteraction>();
+                EnableFeature<HandInteractionProfile>();
                 EnableWSAProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D11 });
                 PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
@@ -203,7 +202,7 @@ class zBuildSamplesYamatoOnly
                 EnableSampleFeatures();
                 EnableMSFTObserverFeature();
                 EnableFeature<EyeGazeInteraction>();
-                EnableFeature<MicrosoftHandInteraction>();
+                EnableFeature<HandInteractionProfile>();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D12 });
                 QualitySettings.SetQualityLevel(5);
                 QualitySettings.antiAliasing = 4;

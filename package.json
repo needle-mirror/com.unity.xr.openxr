@@ -1,7 +1,7 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.16.0-pre.1",
+  "version": "1.16.0-pre.2",
   "unity": "2022.3",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
@@ -44,15 +44,15 @@
     }
   ],
   "_upm": {
-    "changelog": "### Added\n\n* Added support for OpenXR features to define the OpenXR API version required to fully function.\n* Added members to the `XrStructureType` enum. `XrStructureType` now contains all OpenXR values as of OpenXR version 1.1.49.\n* Added support for multiple OpenXR features to define a custom loader and define the OpenXR API version that is supported by the feature's loader.\n* Added the [OpenXR native API](xref:openxr-native-api) with initial support for the following extensions:\n  * `XR_EXT_future`\n  * `XR_EXT_spatial_anchor`\n  * `XR_EXT_spatial_entity`\n  * `XR_EXT_spatial_marker_tracking`\n  * `XR_EXT_spatial_persistence`\n  * `XR_EXT_spatial_persistence_operations`\n  * `XR_EXT_spatial_plane_tracking`\n* Added `RenderTexture` support for Composition Layers.\n* Added class `MockOpenXREnvironment` and `MockOpenXREnvironmentSettings` for testing low-level runtime functionality using the Mock Runtime feature.\n* Added [PollEventRouter](xref:UnityEngine.XR.OpenXR.NativeTypes.PollEventRouter), a new type that allows you to subscribe to `xrPollEvent` events.\n* Added feature to enable Automatic Viewport Dynamic Resolution for compatible devices. Refer to [Automatic Viewport Dynamic Resolution](xref:openxr-automatic-dynamic-resolution) for information.\n* Added MSAA support for Windows+Vulkan builds.\n\n### Changed\n* Changed OpenXR loader version to 1.1.49.\n* Changed sample count of SwapchainCreateInfo to 1 as default instead of recommendedSwapchainSampleCount returning from the runtime.\n* Updated minimum supported version from 2021.3 to 2022.3.\n* Changed the OpenXR Validation for the minimum Android API level to only apply to Unity 6.2 and older versions.\n\n### Removed\n* Removed the validation warning to enable the OpenXR package if an OpenXR feature is enabled. Instead, OpenXR validation will only run when the OpenXR loader is selected as active loader.\n* Remove HoloLens documentation as Unity has deprecated its support. Refer to [the public announcement](https://discussions.unity.com/t/hololens-2-deprecation/1661529) for more information."
+    "changelog": "### Added\n\n* Added the following members to the [OpenXR native API](xref:openxr-native-api):\n  * `ISpatialConfiguration`\n  * `XrBaseInStructure`\n  * `OpenXRResultStatus.ToString`\n  * `XrFovf` (removing the previous `COMPOSITION_LAYERS` preprocessor directive)\n  * Added constructor overloads to structs that take `NativeArray<T>.ReadOnly` as input parameters.\n  * `XrSpatialDiscoverySnapshotCreateInfoEXT.defaultValue`\n  * `OpenXRNativeApi.xrPollFutureEXT(XrFutureEXT)`\n  * `OpenXRNativeApi.xrCancelFutureEXT(XrFutureEXT)`\n  * `OpenXRResultStatus.StatusCode.Unsupported`\n  * static factory methods to construct `XrPosef`, `XrVector3f`, and `XrQuaternionf` from session-space data\n  * `XrVector3f.ToSessionSpaceVector3`\n  * `XrQuaternionf.ToSessionSpaceQuaternion`\n  * `XrPosef.ToSessionSpacePose`\n  * `XrPosef(UnityEngine.Pose)` constructor\n  * `XrSpatialComponentDataQueryResultEXT(void*)` constructor\n  * `XrSpatialComponentDataQueryResult.SetEntityIds` and `XrSpatialComponentDataQueryResult.SetEntityStates`\n* Added a new validation rule for Meta Quest feature to ensure Application entry point being set to GameActivity for Unity 6.0+.\n\n### Deprecated\n\n* Deprecated Hololens Microsoft Hand Interaction Profile.\n\n### Removed\n\n* Removed a pre-release overload for `OpenXRNativeAPI.xrQuerySpatialComponentDataEXT` that didn't allow you to receive component data chained to the next pointer of the query condition.\n\n### Fixed\n\n* Fixed the Render Mode setting dropdown in OpenXR Settings to align consistently with the UI of other settings.\n* Fixed `MockOpenXREnvironmentSettings` so that changes made to mock runtime settings don't affect the serialized settings assets in your project.\n* Fixed `MockOpenXREnvironmentSettings` so that it doesn't save any unwanted changes to your EditorBuildSettings.\n* Fixed swapchain diagnostic reports not being removed from cache after swapchains are destroyed.\n* Fixed a compile error when using this package in Unity 6000.3.0b1 or newer, which was caused by the deprecation of the VR module in that Editor version.\n* Fixed a crash when the OpenXR library was loaded with a path containing emojis on OSX."
   },
   "upmCi": {
-    "footprint": "3ff5dbd7351d23b10e71bcd0d00b9fe8578ce5fc"
+    "footprint": "763a7cebf117dad12c839d4cbb1371b6f60691d3"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.16/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "c4934f986eb238f95f5d456dad7446b39732bd86"
+    "revision": "7dce02b07790c6edd5864275a833b1f9164b2665"
   }
 }

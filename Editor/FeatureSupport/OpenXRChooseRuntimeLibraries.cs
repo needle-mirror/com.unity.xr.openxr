@@ -6,6 +6,7 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
+using static UnityEditor.XR.OpenXR.Features.FeatureHelpersInternal;
 
 namespace UnityEditor.XR.OpenXR.Features
 {
@@ -19,7 +20,6 @@ namespace UnityEditor.XR.OpenXR.Features
         {
             var allFeatureInfo = FeatureHelpersInternal.GetAllFeatureInfo(BuildTargetGroup.Standalone);
             var editorLoaderImporters = PluginImporter.GetAllImporters()
-                .Where(importer => importer.GetCompatibleWithEditor() && importer.assetPath.Contains(K_openXrLoaderLibName))
 #if UNITY_EDITOR_WIN
                 .Where(importer => importer.GetCompatibleWithPlatform(BuildTarget.StandaloneWindows64) && importer.assetPath.EndsWith(".dll"))
 #elif UNITY_EDITOR_OSX
@@ -27,7 +27,7 @@ namespace UnityEditor.XR.OpenXR.Features
 #endif
                 ;
 
-            Debug.Assert(editorLoaderImporters.Count() > 0, "No Editor-compatible openxr_loader library found");
+            Debug.Assert(editorLoaderImporters.Any(), "No Editor-compatible OpenXR loader library found");
 
             var openXrSettings = OpenXRSettings.Instance;
             IEnumerable<PluginImporter> loaderImporters = null;
@@ -58,40 +58,53 @@ namespace UnityEditor.XR.OpenXR.Features
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            var enabled = BuildHelperUtils.HasActiveLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase));
+            var openXRLoaderActive = BuildHelperUtils.HasActiveLoader(report.summary.platformGroup, typeof(OpenXRLoaderBase));
 
             var extensions = FeatureHelpersInternal.GetAllFeatureInfo(report.summary.platformGroup);
 
             // Keep set of seen plugins, only disable plugins that haven't been seen.
             HashSet<string> seenPlugins = new HashSet<string>();
 
-            // Loop over all the native plugin importers and only include the enabled ones in the build
-            var importers = PluginImporter.GetAllImporters()
+            // Acquire native plugin importers enabled for the active build.
+            var buildImporters = PluginImporter.GetAllImporters()
                 .Where(importer => importer.GetCompatibleWithPlatform(report.summary.platform));
 
-            var openXrPluginImporters = importers
+            // By default, plugins with a name containing "openxr_library" are considered loaders
+            var defaultOpenXrPluginImporters = buildImporters
                 .Where(importer => importer.assetPath.Contains(K_openXrLoaderLibName));
-            if (enabled)
+
+            // Ensure we also remove custom loaders with custom name, only if these exist in the same path as their feature
+            var customLoaderPathNameTuples = extensions.Features
+                .Where(feature => !string.IsNullOrWhiteSpace(feature.CustomLoaderName))
+                .Select(feature => new Tuple<string, string>(feature.PluginPath, feature.CustomLoaderName))
+                .ToList();
+            var otherLoaderImporters = buildImporters
+                .Where(importer => customLoaderPathNameTuples
+                    .Where(tuple => Path.GetDirectoryName(importer.assetPath).Contains(tuple.Item1) && importer.assetPath.Contains(tuple.Item2))
+                    .Any());
+
+            var allOpenXrPluginImporters = defaultOpenXrPluginImporters.Concat(otherLoaderImporters);
+
+            // By default, disable all OpenXR Loader plugins from auto including in build.
+            // We do this to prevent custom loaders from conflicting with the default OpenXR loader.
+            RemoveLoadersFromBuild(allOpenXrPluginImporters);
+
+            if (openXRLoaderActive)
             {
-                // Only include OpenXR loader if OpenXR plugin is active in XR Management
-                IncludeOpenXRLoader(openXrPluginImporters, extensions);
-            }
-            else
-            {
-                RemoveLoadersFromBuild(openXrPluginImporters);
+                EnableOpenXRLoaderImportersInBuild(allOpenXrPluginImporters, extensions);
             }
 
-            foreach (var importer in importers)
+            foreach (var importer in buildImporters)
             {
-                if (importer.assetPath.Contains(K_openXrLoaderLibName))
+                if (allOpenXrPluginImporters.Contains(importer))
                 {
-                    // Ignore OpenXR loaders, these are already processed
+                    // Ignore OpenXR loaders (including those with custom name), these were processed above
                     continue;
                 }
 
                 if (importer.assetPath.Contains("UnityOpenXR"))
                 {
-                    importer.SetIncludeInBuildDelegate(path => enabled);
+                    importer.SetIncludeInBuildDelegate(path => openXRLoaderActive);
                 }
 
                 var root = Path.GetDirectoryName(importer.assetPath);
@@ -101,7 +114,7 @@ namespace UnityEditor.XR.OpenXR.Features
                     {
                         if (extInfo.Feature.enabled)
                         {
-                            importer.SetIncludeInBuildDelegate(path => enabled);
+                            importer.SetIncludeInBuildDelegate(path => openXRLoaderActive);
                         }
                         else if (!seenPlugins.Contains(importer.assetPath))
                         {
@@ -128,21 +141,18 @@ namespace UnityEditor.XR.OpenXR.Features
             }
         }
 
-        private void IncludeOpenXRLoader(
-            IEnumerable<PluginImporter> openXrPluginImporters,
-            FeatureHelpersInternal.AllFeatureInfo allFeatureInfo)
+        private void EnableOpenXRLoaderImportersInBuild(
+            IEnumerable<PluginImporter> allOpenXRImporters,
+            AllFeatureInfo allFeatureInfo)
         {
-            // By default, don't include any OpenXR loader, the correct one will be included later
-            RemoveLoadersFromBuild(openXrPluginImporters);
-
             IEnumerable<PluginImporter> loaderImporters;
             if (allFeatureInfo.ActiveCustomLoaderFeature.HasValue)
             {
-                loaderImporters = FindImportersForLoader(openXrPluginImporters, allFeatureInfo.ActiveCustomLoaderFeature.Value);
+                loaderImporters = FindImportersForLoader(allOpenXRImporters, allFeatureInfo.ActiveCustomLoaderFeature.Value);
             }
             else
             {
-                loaderImporters = FindDefaultOpenXRLoaderImporters(openXrPluginImporters, allFeatureInfo.Features);
+                loaderImporters = FindDefaultOpenXRLoaderImporters(allOpenXRImporters, allFeatureInfo.Features);
             }
 
             foreach (var loader in loaderImporters)
@@ -153,10 +163,11 @@ namespace UnityEditor.XR.OpenXR.Features
         }
 
         private static IEnumerable<PluginImporter> FindDefaultOpenXRLoaderImporters(
-            IEnumerable<PluginImporter> openXrPluginImporters,
+            IEnumerable<PluginImporter> allPluginImporters,
             IEnumerable<FeatureHelpersInternal.FeatureInfo> customLoaderFeatures)
         {
-            var importers = openXrPluginImporters
+            var importers = allPluginImporters
+                .Where(importer => importer.assetPath.Contains(K_openXrLoaderLibName))
                 .Where(importer => !customLoaderFeatures // Reject any importer that belongs to a feature
                     .Select(feature => feature.PluginPath)
                     .Where(path =>
@@ -173,10 +184,11 @@ namespace UnityEditor.XR.OpenXR.Features
             return importers;
         }
 
-        private static IEnumerable<PluginImporter> FindImportersForLoader(IEnumerable<PluginImporter> openXrLoaderImporters, FeatureHelpersInternal.FeatureInfo customLoaderFeature)
+        static IEnumerable<PluginImporter> FindImportersForLoader(IEnumerable<PluginImporter> allPluginImporters, FeatureInfo customLoaderFeature)
         {
-            var importers = openXrLoaderImporters
-                .Where(importer => importer != null && Path.GetDirectoryName(importer.assetPath).Contains(customLoaderFeature.PluginPath));
+            var loaderLibName = !string.IsNullOrWhiteSpace(customLoaderFeature.CustomLoaderName) ? customLoaderFeature.CustomLoaderName : K_openXrLoaderLibName;
+            var importers = allPluginImporters
+                .Where(importer => Path.GetDirectoryName(importer.assetPath).Contains(customLoaderFeature.PluginPath) && importer.assetPath.Contains(loaderLibName));
 
             if (!importers.Any())
             {
@@ -188,9 +200,9 @@ namespace UnityEditor.XR.OpenXR.Features
             return importers;
         }
 
-        private void RemoveLoadersFromBuild(IEnumerable<PluginImporter> openXrPluginImporters)
+        void RemoveLoadersFromBuild(IEnumerable<PluginImporter> importers)
         {
-            foreach (var pluginImporter in openXrPluginImporters)
+            foreach (var pluginImporter in importers)
             {
                 pluginImporter.SetIncludeInBuildDelegate(path => false);
             }

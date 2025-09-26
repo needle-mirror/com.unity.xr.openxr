@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEditor.XR.Management;
-
 using UnityEngine;
-using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR.Features
@@ -14,28 +11,27 @@ namespace UnityEditor.XR.OpenXR.Features
     {
         public const float k_IconSize = 16.0f;
 
-        public static readonly GUIContent k_LoaderName = new GUIContent("OpenXR");
-        public static readonly GUIContent k_OpenXRHelp = new GUIContent("You may need to configure additional settings for OpenXR to enable features and interactions for different runtimes.");
-        public static readonly GUIContent k_OpenXRHelpIcon = new GUIContent("", CommonContent.k_HelpIcon.image, k_OpenXRHelp.text);
+        public static readonly GUIContent k_LoaderName = new("OpenXR");
+        public static readonly GUIContent k_OpenXRHelp = new("You may need to configure additional settings for OpenXR to enable features and interactions for different runtimes.");
+        public static readonly GUIContent k_OpenXRHelpIcon = new("", CommonContent.k_HelpIcon.image, k_OpenXRHelp.text);
     }
-
 
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Standalone)]
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android)]
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.WSA)]
-    internal class OpenXRLoaderUI : IXRCustomLoaderUI
+    class OpenXRLoaderUI : IXRCustomLoaderUI
     {
-        protected bool shouldApplyFeatureSetChanges = false;
+        protected bool shouldApplyFeatureSetChanges;
 
         protected List<OpenXRFeatureSetManager.FeatureSetInfo> featureSets { get; set; }
-        protected float renderLineHeight = 0;
+        protected float renderLineHeight;
 
-        private List<OpenXRFeature.ValidationRule> _validationRules = new List<OpenXRFeature.ValidationRule>();
+        List<OpenXRFeature.ValidationRule> _validationRules = new();
 
         /// <inheritdoc/>
         public bool IsLoaderEnabled { get; set; }
 
-        public string[] IncompatibleLoaders => new string[]
+        public string[] IncompatibleLoaders => new[]
         {
             "UnityEngine.XR.WindowsMR.WindowsMRLoader",
             "Unity.XR.Oculus.OculusLoader",
@@ -66,10 +62,11 @@ namespace UnityEditor.XR.OpenXR.Features
                 if (value != activeBuildTargetGroup)
                 {
                     activeBuildTargetGroup = value;
-                    this.featureSets = OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(activeBuildTargetGroup);
-                    foreach (var featureSet in this.featureSets)
+                    featureSets = OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(activeBuildTargetGroup);
+                    foreach (var featureSet in featureSets)
                     {
-                        featureSet.isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(activeBuildTargetGroup, featureSet.featureSetId);
+                        featureSet.isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(
+                            activeBuildTargetGroup, featureSet.featureSetId);
                     }
                 }
             }
@@ -78,11 +75,13 @@ namespace UnityEditor.XR.OpenXR.Features
         protected Rect CalculateRectForContent(float xMin, float yMin, GUIStyle style, GUIContent content)
         {
             var size = style.CalcSize(content);
-            var rect = new Rect();
-            rect.xMin = xMin;
-            rect.yMin = yMin;
-            rect.width = size.x;
-            rect.height = renderLineHeight;
+            var rect = new Rect
+            {
+                xMin = xMin,
+                yMin = yMin,
+                width = size.x,
+                height = renderLineHeight
+            };
             return rect;
         }
 
@@ -111,9 +110,8 @@ namespace UnityEditor.XR.OpenXR.Features
 
                 if (GUI.Button(iconRect, featureSet.helpIcon, EditorStyles.label))
                 {
-                    if (!String.IsNullOrEmpty(featureSet.downloadLink)) UnityEngine.Application.OpenURL(featureSet.downloadLink);
+                    if (!string.IsNullOrEmpty(featureSet.downloadLink)) Application.OpenURL(featureSet.downloadLink);
                 }
-                xMin = iconRect.xMax + 1;
             }
         }
 
@@ -150,7 +148,9 @@ namespace UnityEditor.XR.OpenXR.Features
                 if (_validationRules.Count > 0)
                 {
                     bool anyErrors = _validationRules.Any(rule => rule.error);
-                    GUIContent icon = anyErrors ? CommonContent.k_ValidationErrorIcon : CommonContent.k_ValidationWarningIcon;
+                    GUIContent icon = anyErrors
+                        ? CommonContent.k_ValidationErrorIcon
+                        : CommonContent.k_ValidationWarningIcon;
                     iconRect = CalculateRectForContent(xMin, yMin, EditorStyles.label, icon);
 
                     if (GUI.Button(iconRect, icon, EditorStyles.label))
@@ -163,7 +163,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
             xMin = rect.xMin;
             yMin += renderLineHeight;
-            Rect featureSetRect = new Rect(xMin, yMin, rect.width, renderLineHeight);
+            var featureSetRect = new Rect(xMin, yMin, rect.width, renderLineHeight);
 
             if (featureSets != null && featureSets.Count > 0 && IsLoaderEnabled)
             {

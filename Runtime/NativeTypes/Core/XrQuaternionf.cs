@@ -8,32 +8,32 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     public struct XrQuaternionf : IEquatable<XrQuaternionf>
     {
         /// <summary>
-        /// The x coordinate of the quaternion, in OpenXR coordinates.
+        /// The x-coordinate of the quaternion, in OpenXR coordinates.
         /// </summary>
         public float X;
 
         /// <summary>
-        /// The y coordinate of the quaternion, in OpenXR coordinates.
+        /// The y-coordinate of the quaternion, in OpenXR coordinates.
         /// </summary>
         public float Y;
 
         /// <summary>
-        /// The z coordinate of the quaternion, in OpenXR coordinates.
+        /// The z-coordinate of the quaternion, in OpenXR coordinates.
         /// </summary>
         public float Z;
 
         /// <summary>
-        /// The w coordinate of the quaternion, in OpenXR coordinates.
+        /// The w-coordinate of the quaternion, in OpenXR coordinates.
         /// </summary>
         public float W;
 
         /// <summary>
         /// Construct an instance from the given Unity coordinates.
         /// </summary>
-        /// <param name="x">The x coordinate from Unity's coordinate system.</param>
-        /// <param name="y">The y coordinate from Unity's coordinate system.</param>
-        /// <param name="z">The z coordinate from Unity's coordinate system.</param>
-        /// <param name="w">The w coordinate from Unity's coordinate system.</param>
+        /// <param name="x">The x-coordinate from Unity's coordinate system.</param>
+        /// <param name="y">The y-coordinate from Unity's coordinate system.</param>
+        /// <param name="z">The z-coordinate from Unity's coordinate system.</param>
+        /// <param name="w">The w-coordinate from Unity's coordinate system.</param>
         /// <remarks>
         /// > [!IMPORTANT]
         /// > This constructor negates the <paramref name="x"/> and <paramref name="y"/> values to convert from
@@ -50,7 +50,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Construct an instance from the given Unity quaternion.
         /// </summary>
-        /// <param name="quaternion">The quaternion, in Unity coordinates.</param>
+        /// <param name="quaternion">The quaternion in Unity coordinates.</param>
         /// <remarks>
         /// > [!IMPORTANT]
         /// > This constructor negates the `x` and `y` values of the input quaternion to convert from
@@ -65,6 +65,43 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
+        /// Construct an instance from the given session-space coordinates.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="x">The x-coordinate in session space.</param>
+        /// <param name="y">The y-coordinate in session space.</param>
+        /// <param name="z">The z-coordinate in session space.</param>
+        /// <param name="w">The w-coordinate in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrQuaternionf FromSessionSpaceCoordinates(float x, float y, float z, float w)
+        {
+            return new XrQuaternionf
+            {
+                X = x,
+                Y = y,
+                Z = z,
+                W = w
+            };
+        }
+
+        /// <summary>
+        /// Construct an instance from the given session-space coordinates.
+        /// This method applies no transformations to the input values.
+        /// </summary>
+        /// <param name="quaternion">The quaternion in session space.</param>
+        /// <returns>The instance.</returns>
+        public static XrQuaternionf FromSessionSpaceCoordinates(Quaternion quaternion)
+        {
+            return new XrQuaternionf
+            {
+                X = quaternion.x,
+                Y = quaternion.y,
+                Z = quaternion.z,
+                W = quaternion.w
+            };
+        }
+
+        /// <summary>
         /// Convert this instance in OpenXR coordinates to a `Quaternion` in Unity coordinates.
         /// </summary>
         /// <returns>The output `Quaternion`.</returns>
@@ -76,6 +113,16 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         public Quaternion AsQuaternion()
         {
             return new Quaternion(-X, -Y, Z, W);
+        }
+
+        /// <summary>
+        /// Convert this instance to a Unity `Quaternion`. This method applies no transformation to
+        /// <see cref="X"/>, <see cref="Y"/>, <see cref="Z"/>, or <see cref="W"/>.
+        /// </summary>
+        /// <returns>The `Quaternion`.</returns>
+        public Quaternion ToSessionSpaceQuaternion()
+        {
+            return new Quaternion(X, Y, Z, W);
         }
 
         /// <summary>

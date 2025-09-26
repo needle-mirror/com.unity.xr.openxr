@@ -169,6 +169,10 @@ Feature groups are an Editor-only concept and as such can only be accessed in th
 
 Anyone can add new features. To learn more, see documentation on [how to add a feature to Unity's OpenXR support](features.md).
 
+### Testing
+
+The [Mock OpenXR Environment](mock-environment.md) can help you to test your own features and low-level code that makes use of native OpenXR functions.
+
 ## References
 
 * https://www.khronos.org/openxr/

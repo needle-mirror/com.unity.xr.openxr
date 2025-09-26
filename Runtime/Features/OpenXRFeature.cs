@@ -1,22 +1,18 @@
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEngine.Serialization;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.Utilities;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.XR.OpenXR;
-using UnityEditor.XR.OpenXR.Features;
 using System.Linq;
 #endif
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor")]
+[assembly: InternalsVisibleTo("Unity.XR.OpenXR.Features.MetaQuestSupport.Editor")]
 [assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Testing")]
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.TestTooling.Tests")]
@@ -36,9 +32,12 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Feature will be enabled when OpenXR is initialized.
         /// </summary>
-        [FormerlySerializedAs("enabled")] [HideInInspector] [SerializeField] private bool m_enabled = false;
+        [FormerlySerializedAs("enabled")]
+        [HideInInspector]
+        [SerializeField]
+        bool m_enabled;
 
-        internal bool failedInitialization { get; private set; } = false;
+        internal bool failedInitialization { get; private set; }
 
         /// <summary>
         /// True if a required feature failed initialization, false if all features initialized successfully.
@@ -80,49 +79,55 @@ namespace UnityEngine.XR.OpenXR.Features
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// Name of the feature.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string nameUi = null;
+        [HideInInspector] [SerializeField] internal string nameUi;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// Version of the feature.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string version = null;
+        [HideInInspector] [SerializeField] internal string version;
 
         /// <summary>
         /// Feature id.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string featureIdInternal = null;
+        [HideInInspector] [SerializeField] internal string featureIdInternal;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// OpenXR runtime extension strings that need to be enabled to use this extension.
         /// May contain multiple extensions separated by spaces.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string openxrExtensionStrings = null;
+        [HideInInspector] [SerializeField] internal string openxrExtensionStrings;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// Company name of the author of the feature.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string company = null;
+        [HideInInspector] [SerializeField] internal string company;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// Priority of the feature.
         /// </summary>
-        [HideInInspector] [SerializeField] internal int priority = 0;
+        [HideInInspector] [SerializeField] internal int priority;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// OpenXR API version that the feature requests to be used when creating the XR Instance.
         /// </summary>
-        [HideInInspector] [SerializeField] internal string targetOpenXRApiVersion = null;
+        [HideInInspector] [SerializeField] internal string targetOpenXRApiVersion;
 
         /// <summary>
         /// Automatically filled out by the build process from OpenXRFeatureAttribute.
         /// True if the feature is required, false otherwise.
         /// </summary>
-        [HideInInspector] [SerializeField] internal bool required = false;
+        [HideInInspector] [SerializeField] internal bool required;
+
+        /// <summary>
+        /// Automatically filled out by the build process from OpenXRFeatureAttribute.
+        /// Name of the custom loader, if defined.
+        /// </summary>
+        [HideInInspector] [SerializeField] internal string customRuntimeLoaderName = null;
 
         /// <summary>
         /// Set to true if the internal fields have been updated in the current domain
@@ -785,7 +790,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Flags that control various options and behaviors on registered stats.
         /// </summary>
-        [System.Flags]
+        [Flags]
         protected internal enum StatFlags
         {
             /// <summary>
@@ -836,7 +841,5 @@ namespace UnityEngine.XR.OpenXR.Features
         {
             runtime_SetStatAsUInt(statId, value);
         }
-
-
     }
 }

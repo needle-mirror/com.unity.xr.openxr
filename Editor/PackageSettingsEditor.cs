@@ -105,7 +105,7 @@ namespace UnityEditor.XR.OpenXR
             var openXrEditorSettings = OpenXREditorSettings.Instance;
             var serializedOpenXrEditorSettings = new SerializedObject(openXrEditorSettings);
 
-            EditorGUIUtility.labelWidth = 200;
+            EditorGUIUtility.labelWidth = 210;
 
             int newRenderMode;
             GUILayout.BeginHorizontal();
@@ -133,8 +133,6 @@ namespace UnityEditor.XR.OpenXR
 
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-
-            EditorGUIUtility.labelWidth = 210;
 
             var newAutoColorSubmissionMode = EditorGUILayout.Toggle(
                 "Auto Color Submission Mode",

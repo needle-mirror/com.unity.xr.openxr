@@ -18,9 +18,6 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             m_Environment.AddSupportedExtension("XR_EXT_future", 1);
         }
 
-        [TearDown]
-        public void TearDown() => m_Environment.Stop();
-
         [Test]
         public void xrPersistSpatialEntityAsyncEXT_ReturnsRuntimeValues()
         {

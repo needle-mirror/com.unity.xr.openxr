@@ -54,6 +54,7 @@ extern IUnityXRTrace* s_Trace;
 #define XR_NO_PROTOTYPES
 #include "openxr/openxr.h"
 #include "openxr/openxr_platform.h"
+#include <openxr/androidxr/xr_android_recommended_resolution.h>
 #include <openxr/openxr_reflection.h>
 #include <openxr/xr_msft_third_person_observer_private.h>
 

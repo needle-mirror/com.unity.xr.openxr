@@ -11,13 +11,13 @@ namespace UnityEditor.XR.OpenXR.Tests
         List<XrEventDataSpatialDiscoveryRecommendedEXT> m_EventsReceived = new();
 
         [TearDown]
-        public unsafe void TearDown()
+        public override unsafe void TearDown()
         {
             PollEventRouter.TryUnsubscribeFromAllEvents(OnEventReceived);
             PollEventRouter.TryUnsubscribeFromEventType(
                 XrStructureType.EventDataSpatialDiscoveryRecommendedEXT, OnEventReceived);
 
-            m_Environment.Stop();
+            base.TearDown();
             m_EventsReceived.Clear();
         }
 

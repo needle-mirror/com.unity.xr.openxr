@@ -103,6 +103,8 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
         MockAndroidThreadSettings::Init(*this);
 #endif
 
+    recommendedResolutionChanged = false;
+
     // Generate the internal strings
     userPaths = {
         {"/user/hand/left", "Left Hand", nullptr},
@@ -374,6 +376,15 @@ XrResult MockRuntime::CauseInstanceLoss()
         XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING,
         nullptr,
         killTime.time_since_epoch().count()});
+
+    return XR_SUCCESS;
+}
+
+XrResult MockRuntime::CauseRecommendedResolutionChangedEvent()
+{
+    QueueEvent(XrEventDataRecommendedResolutionChangedANDROID{
+        XR_TYPE_EVENT_DATA_RECOMMENDED_RESOLUTION_CHANGED_ANDROID,
+        nullptr});
 
     return XR_SUCCESS;
 }
@@ -1635,6 +1646,36 @@ XrResult MockRuntime::EnumerateViewConfigurations(XrSystemId systemId, uint32_t 
         viewConfigurationTypes[idx++] = view.first;
     }
 
+    return XR_SUCCESS;
+}
+
+void MockRuntime::ChangeRecommendedImageRectExtents(uint32_t recommendedImageWidth, uint32_t recommendedImageHeight)
+{
+    MockViewConfiguration* mockViewConfig = GetMockViewConfiguration(primaryViewConfiguration);
+    for (size_t i = 0; i < mockViewConfig->views.size(); i++)
+    {
+        MockView& mockView = mockViewConfig->views[i];
+        mockView.configuration.recommendedImageRectWidth = recommendedImageWidth;
+        mockView.configuration.recommendedImageRectHeight = recommendedImageHeight;
+    }
+
+    recommendedResolutionChanged = true;
+}
+
+XrResult MockRuntime::GetRecommendedLayerResolution(XrSession session, XrRecommendedLayerResolutionGetInfoMETA* recommendedLayerResolutionGetInfo, XrRecommendedLayerResolutionMETA* recommendedLayerResolution)
+{
+    if (!recommendedResolutionChanged)
+    {
+        recommendedLayerResolution->isValid = false;
+        return XR_SUCCESS;
+    }
+
+    recommendedResolutionChanged = false;
+    MockViewConfiguration* mockViewConfig = GetMockViewConfiguration(primaryViewConfiguration);
+    MockView& mockView = mockViewConfig->views[0];
+    recommendedLayerResolution->recommendedImageDimensions.width = mockView.configuration.recommendedImageRectWidth;
+    recommendedLayerResolution->recommendedImageDimensions.height = mockView.configuration.recommendedImageRectHeight;
+    recommendedLayerResolution->isValid = true;
     return XR_SUCCESS;
 }
 

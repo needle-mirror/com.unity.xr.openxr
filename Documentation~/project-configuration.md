@@ -43,7 +43,7 @@ To enable OpenXR:
 3. Select the tab for a platform build target to view the settings for that target.
 4. Enable the **OpenXR** option in the **Plug-in Providers** list.
 
-   ![XR Plug-in Management](images/openxr-xrmanagement.png "OpenXR in XR Management")<br />*Enabling OpenXR*
+   ![XR Plug-in Management](images/openxr-xr-plugin-management.png "OpenXR in XR Management")<br />*Enabling OpenXR*
 
 > [!TIP]
 > If your project uses OpenXR on more than one platform build target, you must enable the OpenXR plugin for each platform.

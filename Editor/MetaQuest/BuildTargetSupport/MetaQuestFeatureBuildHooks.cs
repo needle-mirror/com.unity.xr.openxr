@@ -1,7 +1,9 @@
 using System;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features.MetaQuestSupport;
+using static UnityEngine.XR.OpenXR.OpenXRSettings;
 
 namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 {
@@ -32,12 +34,21 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             return AssetDatabase.LoadAssetAtPath<MetaQuestFeature>(path);
         }
 
+        void ApplySettingsOverride()
+        {
+            var openXrSettings = GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+            var metaQuestFeature = GetMetaQuestFeature();
+            metaQuestFeature.ApplySettingsOverride(openXrSettings);
+            AssetDatabase.SaveAssetIfDirty(openXrSettings);
+        }
+
         public override int callbackOrder => 2;
 
         public override Type featureType => typeof(MetaQuestFeature);
 
         protected override void OnPreprocessBuildExt(BuildReport report)
         {
+            ApplySettingsOverride();
         }
 
         protected override void OnProcessBootConfigExt(BuildReport report, BootConfigBuilder builder)

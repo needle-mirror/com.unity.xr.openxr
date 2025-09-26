@@ -14,7 +14,8 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationAprilTagEXT"/>.
     /// </remarks>
-    public readonly unsafe struct XrSpatialCapabilityConfigurationAprilTagEXT
+    public readonly unsafe struct XrSpatialCapabilityConfigurationAprilTagEXT : ISpatialCapabilityConfiguration
+
     {
         /// <summary>
         /// The `XrStructureType` of this struct: <see cref="XrSpatialCapabilityConfigurationAprilTagEXT"/>.
@@ -126,6 +127,40 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
                 null,
                 (uint)enabledComponents.Length,
                 (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr(),
+                aprilDict)
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        /// <param name="aprilDict">The marker dictionary to detect.</param>
+        public XrSpatialCapabilityConfigurationAprilTagEXT(
+            void* next,
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents,
+            XrSpatialMarkerAprilTagDictEXT aprilDict)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr(),
+                aprilDict)
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of components to enable for this capability.
+        /// Must be non-empty.</param>
+        /// <param name="aprilDict">The marker dictionary to detect.</param>
+        public XrSpatialCapabilityConfigurationAprilTagEXT(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents,
+            XrSpatialMarkerAprilTagDictEXT aprilDict)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr(),
                 aprilDict)
         { }
     }

@@ -20,9 +20,6 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             m_Environment.AddSupportedExtension("XR_EXT_future", 1);
         }
 
-        [TearDown]
-        public void TearDown() => m_Environment.Stop();
-
         [Test]
         public unsafe void xrEnumerateSpatialCapabilities_ReturnsRuntimeValues()
         {
@@ -473,29 +470,6 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             Assert.AreEqual(1, queryResult.entityStateCountOutput);
             Assert.AreEqual(5555, queryResult.entityIds[0]);
             Assert.AreEqual(XrSpatialEntityTrackingStateEXT.Tracking, queryResult.entityStates[0]);
-        }
-
-        [Test]
-        public void xrQuerySpatialComponentDataEXT_NativeArray_ReturnsRuntimeValues()
-        {
-            m_Environment.SetFunctionForInterceptor(
-                "xrQuerySpatialComponentDataEXT",
-                EXTSpatialEntityMocks.xrQuerySpatialComponentDataEXT_Ptr);
-            m_Environment.Start();
-
-            var componentTypes = new NativeArray<XrSpatialComponentTypeEXT>(2, Allocator.Temp);
-            componentTypes[0] = XrSpatialComponentTypeEXT.Bounded2D;
-            componentTypes[1] = XrSpatialComponentTypeEXT.PlaneAlignment;
-
-            var queryCondition = new XrSpatialComponentDataQueryConditionEXT(componentTypes);
-            var result = OpenXRNativeApi.xrQuerySpatialComponentDataEXT(
-                123, queryCondition, Allocator.Temp, out var ids, out var states);
-
-            Assert.AreEqual(XrResult.Success, result);
-            Assert.AreEqual(1, ids.Length);
-            Assert.AreEqual(1, states.Length);
-            Assert.AreEqual(5555, ids[0]);
-            Assert.AreEqual(XrSpatialEntityTrackingStateEXT.Tracking, states[0]);
         }
 
         [Test]

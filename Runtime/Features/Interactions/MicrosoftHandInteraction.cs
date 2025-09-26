@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.Layouts;
@@ -32,8 +33,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         Category = UnityEditor.XR.OpenXR.Features.FeatureCategory.Interaction,
         FeatureId = featureId)]
 #endif
+    [Obsolete("OpenXR.Features.MicrosoftHandInteraction is now deprecated and not recommended for production. To access HoloLens 2 functionality, use OpenXR 1.14 on Unity 6.0 or earlier.", false)]
     public class MicrosoftHandInteraction : OpenXRInteractionFeature
     {
+
         /// <summary>
         /// The feature id string. This is used to give the feature a well known id for reference.
         /// </summary>
@@ -168,6 +171,24 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string aim = "/input/aim/pose";
 
         private const string kDeviceLocalizedName = "HoloLens Hand OpenXR";
+
+        /// <summary>
+        /// Temporary flag for warning users that HoloLens will be deprecated
+        /// </summary>
+        private static bool wasHoloLensEnabled = false;
+
+        /// <summary>
+        /// Prints a warning to console to notify user that HoloLens 2 will be deprecated
+        /// </summary>
+        protected internal override void OnEnabledChange()
+        {
+            base.OnEnabledChange();
+            if (!wasHoloLensEnabled && this.enabled)
+            {
+                wasHoloLensEnabled = this.enabled;
+                UnityEngine.Debug.LogWarning("HoloLens 2 is now deprecated and is not recommended for production.");
+            }
+        }
 
         /// <summary>
         /// Registers the <see cref="HoloLensHand"/> layout with the Input System.

@@ -8,18 +8,20 @@ namespace UnityEngine.XR.OpenXR
     /// regarding number size.
     /// </summary>
     [Serializable]
-    internal class OpenXRApiVersion
+    class OpenXRApiVersion
     {
-        internal static readonly OpenXRApiVersion Current = new(1, 1, 49);
+        internal static OpenXRApiVersion Current => new(1, 1, 49);
 
         [SerializeField]
-        private ushort m_major = 0;
+        ushort m_major;
         internal ushort Major => m_major;
+
         [SerializeField]
-        private ushort m_minor = 0;
+        ushort m_minor;
         internal ushort Minor => m_minor;
+
         [SerializeField]
-        private uint m_patch = 0;
+        uint m_patch;
         internal uint Patch => m_patch;
 
         internal OpenXRApiVersion(ushort major, ushort minor, uint patch)
@@ -120,6 +122,11 @@ namespace UnityEngine.XR.OpenXR
 
             version = new OpenXRApiVersion(major, minor, patch);
             return true;
+        }
+
+        public override string ToString()
+        {
+            return $"{m_major}.{m_minor}.{m_patch}";
         }
     }
 }

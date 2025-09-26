@@ -16,17 +16,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     {
         internal unsafe delegate void LayerCallbackDelegate(int layerId, XrCompositionLayerBaseHeader* layer);
 
-        static Dictionary<UInt32, RenderTexture> _textureMap = new Dictionary<UInt32, RenderTexture>();
+        static Dictionary<uint, RenderTexture> s_TextureMap = new();
 
-        public unsafe delegate void RenderTextureIdCallbackDelegate(int layerId, uint texId);
-        public unsafe delegate void StereoRenderTextureIdsCallbackDelegate(int layerId, uint leftTexId, uint rightTexId);
+        public delegate void RenderTextureIdCallbackDelegate(int layerId, uint texId);
+        public delegate void StereoRenderTextureIdsCallbackDelegate(int layerId, uint leftTexId, uint rightTexId);
 
         /// <summary>
         /// Calls the methods in its invocation list when a swapchain is created on the graphics thread inside the UnityOpenXR lib.
         /// </summary>
         /// <param name="layerId">The instance id of the composition layer object.</param>
         /// <param name="swapchainHandle">The handle to the native swapchain that was just created.</param>
-        public unsafe delegate void SwapchainCallbackDelegate(int layerId, ulong swapchainHandle);
+        public delegate void SwapchainCallbackDelegate(int layerId, ulong swapchainHandle);
 
         /// <summary>
         /// Calls the methods in its invocation list when a stereo swapchain is created on the graphics thread inside the UnityOpenXR lib.
@@ -34,7 +34,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <param name="layerId">The instance id of the composition layer object.</param>
         /// <param name="swapchainHandleLeft">The handle to one of the stereo swapchains that was just created.</param>
         /// <param name="swapchainHandleRight">The handle to one of the stereo swapchains that was just created.</param>
-        public unsafe delegate void StereoSwapchainCallbackDelegate(int layerId, ulong swapchainHandleLeft, ulong swapchainHandleRight);
+        public delegate void StereoSwapchainCallbackDelegate(int layerId, ulong swapchainHandleLeft, ulong swapchainHandleRight);
 
         /// <summary>
         /// Helper method used to gather the extension components attached to a CompositionLayer GameObject.
@@ -43,7 +43,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
         /// <param name="extensionTarget"> Represents what part of the composition layer to retrieve extensions for.</param>
         /// <returns>A pointer to the head of an array of native extension objects that will be associated with a composition layer.</returns>
-        public static unsafe void* GetExtensionsChain(CompositionLayerManager.LayerInfo layerInfo, CompositionLayerExtension.ExtensionTarget extensionTarget)
+        public static unsafe void* GetExtensionsChain(
+            CompositionLayerManager.LayerInfo layerInfo, CompositionLayerExtension.ExtensionTarget extensionTarget)
         {
             void* extensionsChainHead = null;
             void* extensionsChain = null;
@@ -70,7 +71,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 // Chain pointer if head has been initialized.
                 else
                 {
-                    ((XrBaseInStructure*)extensionsChain)->Next = extensionNativeStructPtr;
+                    ((XrBaseInStructure*)extensionsChain)->next = extensionNativeStructPtr;
                     extensionsChain = extensionNativeStructPtr;
                 }
             }
@@ -158,14 +159,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Finds the render texture of the give texture id.
         /// </summary>
         /// <param name="texId">The id of the render texture to find.</param>
-        /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
-        public static RenderTexture FindRenderTexture(UInt32 texId)
+        /// <returns>The render texture with the provided id or null if no render texture with that id was found.</returns>
+        public static RenderTexture FindRenderTexture(uint texId)
         {
             // texId will be 0 if swapchain has no images.
             if (texId == 0)
                 return null;
 
-            if (!_textureMap.TryGetValue(texId, out var renderTexture))
+            if (!s_TextureMap.TryGetValue(texId, out var renderTexture))
             {
                 var objs = Resources.FindObjectsOfTypeAll<RenderTexture>();
                 var name = $"XR Texture [{texId}]";
@@ -174,7 +175,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     if (rt.name == name)
                     {
                         renderTexture = rt;
-                        _textureMap[texId] = rt;
+                        s_TextureMap[texId] = rt;
                         break;
                     }
                 }
@@ -187,11 +188,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Finds the render texture of the layer id.
         /// </summary>
         /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
-        /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
+        /// <returns>The render texture with the provided id or null if no render texture with that id was found.</returns>
         [Obsolete("OpenXRLayerUtility.FindRenderTexture is deprecated. If you want to query for a swapchain render texture then use OpenXRLayerUtility.RequestRenderTextureId instead", false)]
         public static RenderTexture FindRenderTexture(CompositionLayerManager.LayerInfo layerInfo)
         {
-            UInt32 texId = ext_compositor_layers_CreateOrGetRenderTextureId(layerInfo.Id);
+            var texId = ext_compositor_layers_CreateOrGetRenderTextureId(layerInfo.Id);
             return FindRenderTexture(texId);
         }
 
@@ -308,9 +309,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         /// <param name="layerId">The instance id of the composition layer object.</param>
         /// <returns>Pointer to the android surface object.</returns>
-        public static System.IntPtr GetLayerAndroidSurfaceObject(int layerId)
+        public static IntPtr GetLayerAndroidSurfaceObject(int layerId)
         {
-            IntPtr surfaceObject = IntPtr.Zero;
+            var surfaceObject = IntPtr.Zero;
             if (ext_composition_layers_GetLayerAndroidSurfaceObject(layerId, ref surfaceObject))
             {
                 return surfaceObject;
@@ -319,32 +320,43 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Sends an array of extensions to be attached to the native default compostion layer.
+        /// Sends an array of extensions to be attached to the native default composition layer.
         /// </summary>
-        /// <param name="extensions">Pointer to the array of extensions to attach to the default compostion layer.</param>
-        /// <remarks>Currently only called by the OpenXRDefautLayer class.</remarks>
+        /// <param name="extensions">Pointer to the array of extensions to attach to the default composition layer.</param>
+        /// <remarks>Currently only called by the OpenXRDefaultLayer class.</remarks>
         public static unsafe void SetDefaultSceneLayerExtensions(void* extensions)
         {
             ext_composition_layers_SetDefaultSceneLayerExtensions(extensions);
         }
 
         /// <summary>
-        /// Sends what flags are to be added to the native default compostion layer.
+        /// Sends what flags are to be added to the native default composition layer.
         /// </summary>
-        /// <param name="flags">Flags to be added to the native default compostion layer.</param>
-        /// <remarks>Currently only called by the OpenXRDefautLayer class.</remarks>
-        public static unsafe void SetDefaultLayerFlags(XrCompositionLayerFlags flags)
+        /// <param name="flags">Flags to be added to the native default composition layer.</param>
+        /// <remarks>Currently only called by the OpenXRDefaultLayer class.</remarks>
+        public static void SetDefaultLayerFlags(XrCompositionLayerFlags flags)
         {
             ext_composition_layers_SetDefaultSceneLayerFlags(flags);
+        }
+
+        /// <summary>
+        /// Clear the native default composition layer's layer flag.
+        /// </summary>
+        /// <remarks>Currently only called by the OpenXRDefaultLayer class.</remarks>
+        public static void ClearDefaultLayerFlags()
+        {
+            ext_composition_layers_ClearDefaultSceneLayerFlags();
         }
 
         const string LibraryName = "UnityOpenXR";
 
         [DllImport(LibraryName)]
-        internal static extern void ext_compositor_layers_RequestRenderTextureId(int id, RenderTextureIdCallbackDelegate callback);
+        internal static extern void ext_compositor_layers_RequestRenderTextureId(
+            int id, RenderTextureIdCallbackDelegate callback);
 
         [DllImport(LibraryName)]
-        internal static extern void ext_compositor_layers_RequestStereoRenderTextureIds(int id, StereoRenderTextureIdsCallbackDelegate callback);
+        internal static extern void ext_compositor_layers_RequestStereoRenderTextureIds(
+            int id, StereoRenderTextureIdsCallbackDelegate callback);
 
         [DllImport(LibraryName)]
         internal static extern void ext_compositor_layers_ReleaseSwapchain(int id);
@@ -354,13 +366,19 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         [DllImport(LibraryName)]
         [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool ext_compositor_layers_CreateOrGetStereoRenderTextureIds(int id, out UInt32 leftId, out UInt32 rightId);
+        internal static extern bool ext_compositor_layers_CreateOrGetStereoRenderTextureIds(
+            int id, out uint leftId, out uint rightId);
 
         [DllImport(LibraryName)]
-        internal static extern void ext_composition_layers_CreateSwapchain(int id, XrSwapchainCreateInfo createInfo, [MarshalAs(UnmanagedType.I1)]bool isExternalSurface = false, SwapchainCallbackDelegate callback = null);
+        internal static extern void ext_composition_layers_CreateSwapchain(
+            int id,
+            XrSwapchainCreateInfo createInfo,
+            [MarshalAs(UnmanagedType.I1)]bool isExternalSurface = false,
+            SwapchainCallbackDelegate callback = null);
 
         [DllImport(LibraryName)]
-        internal static extern void ext_composition_layers_CreateStereoSwapchain(int id, XrSwapchainCreateInfo createInfo, StereoSwapchainCallbackDelegate callback = null);
+        internal static extern void ext_composition_layers_CreateStereoSwapchain(
+            int id, XrSwapchainCreateInfo createInfo, StereoSwapchainCallbackDelegate callback = null);
 
         [DllImport(LibraryName)]
         internal static extern Int64 ext_composition_layers_GetUnityDefaultColorFormat();
@@ -369,17 +387,22 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         internal static extern void ext_composition_layers_ReleaseAndDestroySwapchain(int id);
 
         [DllImport(LibraryName)]
-        internal static extern unsafe void ext_composition_layers_AddActiveLayers(void* layers, void* orders, int count, int size);
+        internal static extern unsafe void ext_composition_layers_AddActiveLayers(
+            void* layers, void* orders, int count, int size);
 
         [DllImport(LibraryName)]
         [return: MarshalAs(UnmanagedType.U1)]
-        internal static extern bool ext_composition_layers_GetLayerAndroidSurfaceObject(int layerId, ref IntPtr surfaceObject);
+        internal static extern bool ext_composition_layers_GetLayerAndroidSurfaceObject(
+            int layerId, ref IntPtr surfaceObject);
 
         [DllImport(LibraryName)]
         internal static extern unsafe void ext_composition_layers_SetDefaultSceneLayerExtensions(void* extensions);
 
         [DllImport(LibraryName)]
         internal static extern void ext_composition_layers_SetDefaultSceneLayerFlags(XrCompositionLayerFlags flags);
+
+        [DllImport(LibraryName)]
+        internal static extern void ext_composition_layers_ClearDefaultSceneLayerFlags();
     }
 }
 

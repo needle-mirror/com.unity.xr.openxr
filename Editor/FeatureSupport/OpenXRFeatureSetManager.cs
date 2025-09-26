@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using UnityEditor;
-using UnityEditor.Build;
-using UnityEditor.XR.OpenXR;
 using UnityEditor.MPE;
-
 using UnityEngine;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
@@ -21,6 +16,10 @@ namespace UnityEditor.XR.OpenXR.Features
         [InitializeOnLoadMethod]
         static void InitializeOnLoad()
         {
+            OpenXRFeature.canSetFeatureDisabled = CanFeatureBeDisabled;
+            EditorApplication.update += OnFirstUpdate;
+            return;
+
             void OnFirstUpdate()
             {
                 EditorApplication.update -= OnFirstUpdate;
@@ -29,9 +28,6 @@ namespace UnityEditor.XR.OpenXR.Features
                     return;
                 InitializeFeatureSets();
             }
-
-            OpenXRFeature.canSetFeatureDisabled = CanFeatureBeDisabled;
-            EditorApplication.update += OnFirstUpdate;
         }
 
         /// <summary>
@@ -94,11 +90,8 @@ namespace UnityEditor.XR.OpenXR.Features
         internal class FeatureSetInfo : FeatureSet
         {
             public GUIContent uiName;
-
             public GUIContent uiLongName;
-
             public GUIContent uiDescription;
-
             public GUIContent helpIcon;
 
             /// <summary>
@@ -107,7 +100,7 @@ namespace UnityEditor.XR.OpenXR.Features
             public bool wasEnabled;
         }
 
-        static Dictionary<BuildTargetGroup, List<FeatureSetInfo>> s_AllFeatureSets = null;
+        static Dictionary<BuildTargetGroup, List<FeatureSetInfo>> s_AllFeatureSets;
 
         struct FeatureSetState
         {
@@ -117,7 +110,7 @@ namespace UnityEditor.XR.OpenXR.Features
             public HashSet<string> defaultToEnabledFeatureIds;
         }
 
-        static Dictionary<BuildTargetGroup, FeatureSetState> s_FeatureSetState = new Dictionary<BuildTargetGroup, FeatureSetState>();
+        static Dictionary<BuildTargetGroup, FeatureSetState> s_FeatureSetState = new();
 
         /// <summary>
         /// Event called when the feature set state has been changed.
@@ -132,16 +125,17 @@ namespace UnityEditor.XR.OpenXR.Features
 
         static void FillKnownFeatureSets(bool addTestFeatureSet = false)
         {
-            BuildTargetGroup[] buildTargetGroups = new BuildTargetGroup[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android };
+            BuildTargetGroup[] buildTargetGroups =
+                { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android };
 
             if (addTestFeatureSet)
             {
                 foreach (var buildTargetGroup in buildTargetGroups)
                 {
-                    List<FeatureSetInfo> knownFeatureSets = new List<FeatureSetInfo>();
+                    var knownFeatureSets = new List<FeatureSetInfo>();
                     if (addTestFeatureSet)
                     {
-                        knownFeatureSets.Add(new FeatureSetInfo()
+                        knownFeatureSets.Add(new FeatureSetInfo
                         {
                             isEnabled = false,
                             name = "Known Test",
@@ -160,13 +154,12 @@ namespace UnityEditor.XR.OpenXR.Features
 
             foreach (var kvp in KnownFeatureSets.k_KnownFeatureSets)
             {
-                List<FeatureSetInfo> knownFeatureSets;
-                if (!s_AllFeatureSets.TryGetValue(kvp.Key, out knownFeatureSets))
+                if (!s_AllFeatureSets.TryGetValue(kvp.Key, out var knownFeatureSets))
                 {
                     knownFeatureSets = new List<FeatureSetInfo>();
                     foreach (var featureSet in kvp.Value)
                     {
-                        knownFeatureSets.Add(new FeatureSetInfo()
+                        knownFeatureSets.Add(new FeatureSetInfo
                         {
                             isEnabled = false,
                             name = featureSet.name,
@@ -199,9 +192,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
         internal static void InitializeFeatureSets(bool addTestFeatureSet)
         {
-            if (s_AllFeatureSets == null)
-                s_AllFeatureSets = new Dictionary<BuildTargetGroup, List<FeatureSetInfo>>();
-
+            s_AllFeatureSets ??= new Dictionary<BuildTargetGroup, List<FeatureSetInfo>>();
             s_AllFeatureSets.Clear();
 
             FillKnownFeatureSets(addTestFeatureSet);
@@ -212,8 +203,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 var attrs = Attribute.GetCustomAttributes(t);
                 foreach (var attr in attrs)
                 {
-                    var featureSetAttr = attr as OpenXRFeatureSetAttribute;
-                    if (featureSetAttr == null)
+                    if (attr is not OpenXRFeatureSetAttribute featureSetAttr)
                         continue;
 
                     if (!addTestFeatureSet && featureSetAttr.FeatureSetId.Contains("com.unity.xr.test.featureset"))
@@ -221,14 +211,13 @@ namespace UnityEditor.XR.OpenXR.Features
 
                     foreach (var buildTargetGroup in featureSetAttr.SupportedBuildTargets)
                     {
-                        var key = buildTargetGroup;
-                        if (!s_AllFeatureSets.ContainsKey(key))
-                        {
-                            s_AllFeatureSets.Add(key, new List<FeatureSetInfo>());
-                        }
+                        if (!s_AllFeatureSets.ContainsKey(buildTargetGroup))
+                            s_AllFeatureSets.Add(buildTargetGroup, new List<FeatureSetInfo>());
 
-                        var isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(buildTargetGroup, featureSetAttr.FeatureSetId);
-                        var newFeatureSet = new FeatureSetInfo()
+                        var isEnabled = OpenXREditorSettings.Instance.IsFeatureSetSelected(
+                            buildTargetGroup, featureSetAttr.FeatureSetId);
+
+                        var newFeatureSet = new FeatureSetInfo
                         {
                             isEnabled = isEnabled,
                             wasEnabled = isEnabled,
@@ -244,14 +233,16 @@ namespace UnityEditor.XR.OpenXR.Features
                             uiName = new GUIContent(featureSetAttr.UiName),
                             uiLongName = new GUIContent($"{featureSetAttr.UiName} feature group"),
                             uiDescription = new GUIContent(featureSetAttr.Description),
-                            helpIcon = String.IsNullOrEmpty(featureSetAttr.Description) ? null : new GUIContent("", CommonContent.k_HelpIcon.image, featureSetAttr.Description),
+                            helpIcon = string.IsNullOrEmpty(featureSetAttr.Description)
+                                ? null
+                                : new GUIContent("", CommonContent.k_HelpIcon.image, featureSetAttr.Description),
                         };
 
                         bool foundFeatureSet = false;
-                        var featureSets = s_AllFeatureSets[key];
+                        var featureSets = s_AllFeatureSets[buildTargetGroup];
                         for (int i = 0; i < featureSets.Count; i++)
                         {
-                            if (String.Compare(featureSets[i].featureSetId, newFeatureSet.featureSetId, true) == 0)
+                            if (string.Compare(featureSets[i].featureSetId, newFeatureSet.featureSetId, true) == 0)
                             {
                                 foundFeatureSet = true;
                                 featureSets[i] = newFeatureSet;
@@ -265,18 +256,18 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
-
             var buildTargetGroups = Enum.GetValues(typeof(BuildTargetGroup));
             foreach (BuildTargetGroup buildTargetGroup in buildTargetGroups)
             {
-                FeatureSetState fsi;
-                if (!s_FeatureSetState.TryGetValue(buildTargetGroup, out fsi))
+                if (!s_FeatureSetState.TryGetValue(buildTargetGroup, out var fsi))
                 {
-                    fsi = new FeatureSetState();
-                    fsi.featureSetFeatureIds = new HashSet<string>();
-                    fsi.requiredToEnabledFeatureIds = new HashSet<string>();
-                    fsi.requiredToDisabledFeatureIds = new HashSet<string>();
-                    fsi.defaultToEnabledFeatureIds = new HashSet<string>();
+                    fsi = new FeatureSetState
+                    {
+                        featureSetFeatureIds = new HashSet<string>(),
+                        requiredToEnabledFeatureIds = new HashSet<string>(),
+                        requiredToDisabledFeatureIds = new HashSet<string>(),
+                        defaultToEnabledFeatureIds = new HashSet<string>()
+                    };
 
                     s_FeatureSetState.Add(buildTargetGroup, fsi);
                 }
@@ -292,13 +283,13 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>List of <see cref="FeatureSet"/> or null if there is nothing that matches the given input.</returns>
         public static List<FeatureSet> FeatureSetsForBuildTarget(BuildTargetGroup buildTargetGroup)
         {
-            return OpenXRFeatureSetManager.FeatureSetInfosForBuildTarget(buildTargetGroup).Select((fi) => fi as FeatureSet).ToList();
+            return FeatureSetInfosForBuildTarget(buildTargetGroup).Select(fi => fi as FeatureSet).ToList();
         }
 
         internal static List<FeatureSetInfo> FeatureSetInfosForBuildTarget(BuildTargetGroup buildTargetGroup)
         {
-            List<FeatureSetInfo> ret = new List<FeatureSetInfo>();
-            HashSet<FeatureSetInfo> featureSetsForBuildTargetGroup = new HashSet<FeatureSetInfo>();
+            var ret = new List<FeatureSetInfo>();
+            var featureSetsForBuildTargetGroup = new HashSet<FeatureSetInfo>();
 
             if (s_AllFeatureSets == null)
                 InitializeFeatureSets();
@@ -326,7 +317,7 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>The matching <see cref="FeatureSet"/> or null.</returns>
         public static FeatureSet GetFeatureSetWithId(BuildTargetGroup buildTargetGroup, string featureSetId)
         {
-            return GetFeatureSetInfoWithId(buildTargetGroup, featureSetId) as FeatureSet;
+            return GetFeatureSetInfoWithId(buildTargetGroup, featureSetId);
         }
 
         internal static FeatureSetInfo GetFeatureSetInfoWithId(BuildTargetGroup buildTargetGroup, string featureSetId)
@@ -336,7 +327,7 @@ namespace UnityEditor.XR.OpenXR.Features
             {
                 foreach (var featureSet in featureSets)
                 {
-                    if (String.Compare(featureSet.featureSetId, featureSetId, true) == 0)
+                    if (string.Compare(featureSet.featureSetId, featureSetId, true) == 0)
                         return featureSet;
                 }
             }
@@ -354,7 +345,8 @@ namespace UnityEditor.XR.OpenXR.Features
             SetFeaturesFromEnabledFeatureSets(buildTargetGroup, extInfo);
         }
 
-        internal static void SetFeaturesFromEnabledFeatureSets(BuildTargetGroup buildTargetGroup, FeatureHelpersInternal.AllFeatureInfo extInfo)
+        internal static void SetFeaturesFromEnabledFeatureSets(
+            BuildTargetGroup buildTargetGroup, FeatureHelpersInternal.AllFeatureInfo extInfo)
         {
             var featureSets = FeatureSetInfosForBuildTarget(buildTargetGroup);
 
@@ -378,7 +370,8 @@ namespace UnityEditor.XR.OpenXR.Features
                 if (featureSet.featureIds == null)
                     continue;
 
-                OpenXREditorSettings.Instance.SetFeatureSetSelected(buildTargetGroup, featureSet.featureSetId, featureSet.isEnabled);
+                OpenXREditorSettings.Instance.SetFeatureSetSelected(
+                    buildTargetGroup, featureSet.featureSetId, featureSet.isEnabled);
             }
 
             foreach (var featureSet in featureSets)
@@ -445,21 +438,18 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <returns>True if currently required by some feature set, false otherwise.</returns>
         public static bool CanFeatureBeDisabled(string featureId, BuildTargetGroup buildTargetGroup)
         {
-            if (!s_FeatureSetState.ContainsKey(buildTargetGroup))
+            if (!s_FeatureSetState.TryGetValue(buildTargetGroup, out var fsi))
                 return true;
 
-            var fsi = s_FeatureSetState[buildTargetGroup];
             return !fsi.requiredToEnabledFeatureIds.Contains(featureId);
         }
 
         internal static bool IsKnownFeatureSet(BuildTargetGroup buildTargetGroup, string featureSetId)
         {
-            if (!KnownFeatureSets.k_KnownFeatureSets.ContainsKey(buildTargetGroup))
+            if (!KnownFeatureSets.k_KnownFeatureSets.TryGetValue(buildTargetGroup, out var set))
                 return false;
 
-            var featureSets = KnownFeatureSets.k_KnownFeatureSets[buildTargetGroup].
-                Where((fs) => fs.featureSetId == featureSetId);
-
+            var featureSets = set.Where(fs => fs.featureSetId == featureSetId);
             return featureSets.Any();
         }
     }

@@ -29,6 +29,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         public void RemoveLayer(int id)
         {
+            ClearDefaultLayerFlags();
             ClearDefaultSceneLayerExtensions();
         }
 
@@ -38,6 +39,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         unsafe void ClearDefaultSceneLayerExtensions() => OpenXRLayerUtility.SetDefaultSceneLayerExtensions(null);
+        void ClearDefaultLayerFlags() => OpenXRLayerUtility.ClearDefaultLayerFlags();
     }
 }
 #endif

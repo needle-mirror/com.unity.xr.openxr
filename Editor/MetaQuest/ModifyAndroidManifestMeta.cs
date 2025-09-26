@@ -121,7 +121,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 });
             }
 
-            if (IsAppTargetingQuestPro())
+            if (IsAppTargetingQuestPro() && IsEyeTrackingRequired())
             {
                 elementsToAdd.Add(
                     new ManifestElement()
@@ -209,9 +209,28 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         {
             var questFeature = GetFeatureFromSettings<MetaQuestFeature>(BuildTargetGroup.Android);
             return questFeature.targetDevices
-                .Where(device => string.Equals(device.manifestName, "cambria"))
+                .Where(device => string.Equals(device.manifestName, MetaQuestFeature.DeviceManifestName.QuestPro))
                 .Where(device => device.enabled)
                 .Any();
+        }
+
+        private static string[] openXREyeTrackingExtensionStrings = { "XR_META_foveation_eye_tracked", "XR_EXT_eye_gaze_interaction" };
+
+        private static bool IsEyeTrackingRequired()
+        {
+            var openXRFeatures = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android).GetFeatures();
+            foreach (var feature in openXRFeatures)
+            {
+                for (int i = 0; i < openXREyeTrackingExtensionStrings.Length; i++)
+                {
+                    if (feature.enabled && feature.openxrExtensionStrings.Contains(openXREyeTrackingExtensionStrings[i], StringComparison.InvariantCulture))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static T GetFeatureFromSettings<T>(BuildTargetGroup buildTargetGroup) where T : OpenXRFeature

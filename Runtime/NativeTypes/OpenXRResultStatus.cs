@@ -77,6 +77,19 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             /// and no additional information is available.
             /// </summary>
             ValidationFailure = -5,
+
+            /// <summary>
+            /// Indicates that Unity has determined that the operation is not supported on the device.
+            /// </summary>
+            /// <remarks>
+            /// This error code allows Unity to design APIs where some source other than the OpenXR runtime
+            /// defines whether an operation is supported.
+            ///
+            /// If a runtime returns `XrResult.FeatureUnsupported` or `XrResult.FunctionUnsupported` as the
+            /// `nativeStatusCode` for an API call, the expected `StatusCode` value is `PlatformError`,
+            /// as the runtime is the source of the error.
+            /// </remarks>
+            Unsupported = -6,
         }
 
         /// <summary>
@@ -252,6 +265,17 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         {
             var nativeComparison = nativeStatusCode.CompareTo(other.nativeStatusCode);
             return nativeComparison == 0 ? statusCode.CompareTo(other.statusCode) : nativeComparison;
+        }
+
+        /// <summary>
+        /// Creates a string suitable for debugging purposes.
+        /// </summary>
+        /// <returns>The string.</returns>
+        public override string ToString()
+        {
+            return statusCode is StatusCode.PlatformQualifiedSuccess or StatusCode.PlatformError
+                ? $"({statusCode}, {nativeStatusCode})"
+                : $"({statusCode})";
         }
     }
 }

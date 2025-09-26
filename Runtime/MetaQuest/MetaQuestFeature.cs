@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using UnityEditor;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using System.IO;
@@ -57,7 +58,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         {
 #if UNITY_6000_1_OR_NEWER && UNITY_EDITOR
 #pragma warning disable CS0618 // suppress obsolete field usage warning
-            optimizeMultiviewRenderRegions = multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
+            optimizeMultiviewRenderRegions = m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
 #pragma warning restore CS0618
 #endif
         }
@@ -69,9 +70,9 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             {
 #pragma warning disable CS0618 // suppress obsolete field usage warning
                 if (optimizeMultiviewRenderRegions)
-                    multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                    m_multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
                 else
-                    multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
+                    m_multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
 #pragma warning restore CS0618
 
                 m_hasMigratedMultiviewRenderRegions = true;
@@ -87,21 +88,53 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         internal List<TargetDevice> targetDevices;
 
         /// <summary>
+        /// List of manifest names of supported devices.
+        /// </summary>
+        internal static class DeviceManifestName
+        {
+            internal const string Quest = "quest";
+            internal const string Quest2 = "quest2";
+            internal const string QuestPro = "cambria";
+            internal const string Quest3 = "eureka";
+            internal const string Quest3S = "quest3s";
+        }
+
+        /// <summary>
         /// Forces the removal of Internet permissions added to the Android Manifest.
         /// </summary>
         [SerializeField, Tooltip("Forces the removal of Internet permissions added to the Android Manifest.")]
         internal bool forceRemoveInternetPermission = false;
 
-        [SerializeField]
-        internal bool symmetricProjection = false;
+        [SerializeField, FormerlySerializedAs("symmetricProjection")]
+        bool m_symmetricProjection = false;
+
+        internal bool symmetricProjection
+        {
+            get => m_symmetricProjection;
+            set
+            {
+                m_symmetricProjection = value;
+                EditorUtility.SetDirty(this);
+            }
+        }
 
         /// <summary>
         /// Different APIs to use in the backend.
         /// On Built-in Render Pipeline, only Legacy will be used.
         /// On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.
         /// </summary>
-        [SerializeField, Tooltip("On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.")]
-        internal OpenXRSettings.BackendFovationApi foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
+        [SerializeField, FormerlySerializedAs("foveatedRenderingApi"), Tooltip("On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.")]
+        OpenXRSettings.BackendFovationApi m_foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
+
+        internal OpenXRSettings.BackendFovationApi foveatedRenderingApi
+        {
+            get => m_foveatedRenderingApi;
+            set
+            {
+                m_foveatedRenderingApi = value;
+                EditorUtility.SetDirty(this);
+            }
+        }
 
         /// <summary>
         /// Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.
@@ -109,8 +142,18 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
         public Texture2D systemSplashScreen;
 
-        [SerializeField, Tooltip("Optimization that allows 4x MSAA textures to be memoryless on Vulkan")]
-        internal bool optimizeBufferDiscards = true;
+        [SerializeField, FormerlySerializedAs("optimizeBufferDiscards"), Tooltip("Optimization that allows 4x MSAA textures to be memoryless on Vulkan")]
+        bool m_optimizeBufferDiscards = true;
+
+        internal bool optimizeBufferDiscards
+        {
+            get => m_optimizeBufferDiscards;
+            set
+            {
+                m_optimizeBufferDiscards = value;
+                EditorUtility.SetDirty(this);
+            }
+        }
 
         /// <summary>
         /// Caches validation rules for each build target group requested by <see cref="GetValidationChecks="/>.
@@ -138,11 +181,21 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         /// <summary>
         /// Selected Multiview Render Region Optimization Mode. This feature requires Unity 6.1 or later, and usage of the Vulkan renderer.
         /// </summary>
-        [SerializeField]
-        internal OpenXRSettings.MultiviewRenderRegionsOptimizationMode multiviewRenderRegionsOptimizationMode;
+        [SerializeField, FormerlySerializedAs("multiviewRenderRegionsOptimizationMode")]
+        OpenXRSettings.MultiviewRenderRegionsOptimizationMode m_multiviewRenderRegionsOptimizationMode;
 
         [SerializeField, HideInInspector]
         private bool m_hasMigratedMultiviewRenderRegions = false;
+
+        internal OpenXRSettings.MultiviewRenderRegionsOptimizationMode multiviewRenderRegionsOptimizationMode
+        {
+            get => m_multiviewRenderRegionsOptimizationMode;
+            set
+            {
+                m_multiviewRenderRegionsOptimizationMode = value;
+                EditorUtility.SetDirty(this);
+            }
+        }
 #endif
 
         /// <summary>
@@ -163,11 +216,11 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         public new void OnEnable()
         {
             // add known devices
-            AddTargetDevice("quest", "Quest", true);
-            AddTargetDevice("quest2", "Quest 2", true);
-            AddTargetDevice("cambria", "Quest Pro", true);
-            AddTargetDevice("eureka", "Quest 3", true);
-            AddTargetDevice("quest3s", "Quest 3S", true);
+            AddTargetDevice(DeviceManifestName.Quest, "Quest", true);
+            AddTargetDevice(DeviceManifestName.Quest2, "Quest 2", true);
+            AddTargetDevice(DeviceManifestName.QuestPro, "Quest Pro", true);
+            AddTargetDevice(DeviceManifestName.Quest3, "Quest 3", true);
+            AddTargetDevice(DeviceManifestName.Quest3S, "Quest 3S", true);
         }
 
         /// <summary>
@@ -198,6 +251,62 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
             TargetDevice targetDevice = new TargetDevice { manifestName = manifestName, visibleName = visibleName, enabled = enabledByDefault, active = true };
             targetDevices.Add(targetDevice);
+        }
+
+        /// <summary>
+        /// Queries the supported devices list for the device with the provided manifest name, and returns its active status in the current project's settings.
+        /// </summary>
+        /// <param name="manifestName">Name used in manifest for the device. See <seealso cref="DeviceManifestName"/> for known device names.</param>
+        /// <returns>True if there's a device with the <paramref name="manifestName"/> and that device is active.</returns>
+        internal bool GetTargetDeviceActive(string manifestName)
+        {
+            for (int i = 0; i < targetDevices.Count; ++i)
+            {
+                if (targetDevices[i].manifestName == manifestName)
+                {
+                    return targetDevices[i].active;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Changes the current state of the device.
+        /// </summary>
+        /// <param name="manifestName">Name used in manifest for the device. See <seealso cref="DeviceManifestName"/> for known device names.</param>
+        /// <param name="enabled">Status to set the device in.</param>
+        internal void EnableTargetDevice(string manifestName, bool enabled)
+        {
+            for (int i = 0; i < targetDevices.Count; ++i)
+            {
+                if (targetDevices[i].manifestName == manifestName)
+                {
+                    var device = targetDevices[i];
+                    device.enabled = enabled;
+                    targetDevices[i] = device;
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssetIfDirty(this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replaces the settings in the provided <seealso cref="OpenXRSettings"/>
+        /// that are overridden by the same properties set in <see cref="MetaQuestFeature"/>
+        /// </summary>
+        /// <param name="openXrSettings">Settings instance to apply the override</param>
+        internal void ApplySettingsOverride(OpenXRSettings openXrSettings)
+        {
+            openXrSettings.symmetricProjection = symmetricProjection;
+            openXrSettings.optimizeBufferDiscards = optimizeBufferDiscards;
+            openXrSettings.spacewarpMotionVectorTextureFormat = spacewarpMotionVectorTextureFormat;
+#if UNITY_2023_2_OR_NEWER
+            openXrSettings.foveatedRenderingApi = foveatedRenderingApi;
+#endif
+#if UNITY_6000_1_OR_NEWER
+            openXrSettings.multiviewRenderRegionsOptimizationMode = multiviewRenderRegionsOptimizationMode;
+#endif
         }
 
         private bool SettingsUseVulkan()
@@ -328,9 +437,9 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Multiview Render Regions Optimizations Mode requires symmetric projection setting turned on.",
                         checkPredicate = () =>
                         {
-                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
+                            if (m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
-                                return symmetricProjection;
+                                return m_symmetricProjection;
                             }
                             return true;
                         },
@@ -339,7 +448,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                             var feature = settings.GetFeature<MetaQuestFeature>();
-                            feature.symmetricProjection = true;
+                            feature.m_symmetricProjection = true;
                         }
                     },
 
@@ -348,7 +457,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Multiview Render Regions Optimizations Mode requires Render Mode set to \"Single Pass Instanced / Multi-view\".",
                         checkPredicate = () =>
                         {
-                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
+                            if (m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
                                 var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                                 return (settings.renderMode == OpenXRSettings.RenderMode.SinglePassInstanced);
@@ -369,7 +478,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         helpText = "The Multiview Render Regions Optimizations Mode feature only works with the Vulkan Graphics API, which needs to be set as the first Graphics API to be loaded at application startup. Choosing other Graphics API may require to switch to Vulkan and restart the application.",
                         checkPredicate = () =>
                         {
-                            if (multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
+                            if (m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
                             {
                                 var graphicsApis = PlayerSettings.GetGraphicsAPIs(BuildTarget.Android);
                                 return graphicsApis[0] == GraphicsDeviceType.Vulkan;
@@ -396,7 +505,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                             var feature = settings.GetFeature<MetaQuestFeature>();
-                            feature.multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                            feature.m_multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
                         },
                         fixItAutomatic = true,
                         fixItMessage = "Set Multiview Render Regions Optimization Mode to Final Pass."
@@ -409,7 +518,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
                             var feature = settings.GetFeature<MetaQuestFeature>();
-                            bool allPassesUsed = feature.multiviewRenderRegionsOptimizationMode == OpenXRSettings.MultiviewRenderRegionsOptimizationMode.AllPasses;
+                            bool allPassesUsed = feature.m_multiviewRenderRegionsOptimizationMode == OpenXRSettings.MultiviewRenderRegionsOptimizationMode.AllPasses;
 
                             OpenXRSettings androidOpenXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
                             var automaticDynamicResolutionFeature = androidOpenXRSettings != null ? androidOpenXRSettings.GetFeature<AutomaticDynamicResolutionFeature>() : null;
@@ -421,7 +530,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         {
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
                             var feature = settings.GetFeature<MetaQuestFeature>();
-                            feature.multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
+                            feature.m_multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.FinalPass;
                         },
                         fixItMessage = "Switch to Multiview Render Regions Optimization - Final Pass.",
                         error = false,
@@ -435,7 +544,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Symmetric Projection is only supported on Vulkan graphics API",
                         checkPredicate = () =>
                         {
-                            if (symmetricProjection && !SettingsUseVulkan())
+                            if (m_symmetricProjection && !SettingsUseVulkan())
                             {
                                 return false;
                             }
@@ -458,7 +567,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             if (null == settings)
                                 return false;
 
-                            if (symmetricProjection && (settings.renderMode != OpenXRSettings.RenderMode.SinglePassInstanced))
+                            if (m_symmetricProjection && (settings.renderMode != OpenXRSettings.RenderMode.SinglePassInstanced))
                             {
                                 return false;
                             }
@@ -498,11 +607,11 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Symmetric Projection is only available on Quest 2 or higher",
                         checkPredicate = () =>
                         {
-                            if (symmetricProjection)
+                            if (m_symmetricProjection)
                             {
                                 foreach (var device in targetDevices)
                                 {
-                                    if (device.enabled && device.manifestName == "quest")
+                                    if (device.enabled && device.manifestName == DeviceManifestName.Quest)
                                     {
                                         return false;
                                     }
@@ -524,7 +633,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         message = "Optimize Buffer Discards is only supported on Vulkan graphics API",
                         checkPredicate = () =>
                         {
-                            if (optimizeBufferDiscards && !SettingsUseVulkan())
+                            if (m_optimizeBufferDiscards && !SettingsUseVulkan())
                             {
                                 return false;
                             }
@@ -538,6 +647,17 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         fixItAutomatic = true,
                         fixItMessage = "Set Vulkan as Graphics API"
                     },
+#if UNITY_6000_0_OR_NEWER
+                    new ValidationRule(this)
+                    {
+                        message = "Application Entry Point is required to set to Game Activity for Unity 6.0+.",
+                        checkPredicate = () => PlayerSettings.Android.applicationEntry == AndroidApplicationEntry.GameActivity,
+                        fixIt = () => PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity,
+                        fixItAutomatic = true,
+                        fixItMessage = "Set your Application Entry Point to <b>Game Activity</b> in Android Player Setting.",
+                        error = false
+                    },
+#endif
 #endif
                     new ValidationRule(this)
                     {

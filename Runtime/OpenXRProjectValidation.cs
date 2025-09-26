@@ -24,9 +24,12 @@ namespace UnityEditor.XR.OpenXR
     /// </summary>
     public static class OpenXRProjectValidation
     {
-        static bool isValidationMessagePrinted;
-        static bool isValidPath;
-        static string invalidPath = "";
+        const string K_openXrLoaderLibName = "openxr_loader";
+        const string K_unsupportedLoaderNameChar = ".";
+
+        private static bool isValidationMessagePrinted = false;
+        private static bool isValidPath = false;
+        private static string invalidPath = "";
 
         static readonly OpenXRFeature.ValidationRule[] BuiltinValidationRules =
         {
@@ -129,6 +132,37 @@ namespace UnityEditor.XR.OpenXR
                     searchText = "Enabled Interaction Profiles",
                     windowTitle = "Project Settings",
                 }
+            },
+            new()
+            {
+                message = "An active OpenXR feature is defining a custom loader with a customized name containing \"openxr_loader\". This may cause build problems where the custom loader is not included in the built project. Please remove the CustomLoaderName property from the conflicting feature's attribute, or change the library name.\nNon-compliant features:" + GetLoaderFeaturesNamesWithString(K_openXrLoaderLibName),
+                checkPredicate = () =>
+                {
+                    var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    if (openXrSettings != null)
+                    {
+                        return !CheckLoadersWithString(openXrSettings.features, K_openXrLoaderLibName).Any();
+                    }
+                    return true;
+                },
+                error = true,
+                helpText = "By default, a feature that has a custom loader can use a name containing \"openxr_loader\" to be considered a custom OpenXR loader library, or alternatively, define a custom name for the plugin."
+            },
+            new()
+            {
+                message = $"The customized loader name of an active OpenXR feature contains \"{K_unsupportedLoaderNameChar}\" characters in its name. " +
+                $"Please remove any \"{K_unsupportedLoaderNameChar}\" characters from the specified name in the CustomLoaderName property.\n" +
+                "Non-compliant features: " + GetLoaderFeaturesNamesWithString(K_unsupportedLoaderNameChar),
+                checkPredicate = () =>
+                {
+                    var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+                    if (openXrSettings != null)
+                    {
+                        return !CheckLoadersWithString(openXrSettings.features, K_unsupportedLoaderNameChar).Any();
+                    }
+                    return true;
+                },
+                error = true
             },
             new()
             {
@@ -300,7 +334,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 
         internal static bool AssetHasNoDuplicates()
         {
-            var packageSettings = OpenXRSettings.GetPackageSettings();
+            var packageSettings = PackageSettingsLocator.GetPackageSettings();
             if (packageSettings == null)
             {
                 return true;
@@ -360,7 +394,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         {
             // Deleting the OpenXR PackageSettings asset also destroys the OpenXRPackageSettings object.
             // Need to get the static method to create the new asset and object before deleting the asset.
-            var packageSettings = OpenXRSettings.GetPackageSettings();
+            var packageSettings = PackageSettingsLocator.GetPackageSettings();
             if (packageSettings == null)
             {
                 return;
@@ -375,6 +409,19 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 
             createAssetCallback();
         }
+
+        static string GetLoaderFeaturesNamesWithString(string text)
+        {
+            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            var featureNames = CheckLoadersWithString(openXrSettings.features, text)
+                .Select(feature => feature.name);
+            return string.Join(",", featureNames);
+        }
+
+        static IEnumerable<OpenXRFeature> CheckLoadersWithString(IEnumerable<OpenXRFeature> features, string text) =>
+            features.Where(feature => feature.enabled &&
+            !string.IsNullOrWhiteSpace(feature.customRuntimeLoaderName) &&
+            feature.customRuntimeLoaderName.Contains(text));
 
         internal static void HighlightFolderInProjectWindow(string assetPath)
         {
