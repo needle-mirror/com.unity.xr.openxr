@@ -125,7 +125,6 @@ namespace UnityEditor.XR.OpenXR
                     VulkanOffscreenSwapchainAndroidValidationRule()
                 };
                 var issues = new List<OpenXRFeature.ValidationRule>();
-                Features.FeatureHelpers.RefreshFeatures(buildTargetGroup);
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
                 foreach (var issue in issues)

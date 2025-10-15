@@ -79,7 +79,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
-            var isProjectionRig = layer.Layer.LayerData.GetType() == typeof(ProjectionLayerRigData);
+            bool isProjectionRig = layer.Layer.LayerData.GetType() == typeof(ProjectionLayerRigData);
             if (!isProjectionRig)
             {
                 TexturesExtension texturesExtension = layer.Layer.GetComponent<TexturesExtension>();
@@ -208,6 +208,12 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (!isProjectionRig)
             {
+                if (!IsTexturesExtensionValid(texturesExtension))
+                {
+                    nativeLayer = default;
+                    return false;
+                }
+
                 m_ProjectionData.Add(layer.Id, new ProjectionData
                 {
                     layer = layer,
@@ -301,6 +307,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 nativeLayer.Views[1].Pose = views[1].Pose;
                 nativeLayer.Views[1].Fov = views[1].Fov;
             }
+
+            bool isProjectionRig = layerInfo.Layer.LayerData.GetType() == typeof(ProjectionLayerRigData);
+            if (!isProjectionRig && !IsTexturesExtensionValid(texturesExtension))
+            {
+                nativeLayer = default;
+                return false;
+            }
+
             nativeLayer.Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer);
             return true;
         }
@@ -402,6 +416,33 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             };
 
             return new XrRect2Di { Offset = sourceTextureOffset, Extent = sourceTextureExtent };
+        }
+
+        unsafe bool IsTexturesExtensionValid(TexturesExtension texturesExtension)
+        {
+            if (!ext_composition_layers_GetViewConfigurationData(out uint width, out uint height, out _))
+                return false;
+
+            if (!IsTextureSizeValidForView(texturesExtension.LeftTexture, width, height))
+            {
+                Debug.LogError($"Left Texture size {texturesExtension.LeftTexture.width}x{texturesExtension.LeftTexture.height} is larger than the view configuration size {width}x{height}");
+                return false;
+            }
+
+            if (!IsTextureSizeValidForView(texturesExtension.RightTexture, width, height))
+            {
+                Debug.LogError($"Right Texture size {texturesExtension.RightTexture.width}x{texturesExtension.RightTexture.height} is larger than the view configuration size {width}x{height}");
+                return false;
+            }
+
+            return true;
+        }
+
+        bool IsTextureSizeValidForView(Texture texture, uint width, uint height)
+        {
+            if (texture.width > width || texture.height > height)
+                return false;
+            return true;
         }
 
         [AOT.MonoPInvokeCallback(typeof(OpenXRLayerUtility.StereoRenderTextureIdsCallbackDelegate))]

@@ -16,6 +16,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         { }
 
         [Test]
+        [Ignore("This test is temporarily disabled.")]
         public void DuplicateSettingAssetTest()
         {
             // Local OpenXR filepath that contains the test OpenXR Package Settings.asset

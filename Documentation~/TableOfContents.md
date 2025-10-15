@@ -24,7 +24,6 @@
   * [Valve Index Controller Profile](features/valveindexcontrollerprofile.md)
   * [Khronos Simple Controller Profile](features/khrsimplecontrollerprofile.md)
   * [Eye Gaze Interaction](features/eyegazeinteraction.md)
-  * [Microsoft Hand Interaction](features/microsofthandinteraction.md)
   * [Meta Quest Touch Pro Controller Profile](features/metaquesttouchprocontrollerprofile.md)
   * [Meta Quest Touch Plus Controller Profile](features/metaquesttouchpluscontrollerprofile.md)
   * [HP Reverb G2 Controller Profile](features/hpreverbg2controllerprofile.md)

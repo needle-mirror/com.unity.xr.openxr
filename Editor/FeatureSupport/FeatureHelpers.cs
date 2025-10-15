@@ -192,6 +192,12 @@ namespace UnityEditor.XR.OpenXR.Features
                         AssetDatabase.AddObjectToAsset(featureAsset, openXrSettings);
                         AssetDatabase.SaveAssets();
                     }
+                    else
+                    {
+                        // This line of code is required for changes to interaction profiles to be saved
+                        // when closing and re-opening the Editor.
+                        featureAsset.name = featureType.Name + " " + buildGroupName;
+                    }
 
                     if (featureAsset == null)
                         break;

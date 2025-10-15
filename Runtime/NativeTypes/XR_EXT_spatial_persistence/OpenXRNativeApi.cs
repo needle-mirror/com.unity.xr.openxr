@@ -217,7 +217,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         [DllImport(
             InternalConstants.openXRLibrary,
             EntryPoint = "EXT_spatial_persistence_xrEnumerateSpatialPersistenceScopesEXT_usingContext")]
-        public static extern unsafe XrResult xrEnumerateSpatialPersistenceScopesEXT(
+        public static extern unsafe OpenXRResultStatus xrEnumerateSpatialPersistenceScopesEXT(
             uint persistenceScopeCapacityInput,
             out uint persistenceScopeCountOutput,
             XrSpatialPersistenceScopeEXT* persistenceScopes);
@@ -252,7 +252,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
         /// <paramref name="allocator"/> value.
         /// </remarks>
-        public static unsafe XrResult xrEnumerateSpatialPersistenceScopesEXT(
+        public static unsafe OpenXRResultStatus xrEnumerateSpatialPersistenceScopesEXT(
             Allocator allocator, out NativeArray<XrSpatialPersistenceScopeEXT> persistenceScopes)
         {
             var result = xrEnumerateSpatialPersistenceScopesEXT(0, out var scopeCountOutput, null);

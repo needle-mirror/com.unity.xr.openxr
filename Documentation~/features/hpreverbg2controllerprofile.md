@@ -25,7 +25,7 @@ The following table outlines the mapping between the OpenXR paths and Unity's im
 |`/input/thumbstick`| thumbstick | Vector2 |
 |`/input/thumbstick/click`| thumbstickClicked | Boolean |
 |`/input/grip/pose` | devicePose | Pose |
-|`/input/aim/pose` | pointer | Pose |
+|`/input/aim/pose` | pointerPose | Pose |
 |`/output/haptic` | haptic | Vibrate |
 | Unity Layout Only  | isTracked | Flag Data |
 | Unity Layout Only  | trackingState | Flag Data |

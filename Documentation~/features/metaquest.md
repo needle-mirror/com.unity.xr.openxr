@@ -17,10 +17,25 @@ To deploy to Meta Quest, enable the Meta Quest Support feature on the Android bu
 2. Select the **XR Plug-in Management** from the list of settings on the left.
 3. If necessary, enable **OpenXR** in the list of **Plug-in Providers**. Unity installs the OpenXR plug-in, if not already installed.
 4. Select the OpenXR settings page under XR Plug-in Management.
-5. Add the **Oculus Touch Controller Profile** to the **Interaction Profiles** list. (You can have multiple profiles enabled in the list, the OpenXR chooses the one to use based on the current device at runtime.)
+5. Add your chosen [interaction profiles](#choose-interaction-profiles) to the **Interaction profiles** list. (You can have multiple profiles enabled in the list, the OpenXR chooses the one to use based on the current device at runtime.)
 6. Enable **Meta Quest Support** under **OpenXR Feature Groups**.
 
 When you enable Meta Quest Support, Unity produces Application Package Kit (APK) files that you can run on the Quest family of devices.
+
+### Choose interaction profiles
+
+Unity recommends the following controller profiles for Meta Quest as outlined by the [Project validation system](xref:openxr-project-validation):
+
+* [Oculus Touch Controller Profile](xref:openxr-oculus-touch-controller-profile)
+* [Meta Quest Touch Plus Controller Profile](xref:openxr-meta-quest-plus-touch-controller-profile)
+* [Meta Quest Touch Pro Controller Profile](xref:openxr-meta-quest-pro-touch-controller-profile)
+
+> [!TIP]
+> You can choose to enable other interaction profiles that aren't recommended by the validation system. Ignoring the validation rule for the recommended interaction profiles won't stop your project from building as this is a warning, rather than an error.
+
+The following interaction profiles are also supported on Meta Quest devices:
+
+* [Hand interaction profile](xref:openxr-hand-interaction-profile)
 
 ## Open the Meta Quest Support window
 

@@ -31,7 +31,7 @@ The following table outlines the mapping between the OpenXR paths and Unity's im
 |`/input/thumbstick/touch`| thumbstickTouched | Boolean |
 |`/input/thumbrest/touch`| thumbrestTouched | Boolean |
 |`/input/grip/pose` | devicePose | Pose |
-|`/input/aim/pose` | pointer | Pose |
+|`/input/aim/pose` | pointerPose | Pose |
 |`/input/stylus_fb/force` | stylusForce | Float |
 |`/input/trigger/curl_fb` | triggerCurl | Float |
 |`/input/trigger/slide_fb` | triggerSlide | Float |

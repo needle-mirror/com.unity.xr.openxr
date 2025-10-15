@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.16.0] - 2025-10-15
+
+### Added
+
+ * Added public debug symbols for the UnityOpenXR library for Android platform that are available when building an APK with the Debug Symbols dropdown set to Public or Debugging. For more information, refer to [Android Symbols](https://docs.unity3d.com/6000.3/Documentation/Manual/android-symbols.html).
+ * Added validation rule for Multi View Per View Viewport and Render Graph.
+
+### Changed
+
+* Changed the return values of the following pre-release APIs from `XrResult` to `OpenXRResultStatus`:
+  * `OpenXRNativeAPI.xrEnumerateSpatialPersistenceScopesEXT(uint, out uint, XrSpatialPersistenceScopeEXT*)`
+  * `OpenXRNativeAPI.xrEnumerateSpatialPersistenceScopesEXT(Allocator, out NativeArray<XrSpatialPersistenceScopeEXT>`
+* Changed the OpenXR test "DuplicateSettingAssetTest" to be ignored.
+
+### Fixed
+
+* Fixed a crash with `OpenXRProjectionLayer` when a texture with a size larger than the view was used.
+* Fixed a crash when the calls are sent to OpenXR library display subsystem before the OpenXR library is initialized manually.
+* Fixed an issue where the user's OpenXR settings could be erased after creating a build.
+* Fixed missing diagnostic logs for the available and requested OpenXR extensions under the OpenXR Runtime Info section.
+* Fixed one frame flash of black screen when recentering view in floor space.
+* Fixed OpenXR Project Settings so that changes to enabled interaction profiles are correctly saved when you close and re-open the Editor. ([OXRB-662](https://issuetracker.unity3d.com/product/unity/issues/guid/OXRB-662))
+
 ## [1.16.0-pre.2] - 2025-09-26
 
 ### Added

@@ -32,4 +32,8 @@ You can choose from the following options in the **Multiview Render Regions Opti
 | :--------- | :-------------- |
 | **None**   | Disables Multiview Render regions. OpenXR enables **None** by default. |
 | **Final Pass** | Enables Multiview Render Regions Optimizations for the final render pass only and is only applied to render passes that output to eye textures.  |
-| **All Passes** | Applies Multiview Render Regions Optimizations for all passes that use multiview. <br><strong>Note</strong>: Several post-processing effects aren't compatible with Multiview Render Regions and can result in rendering artifacts. <br>In Unity 6.3 and newer with render graph, Unity enables Multiview Render Regions only on passes where it increases performance and doesn't result in rendering artifacts. |
+| **All Passes** | Applies Multiview Render Regions Optimizations for all passes that use multiview.
+
+## Additional Notes
+
+Several post-processing effects aren't compatible with Multiview Render Regions and can result in rendering artifacts. In Unity 6.3 and newer with render graph, Unity enables Multiview Render Regions only on passes where it increases performance and doesn't result in rendering artifacts. If render graph is not used in Unity 6.3, it's recommended to disable Multiview Render Regions to avoid decreased performance.

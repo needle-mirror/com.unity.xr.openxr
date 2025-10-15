@@ -413,6 +413,9 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         static string GetLoaderFeaturesNamesWithString(string text)
         {
             var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            if (openXrSettings == null)
+                return string.Empty;
+
             var featureNames = CheckLoadersWithString(openXrSettings.features, text)
                 .Select(feature => feature.name);
             return string.Join(",", featureNames);

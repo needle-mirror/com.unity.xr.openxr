@@ -451,7 +451,39 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             feature.m_symmetricProjection = true;
                         }
                     },
-
+#endif
+                    // In 6000.3.0a5, a change was made to only take advantage of MVPVV on render passes that are marked as MVPVV compatible.
+                    // If Render Graph is disabled, no render passes can be marked as MVPVV compatible.
+                    // Thus if MVPVV is enabled and Render Graph is disabled on 6000.3.0a5 or later, the cost of enabling MVPVV is incurred without any benefit
+                    // of using MVPVV. It's not trivial to enable Render Graph, so we recommend that users disable MVPVV.
+#if UNITY_6000_3_OR_NEWER && !UNITY_6000_4_OR_NEWER && ENABLE_RENDER_GRAPH_COMPATIBILITY_MODE_SUPPORTED
+                    new ValidationRule(this)
+                    {
+                        message = "Multiview Render Regions Optimizations Mode requires Render Graph to be used. Please disable Multiview Render Regions Optimizations Mode or enable Render Graph.",
+                        checkPredicate = () =>
+                        {
+                            if (m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
+                            {
+                                // enableRenderCompatibilityMode = true means that RenderGraph is not being used.
+                                UnityEngine.Rendering.Universal.RenderGraphSettings renderGraphSettings = Rendering.GraphicsSettings.GetRenderPipelineSettings<UnityEngine.Rendering.Universal.RenderGraphSettings>();
+                                if (renderGraphSettings != null)
+                                {
+                                    return !renderGraphSettings.enableRenderCompatibilityMode;
+                                }
+                            }
+                            return true;
+                        },
+                        error = true,
+                        fixIt = () =>
+                        {
+                            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                            var feature = settings.GetFeature<MetaQuestFeature>();
+                            feature.m_multiviewRenderRegionsOptimizationMode = OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None;
+                        },
+                        fixItMessage = "Disable Multiview Render Regions Optimizations Mode"
+                    },
+#endif
+#if UNITY_6000_1_OR_NEWER
                     new ValidationRule(this)
                     {
                         message = "Multiview Render Regions Optimizations Mode requires Render Mode set to \"Single Pass Instanced / Multi-view\".",

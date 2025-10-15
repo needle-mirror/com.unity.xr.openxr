@@ -134,7 +134,6 @@ Features are a collection of Unity Assets that can be distributed through the Pa
 #### Interaction profile features
 
 * [Eye Gaze Interaction](./features/eyegazeinteraction.md)
-* [Microsoft Hand Interaction](./features/microsofthandinteraction.md)
 * [HTC Vive Controller](./features/htcvivecontrollerprofile.md)
 * [Khronos Simple Controller](./features/khrsimplecontrollerprofile.md)
 * [Microsoft Motion Controller](./features/microsoftmotioncontrollerprofile.md)
