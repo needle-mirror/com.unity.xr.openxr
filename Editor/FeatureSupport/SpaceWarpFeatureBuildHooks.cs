@@ -1,5 +1,6 @@
 using System;
 using UnityEditor.Build.Reporting;
+using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR.Features
@@ -13,10 +14,13 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <summary>
         /// The feature ID string. This is used to give the feature a well known ID for reference.
         /// </summary>
-        private const string k_SpaceWarpFeatureId = "com.unity.openxr.feature.spacewarp";
+        const string k_SpaceWarpFeatureId = "com.unity.openxr.feature.spacewarp";
 
         /// <inheritdoc/>
         public override int callbackOrder => 2;
+
+        /// <inheritdoc/>
+        protected internal override bool bootConfigEntryRequired => true;
 
         /// <summary>
         /// Returns the System.Type of the SpaceWarpFeature class.
@@ -50,12 +54,8 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <param name="builder">This is the Boot Config interface that can be used to write boot configs</param>
         protected override void OnProcessBootConfigExt(BuildReport report, BootConfigBuilder builder)
         {
-            var spaceWarpFeature = OpenXRFeatureSetManager.GetFeatureSetWithId(
-                EditorUserBuildSettings.selectedBuildTargetGroup,
-                k_SpaceWarpFeatureId
-            );
-
-            builder.SetBootConfigBoolean("xr-meta-enabled", spaceWarpFeature is { isEnabled: true });
+            var spaceWarpFeature = OpenXRSettings.ActiveBuildTargetInstance.GetFeature<SpaceWarpFeature>();
+            builder.SetBootConfigBoolean("xr-meta-enabled", spaceWarpFeature != null && spaceWarpFeature.enabled);
         }
     }
 }

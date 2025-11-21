@@ -434,7 +434,7 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 #if UNITY_6000_1_OR_NEWER
                     new ValidationRule(this)
                     {
-                        message = "Multiview Render Regions Optimizations Mode requires symmetric projection setting turned on.",
+                        message = "Multiview Render Regions Optimizations Mode will not result in any performance improvements without symmetric projection turned on.",
                         checkPredicate = () =>
                         {
                             if (m_multiviewRenderRegionsOptimizationMode != OpenXRSettings.MultiviewRenderRegionsOptimizationMode.None)
@@ -449,7 +449,8 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
                             var feature = settings.GetFeature<MetaQuestFeature>();
                             feature.m_symmetricProjection = true;
-                        }
+                        },
+                        fixItMessage = "Enable Symmetric Projection"
                     },
 #endif
                     // In 6000.3.0a5, a change was made to only take advantage of MVPVV on render passes that are marked as MVPVV compatible.

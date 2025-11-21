@@ -216,7 +216,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 Clear();
             }
 
-            if (GUILayout.Button(EditorGUIUtility.IconContent("d_SaveAs")))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("SaveAs"), GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight)))
             {
                 string path = EditorUtility.SaveFilePanel("Save OpenXR Dump", "", state.connectionName, "openxrdump");
                 if (path.Length != 0)
@@ -225,7 +225,7 @@ namespace UnityEditor.XR.OpenXR.Features.RuntimeDebugger
                 }
             }
 
-            if (GUILayout.Button(EditorGUIUtility.IconContent("d_FolderOpened Icon")))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("FolderOpened Icon"), GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight)))
             {
                 string path = EditorUtility.OpenFilePanelWithFilters("Load OpenXR Dump", "", new[] { "OpenXR Dump", "openxrdump" });
                 if (path.Length != 0)

@@ -10,7 +10,7 @@ namespace UnityEngine.XR.OpenXR
     [Serializable]
     class OpenXRApiVersion
     {
-        internal static OpenXRApiVersion Current => new(1, 1, 49);
+        internal static OpenXRApiVersion Current => new(1, 1, 53);
 
         [SerializeField]
         ushort m_major;

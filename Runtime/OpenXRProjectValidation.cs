@@ -422,7 +422,8 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
         }
 
         static IEnumerable<OpenXRFeature> CheckLoadersWithString(IEnumerable<OpenXRFeature> features, string text) =>
-            features.Where(feature => feature.enabled &&
+            features.Where(feature => feature != null &&
+            feature.enabled &&
             !string.IsNullOrWhiteSpace(feature.customRuntimeLoaderName) &&
             feature.customRuntimeLoaderName.Contains(text));
 

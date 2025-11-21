@@ -53,27 +53,35 @@ namespace UnityEditor.XR.OpenXR.Features
         }
 
         /// <summary>
+        /// Returns if a boot.config entry required regardless of whether extension is enabled or not
+        /// </summary>
+        protected internal virtual bool bootConfigEntryRequired => false;
+
+        /// <summary>
         /// Returns the current callback order for build processing.
         /// </summary>
         /// <value>Int value denoting the callback order.</value>
         public abstract int callbackOrder { get; }
 
         /// <summary>
-        /// Pre process build step for checking if a feature is enabled. If so will call to the feature to run their build pre processing.
+        /// Pre-process build step for checking if a feature is enabled. If so will call to the feature to run their build pre-processing.
         /// </summary>
         /// <param name="report">Build report.</param>
         public virtual void OnPreprocessBuild(BuildReport report)
         {
-            if (!IsExtensionEnabled(report.summary.platform, report.summary.platformGroup))
-                return;
+            var isEnabled = IsExtensionEnabled(report.summary.platform, report.summary.platformGroup);
 
-            _bootConfigBuilder.ReadBootConfig(report);
+            if (isEnabled || bootConfigEntryRequired)
+            {
+                _bootConfigBuilder.ReadBootConfig(report);
+                OnProcessBootConfigExt(report, _bootConfigBuilder);
+                _bootConfigBuilder.WriteBootConfig(report);
+            }
 
-            OnProcessBootConfigExt(report, _bootConfigBuilder);
-
-            OnPreprocessBuildExt(report);
-
-            _bootConfigBuilder.WriteBootConfig(report);
+            if (isEnabled)
+            {
+                OnPreprocessBuildExt(report);
+            }
         }
 
         /// <summary>

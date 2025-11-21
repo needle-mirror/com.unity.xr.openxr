@@ -43,7 +43,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 // only update the boot config if the key doesn't currently live in _bootConfigSettings
                 // We may have updated _bootConfigSettings before we've called `ReadBootConfig`. If that is the case,
                 // this value overrides what's in the boot config.
-                if (!_bootConfigSettings.TryGetValue(setting.Key, out var entry))
+                if (!_bootConfigSettings.ContainsKey(setting.Key))
                     _bootConfigSettings[setting.Key] = new SettingEntry { IsDirty = false, Setting = setting.Value };
             }
         }

@@ -193,8 +193,9 @@ namespace UnityEngine.XR.OpenXR.Input
         {
             var actionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
             var additiveActionMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+            var enabledInteractionFeatures = OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled);
 
-            foreach (var interactionFeature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled && !f.IsAdditive))
+            foreach (var interactionFeature in enabledInteractionFeatures.Where(f => !f.IsAdditive))
             {
                 var start = actionMaps.Count;
                 interactionFeature.CreateActionMaps(actionMaps);
@@ -207,7 +208,7 @@ namespace UnityEngine.XR.OpenXR.Input
             if (!RegisterDevices(actionMaps, false))
                 return;
 
-            foreach (var feature in OpenXRSettings.Instance.features.OfType<OpenXRInteractionFeature>().Where(f => f.enabled && f.IsAdditive))
+            foreach (var feature in enabledInteractionFeatures.Where(f => f.IsAdditive))
             {
                 //Create action maps for additive profiles and add extra actions to non-additive profiles.
                 feature.CreateActionMaps(additiveActionMaps);

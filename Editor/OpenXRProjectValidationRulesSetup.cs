@@ -14,6 +14,7 @@ using UnityEngine.XR.OpenXR.Features;
 using Unity.XR.CoreUtils.Editor;
 using UnityEditor.XR.Management;
 using UnityEngine.XR.Management;
+using UnityEngine;
 
 
 [assembly: InternalsVisibleTo("UnityEditor.XR.OpenXR.Tests")]
@@ -202,12 +203,16 @@ namespace UnityEditor.XR.OpenXR
     internal class OpenXRProjectValidationBuildStep : IPreprocessBuildWithReport
     {
         [OnOpenAsset(0)]
-        static bool ConsoleErrorDoubleClicked(int instanceId, int line)
+#if UNITY_6000_4_OR_NEWER
+        static bool ConsoleErrorDoubleClicked(EntityId id, int line)
+#else
+        static bool ConsoleErrorDoubleClicked(int id, int line)
+#endif
         {
 #if UNITY_6000_3_OR_NEWER
-            var objName = EditorUtility.EntityIdToObject(instanceId).name;
+            var objName = EditorUtility.EntityIdToObject(id).name;
 #else
-            var objName = EditorUtility.InstanceIDToObject(instanceId).name;
+            var objName = EditorUtility.InstanceIDToObject(id).name;
 #endif
             if (objName == "OpenXRProjectValidation")
             {

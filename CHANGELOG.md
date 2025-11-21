@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.16.1] - 2025-11-21
+
+### Changed
+
+* Changed wording of validation rule that checks for symmetric projection when using the Multiview Render Regions Optimizations Mode.
+* Changed OpenXR loader version to 1.1.53.
+* Changed the visibility mask to not create an occlusion mesh when using a 2022.3 editor to reduce memory footprint.
+
+### Removed
+
+* Removed an unit test `PluginVersion` which was used internally to validate package version.
+
+### Fixed
+
+ * Fixed the OpenXR test "DuplicateSettingAssetTest" to communicate with asset database when swapping asset files.
+ * Fixed an issue in OpenXR Runtime Debugger window to show correctly sized buttons. ([OXRB-682](https://issuetracker.unity3d.com/issues/folder-button-in-openxr-runtime-debugger-window-is-oversized))
+ * Fixed a dependency issue by including AndroidJNI as a dependency. ([OXRB-696](https://jira.unity3d.com/browse/OXRB-696))
+ * Fixed a crash when using eye tracked foveated rendering and sleeping/waking device by making sure primary swapchain reference was reset before applying foveation profile.
+ * Fixed unreliable writing of `xr-meta-enabled` to boot.config by ensuring it is always set based on the actual feature state.
+ * Fixed Bluetooth permissions being removed when building apps using the Meta Quest Feature. The permissions are now kept when required by Unity APIs or a plugin's manifest. For more information on Android permissions in Unity, refer to [Android App Manifest](https://docs.unity3d.com/6000.2/Documentation/Manual/android-manifest.html).
+ * Fixed issue where project settings window would fail to render if an OpenXR Feature was removed while the editor was running. ([OXRB-715](https://jira.unity3d.com/browse/OXRB-715))
+ * Fixed an error in Project Validation related to EntityId's in Unity 6000.4+.
+
 ## [1.16.0] - 2025-10-15
 
 ### Added

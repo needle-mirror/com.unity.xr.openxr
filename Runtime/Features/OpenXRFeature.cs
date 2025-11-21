@@ -71,6 +71,10 @@ namespace UnityEngine.XR.OpenXR.Features
 
                 m_enabled = value;
 
+#if UNITY_EDITOR
+                EditorUtility.SetDirty(this);
+#endif //UNITY_EDITOR
+
                 OnEnabledChange();
             }
         }

@@ -44,17 +44,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 #if XR_MGMT_4_4_0_OR_NEWER
         protected override ManifestRequirement ProvideManifestRequirementExt()
         {
-            var elementsToRemove = new List<ManifestElement>()
-            {
-                new ManifestElement()
-                {
-                    ElementPath = new List<string> { "manifest", "uses-permission" },
-                    Attributes = new Dictionary<string, string>
-                    {
-                        { "name", "android.permission.BLUETOOTH" }
-                    }
-                }
-            };
+            var elementsToRemove = new List<ManifestElement>();
 
             if (ForceRemoveInternetPermission())
             {

@@ -238,7 +238,7 @@ class zBuildSamplesYamatoOnly
                 EnableQuestFeature();
                 EnableAndroidProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
 #if UNITY_2023_1_OR_NEWER
                 PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
                 PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
@@ -262,7 +262,7 @@ class zBuildSamplesYamatoOnly
                 EnableAndroidProfiles();
                 PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
                 WriteAndroidInstallerScripts(outputFile, identifier);
@@ -281,7 +281,7 @@ class zBuildSamplesYamatoOnly
                 EnableQuestFeature();
                 EnableAndroidProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
                 PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
                 WriteAndroidInstallerScripts(outputFile, identifier);
