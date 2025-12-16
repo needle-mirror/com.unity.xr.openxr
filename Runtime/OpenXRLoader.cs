@@ -490,7 +490,9 @@ namespace UnityEngine.XR.OpenXR
                 if (unhandledExceptionHandler != null)
                 {
                     AppDomain currentDomain = AppDomain.CurrentDomain;
+#pragma warning disable UAC0006
                     currentDomain.UnhandledException -= unhandledExceptionHandler;
+#pragma warning restore UAC0006
                     unhandledExceptionHandler = null;
                 }
 
@@ -752,12 +754,16 @@ namespace UnityEngine.XR.OpenXR
 
             if (unhandledExceptionHandler != null)
             {
+#pragma warning disable UAC0006
                 currentDomain.UnhandledException -= unhandledExceptionHandler;
+#pragma warning restore UAC0006
                 unhandledExceptionHandler = null;
             }
 
             unhandledExceptionHandler = ExceptionHandler;
+#pragma warning disable UAC0006
             currentDomain.UnhandledException += unhandledExceptionHandler;
+#pragma warning restore UAC0006
 
             // If the loader is already initialized then this is likely due to a domain
             // reload so we need patch u the running instance reference.

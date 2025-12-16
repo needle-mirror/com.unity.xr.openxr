@@ -263,6 +263,7 @@ namespace UnityEditor.XR.OpenXR
                 error = false,
                 errorEnteringPlaymode = false,
             },
+#if !UNITY_6000_4_OR_NEWER
             new()
             {
                 message = "[Optional] Soft shadows can negatively impact performance on HoloLens, disabling soft shadows is recommended",
@@ -275,6 +276,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 error = false,
                 buildTargetGroup = BuildTargetGroup.WSA
             },
+#endif
 #if XR_COMPOSITION_LAYERS
             new()
             {
@@ -486,7 +488,8 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
             issues.Clear();
             foreach (var validation in CachedValidationList)
             {
-                if (!validation.checkPredicate?.Invoke() ?? false)
+                bool featureEnabled = validation.feature != null && validation.feature.enabled;
+                if (featureEnabled && (!validation.checkPredicate?.Invoke() ?? false))
                 {
                     issues.Add(validation);
                 }

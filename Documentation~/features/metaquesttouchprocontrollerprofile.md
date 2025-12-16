@@ -46,3 +46,7 @@ The following table outlines the mapping between the OpenXR paths and Unity's im
 | Unity Layout Only  | deviceRotation | Quaternion |
 
 [!include[](snippets/unity-layout.md)]
+
+## Additional resources
+
+* [Meta Quest Touch Pro controller](https://www.meta.com/help/quest/667591367977925/)

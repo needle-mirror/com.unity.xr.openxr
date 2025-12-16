@@ -1,4 +1,7 @@
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using UnityEngine.XR;
+using UnityEngine;
 
 namespace UnityEngine.XR.OpenXR
 {
@@ -51,6 +54,17 @@ namespace UnityEngine.XR.OpenXR
         /// See <a href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XR_EXT_user_presence">XR_EXT_user_presence.</a> for reference.
         /// </summary>
         public static bool IsUserPresent => Internal_GetUserPresence();
+
+        static readonly List<XRDisplaySubsystem> s_DisplaySubsystems = new List<XRDisplaySubsystem>();
+
+        internal static XRDisplaySubsystem GetFirstDisplaySubsystem()
+        {
+            SubsystemManager.GetSubsystems(s_DisplaySubsystems);
+            if (s_DisplaySubsystems.Count == 0)
+                return null;
+
+            return s_DisplaySubsystems[0];
+        }
 
         const string LibraryName = "UnityOpenXR";
 

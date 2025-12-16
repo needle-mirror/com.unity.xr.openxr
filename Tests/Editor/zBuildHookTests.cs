@@ -72,7 +72,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
-        [Ignore("This test is ignored temporarily because it is failed on U6.5.")]
+        [Timeout(400000)]
         public void NoBuildCallbacksFeatureDisabled()
         {
             bool preprocessCalled = false;

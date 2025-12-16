@@ -16,3 +16,6 @@ The following table outlines the mapping between the OpenXR paths and Unity's im
 | OpenXR Path | Unity Control Name | Type |
 |----|----|----|
 | `/input/palm_ext/pose` | palmPose | Pose |
+
+> [!NOTE]
+> OpenXR 1.1 introduced a standardized grip surface pose path at /input/grip_surface/pose. Palm Pose bindings use /input/grip_surface/pose when the runtime reports API version 1.1 or newer, and fall back to /input/palm_ext/pose on older runtimes. If you see only /input/palm_ext/pose in tooling or logs, you are likely running on an OpenXR runtime earlier than 1.1. This feature automatically selects the appropriate path at runtime based on the OpenXR API version.

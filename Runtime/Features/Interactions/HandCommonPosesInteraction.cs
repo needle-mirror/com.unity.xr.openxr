@@ -40,9 +40,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string featureId = "com.unity.openxr.feature.input.handinteractionposes";
 
         /// <summary>
-        /// A flag to mark this hand interaction feature is potentially additive.
+        /// A flag to mark that this hand interaction feature is additive.
         /// </summary>
-        internal override bool IsAdditive => true;
+        protected internal override bool IsAdditive => true;
 
         /// <summary>
         ///  An interaction feature that supports commonly used hand poses for hand interactions across motion controller and hand tracking devices.
@@ -308,8 +308,15 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             AddActionMap(actionMap);
         }
 
-        //Process additive actions: add additional supported additive actions to existing controller or hand interaction profiles
-        internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        /// <summary>
+        /// Adds common hand pose actions grip pose, aim poise, poke pose and pinch pose to existing enabled hand profiles when this feature is enabled.
+        /// </summary>
+        /// <remarks>
+        /// When this profile is enabled in the OpenXR settings, this function is called automatically during feature initialization.
+        /// </remarks>
+        /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
+        /// <param name="additiveMap">Hand Common Poses interaction feature's additive map containing the extra Hand Common Poses bindings to append.</param>
+        protected internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
             foreach (var actionMap in actionMaps)
             {

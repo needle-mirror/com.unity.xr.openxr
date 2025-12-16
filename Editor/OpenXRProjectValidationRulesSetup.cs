@@ -121,10 +121,11 @@ namespace UnityEditor.XR.OpenXR
                 if (!isOpenXRSupportedPlatform)
                     continue;
 
-                var coreIssues = new List<BuildValidationRule>()
+                var coreIssues = new List<BuildValidationRule>();
+                if (buildTargetGroup == BuildTargetGroup.Android)
                 {
-                    VulkanOffscreenSwapchainAndroidValidationRule()
-                };
+                    coreIssues.Add(VulkanOffscreenSwapchainAndroidValidationRule());
+                }
                 var issues = new List<OpenXRFeature.ValidationRule>();
                 OpenXRProjectValidation.GetAllValidationIssues(issues, buildTargetGroup);
 
@@ -139,7 +140,7 @@ namespace UnityEditor.XR.OpenXR
 
         static BuildValidationRule VulkanOffscreenSwapchainAndroidValidationRule()
         {
-            // validation rule to inform user that main display will be disabled on all platofmr when
+            // Validation rule to inform user that main display will be disabled on all platforms when the
             // OpenXREditorSettings.VulkanOffscreenSwapchainNoMainDisplay setting is enabled.
             return new BuildValidationRule
             {
@@ -159,7 +160,7 @@ namespace UnityEditor.XR.OpenXR
                     if (generalSettings.Manager == null)
                         return true;
 
-                    // check whether any other Android loader are enabled besides OpenXR
+                    // Check whether any other Android loader is enabled besides OpenXR
                     return generalSettings.Manager.activeLoaders.Count == 1;
                 },
                 FixItMessage = $"Disables the Offscreen Rendering Only (Vulkan) setting in Project Settings > XR Plug-in Management > OpenXR.",

@@ -218,7 +218,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         public const string pinch = "/input/pinch_ext/pose";
         /// <summary>
-        /// Constant for a float interaction binding '.../input/pinch_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
+        /// Constant for a float or boolean interaction binding '.../input/pinch_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string pinchValue = "/input/pinch_ext/value";
         /// <summary>
@@ -226,7 +226,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         public const string pinchReady = "/input/pinch_ext/ready_ext";
         /// <summary>
-        /// Constant for a float interaction binding '.../input/aim_activate_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
+        /// Constant for a float or boolean interaction binding '.../input/aim_activate_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string pointerActivateValue = "/input/aim_activate_ext/value";
         /// <summary>
@@ -234,7 +234,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         public const string pointerActivateReady = "/input/aim_activate_ext/ready_ext";
         /// <summary>
-        /// Constant for a float interaction binding '.../input/grasp_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
+        /// Constant for a float or boolean interaction binding '.../input/grasp_ext/value' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string graspValue = "/input/grasp_ext/value";
         /// <summary>

@@ -6,10 +6,13 @@ using System.Runtime.InteropServices;
 using NUnit.Framework;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
+using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.Diagnostics;
+using System.Reflection;
+using UnityEngine.XR.OpenXR.Features.Interactions;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -1770,6 +1773,72 @@ namespace UnityEngine.XR.OpenXR.Tests
             // {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state", "XR_FB_foveation_vulkan"}, CreateOculusFoveationExtension, kBuiltinExtensionEnableType_EnabledExternally_NoOverride}
             // XR_FB_swapchain_update_state is not available, but enabled externally. XR_FB_foveation_vulkan is not availble.
             Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_vulkan"), "XR_FB_foveation_vulkan extension should be EnabledExternally_NoOverride.");
+        }
+
+        [UnityTest]
+        public IEnumerator AdditiveFeatureMergesAndCreatesActions()
+        {
+            try
+            {
+                //Initialize mockadditivefeature
+                var feature = EnableFeature<MockAdditiveFeature>();
+                var touchpro = EnableFeature<MetaQuestTouchProControllerProfile>();
+
+                Assert.IsNotNull(feature, "Feature should exist");
+                Assert.IsTrue(feature.IsAdditive, "Feature should be additive");
+
+                InitializeAndStart();
+                yield return new WaitForXrFrame(1);
+
+                // m_AdditiveMap should exist now that we registered the map
+                Assert.IsNotNull(feature.m_AdditiveMap, "Additive map for feature must be constructed");
+
+                // Check correct map name and target profile
+                Assert.AreEqual("mock_partner_additive_map", feature.m_AdditiveMap.name);
+                Assert.AreEqual(MockAdditiveFeature.targetProfile, feature.m_AdditiveMap.desiredInteractionProfile);
+
+                // Check that actions were added
+                Assert.IsTrue(feature.m_AdditiveMap.actions.Count > 0, "At least one action should be added to feature");
+
+                // Get the binding paths to make sure that the actions were added to our newly created interaction profile
+                var allPaths = new List<string>();
+                foreach (var action in feature.m_AdditiveMap.actions)
+                {
+                    if (action.bindings != null)
+                    {
+                        foreach (var binding in action.bindings)
+                        {
+                            if (!string.IsNullOrEmpty(binding.interactionPath))
+                                allPaths.Add(binding.interactionPath);
+                        }
+                    }
+                }
+
+                Assert.IsTrue(allPaths.Contains(MockAdditiveFeature.mockThumbPosePath), "Expected thumb pose path not found");
+                Assert.IsTrue(allPaths.Contains(MockAdditiveFeature.mockAuxButtonPath), "Expected aux click path not found");
+
+                // Verify MergeDetails captured an entry for the Quest Pro profile (target of the merge)
+                const string touchProProfile = "/interaction_profiles/facebook/touch_controller_pro";
+
+                var mergedForTouchPro = MockAdditiveFeature.MergeDetails.FirstOrDefault(m => m.profile == touchProProfile);
+                Assert.IsNotNull(mergedForTouchPro.profile, $"Profile '{touchProProfile}' not found in MergeDetails (additive merge did not occur)");
+
+                // Check that both actions are present and marked additive in the merged details
+                var mergedActions = mergedForTouchPro.Item2;
+                Assert.IsNotNull(mergedActions, "Merged actions list for Touch Pro should not be null");
+
+                var thumbPose = mergedActions.FirstOrDefault(a => a.name == "thumbpose");
+                Assert.IsTrue(thumbPose.isAdditive, "'thumbpose' should be marked additive");
+                Assert.Contains(MockAdditiveFeature.mockThumbPosePath, thumbPose.bindPaths, "'thumbpose' does not contain the expected binding path");
+
+                var auxClick = mergedActions.FirstOrDefault(a => a.name == "auxclick");
+                Assert.IsTrue(auxClick.isAdditive, "'auxclick' should be marked additive");
+                Assert.Contains(MockAdditiveFeature.mockAuxButtonPath, auxClick.bindPaths, "'auxclick' does not contain the expected binding path");
+            }
+            finally
+            {
+                MockAdditiveFeature.MergeDetails.Clear();
+            }
         }
     }
 }

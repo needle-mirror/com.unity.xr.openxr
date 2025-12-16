@@ -242,6 +242,10 @@ namespace UnityEditor.XR.OpenXR.Features
         IssueType GetValidationIssueType(OpenXRFeature feature)
         {
             IssueType ret = IssueType.None;
+            if (!feature.enabled)
+            {
+                return ret;
+            }
 
             foreach (var issue in _issues)
             {

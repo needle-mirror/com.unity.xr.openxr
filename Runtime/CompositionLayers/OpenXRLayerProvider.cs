@@ -1,9 +1,8 @@
 #if XR_COMPOSITION_LAYERS
 using System;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using Unity.Profiling;
-using Unity.XR.CompositionLayers.Extensions;
+using Unity.XR.CompositionLayers;
 using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Provider;
 using Unity.XR.CompositionLayers.Services;
@@ -21,6 +20,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     /// </remarks>
     public class OpenXRLayerProvider : ILayerProvider, IDisposable
     {
+        // Start with a reasonable capacity that should handle *most* cases.  if someone has more layers
+        // then the list will grow accordingly.
+        readonly List<CompositionLayerManager.LayerInfo> m_LastKnownActiveLayers = new (16);
+
         /// <summary>
         /// An interface used by the <see cref="OpenXRLayerProvider"/> to communicate layer data changes to
         /// registered layer handlers.
@@ -205,8 +208,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (modifiedLayers != null && modifiedLayers.Count != 0)
             {
-                 foreach (var modified in modifiedLayers)
-                 {
+                foreach (var modified in modifiedLayers)
+                {
                     if (modified.Layer == null)
                         continue;
 
@@ -221,6 +224,46 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 }
             }
 
+            var wasKnownListEmpty = m_LastKnownActiveLayers.Count == 0;
+
+            m_LastKnownActiveLayers.Clear();
+            if (activeLayers != null && activeLayers.Count != 0)
+                m_LastKnownActiveLayers.AddRange(activeLayers);
+
+            var isKnownListEmpty = m_LastKnownActiveLayers.Count == 0;
+
+            if (wasKnownListEmpty && !isKnownListEmpty)
+            {
+                // if we have active layers, and we did not before, we will add our callback to the
+                // application's onBeforeRender callback list so that we refresh the active layers
+                // as late as possible prior to the rendering of the layers.
+                Application.onBeforeRender += HandleBeforeRender;
+            }
+            else if (!wasKnownListEmpty && isKnownListEmpty)
+            {
+                // if we no longer have active layers, and we did before, we will remove our callback from the
+                // application's onBeforeRender callback list so that we do not incur unnecessary overhead
+                // in the execution of the frame since no layers are being rendered.
+                Application.onBeforeRender -= HandleBeforeRender;
+            }
+
+            // in the case where we have an empty "known active list" then we will be sure to allow
+            // handlers to get the "OnUpdate()" called from here, since they will *not* be called in the
+            // Application.onBeforeRender callback.
+            if (isKnownListEmpty)
+            {
+                IssueHandlerUpdates();
+            }
+        }
+
+        void HandleBeforeRender()
+        {
+            SetActiveLayersForHandlers(m_LastKnownActiveLayers);
+            IssueHandlerUpdates();
+        }
+
+        void SetActiveLayersForHandlers(List<CompositionLayerManager.LayerInfo> activeLayers)
+        {
             if (activeLayers != null && activeLayers.Count != 0)
             {
                 foreach (var active in activeLayers)
@@ -237,7 +280,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     }
                 }
             }
+        }
 
+        void IssueHandlerUpdates()
+        {
             foreach (var handler in LayerHandlers.Values)
             {
                 s_OpenXRLayerProviderUpdate.Begin();

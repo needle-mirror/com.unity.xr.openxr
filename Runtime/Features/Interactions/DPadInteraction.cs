@@ -34,9 +34,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string featureId = "com.unity.openxr.feature.input.dpadinteraction";
 
         /// <summary>
-        /// A flag to mark this DPad feature is additive.
+        /// A flag to mark that this DPad feature is additive.
         /// </summary>
-        internal override bool IsAdditive => true;
+        protected internal override bool IsAdditive => true;
 
         /// <summary>
         ///  a number in the half-open range (0, 1] representing the force value threshold at or above which ≥ a dpad input will transition from inactive to active.
@@ -478,8 +478,15 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             AddActionMap(actionMap);
         }
 
-        //Process additive actions: add additional supported additive actions to the existing controller profiles
-        internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        /// <summary>
+        /// Adds DPad binding actions to enabled left/right hand controller action maps that include a thumbstick or trackpad.
+        /// </summary>
+        /// <remarks>
+        /// When this profile is enabled in the OpenXR settings, this function is called automatically during feature initialization.
+        /// </remarks>
+        /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
+        /// <param name="additiveMap">DPad interaction feature's additive map containing the extra DPad bindings to append.</param>
+        protected internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
             foreach (var actionMap in actionMaps)
             {

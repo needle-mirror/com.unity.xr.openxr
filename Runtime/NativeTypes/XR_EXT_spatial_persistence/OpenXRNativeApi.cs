@@ -85,6 +85,43 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             in XrSpatialPersistenceContextCreateInfoEXT createInfo, out XrFutureEXT future);
 
         /// <summary>
+        /// Creates a persistence context scoped to the current session.
+        /// </summary>
+        /// <param name="persistenceScope">The scope to use for the persistence context.</param>
+        /// <param name="future">The output future.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// `nativeStatusCode` success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// `nativeStatusCode` failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.LimitReached"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialPersistenceScopeUnsupportedEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        /// </remarks>
+        public static OpenXRResultStatus xrCreateSpatialPersistenceContextAsyncEXT(
+            XrSpatialPersistenceScopeEXT persistenceScope, out XrFutureEXT future)
+        {
+            var createInfo = new XrSpatialPersistenceContextCreateInfoEXT(persistenceScope);
+            return xrCreateSpatialPersistenceContextAsyncEXT(createInfo, out future);
+        }
+
+        /// <summary>
         /// Enumerates the types of persistence scopes that are supported by the given OpenXR instance and system ID.
         /// </summary>
         /// <param name="instance">The OpenXR instance.</param>

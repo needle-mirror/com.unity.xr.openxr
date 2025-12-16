@@ -10,6 +10,8 @@ The Mock OpenXR Environment supports Standalone (Windows and MacOS) and Android.
 > [!IMPORTANT]
 > The  Mock OpenXR Environment feature cannot be used as an interactive replacement for a physical XR device for prototyping and Play mode testing. For these cases, its recommended to use a plugin such as [Unity MockHMD](https://docs.unity3d.com/Packages/com.unity.xr.mock-hmd@1.4/manual/index.html), [Meta XR Simulator](https://developers.meta.com/horizon/documentation/unity/xrsim-intro/) or [Android XR Emulator](https://developer.android.com/develop/xr/jetpack-xr-sdk/studio-tools).
 
+The OpenXR plugin provides a sample test suite that can be used to learn the concepts introduced by the Mock OpenXR Environment API. You can also use it as a starting point for building tests that fit your needs. Please refer to the page [Mock Runtime Test Suite Sample](samples/mock-runtime-tests-sample.md) for more information.
+
 ## Initial setup and execution of a test case
 
 Before using the Mock OpenXR Environment in your tests, you need to set up your project's test assembly to reference the Mock OpenXR Environment assembly. In your test folder's Assembly Definition, add a reference to the `Unity.XR.OpenXR.TestTooling` assembly.

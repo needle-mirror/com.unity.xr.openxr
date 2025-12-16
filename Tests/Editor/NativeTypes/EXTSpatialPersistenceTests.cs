@@ -49,6 +49,21 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrCreateSpatialPersistenceContextAsyncEXT_ConvenienceOverload_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrCreateSpatialPersistenceContextAsyncEXT",
+                EXTSpatialPersistenceMocks.xrCreateSpatialPersistenceContextAsyncEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrCreateSpatialPersistenceContextAsyncEXT(
+                XrSpatialPersistenceScopeEXT.SystemManaged, out var future);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(123456, future);
+        }
+
+        [Test]
         public unsafe void xrEnumerateSpatialPersistenceScopesEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

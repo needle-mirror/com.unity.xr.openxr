@@ -486,7 +486,7 @@ namespace UnityEngine.XR.OpenXR.Features
                 .ThenBy(f => f.nameUi);
             foreach (var feature in features)
             {
-                if (feature != null && feature.enabled)
+                if (feature != null)
                     feature.GetValidationChecks(rules, targetGroup);
             }
         }

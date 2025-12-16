@@ -46,16 +46,25 @@ namespace UnityEditor.XR.OpenXR.Samples.MeshingFeature
             FeatureHelpers.RefreshFeatures(BuildTargetGroup.Android);
 
             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Standalone);
-            foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
-                feature.enabled = true;
+            if (settings != null)
+            {
+                foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
+                    feature.enabled = true;
+            }
 
             settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.WSA);
-            foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
-                feature.enabled = true;
+            if (settings != null)
+            {
+                foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
+                    feature.enabled = true;
+            }
 
             settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
-            foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
-                feature.enabled = true;
+            if (settings != null)
+            {
+                foreach (var feature in settings.GetFeatures<MeshingTeapotFeature>())
+                    feature.enabled = true;
+            }
 
             // Find the subsystem manifest to figure out where the sample was installed
             var source = AssetDatabase

@@ -25,7 +25,10 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Flag that indicates this feature or profile is additive and its binding paths will be added to other non-additive profiles if enabled.
         /// </summary>
-        internal virtual bool IsAdditive => false;
+        /// <value>
+        /// Set to <c>true</c> if the actions in the profile can be added to other enabled interaction profiles. Defaults to <c>false</c>.
+        /// </value>
+        protected internal virtual bool IsAdditive => false;
 
         /// <summary>
         /// The underlying type of an OpenXR action. This enumeration contains all supported control types within OpenXR. This is used when declaring actions in OpenXR with XrAction/>.
@@ -260,7 +263,35 @@ namespace UnityEngine.XR.OpenXR.Features
             m_CreatedActionMaps.Add(map);
         }
 
-        internal virtual void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        /// <summary>
+        /// Override this method to augment other enabled interaction profiles with the additive action bindings provided by this interaction feature.
+        /// </summary>
+        /// <remarks>
+        /// The stock interaction profiles provide a complete set of actions and bindings
+        /// for different types of input. They are typically the primary profile for a device
+        /// (for example, the Oculus Touch Controller Profile for the Quest 2 and the Meta Quest
+        /// Touch Pro Controller Profile for the Quest Pro). At runtime, the device runtime chooses
+        /// its preferred profile from those enabled in the Unity project. By default, only the actions
+        /// and bindings defined in the active, chosen profile are available to the app.
+        ///
+        /// When creating an OpenXR interaction feature to define an interaction profile,
+        /// you can designate specific bindings as "additive". Additive bindings are inserted into the
+        /// action maps of other enabled profiles during the OpenXR feature initialization and
+        /// become available to the app. For example, the [D-Pad Binding](xref:openxr-dpad-interaction)
+        /// feature makes thumbstick and trackpad bindings available if the active profile doesn't
+        /// already contain them.
+        ///
+        /// To enable additve action bindings, your OpenXR interaction feature must:
+        ///
+        /// - Define an action map with one or more actions marked as `isAdditive`.
+        /// (Refer to <see cref="ActionConfig.isAdditive"/> for more information.)
+        /// - Override this `AddAdditiveActions()` function to add the additive actions to each of the
+        /// maps in the <paramref name="actionMaps"/> parameter.
+        /// [!code-csharp[AdditiveFeatureSample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/AdditiveFeatureSample.cs#AdditiveFeatureSample)]
+        /// </remarks>
+        /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
+        /// <param name="additiveMap">The action map defined by an additive feature that contains extra actions/binding paths intended to be appended to existing non additive interaction profiles.</param>
+        protected internal virtual void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
         }
 

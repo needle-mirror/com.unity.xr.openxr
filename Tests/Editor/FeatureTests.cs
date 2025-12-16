@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
+using UnityEngine;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Features.Mock;
@@ -37,51 +38,64 @@ namespace UnityEditor.XR.OpenXR.Tests
             Assert.AreEqual(mockExtInfo.Attribute.OpenxrExtensionStrings, mockExtInfo.Feature.openxrExtensionStrings);
         }
 
+        class TestFeature : OpenXRFeature
+        {
+
+        }
+
         [Test]
         public void ValidationError()
         {
             bool errorFixed = false;
+            var feature = ScriptableObject.CreateInstance<TestFeature>();
 
-            // Set up a validation check ...
-            MockRuntime.Instance.TestCallback = (s, o) =>
+            // Wait one frame to safely enable the TestFeature scriptable object.
+            EditorApplication.delayCall += () =>
             {
-                if (s == "GetValidationChecks")
+                // Set up a validation check ...
+                MockRuntime.Instance.TestCallback = (s, o) =>
                 {
-                    var validationChecks = o as List<OpenXRFeature.ValidationRule>;
-                    validationChecks?.Add(new OpenXRFeature.ValidationRule
+                    if (s == "GetValidationChecks")
                     {
-                        message = "Mock Validation Fail",
-                        checkPredicate = () => errorFixed,
-                        fixIt = () => errorFixed = true,
-                        error = true
-                    });
-                }
+                        feature.enabled = true;
+                        var validationChecks = o as List<OpenXRFeature.ValidationRule>;
+                        validationChecks?.Add(new OpenXRFeature.ValidationRule
+                        {
+                            feature = feature,
+                            message = "Mock Validation Fail",
+                            checkPredicate = () => errorFixed,
+                            fixIt = () => errorFixed = true,
+                            error = true
+                        });
+                    }
 
-                return true;
+                    return true;
+                };
+
+                // Try to build the player ...
+                var report = zBuildHookTests.BuildMockPlayer();
+
+                // It will fail because of the above validation issue ...
+                Assert.AreEqual(BuildResult.Failed, report.summary.result);
+
+                // There's one validation issue ...
+                var validationIssues = new List<OpenXRFeature.ValidationRule>();
+                OpenXRProjectValidation.GetCurrentValidationIssues(validationIssues, BuildTargetGroup.Standalone);
+                Assert.AreEqual(1, validationIssues.Count);
+
+                // Fix it ...
+                Assert.IsFalse(errorFixed);
+                validationIssues[0].fixIt.Invoke();
+                Assert.IsTrue(errorFixed);
+
+                // Now there's zero validation issues ...
+                OpenXRProjectValidation.GetCurrentValidationIssues(validationIssues, BuildTargetGroup.Standalone);
+                Assert.AreEqual(0, validationIssues.Count);
+
+                // Close the validation window ...
+                OpenXRProjectValidationRulesSetup.CloseWindow();
             };
 
-            // Try to build the player ...
-            var report = zBuildHookTests.BuildMockPlayer();
-
-            // It will fail because of the above validation issue ...
-            Assert.AreEqual(BuildResult.Failed, report.summary.result);
-
-            // There's one validation issue ...
-            var validationIssues = new List<OpenXRFeature.ValidationRule>();
-            OpenXRProjectValidation.GetCurrentValidationIssues(validationIssues, BuildTargetGroup.Standalone);
-            Assert.AreEqual(1, validationIssues.Count);
-
-            // Fix it ...
-            Assert.IsFalse(errorFixed);
-            validationIssues[0].fixIt.Invoke();
-            Assert.IsTrue(errorFixed);
-
-            // Now there's zero validation issues ...
-            OpenXRProjectValidation.GetCurrentValidationIssues(validationIssues, BuildTargetGroup.Standalone);
-            Assert.AreEqual(0, validationIssues.Count);
-
-            // Close the validation window ...
-            OpenXRProjectValidationRulesSetup.CloseWindow();
         }
 
         [Test]

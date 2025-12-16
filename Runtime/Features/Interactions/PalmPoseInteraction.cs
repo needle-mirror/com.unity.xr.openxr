@@ -42,7 +42,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// <summary>
         /// A flag to mark this Palm Pose feature is additive.
         /// </summary>
-        internal override bool IsAdditive => true;
+        protected internal override bool IsAdditive => true;
 
         /// <summary>
         /// Palm Pose interaction feature supports an input patch for the palm pose.
@@ -275,10 +275,16 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
 
             return pairingActionBinding;
         }
+
         /// <summary>
-        /// Process additive actions: add additional supported additive actions to existing controller profiles
+        /// Adds Palm Pose binding actions grip surface pose and palm pose to enabled left/right hand controller action maps.
         /// </summary>
-        internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        /// <remarks>
+        /// When this profile is enabled in the OpenXR settings, this function is called automatically during feature initialization.
+        /// </remarks>
+        /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
+        /// <param name="additiveMap">Palm pose interaction feature's additive map containing the extra Palm Pose bindings to append.</param>
+        protected internal override void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
             foreach (var actionMap in actionMaps)
             {

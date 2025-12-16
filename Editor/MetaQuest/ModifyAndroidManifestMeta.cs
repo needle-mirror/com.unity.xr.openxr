@@ -213,7 +213,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             {
                 for (int i = 0; i < openXREyeTrackingExtensionStrings.Length; i++)
                 {
-                    if (feature.enabled && feature.openxrExtensionStrings.Contains(openXREyeTrackingExtensionStrings[i], StringComparison.InvariantCulture))
+                    if (feature.enabled && !string.IsNullOrEmpty(feature.openxrExtensionStrings) && feature.openxrExtensionStrings.Contains(openXREyeTrackingExtensionStrings[i], StringComparison.InvariantCulture))
                     {
                         return true;
                     }

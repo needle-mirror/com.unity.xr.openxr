@@ -8,7 +8,7 @@ namespace UnityEngine.XR.OpenXR
     /// regarding number size.
     /// </summary>
     [Serializable]
-    class OpenXRApiVersion
+    class OpenXRApiVersion : IComparable<OpenXRApiVersion>, IEquatable<OpenXRApiVersion>
     {
         internal static OpenXRApiVersion Current => new(1, 1, 53);
 
@@ -128,5 +128,19 @@ namespace UnityEngine.XR.OpenXR
         {
             return $"{m_major}.{m_minor}.{m_patch}";
         }
+
+        public int CompareTo(OpenXRApiVersion other)
+        {
+            if (other is null)
+                return 1;
+
+            // ushort.CompareTo returns relative difference (a - b),
+            // but for version comparison we just want the result to be -1, 0 or 1
+            if (m_major != other.m_major) return Math.Sign(m_major.CompareTo(other.m_major));
+            if (m_minor != other.m_minor) return Math.Sign(m_minor.CompareTo(other.m_minor));
+            return m_patch.CompareTo(other.m_patch);
+        }
+
+        public bool Equals(OpenXRApiVersion other) => this == other;
     }
 }

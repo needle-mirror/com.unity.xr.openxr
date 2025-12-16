@@ -573,6 +573,41 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SpaceCloudStorageDisabledFB = -1000169004,
 
         /// <summary>
+        /// Resource limitation prevented this operation from executing. Recommend retrying, perhaps after a short delay and/or reducing memory consumption. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceInsufficientResourcesMeta = -1000259000,
+
+        /// <summary>
+        /// Operation could not be completed until resources used are reduced or storage expanded. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceStorageAtCapacityMeta = -1000259001,
+
+        /// <summary>
+        /// Look around the environment more for space tracking to function. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceInsufficientViewMeta = -1000259002,
+
+        /// <summary>
+        /// Space operation permission insufficient. Recommend confirming the status of the required permissions needed for using Space APIs. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpacePermissionInsufficientMeta = -1000259003,
+
+        /// <summary>
+        /// Operation cancelled due to rate limiting. Recommend retrying after a short delay. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceRateLimitedMeta = -1000259004,
+
+        /// <summary>
+        /// Environment too dark for tracking to complete operation. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceTooDarkMeta = -1000259005,
+
+        /// <summary>
+        /// Environment too bright for tracking to complete operation. (Added by the XR_META_spatial_entity_persistence extension)
+        /// </summary>
+        SpaceTooBrightMeta = -1000259006,
+
+        /// <summary>
         /// The provided data buffer did not match the required size. (Added by the `XR_META_passthrough_color_lut` extension)
         /// </summary>
         PassthroughColorLutBufferSizeMismatchMETA = -1000266000,
@@ -673,6 +708,41 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         PlaneDetectionPermissionDeniedEXT = -1000429001,
 
         /// <summary>
+        /// Indicates that the parameters contains multiple trackable types. (Added by the XR_ANDROID_trackables extension)
+        /// </summary>
+        MisMatchingTrackableTypeAndroid = -1000455000,
+
+        /// <summary>
+        /// Indicates that the function is not supported by the given trackable type. (Added by the XR_ANDROID_trackables extension)
+        /// </summary>
+        TrackableTypeNotSupportedAndroid = -1000455001,
+
+        /// <summary>
+        /// XrUuidExt passed to the function was not found to be a persisted anchor. (Added by the XR_ANDROID_device_anchor_persistence extension)
+        /// </summary>
+        AnchorIdNotFoundAndroid = -1000457000,
+
+        /// <summary>
+        /// XrUuidExt passed to the function was already marked to be persisted. (Added by the XR_ANDROID_device_anchor_persistence extension)
+        /// </summary>
+        AnchorAlreadyPersistedAndroid = -1000457001,
+
+        /// <summary>
+        /// Anchor cannot be persisted because it is not tracking. (Added by the XR_ANDROID_device_anchor_persistence extension)
+        /// </summary>
+        AnchorNotTrackingAndroid = -1000457002,
+
+        /// <summary>
+        /// Persisted data stored by this app has not been loaded yet. (Added by the XR_ANDROID_device_anchor_persistence extension)
+        /// </summary>
+        PersistedDataNotReadyAndroid = -1000457003,
+
+        /// <summary>
+        /// The underlying tracking service is not yet ready. (Added by the XR_ANDROID_face_tracking extension)
+        /// </summary>
+        ServiceNotReadyAndroid = -1000458000,
+
+        /// <summary>
         /// Returned by completion function to indicate future is not ready. (Added by the `XR_EXT_future` extension)
         /// </summary>
         FuturePendingEXT = -1000469001,
@@ -731,6 +801,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// The group UUID was not be found within the runtime. (Added by the `XR_META_spatial_entity_group_sharing` extension)
         /// </summary>
         SpaceGroupNotFoundMETA = -1000572002,
+
+        /// <summary>
+        /// Operation not allowed because anchor is not owned by the XrSession in which the function is being called. (Added by the XR_ANDROID_anchor_sharing_export extension)
+        /// </summary>
+        AnchorNotOwnedByCallerAndroid = -1000701000,
 
         /// <summary>
         /// The specified spatial capability is not supported by the runtime or the system. (Added by the `XR_EXT_spatial_entity` extension)

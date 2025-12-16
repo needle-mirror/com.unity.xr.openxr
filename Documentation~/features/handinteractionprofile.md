@@ -18,12 +18,15 @@ The following table outlines the mapping between the OpenXR paths and Unity's im
 |`/input/aim/pose` | pointerPose | Pose |
 |`/input/pinch_ext/pose` | pinchPose | Pose |
 |`/input/poke_ext/pose` | pokePose | Pose |
-|`/input/pinch_ext/value`| pinchValue | Float |
 |`/input/pinch_ext/ready_ext` | pinchReady | Boolean|
-|`/input/aim_activate_ext/value`| pointerActivateValue | Float |
+|`/input/pinch_ext/value`| pinchValue | Float |
+|`/input/pinch_ext/value`| pinchTouched | Boolean |
 |`/input/aim_activate_ext/ready_ext` | pointerActivateReady | Boolean|
-|`/input/grasp_ext/value`| graspValue | Float |
+|`/input/aim_activate_ext/value`| pointerActivateValue | Float |
+|`/input/aim_activate_ext/value`| pointerActivated | Boolean |
 |`/input/grasp_ext/ready_ext` | graspReady | Boolean|
+|`/input/grasp_ext/value`| graspValue | Float |
+|`/input/grasp_ext/value`| graspFirm | Boolean |
 | Unity Layout Only  | isTracked | Flag Data |
 | Unity Layout Only  | trackingState | Flag Data |
 | Unity Layout Only  | devicePosition | Vector3 |

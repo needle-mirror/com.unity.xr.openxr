@@ -1,0 +1,25 @@
+{
+    "name": "MockRuntimeTestSample",
+    "rootNamespace": "",
+    "references": [
+        "Unity.XR.OpenXR",
+        "Unity.XR.OpenXR.TestTooling",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.XR.OpenXR.Features.MockRuntime",
+        "Unity.XR.Management"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_TESTS_FRAMEWORK"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

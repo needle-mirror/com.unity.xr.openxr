@@ -24,14 +24,16 @@ When you enable Meta Quest Support, Unity produces Application Package Kit (APK)
 
 ### Choose interaction profiles
 
-Unity recommends the following controller profiles for Meta Quest as outlined by the [Project validation system](xref:openxr-project-validation):
+Unity recommends the [Oculus Touch Controller Profile](xref:openxr-oculus-touch-controller-profile) for Meta Quest devices because it's supported by all Meta Quest controllers.
 
-* [Oculus Touch Controller Profile](xref:openxr-oculus-touch-controller-profile)
-* [Meta Quest Touch Plus Controller Profile](xref:openxr-meta-quest-plus-touch-controller-profile)
-* [Meta Quest Touch Pro Controller Profile](xref:openxr-meta-quest-pro-touch-controller-profile)
+You can also enable the [Meta Quest Touch Plus Controller Profile](xref:openxr-meta-quest-plus-touch-controller-profile) which provides additional controls for the [Meta Quest Touch Plus](https://www.meta.com/help/quest/163579713458590/) controller, and the [Meta Quest Touch Pro Controller Profile](xref:openxr-meta-quest-pro-touch-controller-profile) for the [Meta Quest Touch Pro](https://www.meta.com/help/quest/667591367977925/) controller. To learn more about these controllers and device compatibility, visit Meta's documentation for each controller.
 
 > [!TIP]
-> You can choose to enable other interaction profiles that aren't recommended by the validation system. Ignoring the validation rule for the recommended interaction profiles won't stop your project from building as this is a warning, rather than an error.
+> If you enable multiple interaction profiles, consider how to handle differences in their functionality. For minor variations, bind multiple controls to the same action in your Input Action asset. The XR Interaction Toolkit provides [Composites](xref:UnityEngine.XR.Interaction.Toolkit.Inputs.Composites) which you can use to define fallback bindings. The `XRI Default Input Actions` asset implements these composites, which you can use as a starting point for targeting multiple input devices simultaneously. Refer to the [Configure input](xref:xri-configure-input-system) documentation to learn more.
+
+#### Additional interaction profiles
+
+You can choose to enable other interaction profiles that aren't recommended by the validation system. Ignoring the validation rule for the recommended interaction profiles won't stop your project from building as this is a warning, rather than an error.
 
 The following interaction profiles are also supported on Meta Quest devices:
 

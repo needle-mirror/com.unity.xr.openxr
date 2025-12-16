@@ -356,8 +356,6 @@ namespace UnityEditor.XR.OpenXR.Features
             if (TryGetForcedLoaderOverride(activeCustomLoaderFeatures, out var loader))
             {
                 // Using the forced custom loader override, when a feature doesn't specify an API version
-                var versionString = loader.LoaderVersion?.ToString() ?? "null";
-                Debug.Log($"Using forced custom loader override provided by the OpenXR Feature {loader.Feature.nameUi}, with version {versionString}");
                 loaderFeatureInfo = loader;
                 return true;
             }

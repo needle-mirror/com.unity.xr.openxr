@@ -2253,6 +2253,62 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SystemHeadsetIDPropertiesMETA = 1000245000,
 
         /// <summary>
+        /// Struct is of type `XrSystemSpaceDiscoveryPropertiesMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_SPACE_DISCOVERY_PROPERTIES_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SystemSpaceDiscoveryPropertiesMeta = 1000247000,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceDiscoveryInfoMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_DISCOVERY_INFO_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SpaceDiscoveryInfoMeta = 1000247001,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceFilterUUIDMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_FILTER_UUID_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SpaceFilterUUIDMeta = 1000247003,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceFilterComponentMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_FILTER_COMPONENT_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SpaceFilterComponentMeta = 1000247004,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceDiscoveryResultMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_DISCOVERY_RESULT_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SpaceDiscoveryResultMeta = 1000247005,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceDiscoveryResultsMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_DISCOVERY_RESULTS_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        SpaceDiscoveryResultsMeta = 1000247006,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataSpaceDiscoveryResultsAvailableMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_SPACE_DISCOVERY_RESULTS_AVAILABLE_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        EventDataSpaceDiscoveryResultsAvailableMeta = 1000247007,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataSpaceDiscoveryCompleteMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_SPACE_DISCOVERY_COMPLETE_META`.
+        /// Provided by `XR_META_spatial_entity_discovery`.
+        /// </summary>
+        EventDataSpaceDiscoveryCompleteMeta = 1000247008,
+
+        /// <summary>
         /// Struct is of type `XrRecommendedLayerResolutionMETA`.
         /// Equivalent to the OpenXR value `XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_META`.
         /// Provided by `XR_META_recommended_layer_resolution`.
@@ -2265,6 +2321,41 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Provided by `XR_META_recommended_layer_resolution`.
         /// </summary>
         RecommendedLayerResolutionGetInfoMETA = 1000254001,
+
+        /// <summary>
+        /// Struct is of type `XrSystemSpacePersistencePropertiesMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_SPACE_PERSISTENCE_PROPERTIES_META`.
+        /// Provided by `XR_META_spatial_entity_persistence`.
+        /// </summary>
+        SystemSpacePersistencePropertiesMeta = 1000259000,
+
+        /// <summary>
+        /// Struct is of type `XrSpacesSaveInfoMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACES_SAVE_INFO_META`.
+        /// Provided by `XR_META_spatial_entity_persistence`.
+        /// </summary>
+        SpacesSaveInfoMeta = 1000259001,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataSpacesSaveResultMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_SPACES_SAVE_RESULT_META`.
+        /// Provided by `XR_META_spatial_entity_persistence`.
+        /// </summary>
+        EventDataSpacesSaveResultMeta = 1000259002,
+
+        /// <summary>
+        /// Struct is of type `XrSpacesEraseInfoMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACES_ERASE_INFO_META`.
+        /// Provided by `XR_META_spatial_entity_persistence`.
+        /// </summary>
+        SpacesEraseInfoMeta = 1000259003,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataSpacesEraseResultMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_SPACES_ERASE_RESULT_META`.
+        /// Provided by `XR_META_spatial_entity_persistence`.
+        /// </summary>
+        EventDataSpacesEraseResultMeta = 1000259004,
 
         /// <summary>
         /// Struct is of type `XrSystemPassthroughColorLutPropertiesMETA`.
@@ -2328,6 +2419,27 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Provided by `XR_META_passthrough_layer_resumed_event`.
         /// </summary>
         EventDataPassthroughLayerResumedMETA = 1000282000,
+
+        /// <summary>
+        /// Struct is of type `XrBodyTrackingCalibrationInfoMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_TRACKING_CALIBRATION_INFO_META`.
+        /// Provided by `XR_META_body_tracking_calibration`.
+        /// </summary>
+        BodyTrackingCalibrationInfoMeta = 1000283002,
+
+        /// <summary>
+        /// Struct is of type `XrBodyTrackingCalibrationStatusMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_TRACKING_CALIBRATION_STATUS_META`.
+        /// Provided by `XR_META_body_tracking_calibration`.
+        /// </summary>
+        BodyTrackingCalibrationStatusMeta = 1000283003,
+
+        /// <summary>
+        /// Struct is of type `XrSystemPropertiesBodyTrackingCalibrationMeta`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_PROPERTIES_BODY_TRACKING_CALIBRATION_META`.
+        /// Provided by `XR_META_body_tracking_calibration`.
+        /// </summary>
+        SystemPropertiesBodyTrackingCalibrationMeta = 1000283004,
 
         /// <summary>
         /// Struct is of type `XrSystemFaceTrackingProperties2FB`.
@@ -2687,6 +2799,41 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SystemBodyTrackingPropertiesBD = 1000385004,
 
         /// <summary>
+        /// Struct is of type `XrSystemFacialSimulationPropertiesBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_FACIAL_SIMULATION_PROPERTIES_BD`.
+        /// Provided by `XR_BD_facial_simulation`.
+        /// </summary>
+        SystemFacialSimulationPropertiesBD = 1000386001,
+
+        /// <summary>
+        /// Struct is of type `XrFaceTrackerCreateInfoBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACE_TRACKER_CREATE_INFO_BD`.
+        /// Provided by `XR_BD_facial_simulation`.
+        /// </summary>
+        FaceTrackerCreateInfoBD = 1000386002,
+
+        /// <summary>
+        /// Struct is of type `XrFacialSimulationDataGetInfoBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACIAL_SIMULATION_DATA_GET_INFO_BD`.
+        /// Provided by `XR_BD_facial_simulation`.
+        /// </summary>
+        FacialSimulationDataGetInfoBD = 1000386003,
+
+        /// <summary>
+        /// Struct is of type `XrFacialSimulationDataBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACIAL_SIMULATION_DATA_BD`.
+        /// Provided by `XR_BD_facial_simulation`.
+        /// </summary>
+        FacialSimulationDataBD = 1000386004,
+
+        /// <summary>
+        /// Struct is of type `XrLipExpressionDataBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_LIP_EXPRESSION_DATA_BD`.
+        /// Provided by `XR_BD_facial_simulation`.
+        /// </summary>
+        LipExpressionDataBD = 1000386005,
+
+        /// <summary>
         /// Struct is of type `XrSystemSpatialSensingPropertiesBD`.
         /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_SPATIAL_SENSING_PROPERTIES_BD`.
         /// Provided by `XR_BD_spatial_sensing`.
@@ -3016,6 +3163,139 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SystemPlaneDetectionPropertiesEXT = 1000429007,
 
         /// <summary>
+        /// Struct is of type `XrTrackableGetInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_GET_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables`.
+        /// </summary>
+        TrackableGetInfoAndroid = 1000455000,
+
+        /// <summary>
+        /// Struct is of type `XrAnchorSpaceCreateInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ANCHOR_SPACE_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables`.
+        /// </summary>
+        AnchorSpaceCreateInfoAndroid = 1000455001,
+
+        /// <summary>
+        /// Struct is of type `XrTrackablePlaneAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_PLANE_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables`.
+        /// </summary>
+        TrackablePlaneAndroid = 1000455003,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableTrackerCreateInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_TRACKER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables`.
+        /// </summary>
+        TrackableTrackerCreateInfoAndroid = 1000455004,
+
+        /// <summary>
+        /// Struct is of type `XrSystemTrackablesPropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_TRACKABLES_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables`.
+        /// </summary>
+        SystemTrackablesPropertiesAndroid = 1000455005,
+
+        /// <summary>
+        /// Struct is of type `XrPersistentAnchorSpaceCreateInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PERSISTED_ANCHOR_SPACE_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_device_anchor_persistence`.
+        /// </summary>
+        PersistentAnchorSpaceCreateInfoAndroid = 1000457001,
+
+        /// <summary>
+        /// Struct is of type `XrPersistentAnchorSpaceInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PERSISTED_ANCHOR_SPACE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_device_anchor_persistence`.
+        /// </summary>
+        PersistentAnchorSpaceInfoAndroid = 1000457002,
+
+        /// <summary>
+        /// Struct is of type `XrDeviceAnchorPersistentCreateInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_DEVICE_ANCHOR_PERSISTENCE_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_device_anchor_persistence`.
+        /// </summary>
+        DeviceAnchorPersistentCreateInfoAndroid = 1000457003,
+
+        /// <summary>
+        /// Struct is of type `XrSystemDeviceAnchorPersistencePropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_DEVICE_ANCHOR_PERSISTENCE_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_device_anchor_persistence`.
+        /// </summary>
+        SystemDeviceAnchorPersistencePropertiesAndroid = 1000457004,
+
+        /// <summary>
+        /// Struct is of type `XrFaceTrackerCreateInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACE_TRACKER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_face_tracking`.
+        /// </summary>
+        FaceTrackerCreateInfoAndroid = 1000458000,
+
+        /// <summary>
+        /// Struct is of type `XrFaceStateGetInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACE_STATE_GET_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_face_tracking`.
+        /// </summary>
+        FaceStateGetInfoAndroid = 1000458001,
+
+        /// <summary>
+        /// Struct is of type `XrFaceStateAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACE_STATE_ANDROID`.
+        /// Provided by `XR_ANDROID_face_tracking`.
+        /// </summary>
+        FaceStateAndroid = 1000458002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemFaceTrackingPropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_face_tracking`.
+        /// </summary>
+        SystemFaceTrackingPropertiesAndroid = 1000458003,
+
+        /// <summary>
+        /// Struct is of type `XrPassthroughCameraStateGetInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PASSTHROUGH_CAMERA_STATE_GET_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_passthrough_camera_state`.
+        /// </summary>
+        PassthroughCameraStateGetInfoAndroid = 1000460000,
+
+        /// <summary>
+        /// Struct is of type `XrSystemPassthroughCameraStatePropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_PASSTHROUGH_CAMERA_STATE_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_passthrough_camera_state`.
+        /// </summary>
+        SystemPassthroughCameraStatePropertiesAndroid = 1000460001,
+
+        /// <summary>
+        /// Struct is of type `XrRaycastInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_RAYCAST_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_raycast`.
+        /// </summary>
+        RaycastInfoAndroid = 1000463000,
+
+        /// <summary>
+        /// Struct is of type `XrRaycastHitResultsAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_RAYCAST_HIT_RESULTS_ANDROID`.
+        /// Provided by `XR_ANDROID_raycast`.
+        /// </summary>
+        RaycastHitResultsAndroid = 1000463001,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableObjectAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_OBJECT_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_object`.
+        /// </summary>
+        TrackableObjectAndroid = 1000466000,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableObjectConfigurationAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_OBJECT_CONFIGURATION_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_object`.
+        /// </summary>
+        TrackableObjectConfigurationAndroid = 1000466001,
+
+        /// <summary>
         /// Struct is of type <see cref="XrFutureCancelInfoEXT"/>.
         /// Equivalent to the OpenXR value `XR_TYPE_FUTURE_CANCEL_INFO_EXT`.
         /// Provided by `XR_EXT_future`.
@@ -3303,6 +3583,48 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SystemSpatialEntityGroupSharingPropertiesMETA = 1000572100,
 
         /// <summary>
+        /// Struct is of type `XrAnchorSharingInfoAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ANCHOR_SHARING_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_anchor_sharing_export`.
+        /// </summary>
+        AnchorSharingInfoAndroid = 1000701000,
+
+        /// <summary>
+        /// Struct is of type `XrAnchorSharingTokenAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ANCHOR_SHARING_TOKEN_ANDROID`.
+        /// Provided by `XR_ANDROID_anchor_sharing_export`.
+        /// </summary>
+        AnchorSharingTokenAndroid = 1000701001,
+
+        /// <summary>
+        /// Struct is of type `XrSystemAnchorSharingExportPropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_ANCHOR_SHARING_EXPORT_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_anchor_sharing_export`.
+        /// </summary>
+        SystemAnchorSharingExportPropertiesAndroid = 1000701002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemMarkerTrackingPropertiesAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_marker`.
+        /// </summary>
+        SystemMarkerTrackingPropertiesAndroid = 1000707000,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableMarkerConfigurationAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_MARKER_CONFIGURATION_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_marker`.
+        /// </summary>
+        TrackableMarkerConfigurationAndroid = 1000707001,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableMarkerAndroid`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_MARKER_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_marker`.
+        /// </summary>
+        TrackableMarkerAndroid = 1000707002,
+
+        /// <summary>
         /// The struct is of type <see cref="XrSpatialCapabilityComponentTypesEXT"/>.
         /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_CAPABILITY_COMPONENT_TYPES_EXT`.
         /// Provided by `XR_EXT_spatial_entity`.
@@ -3588,6 +3910,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Provided by `XR_EXT_spatial_persistence_operations`.
         /// </summary>
         UnpersistSpatialEntityCompletionEXT = 1000781003,
+
+        /// <summary>
+        /// The struct is of type `XrLoaderInitInfoPropertiesEXT`.
+        ///Equivalent to the OpenXR value `XR_TYPE_LOADER_INIT_INFO_PROPERTIES_EXT`.
+        /// Provided by `XR_EXT_loader_init_properties`.
+        /// </summary>
+        LoaderInitInfoPropertiesEXT = 1000838000,
 
         /// <summary>
         /// The struct is of type `XrGraphicsBindingVulkan2KHR`.

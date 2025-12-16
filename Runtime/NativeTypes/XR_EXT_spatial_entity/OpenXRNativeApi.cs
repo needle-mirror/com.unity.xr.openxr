@@ -818,6 +818,46 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             out XrSpatialEntityEXT spatialEntity);
 
         /// <summary>
+        /// Creates a spatial entity handle from the given spatial entity ID. Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="spatialContext">A valid spatial context.</param>
+        /// <param name="entityId">The entity ID.</param>
+        /// <param name="spatialEntity">The output spatial entity handle.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.LimitReached"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialEntityIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        /// </remarks>
+        public static XrResult xrCreateSpatialEntityFromIdEXT(
+            XrSpatialContextEXT spatialContext,
+            XrSpatialEntityIdEXT entityId,
+            out XrSpatialEntityEXT spatialEntity)
+        {
+            var createInfo = new XrSpatialEntityFromIdCreateInfoEXT(entityId);
+            return xrCreateSpatialEntityFromIdEXT(spatialContext, createInfo, out spatialEntity);
+        }
+
+        /// <summary>
         /// Destroys the given spatial entity handle. Provided by `XR_EXT_spatial_entity`.
         /// </summary>
         /// <param name="spatialEntity">The spatial entity handle.</param>

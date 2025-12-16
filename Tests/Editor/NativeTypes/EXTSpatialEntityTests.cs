@@ -368,6 +368,19 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrCreateSpatialEntityFromIdEXT_ConvenienceOverload_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrCreateSpatialEntityFromIdEXT", EXTSpatialEntityMocks.xrCreateSpatialEntityFromIdEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrCreateSpatialEntityFromIdEXT(123, 123, out var entity);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(456, entity);
+        }
+
+        [Test]
         public void xrDestroySpatialEntityEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

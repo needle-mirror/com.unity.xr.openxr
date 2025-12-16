@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine.Rendering;
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
@@ -147,7 +146,7 @@ namespace UnityEngine.XR.OpenXR.Features
             Internal_SetUsingSuggestedResolutionScale(usingSuggestedResolutionScale);
             Internal_SetMinMaxScalerResolution(minResolutionScalar, maxResolutionScalar);
 
-            var displaySubsystem = GetFirstDisplaySubsystem();
+            var displaySubsystem = OpenXRUtility.GetFirstDisplaySubsystem();
             if (displaySubsystem != null)
                 displaySubsystem.scaleOfAllRenderTargets = maxResolutionScalar;
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
@@ -186,19 +185,6 @@ namespace UnityEngine.XR.OpenXR.Features
         {
             usingSuggestedResolutionScale = usingSuggestedScale;
             Internal_SetUsingSuggestedResolutionScale(usingSuggestedScale);
-        }
-
-        /// <summary>
-        /// A helper to return the first available XRDisplaySubsystem.
-        /// </summary>
-        static XRDisplaySubsystem GetFirstDisplaySubsystem()
-        {
-            List<XRDisplaySubsystem> displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetSubsystems(displays);
-            if (displays.Count == 0)
-                return null;
-
-            return displays[0];
         }
 
 #if UNITY_EDITOR

@@ -6,7 +6,9 @@ uid: openxr-composition-layers
 The OpenXR Composition Layers feature provides support for rendering high quality images on layer types, such as cylinder, equirect, cube, and more, on platforms like the Quest headsets.
 This functionality allows developers to manage visual layers in a flexible, performant way, tailored for XR applications.
 
-Refer to the [Composition Layers](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest) documentation for information about using composition layers in a scene.
+The OpenXR Plug-in serves as a provider implementation for the composition layers interface defined by the [XR Composition Layers](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest) package, enabling Unity to create and submit OpenXR composition layers through a unified API.
+
+Refer to the XR Composition Layers documentation for information about using composition layers in a scene.
 
 ## Installation
 To use this feature, install the [Composition Layers package](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@1.0/manual/index.html). Follow the steps in the package documentation for installation details.
@@ -40,3 +42,15 @@ You may want to create a custom layer in situations where:
 - Create unique visual effects or layer behaviors in your XR application.
 
 By registering custom layer handlers, you can gain full control over how the composition layers are processed and rendered, allowing for more tailored XR experiences.
+
+## OpenXR extensions
+The OpenXR Composition Layers feature enables support for the following OpenXR extensions in your project:
+
+| **Extension** | **Description**            |
+|:------------- |:-------------------------- |
+| [XR_KHR_composition_layer_cylinder](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_composition_layer_cylinder)                              | Allows the application to project a 2D texture onto a cylindrical surface, enabling efficient rendering of 180° imagery or curved screen effects.                                                 |
+| [XR_KHR_composition_layer_equirect](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_composition_layer_equirect)                              | Allows the application to project a 2D texture onto a spherical surface. Enables efficient rendering of skyboxes or environment maps, and of panoramic or 360° imagery. |
+| [XR_KHR_composition_layer_equirect2](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_composition_layer_equirect2)                            | Allows the application to project a 2D texture onto a spherical surface with enhanced control over orientation and positioning.                                                                   |
+| [XR_KHR_composition_layer_cube](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_composition_layer_cube)                                      | Allows the application to project a cube map texture onto the inside of a cube, enabling efficient rendering of skyboxes or environment maps.                                                     |
+| [XR_KHR_composition_layer_color_scale_bias](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_composition_layer_color_scale_bias)              | Allows the application to apply a color scale and bias to composition layers, enabling brightness, contrast, or tint adjustments during compositing.                                              |
+| [XR_KHR_android_surface_swapchain](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_KHR_android_surface_swapchain)                                | Allows the application to create an Android Surface backed by an OpenXR swapchain, enabling seamless integration of Android UI or video content into XR composition layers.                       |

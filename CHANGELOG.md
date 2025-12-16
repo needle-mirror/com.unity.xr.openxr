@@ -9,28 +9,52 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
-## [1.16.1] - 2025-11-21
+## [1.17.0-pre.1] - 2025-12-16
+
+### Added
+
+* Expose `IsAdditive` and `AddAdditiveActions` APIs to allow external additive features to augment exisiting interaction profiles.
+* Added [new package sample](xref:mock-runtime-tests-sample) that demonstrates usage of the `MockOpenXREnvironment` testing APIs.
+* Added the following members to the [OpenXR native API](xref:openxr-native-api):
+  * `OpenXRNativeApi.xrCreateSpatialEntityFromIdEXT(XrSpatialContextEXT, XrSpatialEntityIdEXT, out XrSpatialEntityEXT)`
+  * `OpenXRNativeApi.xrCreateSpatialPersistenceContextAsyncEXT(XrSpatialPersistenceScopeEXT out XrFutureEXT)`
+* Added members to the `XrStructureType` enum. `XrStructureType` now contains all OpenXR values as of OpenXR version 1.1.53.
+* Added URP Compatibility to OpenXR Samples.
+* Added the `OpenXRFeatureBuildHooks.bootConfigEntryRequired` to always write a boot config entry, even when the feature is disabled.
+* Added support for the `XR_META_tile_properties_hint` extension. This extension is enabled automatically and optimizes performance for dynamic resolution and foveated rendering.
 
 ### Changed
 
+* Changed the visibility mask to not create an occlusion mesh when using a 2022.3 editor to reduce memory footprint.
 * Changed wording of validation rule that checks for symmetric projection when using the Multiview Render Regions Optimizations Mode.
 * Changed OpenXR loader version to 1.1.53.
-* Changed the visibility mask to not create an occlusion mesh when using a 2022.3 editor to reduce memory footprint.
 
 ### Removed
 
+* Removed OpenXR support for Universal Windows Platform on Unity 6000.4 and above.
 * Removed an unit test `PluginVersion` which was used internally to validate package version.
+* Removed verbose and redundant log message custom loader versions when browsing the OpenXR Settings view.
 
 ### Fixed
 
- * Fixed the OpenXR test "DuplicateSettingAssetTest" to communicate with asset database when swapping asset files.
- * Fixed an issue in OpenXR Runtime Debugger window to show correctly sized buttons. ([OXRB-682](https://issuetracker.unity3d.com/issues/folder-button-in-openxr-runtime-debugger-window-is-oversized))
- * Fixed a dependency issue by including AndroidJNI as a dependency. ([OXRB-696](https://jira.unity3d.com/browse/OXRB-696))
- * Fixed a crash when using eye tracked foveated rendering and sleeping/waking device by making sure primary swapchain reference was reset before applying foveation profile.
- * Fixed unreliable writing of `xr-meta-enabled` to boot.config by ensuring it is always set based on the actual feature state.
- * Fixed Bluetooth permissions being removed when building apps using the Meta Quest Feature. The permissions are now kept when required by Unity APIs or a plugin's manifest. For more information on Android permissions in Unity, refer to [Android App Manifest](https://docs.unity3d.com/6000.2/Documentation/Manual/android-manifest.html).
- * Fixed issue where project settings window would fail to render if an OpenXR Feature was removed while the editor was running. ([OXRB-715](https://jira.unity3d.com/browse/OXRB-715))
- * Fixed an error in Project Validation related to EntityId's in Unity 6000.4+.
+* Fixed an issue where CI builds for samples would include code that can only run with the Unity Test Runner.
+* Fixed the OpenXR test "DuplicateSettingAssetTest" to communicate with asset database when swapping asset files.
+* Fixed an issue where certain composition layers would lag behind the camera's pose by a frame in instances where the composition layers are direct children of the camera's transform in the scene hierarchy.
+* Fixed a crash when using eye tracked foveated rendering and sleeping/waking device by making sure primary swapchain reference was reset before applying foveation profile.
+* Fixed an issue in OpenXR Runtime Debugger window to show correctly sized buttons. ([OXRB-682](https://issuetracker.unity3d.com/issues/folder-button-in-openxr-runtime-debugger-window-is-oversized))
+* Fixed Bluetooth permissions being removed when building apps using the Meta Quest Feature. The permissions are now kept when required by Unity APIs or a plugin's manifest. For more information on Android permissions in Unity, refer to [Android App Manifest](https://docs.unity3d.com/6000.2/Documentation/Manual/android-manifest.html).
+* Fixed unreliable writing of `xr-meta-enabled` to boot.config by ensuring it is always set based on the actual feature state.
+* Fixed a dependency issue by including AndroidJNI as a dependency. ([OXRB-696](https://jira.unity3d.com/browse/OXRB-696))
+* Fixed the null exception in the Meshing and Intercept feature samples.
+* Fixed issue where project settings window would fail to render if an OpenXR Feature was removed while the editor was running. ([OXRB-715](https://jira.unity3d.com/browse/OXRB-715))
+* Fixed an error in Project Validation related to EntityId's in Unity 6000.4+.
+* Fixed the OpenXR Native API to prevent the possibility of unexpected quits when you call APIs that require a valid OpenXR session but none exists.
+* Fixed the XRInput Controller Sample to allow the right controller to display even if the left isn't connected.
+* Fixed an issue where a validation rule only meant for Android was seen on Standalone platform.
+* Fixed Android build exception when Meta Quest Pro interaction profile enabled and an OpenXR feature created without OpenXRExtensionStrings attribute.
+* Fixed an edge case where the OpenXR Plugin would throw an error when choosing a custom OpenXR loader based on its feature's OpenXR specification version.
+* Fixed Mono-API deprecation warning for AppDomain.UnhandledException calls  by disabling their warnings until replacement API is public.
+* Fixed an issue that caused validation rules to not be checked for newly enabled features until the editor was restarted.
 
 ## [1.16.0] - 2025-10-15
 
