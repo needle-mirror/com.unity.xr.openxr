@@ -19,17 +19,17 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         private SerializedProperty wedgeAngleRight;
         private SerializedProperty isStickyRight;
 
-        static GUIContent s_ForceThresholdLabelLeft = EditorGUIUtility.TrTextContent("ForceThreshold");
-        static GUIContent s_ForceThresholdReleaseLabelLeft = EditorGUIUtility.TrTextContent("ForceThresholdRelease");
-        static GUIContent s_CenterRegionLeft = EditorGUIUtility.TrTextContent("centerRegion");
-        static GUIContent s_WedgeAngleLeft = EditorGUIUtility.TrTextContent("wedgeAngle");
-        static GUIContent s_IsStickyLeft = EditorGUIUtility.TrTextContent("isSticky");
+        static GUIContent s_ForceThresholdLabelLeft = EditorGUIUtility.TrTextContent("ForceThreshold", "A number in the half-open range (0, 1] representing the force value threshold at or above which a D-pad input will transition from inactive to active.");
+        static GUIContent s_ForceThresholdReleaseLabelLeft = EditorGUIUtility.TrTextContent("ForceThresholdRelease", "A number in the half-open range (0, 1] representing the force value threshold strictly below which a D-pad input will transition from active to inactive.");
+        static GUIContent s_CenterRegionLeft = EditorGUIUtility.TrTextContent("centerRegion", "The radius in the input value space, of a logically circular region in the center of the input, in the range (0, 1).");
+        static GUIContent s_WedgeAngleLeft = EditorGUIUtility.TrTextContent("wedgeAngle", "Indicates the angle in radians of each direction region and is a value in the half-open range (0, π].");
+        static GUIContent s_IsStickyLeft = EditorGUIUtility.TrTextContent("isSticky", "Indicates that the implementation will latch the first region that is activated and continue to indicate that the binding for that region is true until the user releases the input underlying the virtual D-pad.");
 
-        static GUIContent s_ForceThresholdLabelRight = EditorGUIUtility.TrTextContent("ForceThreshold");
-        static GUIContent s_ForceThresholdReleaseLabelRight = EditorGUIUtility.TrTextContent("ForceThresholdRelease");
-        static GUIContent s_CenterRegionRight = EditorGUIUtility.TrTextContent("centerRegion");
-        static GUIContent s_WedgeAngleRight = EditorGUIUtility.TrTextContent("wedgeAngle");
-        static GUIContent s_IsStickyRight = EditorGUIUtility.TrTextContent("isSticky");
+        static GUIContent s_ForceThresholdLabelRight = EditorGUIUtility.TrTextContent("ForceThreshold", "A number in the half-open range (0, 1] representing the force value threshold at or above which a D-pad input will transition from inactive to active.");
+        static GUIContent s_ForceThresholdReleaseLabelRight = EditorGUIUtility.TrTextContent("ForceThresholdRelease", "A number in the half-open range (0, 1] representing the force value threshold strictly below which a D-pad input will transition from active to inactive.");
+        static GUIContent s_CenterRegionRight = EditorGUIUtility.TrTextContent("centerRegion", "The radius in the input value space, of a logically circular region in the center of the input, in the range (0, 1).");
+        static GUIContent s_WedgeAngleRight = EditorGUIUtility.TrTextContent("wedgeAngle", "Indicates the angle in radians of each direction region and is a value in the half-open range (0, π].");
+        static GUIContent s_IsStickyRight = EditorGUIUtility.TrTextContent("isSticky", "Indicates that the implementation will latch the first region that is activated and continue to indicate that the binding for that region is true until the user releases the input underlying the virtual D-pad.");
 
 
         void OnEnable()

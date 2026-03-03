@@ -98,6 +98,21 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 }
             };
 
+            // Add AndroidManifest for Quad views
+            if (IsQuadViewsEnabled())
+            {
+                elementsToAdd.Add(new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-feature"},
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "com.oculus.feature.QUAD_VIEWS" },
+                        { "required", "true" },
+                        { "version", "1" }
+                    }
+                });
+            }
+
             if (SystemSplashScreen() != null)
             {
                 elementsToAdd.Add(new ManifestElement()
@@ -202,6 +217,16 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 .Where(device => string.Equals(device.manifestName, MetaQuestFeature.DeviceManifestName.QuestPro))
                 .Where(device => device.enabled)
                 .Any();
+        }
+
+        private static bool IsQuadViewsEnabled()
+        {
+            // Need to check if FoveatedRenderingFeature is enabled and if Quad Views is selected
+            var foveatedRenderingFeature = GetFeatureFromSettings<FoveatedRenderingFeature>(BuildTargetGroup.Android);
+            var openXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+
+            return foveatedRenderingFeature != null && foveatedRenderingFeature.enabled
+                && openXRSettings != null && openXRSettings.foveatedRenderingApi == OpenXRSettings.BackendFovationApi.QuadViews;
         }
 
         private static string[] openXREyeTrackingExtensionStrings = { "XR_META_foveation_eye_tracked", "XR_EXT_eye_gaze_interaction" };

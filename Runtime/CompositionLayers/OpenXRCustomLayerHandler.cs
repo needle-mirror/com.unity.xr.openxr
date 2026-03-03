@@ -441,6 +441,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         public virtual void RemoveLayer(int removedLayerId)
         {
             OpenXRLayerUtility.ReleaseSwapchain(removedLayerId);
+            if (m_LayerInfos.ContainsKey(removedLayerId))
+            {
+                OpenXRLayerUtility.RemoveActiveLayer(m_LayerInfos[removedLayerId].Layer.Order);
+            }
             m_nativeLayers.Remove(removedLayerId);
             m_LayerInfos.Remove(removedLayerId);
             m_RenderInfos.Remove(removedLayerId);

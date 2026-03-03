@@ -14,8 +14,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private bool m_LateLatchingModeEnabled;
         private bool m_LateLatchingDebug;
 
-        private static GUIContent s_LateLatchingSupportedLabel = EditorGUIUtility.TrTextContent("Late Latching (Vulkan)");
-        private static GUIContent s_LateLatchingDebugLabel = EditorGUIUtility.TrTextContent("Late Latching Debug Mode");
+        private static GUIContent s_LateLatchingSupportedLabel = EditorGUIUtility.TrTextContent("Late Latching (Vulkan)", "Enables the OpenXR plugin to synchronize poses right before rendering starts, to reduce input latency in graphics");
+        private static GUIContent s_LateLatchingDebugLabel = EditorGUIUtility.TrTextContent("Late Latching Debug Mode", "Enables debugging visualization and logging for the Late Latching feature. When enabled, provides additional diagnostic information to help identify timing and synchronization issues. Only use during development as this may impact performance.");
         private static GUIContent s_ShowAndroidExperimentalLabel = EditorGUIUtility.TrTextContent("Experimental", "Experimental settings that are under active development and should be used with caution.");
 #if UNITY_6000_1_OR_NEWER
         private static GUIContent s_MultiviewRenderRegionsOptimizationsLabel = EditorGUIUtility.TrTextContent("Multiview Render Regions Optimizations (Vulkan)", "Activates Multiview Render Regions optimizations at application start. Requires usage of Unity 6.1 or later, Vulkan as the Graphics API, Render Mode set to Multi-view and Symmetric rendering enabled.");
@@ -111,8 +111,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
 
             serializedObject.Update();
             EditorGUILayout.LabelField("Rendering Settings", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(symmetricProjection, new GUIContent("Symmetric Projection (Vulkan)"));
-            EditorGUILayout.PropertyField(optimizeBufferDiscards, new GUIContent("Optimize Buffer Discards (Vulkan)"));
+            EditorGUILayout.PropertyField(symmetricProjection, new GUIContent("Symmetric Projection (Vulkan)", "If enabled, when the application begins it will create a stereo symmetric view that has the eye buffer resolution change based on the IPD. Provides a performance benefit across all IPDs."));
+            EditorGUILayout.PropertyField(optimizeBufferDiscards, new GUIContent("Optimize Buffer Discards (Vulkan)", "Optimization that allows 4x MSAA textures to be memoryless on Vulkan"));
             // OptimizeMultiviewRenderRegions (aka MVPVV) only supported on Unity 6.1 onwards
 #if UNITY_6000_1_OR_NEWER
             EditorGUILayout.PropertyField(multiviewRenderRegionsOptimizationMode, s_MultiviewRenderRegionsOptimizationsLabel);

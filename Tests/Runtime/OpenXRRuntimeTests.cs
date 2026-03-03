@@ -937,7 +937,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             OpenXRSettings.Instance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
             yield return null;
             yield return null;
-            Assert.AreEqual(3, loader.displaySubsystem.GetRenderPassCount());
+            Assert.AreEqual(2, loader.displaySubsystem.GetRenderPassCount());
 
             base.StopAndShutdown();
         }
@@ -1017,7 +1017,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             inputSubsystem.TrySetTrackingOriginMode(TrackingOriginModeFlags.Floor);
 
             // Since time = 0, XR_EXT_local_floor is not active, and LocalFloor is requested, this will trigger a tracking origin regeneration.
-            Assert.IsTrue(GetRegenerateTrackingOriginFlag());
+            Assert.IsTrue(GetRegenerateTrackingOriginFlag(), "Tracking origin regeneration not requested");
 
             yield return null;
 
@@ -1025,7 +1025,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             yield return new WaitForTrackingOriginRegeneration();
 
             // Check that the tracking origin has been regenerated.
-            Assert.IsFalse(GetRegenerateTrackingOriginFlag());
+            Assert.IsFalse(GetRegenerateTrackingOriginFlag(), "Tracking origin request was not fulfilled or requested more than once");
 
             yield return null;
         }
@@ -1746,10 +1746,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             InitializeAndStart();
 
             yield return new WaitForXrFrame(1);
-            // EnableByDefault_NoOverride type:
-            // single ext case:  {{"XR_MSFT_holographic_window_attachment"}, CreateMSFTCoreWindowExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
-            // XR_MSFT_holographic_window_attachment is not available, so should not be enabled.
-            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_MSFT_holographic_window_attachment"), "XR_MSFT_holographic_window_attachment EnableByDefault_NoOverride is not available, so should not enabled.");
 
             // multiple exts case:  {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state"}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
             // XR_FB_foveation & XR_FB_foveation_configuration are available, so should be enabled by default.
@@ -1792,6 +1788,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
                 // m_AdditiveMap should exist now that we registered the map
                 Assert.IsNotNull(feature.m_AdditiveMap, "Additive map for feature must be constructed");
+                Assert.IsTrue(MockAdditiveFeature.registeredLayout, "MockAdditiveFeature feature was not successfully registered");
 
                 // Check correct map name and target profile
                 Assert.AreEqual("mock_partner_additive_map", feature.m_AdditiveMap.name);

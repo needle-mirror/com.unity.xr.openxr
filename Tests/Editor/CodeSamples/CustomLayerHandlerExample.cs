@@ -16,7 +16,6 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
     BuildTargetGroups = new[]
     {
         BuildTargetGroup.Standalone,
-        BuildTargetGroup.WSA,
         BuildTargetGroup.Android
     },
     Company = "Unity",

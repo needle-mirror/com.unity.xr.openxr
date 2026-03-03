@@ -26,7 +26,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Mock runtime extension for automated testing.",
-        DocumentationLink = Constants.k_DocumentationURL,
+        DocumentationLink = Constants.k_DocumentationManualURL + "mock-environment.html",
 #if !OPENXR_USE_KHRONOS_LOADER
         CustomRuntimeLoaderBuildTargets = new[] { BuildTarget.StandaloneWindows64, BuildTarget.StandaloneOSX, BuildTarget.Android },
 #endif
@@ -99,6 +99,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         /// <summary>
         /// Don't fail to build if there are validation errors.
         /// </summary>
+        [Tooltip("Don't fail to build if there are validation errors.")]
         public bool ignoreValidationErrors;
 
         /// <summary>

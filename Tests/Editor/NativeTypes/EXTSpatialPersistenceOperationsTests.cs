@@ -65,6 +65,20 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrUnpersistSpatialEntityAsyncEXT_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrUnpersistSpatialEntityAsyncEXT",
+                EXTSpatialPersistenceOperationsMocks.xrUnpersistSpatialEntityAsyncEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrUnpersistSpatialEntityAsyncEXT(0, new XrUuid(123, 456), out var future);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(123456, future);
+        }
+
+        [Test]
         public void xrUnpersistSpatialEntityCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

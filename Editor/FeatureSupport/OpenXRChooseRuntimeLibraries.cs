@@ -157,7 +157,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
             foreach (var loader in loaderImporters)
             {
-                // Include all plugins from features that override multiple architectures (ie Android arm64 and x64)
+                // Include all plugins from features that override multiple architectures (ie Android arm64)
                 loader.SetIncludeInBuildDelegate(path => true);
             }
         }

@@ -185,12 +185,38 @@ These are exposed in the Unity Input System through the following bindings. Thes
 
 When using OpenXR the `centerEye` and `device` values are identical.
 
-The HMD position reported by Unity when using OpenXR is calculated from the currently selected Tracking Origin space within OpenXR.
-
-The Unity `Device Tracking Origin` is mapped to `Local Space`.
-The Unity `Floor Tracking Origin` is mapped to `Stage Space`.
+The HMD position reported by Unity when using OpenXR is calculated from the currently selected Tracking Origin space within OpenXR. Refer to the [Tracking Origin](#tracking-origin) section for more information.
 
 By default, Unity attempts to attach the `Stage Space` where possible. To help manage the different tracking origins, use the `XR Origin` from the XR Interaction Package, or the `Camera Offset` component from the Legacy Input Helpers package.
+
+### Tracking Origin
+
+The Unity OpenXR package maps Unity's [TrackingOriginModeFlags](https://docs.unity3d.com/Documentation/ScriptReference/XR.TrackingOriginModeFlags.html) to OpenXR reference spaces at runtime. The mapping for each tracking origin mode may be dependent on whether certain OpenXR extensions are present on the system and the version of the runtime. For more on reference spaces, refer to [7.1 Reference Spaces](https://registry.khronos.org/OpenXR/specs/1.1-khr/html/xrspec.html#spaces-reference-spaces) in the OpenXR specification.
+
+To determine which tracking origin modes are supported, call [XRInputSubsystem.GetSupportedTrackingOriginModes](https://docs.unity3d.com/Documentation/ScriptReference/XR.XRInputSubsystem.GetSupportedTrackingOriginModes.html).
+
+The following table outlines the corresponding reference space for each tracking origin mode:
+
+|Tracking Origin Mode|Reference Space|
+|--------------------|---------------|
+|Device|`XR_REFERENCE_SPACE_TYPE_LOCAL`|
+|Unbounded|`XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT`|
+|TrackingReference|Unsupported|
+
+The Floor tracking origin mode selects the best reference space supported by the runtime, illustrated by the following table. On devices that do not natively support a local floor-level reference space, Unity approximates one. To customize recentering behavior, use [OpenXRSettings.SetAllowRecentering](xref:UnityEngine.XR.OpenXR.OpenXRSettings.SetAllowRecentering*).
+
+|`OpenXRSettings.AllowRecentering`|Local floor-level space supported?|Floor Reference Space|
+|---------------------------------|----------------------------------|---------------------|
+|`true`|yes|`XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR` or `XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT`|
+|`true`|no|Approximated local floor space|
+|`false`|yes|`XR_REFERENCE_SPACE_TYPE_STAGE`|
+|`false`|no|`XR_REFERENCE_SPACE_TYPE_STAGE`|
+
+#### Reference Space Changes and Tracking Origin Updated
+
+Unity forwards OpenXR reference space change notifications to your code via `XRInputSubsystem.trackingOriginUpdated`. The most common trigger is a user-initiated recenter, and a single recenter may produce multiple reference space change events.
+
+Unity recommends that you design your `trackingOriginUpdated` handler to be safe to call multiple times and treat each event as potentially non-final. A follow-up event may arrive within several frames and reflect a more accurate tracking state. In the event that your callback cannot be run multiple times, consider coalescing the events by waiting for a short stabilization period.
 
 ### Interaction bindings
 
@@ -206,6 +232,7 @@ If you use OpenXR input with controllers or interactions such as eye gaze, Unity
 |Valve Index controller|`<ValveIndexController>`|[ValveIndexControllerProfile](./features/valveindexcontrollerprofile.md)|
 |Khronos Simple Controller|`<KHRSimpleController>`|[KHRSimpleControllerProfile](./features/khrsimplecontrollerprofile.md)|
 |Eye Gaze Interaction|`<EyeGaze>`|[EyeGazeInteraction](./features/eyegazeinteraction.md)|
+| Android Mouse Interaction| `<AndroidMouseInteraction>` | [AndroidMouseInteraction](./features/androidmouseinteraction.md)|
 
 ## Haptics
 

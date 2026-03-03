@@ -24,7 +24,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Hand Interaction Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Add hand interaction profile for hand tracking input device.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/handinteractionprofile.html",

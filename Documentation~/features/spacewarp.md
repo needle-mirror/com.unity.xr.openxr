@@ -17,6 +17,7 @@ Refer to the following topics for information about how to use SpaceWarp in your
 | [Enable and use Application SpaceWarp](xref:openxr-spacewarp-workflow) | Provides an overview of how to enable and configure SpaceWarp in Unity projects. |
 | [Shaders and SpaceWarp](xref:openxr-spacewarp-shaders) | Lists the URP shaders that are compatible with SpaceWarp. Explains how to update custom shaders to support SpaceWarp. |
 | [Configure Materials for SpaceWarp](xref:openxr-spacewarp-materials) | How to apply the SpaceWarp feature to specific Materials by toggling the **XR Motion Vectors Pass (Space Warp)** property. |
+| [UI incompatibility with SpaceWarp](xref:openxr-spacewarp-ui) | Provides a workaround for including UI elements in your scene with SpaceWarp enabled, since SpaceWarp does not currently support UI elements. |
 
 ## Additional resources
 

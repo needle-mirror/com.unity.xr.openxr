@@ -5,6 +5,9 @@ uid: openxr-foveated-rendering
 
 Foveated rendering is an optimization technique that can speed up rendering with little perceived impact on visual quality. Foveated rendering works by lowering the resolution of areas in the user's peripheral vision. On headsets that support eye-tracking as well as foveated rendering, the higher-resolution area can be centered where the user is currently looking. Without eye-tracking, the higher resolution area is fixed near the middle of the screen. Fixed foveated rendering can be more apparent to the user since they can shift their eyes to look at the peripheral areas.
 
+> [!NOTE]
+> Quad Views is a type of Foveated Rendering but uses a different rendering technique. For more information on Quad Views, see [Compare quad views and foveated rendering](xref:openxr-quad-views#compare-quad-views-and-foveated-rendering).
+
 OpenXR platforms use the variable shading rate (VSR) technique for foveated rendering, which does not require you to change custom shaders. (However, if you are creating assets that should work on all XR platforms, refer to the "Foveated rendering shaders" topic in [Foveated rendering](https://docs.unity3d.com/Manual/xr-foveated-rendering.html) to learn how to write shaders and shader graphs that work under all supported foveated rendering methods.)
 
 OpenXR devices can implement VRS using a variety of techniques and a single device can support more than one implementation. The Unity OpenXR plug-in chooses from the following techniques, in this order, depending on what the current device supports:
@@ -13,6 +16,9 @@ OpenXR devices can implement VRS using a variety of techniques and a single devi
 2. Fixed Fragment Density Map (FFDM) from provider.
 3. Fragment Shading Rate (FSR) using a provider's texture.
 4. Fragment Shading Rate using a compute shader calculated from the asymmetric FOVs the provider gives.
+
+> [!NOTE]
+> On Vulkan, FDM Foveated Rendering will be automatically disabled at runtime if the physical device running OpenXR does not support fragment density maps (VK_EXT_fragment_density_map).
 
 This topic covers aspects of foveated rendering specific to the Unity OpenXR provider plug-in:
 
@@ -31,7 +37,7 @@ To use the foveated rendering feature in OpenXR, your project must meet the foll
 
 * Unity 6+
 * Unity OpenXR plugin (com.unity.xr.openxr) 1.11.0+
-* Universal Rendering Pipeline or High Definition Render Pipeline (HDRP not recommended for mobile XR platforms such as the Meta Quest family of devices)
+* Universal Rendering Pipeline
 
 Alternately, you can use the Meta Core XR SDK package to access the OpenXR foveated rendering feature on Quest devices:
 
@@ -39,6 +45,9 @@ Alternately, you can use the Meta Core XR SDK package to access the OpenXR fovea
 * Unity OpenXR plugin (com.unity.xr.openxr) 1.11.0+
 * Meta Core XR SDK 68.0+
 * Built-in or Universal Rendering Pipeline
+
+> [!IMPORTANT]
+> In Unity 6.5 and newer, the Built-In Render Pipeline is deprecated and will be made obsolete in a future release. For more information, refer to [Migrating from the Built-In Render Pipeline to URP](https://docs.unity3d.com/6000.5/Documentation/Manual/urp/upgrading-from-birp.html) and [Render pipeline feature comparison](https://docs.unity3d.com/6000.5/Documentation/Manual/render-pipelines-feature-comparison.html).
 
 > [!NOTE]
 > The primary differences between the Unity **SRP Foveation** API and the Meta API for foveated rendering include:
@@ -74,21 +83,22 @@ To enable the **SRP Foveation** API in Unity 6+:
 
 1. Open the **Project Settings** window.
 2. Under **XR Plug-in Management**, select the **OpenXR** settings.
-3. Set the **Foveated Rendering API** option to **SRP Foveation**.
 3. In the list of **OpenXR Feature Groups**, select **All Features**.
-4. Enable the **Foveated Rendering** feature.
+4. Under **OpenXR Feature Groups**, enable the **Foveated Rendering** feature.
+5. Click the gear to open the sub-option window.
+6. Set the **Foveated Rendering Method** option to **Foveated rendering (SRP API)**.
 
 ![SRP Foveation settings](../images/FoveatedRendering/xr-foveation-srp-api-settings.png)<br/>*Settings to enable foveated rendering with the **SRP Foveation** API*
 
 After you have configured the settings, you must also turn on foveated rendering at runtime. Refer to [Use the SRP Foveation API](#use-the-srp-foveation-api) for more information.
 
 > [!NOTE]
-> You must configure the project to use either the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@17.0/manual/InstallURPIntoAProject.html) or the [High Definition Render Pipeline (HDRP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@17.0/manual/convert-project-from-built-in-render-pipeline.html), if you have not already done so.
+> You must configure the project to use the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@17.0/manual/InstallURPIntoAProject.html) if you have not already done so.
 
 <a id="configure-legacy-foveated-rendering"></a>
 ### Configure Legacy foveated rendering
 
-In Unity 6+, set the OpenXR **Foveated Render API** option to **Legacy** to use the Meta Core XR SDK, which only supports the Meta Quest family of devices. In Unity 2022, there is no option to select a **Foveated Rendering API**. Only the legacy API using the Meta Core XR SDK is supported.
+In Unity 6+, set the OpenXR **Foveated Rendering Method** option to **Legacy** to use the Meta Core XR SDK, which only supports the Meta Quest family of devices. In Unity 2022, there is no option to select a **Foveated Rendering Method**. Only the legacy API using the Meta Core XR SDK is supported.
 
 1. Install the [Meta Core XR SDK](com.unity3d.kharma:upmpackage/com.meta.xr.sdk.core) package, if necessary. You can get this package from the [Unity Asset Store](https://assetstore.unity.com/packages/tools/integration/meta-xr-core-sdk-269169). The package adds the Meta OpenXR feature group to the OpenXR along with the associated features. Refer to the [Meta Developer site](https://developer.oculus.com/downloads/package/meta-xr-core-sdk/68.0) for more information.
 2. Open the **Project Settings** window.
@@ -99,10 +109,10 @@ In Unity 6+, set the OpenXR **Foveated Render API** option to **Legacy** to use 
    ![Enable Meta XR feature group](../images/FoveatedRendering/xr-meta-feature-group.png)
 
 6. Select the **OpenXR** settings area (below **XR Plug-in Management**).
-7. Set the **Foveated Rendering API** option to **Legacy**.
+7. Set the **Foveated Rendering Method** option to **Foveated rendering (Legacy API)**.
 8. In the list of **OpenXR Feature Groups**, select **All Features**.
 9. Disable the **Foveated Rendering** feature, if it is enabled.
-10. Enable the **Meta XR Foveated Rendering** feature.
+10. Enable the **Meta XR Foveation** feature.
 11. (Optional) Enable the **Meta XR Eye Tracked Foveation** feature.
 
 ![Legacy Foveation settings](../images/FoveatedRendering/xr-foveation-legacy-settings.png)<br/>*Settings to enable foveated rendering with the **Legacy** API*

@@ -24,6 +24,8 @@ namespace UnityEditor.XR.OpenXR
         {
             if (!isMetaQuestInitialized)
             {
+                Features.FeatureHelpers.RefreshFeatures(BuildTargetGroup.Android);
+
                 var oculusTouchFeature = Features.FeatureHelpers.GetFeatureWithIdForBuildTarget(BuildTargetGroup.Android, oculusTouchFeatureId);
 
                 if (oculusTouchFeature != null)

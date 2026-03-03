@@ -119,24 +119,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         }
 
         /// <summary>
-        /// Different APIs to use in the backend.
-        /// On Built-in Render Pipeline, only Legacy will be used.
-        /// On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.
-        /// </summary>
-        [SerializeField, FormerlySerializedAs("foveatedRenderingApi"), Tooltip("On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.")]
-        OpenXRSettings.BackendFovationApi m_foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
-
-        internal OpenXRSettings.BackendFovationApi foveatedRenderingApi
-        {
-            get => m_foveatedRenderingApi;
-            set
-            {
-                m_foveatedRenderingApi = value;
-                EditorUtility.SetDirty(this);
-            }
-        }
-
-        /// <summary>
         /// Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.
         /// </summary>
         [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
@@ -301,9 +283,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
             openXrSettings.symmetricProjection = symmetricProjection;
             openXrSettings.optimizeBufferDiscards = optimizeBufferDiscards;
             openXrSettings.spacewarpMotionVectorTextureFormat = spacewarpMotionVectorTextureFormat;
-#if UNITY_2023_2_OR_NEWER
-            openXrSettings.foveatedRenderingApi = foveatedRenderingApi;
-#endif
 #if UNITY_6000_1_OR_NEWER
             openXrSettings.multiviewRenderRegionsOptimizationMode = multiviewRenderRegionsOptimizationMode;
 #endif
@@ -617,22 +596,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
                         error = true,
                         fixItAutomatic = true,
                         fixItMessage = "Set Render Mode to Multi-view"
-                    },
-
-                    new ValidationRule(this)
-                    {
-                        message = "Only Legacy Foveated Rendering API usage is possible on Built-in Render Pipeline",
-                        checkPredicate = () =>
-                        {
-                            return GraphicsSettings.defaultRenderPipeline != null || foveatedRenderingApi == OpenXRSettings.BackendFovationApi.Legacy;
-                        },
-                        fixIt = () =>
-                        {
-                            foveatedRenderingApi = OpenXRSettings.BackendFovationApi.Legacy;
-                        },
-                        error = true,
-                        fixItAutomatic = true,
-                        fixItMessage = "Set Foveated Rendering API to Legacy"
                     },
 
                     new ValidationRule(this)

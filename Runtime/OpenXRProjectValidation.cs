@@ -166,14 +166,14 @@ namespace UnityEditor.XR.OpenXR
             },
             new()
             {
-                message = "Only arm64 or x86_x64 is supported on Android with OpenXR.  Other architectures are not supported.",
-                checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || ((PlayerSettings.Android.targetArchitectures & (~(AndroidArchitecture.ARM64 | AndroidArchitecture.X86_64))) == 0) && (PlayerSettings.Android.targetArchitectures != AndroidArchitecture.None),
+                message = "Only arm64 is supported on Android with OpenXR.  Other architectures are not supported.",
+                checkPredicate = () => (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android) || ((PlayerSettings.Android.targetArchitectures & ~AndroidArchitecture.ARM64) == 0) && (PlayerSettings.Android.targetArchitectures != AndroidArchitecture.None),
                 fixIt = () =>
                 {
                     PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                 },
-                fixItMessage = "Change android build to arm64 or x86_64 and enable il2cpp.",
+                fixItMessage = "Change android build to arm64 and enable il2cpp.",
                 error = true,
                 buildTargetGroup = BuildTargetGroup.Android,
             },
@@ -263,20 +263,6 @@ namespace UnityEditor.XR.OpenXR
                 error = false,
                 errorEnteringPlaymode = false,
             },
-#if !UNITY_6000_4_OR_NEWER
-            new()
-            {
-                message = "[Optional] Soft shadows can negatively impact performance on HoloLens, disabling soft shadows is recommended",
-                checkPredicate = SoftShadowValidationPredicate,
-                fixItMessage =
-@"When using the Built-In Render Pipeline, enable hard shadows only.
-
-When using the Universal Render Pipeline, open the Render Pipeline Asset in Editor for modification.",
-                fixIt = SoftShadowFixItButtonPress,
-                error = false,
-                buildTargetGroup = BuildTargetGroup.WSA
-            },
-#endif
 #if XR_COMPOSITION_LAYERS
             new()
             {
@@ -297,18 +283,6 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
                 error = true,
             },
 #endif
-
-#if UNITY_6000_1_OR_NEWER
-            new()
-            {
-                message = MagicLeapDeprecationMessage,
-                checkPredicate = () =>
-                {
-                    return !ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup) || !IsMagicLeapAndroidArchitectureSupportEnabled();
-                },
-                fixItMessage = "This validation rule cannot be fixed and is intended to warn developers that from Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only."
-            }
-#endif
         };
 
         static readonly List<OpenXRFeature.ValidationRule> CachedValidationList = new(BuiltinValidationRules.Length);
@@ -325,7 +299,7 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 
         static void AddDefineToBuildTarget(string defineName)
         {
-            NamedBuildTarget[] targets = { NamedBuildTarget.Android, NamedBuildTarget.Standalone, NamedBuildTarget.WindowsStoreApps };
+            NamedBuildTarget[] targets = { NamedBuildTarget.Android, NamedBuildTarget.Standalone };
             for (var index = 0; index < targets.Length; index++)
             {
                 var defines = PlayerSettings.GetScriptingDefineSymbols(targets[index]);
@@ -645,59 +619,6 @@ When using the Universal Render Pipeline, open the Render Pipeline Asset in Edit
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
             Debug.LogWarning("Unable to disable URP upscaling.");
         }
-
-#if UNITY_6000_1_OR_NEWER
-        const string MagicLeapDeprecationMessage = "From Unity 6.3, the Magic Leap (x86_64) target will be limited to existing projects only.";
-
-        static bool ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(BuildTargetGroup buildTargetGroup)
-        {
-            var magicLeapFeatureId = "magicleap";
-            var openXrSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
-            foreach (var feature in openXrSettings?.features)
-            {
-                if (feature != null && feature.enabled && (feature.name.ToLower().Contains(magicLeapFeatureId) || feature.featureIdInternal.ToLower().Contains(magicLeapFeatureId)))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        static bool IsMagicLeapAndroidArchitectureSupportEnabled()
-        {
-            return EditorUserBuildSettings.selectedBuildTargetGroup == BuildTargetGroup.Android
-                && PlayerSettings.Android.targetArchitectures.HasFlag(AndroidArchitecture.X86_64);
-        }
-#endif
-
-#if UNITY_6000_3_OR_NEWER
-        [PostProcessBuild(1)]
-        static void OnPostprocessBuildMagicLeapDeprecation(BuildTarget target, string pathToBuiltProject)
-        {
-            BuildTargetGroup buildTargetGroup = BuildTargetGroup.Unknown;
-            switch (target)
-            {
-                case BuildTarget.StandaloneLinux64:
-                case BuildTarget.StandaloneOSX:
-                case BuildTarget.StandaloneWindows:
-                case BuildTarget.StandaloneWindows64:
-                    buildTargetGroup = BuildTargetGroup.Standalone;
-                    break;
-
-                case BuildTarget.Android:
-                    buildTargetGroup = BuildTargetGroup.Android;
-                    break;
-            }
-
-            if (buildTargetGroup != BuildTargetGroup.Standalone && buildTargetGroup != BuildTargetGroup.Android)
-                return;
-
-            if (!ExistsMagicLeapOpenXRFeaturesEnabledForBuildTarget(buildTargetGroup))
-                return;
-
-            Debug.LogWarning(MagicLeapDeprecationMessage);
-        }
-#endif
     }
 }
 #endif

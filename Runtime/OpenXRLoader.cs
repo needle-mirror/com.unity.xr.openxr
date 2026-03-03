@@ -33,7 +33,6 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_EDITOR
     [XRSupportedBuildTarget(BuildTargetGroup.Standalone, new[] {BuildTarget.StandaloneWindows64})]
     [XRSupportedBuildTarget(BuildTargetGroup.Android)]
-    [XRSupportedBuildTarget(BuildTargetGroup.WSA)]
 #endif
     public class OpenXRLoader : OpenXRLoaderBase
 #if UNITY_EDITOR

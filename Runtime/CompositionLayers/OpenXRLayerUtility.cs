@@ -147,6 +147,15 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
+        /// Remove an active layer from the native end frame info according to the order provided.
+        /// </summary>
+        /// <param name="layerOrder">The order of the composition layer.</param>
+        public static void RemoveActiveLayer(int layerOrder)
+        {
+            ext_composition_layers_RemoveActiveLayer(layerOrder);
+        }
+
+        /// <summary>
         /// Return swapchain supported color format.
         /// </summary>
         /// <returns>The color format the swapchains will be using.</returns>
@@ -385,6 +394,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         [DllImport(LibraryName)]
         internal static extern void ext_composition_layers_ReleaseAndDestroySwapchain(int id);
+
+        [DllImport(LibraryName)]
+        internal static extern void ext_composition_layers_RemoveActiveLayer(int order);
 
         [DllImport(LibraryName)]
         internal static extern unsafe void ext_composition_layers_AddActiveLayers(

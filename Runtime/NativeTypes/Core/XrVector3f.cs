@@ -99,7 +99,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// > This method negates the <see cref="Z"/> value to convert from OpenXR's right-handed
         /// > coordinate system to the left-handed system used by Unity.
         /// </remarks>
-        public Vector3 AsVector3()
+        public readonly Vector3 AsVector3()
         {
             return new Vector3(X, Y, -Z);
         }
@@ -109,7 +109,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <see cref="X"/>, <see cref="Y"/>, or <see cref="Z"/>.
         /// </summary>
         /// <returns>The `Vector3`.</returns>
-        public Vector3 ToSessionSpaceVector3()
+        public readonly Vector3 ToSessionSpaceVector3()
         {
             return new Vector3(X, Y, Z);
         }
@@ -120,7 +120,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </summary>
         /// <param name="other">The other instance.</param>
         /// <returns>`true` if the instances are equal. Otherwise, `false`.</returns>
-        public bool Equals(XrVector3f other)
+        public readonly bool Equals(XrVector3f other)
         {
             return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
         }
@@ -131,7 +131,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>`true` if `obj` is an `XrVector3f` and equal to this instance. Otherwise, `false`.</returns>
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object obj)
         {
             return obj is XrVector3f other && Equals(other);
         }
@@ -140,7 +140,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Generates a unique hash code for this instance.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode()
+        public override readonly int GetHashCode()
         {
             return HashCode.Combine(X, Y, Z);
         }

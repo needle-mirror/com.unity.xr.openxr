@@ -826,10 +826,10 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrStopHapticFeedback(XrSess
     MOCK_HOOK(s_runtime->StopHapticFeedback(hapticActionInfo));
 }
 
-extern uint32_t s_VisibilityMaskVerticesSizes[2][3];
-extern uint32_t s_VisibilityMaskIndicesSizes[2][3];
-extern XrVector2f s_VisibilityMaskVertices[2][3][99];
-extern uint32_t s_VisibilityMaskIndices[2][3][99];
+extern uint32_t s_VisibilityMaskVerticesSizes[4][3];
+extern uint32_t s_VisibilityMaskIndicesSizes[4][3];
+extern XrVector2f s_VisibilityMaskVertices[4][3][99];
+extern uint32_t s_VisibilityMaskIndices[4][3][99];
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrGetVisibilityMaskKHR(XrSession session, XrViewConfigurationType viewConfigurationType, uint32_t viewIndex, XrVisibilityMaskTypeKHR visibilityMaskType, XrVisibilityMaskKHR* visibilityMask)
 {

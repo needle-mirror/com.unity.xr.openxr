@@ -43,6 +43,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             (typeof(HandInteractionProfile), typeof(HandInteractionProfile.HandInteraction), null),
             (typeof(MetaQuestTouchProControllerProfile), typeof(MetaQuestTouchProControllerProfile.QuestProTouchController), null),
             (typeof(MetaQuestTouchPlusControllerProfile), typeof(MetaQuestTouchPlusControllerProfile.QuestTouchPlusController), null),
+#if UNITY_ANDROID
+            (typeof(AndroidMouseInteractionProfile), typeof(AndroidMouseInteractionProfile.AndroidMouseInteraction), null),
+#endif
 #if !UNITY_ANDROID
             (typeof(HTCViveControllerProfile), typeof(HTCViveControllerProfile.ViveController), null),
             (typeof(HPReverbG2ControllerProfile), typeof(HPReverbG2ControllerProfile.ReverbG2Controller), null),
@@ -163,7 +166,7 @@ namespace UnityEngine.XR.OpenXR.Tests
                 actualValue.x >= value.x - float.Epsilon && actualValue.x <= value.x + float.Epsilon &&
                 actualValue.y >= value.y - float.Epsilon && actualValue.y <= value.y + float.Epsilon,
                 $"Expected '{value}' but received '{actualValue}' from '{inputAction}' bound to '{interactionPath}'"
-                );
+            );
         }
 
         /// <summary>

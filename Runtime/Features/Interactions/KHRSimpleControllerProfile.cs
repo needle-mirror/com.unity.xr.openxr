@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Khronos Simple Controller Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Allows for mapping input to the Khronos Simple Controller interaction profile.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/khrsimplecontrollerprofile.html",

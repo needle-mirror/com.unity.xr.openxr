@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "ControllerSampleActions",
     "maps": [
         {
@@ -9,10 +10,10 @@
                     "name": "TriggerPress",
                     "type": "Button",
                     "id": "578a0cd6-f388-4fa3-92f3-c09338bdf6fc",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "TriggerTouch",
@@ -343,6 +344,15 @@
                     "type": "Value",
                     "id": "7081a0c1-4ea9-4864-a36b-a72cd134062d",
                     "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Tracked",
+                    "type": "Button",
+                    "id": "2c90e70d-d53e-4e68-8ff2-26549d335ed5",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -799,6 +809,17 @@
                     "action": "AimPose",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c4cb9e8b-8a70-49bf-a751-ac16a8579b95",
+                    "path": "<XRController>{LeftHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Tracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -810,7 +831,7 @@
                     "name": "TriggerPress",
                     "type": "Button",
                     "id": "bc163c5e-01a5-48ae-83b3-87e68f24f888",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -1144,6 +1165,15 @@
                     "type": "Value",
                     "id": "ffc282a0-cd33-4ecd-aab6-075d869e9472",
                     "expectedControlType": "Pose",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Tracked",
+                    "type": "Button",
+                    "id": "4840440a-5719-470c-93c9-270b0dec9cfc",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -1600,6 +1630,17 @@
                     "action": "AimPose",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "193754b2-2509-4603-957b-cda579bcc7ff",
+                    "path": "<XRController>{RightHand}/isTracked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Tracked",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -1727,10 +1768,10 @@
                     "name": "Tracked",
                     "type": "Button",
                     "id": "2a7ee830-cd9a-420a-84fd-c4ac3085124a",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "EyePosition",

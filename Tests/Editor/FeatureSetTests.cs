@@ -75,7 +75,7 @@ namespace UnityEditor.XR.OpenXR.Tests
             },
             UiName = k_TestFeatureSetName,
             Description = k_TestFeatureSetDescription,
-            FeatureSetId = k_TestFeatureSetId,
+            FeatureSetId = k_TestFeatureSetIdTwo,
             SupportedBuildTargets = new[] { BuildTargetGroup.Android },
             RequiredFeatureIds = new[]
             {
@@ -210,7 +210,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         public void NonoverrideKnownTestFeatureSet()
         {
-            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.WSA, k_TestFeatureSetId);
+            var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.Android, k_TestFeatureSetId);
             Assert.IsNotNull(foundFeatureSet);
             Assert.AreEqual(0, String.Compare(foundFeatureSet.name, k_KnownFeatureSetName, true));
         }

@@ -24,7 +24,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Hand Interaction Poses",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Add hand common interaction poses feature, if enabled, four additional commonly used poses will be supported.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/handcommonposesinteraction.html",

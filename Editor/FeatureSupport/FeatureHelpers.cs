@@ -149,9 +149,18 @@ namespace UnityEditor.XR.OpenXR.Features
                 return ret;
 
             // Find any OpenXRFeatures that are already serialized
-            IEnumerable<Object> featureAssets = isOpenXrSettingsAMockInstance
-                ? openXrSettings.features
+            // Combine features from disk AND from the in-memory array to handle AssetDatabase caching issues
+            IEnumerable<Object> featureAssetsFromDisk = isOpenXrSettingsAMockInstance
+                ? Array.Empty<Object>()
                 : GetPackageSettingsFeatureAssets(openXrPackageSettings);
+
+            IEnumerable<Object> featureAssetsFromMemory = openXrSettings.features ?? Array.Empty<Object>();
+
+            // Merge both sources, removing duplicates by object reference
+            var featureAssets = featureAssetsFromDisk
+                .Concat(featureAssetsFromMemory)
+                .Distinct()
+                .ToList();
 
             var featuresOnDisk = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
             string buildGroupName = isOpenXrSettingsAMockInstance ? "MockRuntime" : group.ToString();

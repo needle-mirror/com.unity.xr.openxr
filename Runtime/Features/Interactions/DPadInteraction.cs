@@ -18,7 +18,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "D-Pad Binding",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Add DPad feature support and if enabled, extra dpad paths will be added to any controller profiles with a thumbstick or trackpad.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/dpadinteraction.html",
@@ -228,6 +228,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// </summary>
         public string[] extensionStrings = { "XR_KHR_binding_modification", "XR_EXT_dpad_binding" };
 
+        private const string layoutName = "XRDPad";
+
 #if UNITY_EDITOR
         protected internal override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup target)
         {
@@ -286,6 +288,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 return;
 #endif
             InputSystem.InputSystem.RegisterLayout(typeof(DPad),
+                        layoutName,
                         matches: new InputDeviceMatcher()
                         .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                         .WithProduct(kDeviceLocalizedName));
@@ -300,7 +303,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
                 return;
 #endif
-            InputSystem.InputSystem.RemoveLayout(nameof(DPad));
+            InputSystem.InputSystem.RemoveLayout(layoutName);
         }
 
         /// <summary>
@@ -309,7 +312,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// <returns>Device layout string.</returns>
         protected override string GetDeviceLayoutName()
         {
-            return nameof(DPad);
+            return layoutName;
         }
 
         /// <inheritdoc/>

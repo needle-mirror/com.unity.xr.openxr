@@ -53,6 +53,13 @@ namespace UnityEngine.XR.OpenXR
         public static bool IsExtensionEnabled(string extensionName) => Internal_IsExtensionEnabled(extensionName);
 
         /// <summary>
+        /// Queries if the OpenXR extension was requested. The extension may or may not be enabled.
+        /// </summary>
+        /// <param name="extensionName">Name of the OpenXR extension</param>
+        /// <returns>True if the OpenXR plugin requested the extension to the runtime. False otherwise.</returns>
+        internal static bool IsExtensionRequested(string extensionName) => Internal_IsExtensionRequested(extensionName);
+
+        /// <summary>
         /// Convenience overload to add logging capabilities to `OnInstanceCreate`.
         /// </summary>
         internal static bool IsExtensionEnabled(string extension, string featureName)
@@ -203,6 +210,10 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionEnabled")]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Internal_IsExtensionEnabled(string extensionName);
+
+        [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionRequested")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        static extern bool Internal_IsExtensionRequested(string extensionName);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_GetExtensionVersion")]
         static extern uint Internal_GetExtensionVersion(string extensionName);

@@ -24,7 +24,7 @@ namespace UnityEditor.XR.OpenXR
         {
             public const float k_Space = 15.0f;
 
-            public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode");
+            public static readonly GUIContent k_renderModeLabel = new GUIContent("Render Mode", "Choose the rendering strategy.");
             public static readonly GUIContent k_vulkanAdditionalGraphicsQueue = new GUIContent("Additional Graphics Queue (Vulkan)", "Request an additional Vulkan graphics queue for its own rendering at startup.");
             public static readonly GUIContent k_vulkanOffscreenSwapchainNoMainDisplay = new GUIContent("Offscreen Rendering Only (Vulkan)", "Enabled offscreen swapchains and stops allocations for the main display buffer. This setting should be disabled for handheld platforms.");
 
@@ -135,7 +135,7 @@ namespace UnityEditor.XR.OpenXR
             GUILayout.BeginHorizontal();
 
             var newAutoColorSubmissionMode = EditorGUILayout.Toggle(
-                "Auto Color Submission Mode",
+                new GUIContent("Auto Color Submission Mode", "Automatically select the default color submission mode."),
                 openXrSettings.autoColorSubmissionMode
             );
             if (newAutoColorSubmissionMode != openXrSettings.autoColorSubmissionMode)
@@ -168,6 +168,7 @@ namespace UnityEditor.XR.OpenXR
             DrawPropertiesExcluding(
                 serializedOpenXrSettings,
                 "m_Script",
+                "m_foveatedRenderingApi",
                 "m_renderMode",
                 "m_autoColorSubmissionMode",
                 "m_latencyOptimization",
@@ -177,7 +178,8 @@ namespace UnityEditor.XR.OpenXR
                 "m_vulkanAdditionalGraphicsQueue",
                 "m_vulkanOffscreenSwapchainNoMainDisplay",
                 "m_multiviewRenderRegionsOptimizationMode",
-                "m_spacewarpMotionVectorTextureFormat"
+                "m_spacewarpMotionVectorTextureFormat",
+                "m_ApiLayers"
             );
             if (
                 buildTargetGroup == BuildTargetGroup.Android

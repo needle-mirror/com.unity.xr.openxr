@@ -94,6 +94,7 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Information sent to the OpenXR runtime to identify how to map a <see cref="UnityEngine.XR.InputDevice"/> or <see cref="UnityEngine.InputSystem.InputDevice"/> to an underlying OpenXR user path.
         /// </summary>
+        [Serializable]
         protected internal class DeviceConfig
         {
             /// <summary>The <see cref="InputDeviceCharacteristics"/> for the <see cref="UnityEngine.XR.InputDevice"/> that will represent this ActionMapConfig. See <see cref="UnityEngine.XR.InputDevice.characteristics"/></summary>
@@ -295,6 +296,75 @@ namespace UnityEngine.XR.OpenXR.Features
         {
         }
 
+#if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+        private static readonly Dictionary<string, (string[] actions, string[] augmented)> s_LastPayloadPerFeature = new Dictionary<string, (string[] actions, string[] augmented)>();
+#endif
+
+        internal static void SendAdditiveAnalyticsData(OpenXRInteractionFeature feature)
+        {
+#if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+            if (feature == null || !feature.enabled || !feature.IsAdditive)
+                return;
+
+            var additiveMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+            feature.CreateActionMaps(additiveMaps);
+            if (additiveMaps.Count == 0)
+                return;
+
+            var currentAdditiveMap = additiveMaps[additiveMaps.Count - 1];
+            var additiveProfileName = !string.IsNullOrEmpty(currentAdditiveMap.name) ? currentAdditiveMap.name : currentAdditiveMap.localizedName;
+            var augmentedProfiles = new HashSet<string>();
+            var additiveActionNames = new HashSet<string>();
+
+            if (currentAdditiveMap.actions != null)
+            {
+                foreach (var action in currentAdditiveMap.actions)
+                {
+                    var name = !string.IsNullOrEmpty(action.name) ? action.name : action.localizedName;
+                    if (!string.IsNullOrEmpty(name))
+                        additiveActionNames.Add(name);
+                }
+            }
+
+            var baseMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup);
+            if (settings != null)
+            {
+                foreach (var curFeature in settings.GetFeatures<OpenXRFeature>())
+                {
+                    var f = curFeature as OpenXRInteractionFeature;
+                    if (f == null || !f.enabled || f.IsAdditive)
+                        continue;
+                    f.CreateActionMaps(baseMaps);
+                }
+            }
+
+            foreach (var baseMap in baseMaps)
+            {
+                var display = !string.IsNullOrEmpty(baseMap.localizedName) ? baseMap.localizedName : baseMap.name;
+                if (!string.IsNullOrEmpty(display))
+                    augmentedProfiles.Add(display);
+            }
+
+            var actionsArray = additiveActionNames.ToArray();
+            var augmentedArray = augmentedProfiles.ToArray();
+
+            // Create an identifier for this feature instance and use it to stop redundant analytics.
+            var featureKey = additiveProfileName;
+
+            if (s_LastPayloadPerFeature.TryGetValue(featureKey, out var last) && last.actions.SequenceEqual(actionsArray) && last.augmented.SequenceEqual(augmentedArray))
+            {
+                // No change since last send for this feature; skip
+                return;
+            }
+
+            UnityEditor.XR.OpenXR.Analytics.AdditiveActionsAnalytics.Send(additiveProfileName, augmentedArray, actionsArray);
+
+            s_LastPayloadPerFeature[featureKey] = (actionsArray, augmentedArray);
+#endif // #if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+        }
+
+
         /// <summary>
         /// Handle enabled state change
         /// </summary>
@@ -312,7 +382,13 @@ namespace UnityEngine.XR.OpenXR.Features
                 string deviceLayoutName = ((OpenXRInteractionFeature) feature).GetDeviceLayoutName();
                 deviceLayoutName = "<" + deviceLayoutName + ">";
                 if (m_InteractionProfileEnabledMaps.ContainsKey(profileType) && m_InteractionProfileEnabledMaps[profileType].ContainsKey(deviceLayoutName))
+                {
                     m_InteractionProfileEnabledMaps[profileType][deviceLayoutName] = feature.enabled;
+                    if (((OpenXRInteractionFeature) feature).IsAdditive)
+                    {
+                        OpenXRInteractionFeature.SendAdditiveAnalyticsData((OpenXRInteractionFeature) feature);
+                    }
+                }
             }
 #endif
         }
@@ -427,9 +503,13 @@ namespace UnityEngine.XR.OpenXR.Features
 #endif
 
 #if UNITY_EDITOR
-            internal static bool OpenXRLoaderEnabledForSelectedBuildTarget(BuildTargetGroup targetGroup)
+            /// <summary>
+            /// Checks whether the OpenXR Loader is enabled for a given Unity build target group by looking for an OpenXRLoader in that target’s XR Plug-in Management active loaders.
+            /// </summary>
+            /// <param name="targetGroup">The given Unity build target group to check for an active OpenXR loader</param>
+            protected internal static bool OpenXRLoaderEnabledForSelectedBuildTarget(BuildTargetGroup targetGroup)
             {
-                var settings =XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup)?.AssignedSettings;
+                var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup)?.AssignedSettings;
                 if (!settings)
                     return false;
                 bool loaderFound = false;

@@ -9,6 +9,48 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.17.0-pre.2] - 2026-03-03
+
+### Added
+
+* Added the following members to the [OpenXR native API](xref:openxr-native-api):
+  * `OpenXRNativeApi.xrUnpersistSpatialEntityAsyncEXT(XrSpatialPersistenceContextEXT, XrUuid, out XrFutureEXT)`
+* Added support for the `XR_ANDROID_mouse_interaction` extension, enabling mouse and trackpad devices to provide 3D pointer ray interactions in Android XR applications.
+* Added support for `OpenXR API Layers`, providing a new `ApiLayersFeature`, a public api, and editor ui for users to leverage.
+* Added tooltips and documentation links to some OpenXR settings and features.
+* Added Quad Views option for Foveated Rendering.
+* Added `OpenXRLayerUtility.RemoveActiveLayer` so ILayerHandler implementations can remove composition layers from the native list of active layers that were cached this frame.
+* Added analytics to track usage of additive APIs.
+* Added validation rule to check that when the **Quad Views** option for **Foveated Rendering** is enabled, the OpenXR **Render Mode** is set to **Single Pass Instanced \ Multi-view**.
+
+### Changed
+
+* Changed OpenXR loader version to 1.1.54.
+* Changed the device layout for the D-Pad Interaction feature from `DPad` to `XRDPad` to align with XR naming conventions. This fixes instances where control layouts would overwrite each other due to naming conflicts. Existing Input Action bindings to `<DPad>` need to update to use the new `<XRDPad>` path.
+* Changed the access level of `OpenXRInteractionFeature.OpenXRLoaderEnabledForSelectedBuildTarget` so that custom OpenXRInteractionFeature implementations can check whether a specific OpenXR loader is enabled.
+* Single Pass Instanced rendering uses two render passes with two render views each when Quad Views is enabled.
+* Moved the Foveated Rendering Api choice into the Foveated Rendering Feature Group.
+* Changed `XrVector3f` to add the `readonly` keyword to all instance methods, indicating that they don't mutate the struct.
+* Changed the documented `Preferred Graphics API` for runtimes that support DirectX to prefer DX12 instead of DX11.
+
+### Removed
+
+* Removed OpenXR support for Universal Windows Platform.
+* Removed OpenXR support for Android x64 and Magic Leap 2.
+
+### Fixed
+
+* Fixed tracking origin to match the expected head position when an HMD recovers tracking or wakes up after the XR app starts. ([OXRB-520](https://issuetracker.unity3d.com/issues/valve-index-tracking-origin-is-incorrect-if-headset-isnt-tracking-on-startup-openxr-loader-plus-steamvr))
+* Fixed an issue that caused "Could not create a device error" when connecting a game pad device and XR is set up in the project.
+* Fixed interaction profile errors when adding OpenXR package after Meta Build Profile is switched to.
+* Fixed issues in samples where controllers would remain visible when tracking was lost.
+* Fixed a lifecycle bug for OpenXR Composition Layers. OpenXRLayerProvider now disposes itself and all registered ILayerHandler when the application is paused and when the OpenXR session ends.
+* Fixed an issue to use the correct versions of icons in light mode.
+* Fixed an issue where the Foveated Rendering Api choice gets overwritten by the MetaQuestFeature window.
+* Fixed unnecessary allocations in `OpenXRProjectionLayer`. ([UUM-135657](https://issuetracker.unity3d.com/product/unity/issues/guid/UUM-135657))
+* Fixed an issue for Oculus Foveation so it now checks if the `VK_EXT_fragment_density_map` extension is enumerable on the vulkan device before using the `XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB` extension.
+* Fixed an issue when importing OpenXR package so that it now checks for existing features on the "OpenXR Package Settings" asset on disk and in memory.
+
 ## [1.17.0-pre.1] - 2025-12-16
 
 ### Added
@@ -31,7 +73,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-* Removed OpenXR support for Universal Windows Platform on Unity 6000.4 and above.
 * Removed an unit test `PluginVersion` which was used internally to validate package version.
 * Removed verbose and redundant log message custom loader versions when browsing the OpenXR Settings view.
 

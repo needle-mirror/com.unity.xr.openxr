@@ -15,7 +15,7 @@ namespace UnityEngine.XR.OpenXR.Samples.InterceptFeature
     /// </summary>
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Sample: Intercept Create Session",
-        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Example feature extension showing how to intercept a single OpenXR function.",
         DocumentationLink = Constants.k_DocumentationURL,

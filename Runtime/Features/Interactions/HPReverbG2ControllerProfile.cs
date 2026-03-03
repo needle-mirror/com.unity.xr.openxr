@@ -28,7 +28,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "HP Reverb G2 Controller Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone },
         Company = "Unity",
         Desc = "Allows for mapping input to the HP Reverb G2 Controller interaction profile.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/hpreverbg2controllerprofile.html",

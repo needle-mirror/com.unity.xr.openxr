@@ -37,9 +37,6 @@ namespace UnityEditor.XR.OpenXR
                     supportedBuildTargets = new List<BuildTargetGroup>()
                     {
                         BuildTargetGroup.Standalone,
-#if !UNITY_6000_4_OR_NEWER
-                        BuildTargetGroup.WSA,
-#endif
                         BuildTargetGroup.Android
                     },
                 },

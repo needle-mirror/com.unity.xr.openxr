@@ -22,7 +22,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Eye Gaze Interaction Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.WSA, BuildTargetGroup.Standalone, BuildTargetGroup.Android },
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android },
         Company = "Unity",
         Desc = "Support for enabling the eye tracking interaction profile. Will register the controller map for eye tracking if enabled.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/eyegazeinteraction.html",
@@ -77,24 +77,6 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string extensionString = "XR_EXT_eye_gaze_interaction";
 
         private const string layoutName = "EyeGaze";
-
-#if UNITY_EDITOR
-        protected internal override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup target)
-        {
-            if (target == BuildTargetGroup.WSA)
-            {
-                results.Add(new ValidationRule(this){
-                    message = "Eye Gaze support requires the Gaze Input capability.",
-                    error = false,
-                    checkPredicate = () => PlayerSettings.WSA.GetCapability(PlayerSettings.WSACapability.GazeInput),
-                    fixIt = () => PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true)
-                });
-            }
-
-            base.GetValidationChecks(results, target);
-        }
-
-#endif
 
         /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)

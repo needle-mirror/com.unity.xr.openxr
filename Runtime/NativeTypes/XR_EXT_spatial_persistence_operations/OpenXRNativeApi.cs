@@ -143,6 +143,48 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             out XrFutureEXT future);
 
         /// <summary>
+        /// Unpersists the spatial entity defined by the given UUID from the given persistence context.
+        /// Provided by `XR_EXT_spatial_persistence_operations`.
+        /// </summary>
+        /// <param name="persistenceContext">A persistence context previously created using
+        /// `xrCreateSpatialPersistenceContextAsyncEXT`.</param>
+        /// <param name="persistUuid">The UUID of the persisted entity to unpersist.</param>
+        /// <param name="future">The output future.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.LimitReached"/></description></item>
+        ///   <item><description><see cref="XrResult.PermissionInsufficient"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        /// </remarks>
+        public static XrResult xrUnpersistSpatialEntityAsyncEXT(
+            XrSpatialPersistenceContextEXT persistenceContext,
+            XrUuid persistUuid,
+            out XrFutureEXT future)
+        {
+            var unpersistInfo = new XrSpatialEntityUnpersistInfoEXT(persistUuid);
+            return xrUnpersistSpatialEntityAsyncEXT(persistenceContext, unpersistInfo, out future);
+        }
+
+        /// <summary>
         /// Completes the asynchronous operation started by <see cref="xrUnpersistSpatialEntityAsyncEXT"/>.
         /// Provided by `XR_EXT_spatial_persistence_operations`.
         /// </summary>

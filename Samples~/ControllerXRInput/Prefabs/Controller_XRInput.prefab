@@ -79,7 +79,7 @@ GameObject:
   - component: {fileID: 6169362948042999664}
   - component: {fileID: 1527650419323733279}
   - component: {fileID: 6166134171794915884}
-  - component: {fileID: 3104594176834740174}
+  - component: {fileID: 4386975596933504433}
   m_Layer: 0
   m_Name: Controller_XRInput
   m_TagString: Untagged
@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Amplitude: 1
   m_Duration: 0.1
   m_Frequency: 3000
---- !u!114 &3104594176834740174
+--- !u!114 &4386975596933504433
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -148,12 +148,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 6169362948042999665}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83bb0a5009c7d6a41b30d907f9e30183, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c52c06848369e74184084953a1ef360, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnityEngine.XR.OpenXR.Samples.ControllerSampleXRInput.TrackingToVisibility
   m_XRNode: 4
-  m_Target: {fileID: 6169362948273482683}
-  m_UsageString: DevicePosition
+  m_UsageString: isTracked
+  m_target: {fileID: 6169362948273482683}
 --- !u!1 &6169362948064679920
 GameObject:
   m_ObjectHideFlags: 0

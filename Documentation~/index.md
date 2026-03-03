@@ -17,11 +17,10 @@ Unity's OpenXR plug-in should work with any device that supports conformant Open
 
 |**Runtime**|**Build target**|**Preferred Graphics API**|**Feature Parity**|**Known Limitations**|
 |---|---|---|---|---|
-|Windows Mixed Reality|Windows 64-bit|DX11|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/mixed-reality-openxr-plugin)||
-|Oculus PC + Link|Windows 64-bit|DX11|HMD + Controllers|Oculus Integration package features not available|
+|Windows Mixed Reality|Windows 64-bit|DX12|Full feature parity via [Mixed Reality OpenXR Plugin for Unity](https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/mixed-reality-openxr-plugin)||
+|Oculus PC + Link|Windows 64-bit|DX12|HMD + Controllers|Oculus Integration package features not available|
 |Meta Quest|Android arm64|Vulkan|HMD + Controllers via [Meta Quest Support Feature](./features/metaquest.md)|
-|Magic Leap 2|Android x64|Vulkan|Full feature parity via [Magic Leap Unity Overview OpenXR](https://developer-docs.magicleap.cloud/docs/guides/unity/unity-overview-openxr/)||
-|All other conformant runtimes (eg. SteamVR)|Windows 64-bit|DX11|HMD + Controllers|Given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally.<br><br>SteamVR Plugin features not available|
+|All other conformant runtimes (eg. SteamVR)|Windows 64-bit|DX12|HMD + Controllers|Given the unbounded combinations of possible hardware/software configurations, Unity is unable to test or guarantee that all configurations will work optimally.<br><br>SteamVR Plugin features not available|
 
 To help the community as a whole, Unity will continue to submit any runtime issues, and contribute conformance tests and specification changes to the Khronos working group.
 
@@ -29,7 +28,7 @@ To help the community as a whole, Unity will continue to submit any runtime issu
 
 Each release of the OpenXR Plugin is linked against the Khronos Group [OpenXR-SDK](https://github.com/KhronosGroup/OpenXR-SDK/releases). This repository contains the authoritative public OpenXR headers, source code and build scripts used to generate the OpenXR Loader dll/so/libraries.
 
-This release is linked against the OpenXR-SDK version [1.1.53](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.53).
+This release is linked against the OpenXR-SDK version [1.1.54](https://github.com/KhronosGroup/OpenXR-SDK/releases/tag/release-1.1.54).
 
 Additionally, you can access the current OpenXR Runtime through the scripting API via `OpenXRRuntime.version`. This returns a string representing the semantic versioning of the current OpenXR Runtime.
 
@@ -139,6 +138,7 @@ Features are a collection of Unity Assets that can be distributed through the Pa
 * [Microsoft Motion Controller](./features/microsoftmotioncontrollerprofile.md)
 * [Oculus Touch Controller](./features/oculustouchcontrollerprofile.md)
 * [Valve Index Controller](./features/valveindexcontrollerprofile.md)
+* [Android Mouse Interaction](./features/androidmouseinteraction.md)
 
 ### Accessing features at runtime via script
 

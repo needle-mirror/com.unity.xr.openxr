@@ -18,7 +18,6 @@ namespace UnityEditor.XR.OpenXR.Features
 
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Standalone)]
     [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.Android)]
-    [XRCustomLoaderUI("UnityEngine.XR.OpenXR.OpenXRLoader", BuildTargetGroup.WSA)]
     class OpenXRLoaderUI : IXRCustomLoaderUI
     {
         protected bool shouldApplyFeatureSetChanges;

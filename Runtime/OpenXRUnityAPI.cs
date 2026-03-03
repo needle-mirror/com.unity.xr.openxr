@@ -173,7 +173,7 @@ namespace UnityEngine.XR.OpenXR.API
         /// <summary>
         /// Specifies that the resources backing this texture can't be resized.  No control over
         /// width / height of texture. Unity might render to a separate texture of a more convenient
-        /// size, then blit into this one. For Example, HoloLens backbuffer size can't be changed.
+        /// size, then blit into this one.
         /// </summary>
         kUnityXRRenderTextureFlagsLockedWidthHeight = 1 << 2,
 

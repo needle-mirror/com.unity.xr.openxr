@@ -28,7 +28,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Valve Index Controller Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA },
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone },
         Company = "Unity",
         Desc = "Allows for mapping input to the Valve Index Controller interaction profile.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/valveindexcontrollerprofile.html",

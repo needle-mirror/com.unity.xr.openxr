@@ -115,15 +115,6 @@ class zBuildSamplesYamatoOnly
         EnableFeature<HandCommonPosesInteraction>();
     }
 
-    static void EnableWSAProfiles()
-    {
-        EnableFeature<EyeGazeInteraction>();
-        EnableFeature<MicrosoftMotionControllerProfile>();
-        EnableFeature<HandInteractionProfile>();
-        EnableFeature<PalmPoseInteraction>();
-        EnableFeature<HandCommonPosesInteraction>();
-    }
-
     static void EnableAndroidProfiles()
     {
         EnableFeature<OculusTouchControllerProfile>();
@@ -141,10 +132,10 @@ class zBuildSamplesYamatoOnly
             {
                 EnableSampleFeatures();
                 EnableStandaloneProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11, GraphicsDeviceType.Vulkan });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
             },
-            outputPostfix = "dx11",
+            outputPostfix = "dx12",
         },
         new SampleBuildTargetSetup
         {
@@ -168,50 +159,12 @@ class zBuildSamplesYamatoOnly
             setupPlayerSettings = (outputFile, identifier) =>
             {
                 EnableSampleFeatures();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D11 });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D12 });
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
             },
             outputPostfix = "vk",
         },
-        new SampleBuildTargetSetup
-        {
-            buildTarget = BuildTarget.WSAPlayer,
-            targetGroup = BuildTargetGroup.WSA,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableMSFTObserverFeature();
-                EnableFeature<EyeGazeInteraction>();
-                EnableFeature<HandInteractionProfile>();
-                EnableWSAProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D11 });
-                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
-                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
-                OpenXRSettings.ActiveBuildTargetInstance.renderMode = OpenXRSettings.RenderMode.SinglePassInstanced;
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
-            },
-            outputPostfix = "dx11",
-        },
-        new SampleBuildTargetSetup
-        {
-            sampleRegex = new Regex(".*Render.*"), // Only build dx12 variant for Render Samples
-            buildTarget = BuildTarget.WSAPlayer,
-            targetGroup = BuildTargetGroup.WSA,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableMSFTObserverFeature();
-                EnableFeature<EyeGazeInteraction>();
-                EnableFeature<HandInteractionProfile>();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.WSAPlayer, new[] { GraphicsDeviceType.Direct3D12 });
-                QualitySettings.SetQualityLevel(5);
-                QualitySettings.antiAliasing = 4;
-                PlayerSettings.WSA.packageName = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.WindowsStoreApps);
-                PlayerSettings.WSA.SetCapability(PlayerSettings.WSACapability.GazeInput, true);
-            },
-            outputPostfix = "dx12",
-        },
-        new SampleBuildTargetSetup // Latency Optimization sample, Win64 DX11 variant
+        new SampleBuildTargetSetup // Latency Optimization sample, Win64 DX12 variant
         {
             sampleRegex = new Regex(".*LatencyOptimization.*"),
             buildTarget = BuildTarget.StandaloneWindows64,
@@ -220,11 +173,11 @@ class zBuildSamplesYamatoOnly
             {
                 EnableSampleFeatures();
                 EnableStandaloneProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11, GraphicsDeviceType.Vulkan });
+                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
                 OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
                 OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
             },
-            outputPostfix = "prioritize-input-dx11",
+            outputPostfix = "prioritize-input-dx12",
         },
 #endif
         new SampleBuildTargetSetup
@@ -377,9 +330,25 @@ class zBuildSamplesYamatoOnly
                 targetGroup = setup.targetGroup,
                 locationPathName = outputFile,
             };
-            Console.WriteLine($"=========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
-            var report = BuildPipeline.BuildPlayer(buildOptions);
-            Console.WriteLine($"=========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
+
+            // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
+            var normalizedScenes = scenes.Select(p =>
+            {
+                // normalize separators
+                var s = p.Replace('\\', '/');
+                var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                    s = s.Substring(idx + 1);
+
+                return s;
+            }).ToArray();
+
+            // Use normalized scenes for the build
+            buildOptions.scenes = normalizedScenes;
+
+            Console.WriteLine($"[BuildSamples] =========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
+            var report = UnityEditor.BuildPipeline.BuildPlayer(buildOptions);
+            Console.WriteLine($"[BuildSamples] =========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
 
             if (report.summary.result == BuildResult.Failed)
             {

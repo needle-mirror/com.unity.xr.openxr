@@ -126,7 +126,7 @@ namespace UnityEditor.XR.OpenXR.Features
         static void FillKnownFeatureSets(bool addTestFeatureSet = false)
         {
             BuildTargetGroup[] buildTargetGroups =
-                { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android };
+                { BuildTargetGroup.Standalone, BuildTargetGroup.Android };
 
             if (addTestFeatureSet)
             {

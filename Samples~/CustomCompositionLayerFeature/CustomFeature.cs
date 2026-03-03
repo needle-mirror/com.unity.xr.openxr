@@ -7,7 +7,7 @@ using UnityEngine.XR.OpenXR.Features;
 
 #if UNITY_EDITOR
 [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "OpenXR Custom Layer Handler Example",
-    BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android },
+    BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android },
     Company = "Unity",
     Desc = "An example to demonstrate how to enable a handler for a customized composition layer type.",
     DocumentationLink = "",

@@ -1,10 +1,18 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine.InputSystem.XR;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Input;
+
+#if USE_INPUT_SYSTEM_POSE_CONTROL
+using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
+#else
+using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
+#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -34,10 +42,18 @@ namespace UnityEngine.XR.OpenXR.Tests
         public static readonly List<(string profile, List<(string name, string type, List<string> bindPaths, bool isAdditive)>)> MergeDetails = new();
 
         /// <summary>
+        /// Stores if layout was registered, used for testing
+        /// </summary>
+        public static bool registeredLayout = false;
+
+        /// <summary>
         /// Name of the device layout associated with this mock feature.
         /// </summary>
         /// <returns> Returns string with device layout name.</returns>
         protected override string GetDeviceLayoutName() => "Mock Meta Layout";
+
+        private const string kDeviceLocalizedName = "Mock Additive Interaction OpenXR";
+
 
         /// <summary>
         /// The target interaction profile name.
@@ -63,6 +79,67 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// A flag to mark this feature as additive.
         /// </summary>
         protected internal override bool IsAdditive => true;
+
+
+        /// <summary>
+        /// A mock interaction controller device layout for the mock additive interaction feature.
+        /// </summary>
+        [Preserve, InputControlLayout(displayName = "Mock Additive Controller binding (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
+        public class MockController : XRController
+        {
+            /// <summary>
+            /// Thumb pose action bound to input/thumb_ext/pose
+            /// </summary>
+            [Preserve, InputControl()]
+            public PoseControl thumbPoseUp { get; private set; }
+
+            /// <summary>
+            /// Aux click action bound to input/aux_ext/click
+            /// </summary>
+            [Preserve, InputControl()]
+            public ButtonControl auxClick { get; private set; }
+
+            /// <summary>
+            /// Internal call used to assign controls to the the correct element.
+            /// </summary>
+            protected override void FinishSetup()
+            {
+                base.FinishSetup();
+                thumbPoseUp = GetChildControl<PoseControl>("thumbPoseUp");
+                auxClick = GetChildControl<ButtonControl>("auxClick");
+            }
+        }
+
+
+        /// <summary>
+        /// Registers the <see cref="MockController"/> layout with the Input System.
+        /// </summary>
+        protected override void RegisterDeviceLayout()
+        {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup)) {
+                registeredLayout = false;
+                return;
+            }
+#endif
+            InputSystem.InputSystem.RegisterLayout(typeof(MockController),
+                        matches: new InputDeviceMatcher()
+                        .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
+                        .WithProduct(kDeviceLocalizedName));
+            registeredLayout = true;
+        }
+
+        /// <summary>
+        /// Removes the <see cref="MockController"/> layout with the Input System.
+        /// </summary>
+        protected override void UnregisterDeviceLayout()
+        {
+#if UNITY_EDITOR
+            if (!OpenXRLoaderEnabledForSelectedBuildTarget(EditorUserBuildSettings.selectedBuildTargetGroup))
+                return;
+#endif
+            InputSystem.InputSystem.RemoveLayout(nameof(kDeviceLocalizedName));
+        }
 
         /// <summary>
         /// Registers thumb pose and aux click.

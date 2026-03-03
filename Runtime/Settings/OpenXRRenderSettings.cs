@@ -166,19 +166,39 @@ namespace UnityEngine.XR.OpenXR
         }
 
         /// <summary>
-        /// Different Internal Unity APIs to use in the backend.
+        /// Options for foveated rendering.
         /// </summary>
+        /// <remarks>
+        /// Foveated rendering, which renders the central area of the user's view at a higher resolution
+        /// than the periphery, can be implemented in a variety of ways.
+        /// The `Legacy` and `SRPFoveation` options both use either Variable Rate Shading(VRS) or Variable Rate Rasterization(VRR),
+        /// depending on which technique is supported by the current device.
+        /// The difference between these two options is the runtime API used by Unity to control the amount of foveation.
+        /// If you are using the Built-In Render Pipeline, you must use the `Legacy` option.
+        /// Refer to[Foveated Rendering in OpenXR](xref:openxr-foveated-rendering) for more information.
+        /// `QuadViews` uses a different rendering technique to achieve the same goal of rendering the central area
+        /// of the user's view at a higher resolution than the periphery. The `QuadViews` option does not have an associated runtime API.
+        /// Refer to [Quad Views](xref:openxr-quad-views) for more information.
+        /// </remarks>
         public enum BackendFovationApi : byte
         {
             /// <summary>
-            /// Use the legacy Built-in API for Foveation. This is the only option for Built-in.
+            /// Use Variable Rate Shading (VRS) or Variable Rate Rasterization (VRR) for foveated rendering.
+            /// This option uses the legacy API to enable and control foveated rendering at runtime.
+            /// The Built-In Render Pipeline only supports this option.
             /// </summary>
             Legacy = 0,
 
             /// <summary>
-            /// Use the Foveation for SRP API.
+            /// Use Variable Rate Shading (VRS) or Variable Rate Rasterization (VRR) for foveated rendering.
+            /// This option uses the Universal Render Pipeline (URP) API to enable and control foveated rendering at runtime.
             /// </summary>
             SRPFoveation = 1,
+
+            /// <summary>
+            /// Use Quad Views for foveated rendering.
+            /// </summary>
+            QuadViews = 2,
         }
 
         /// <summary>
@@ -201,6 +221,7 @@ namespace UnityEngine.XR.OpenXR
         /// Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.
         /// </summary>
         [SerializeField]
+        [Tooltip("Enables XR_KHR_composition_layer_depth if possible and resolves or submits depth to OpenXR runtime.")]
         private DepthSubmissionMode m_depthSubmissionMode = DepthSubmissionMode.None;
 
         /// <summary>
@@ -470,6 +491,7 @@ namespace UnityEngine.XR.OpenXR
 
 #if UNITY_6000_2_OR_NEWER
         [SerializeField]
+        [Tooltip("When enabled, Unity uses OpenXR's time prediction methods to predict the display presentation time of the next frame. OpenXR time prediction ensures that the user's view on the device matches their movement to enhance real-time feedback. This results in smoother rendering on OpenXR runtimes through synchronization between application and display rendering. Unity recommends enabling this setting for smoother rendering on headsets to reduce unwanted effects such as motion sickness.")]
         private bool m_useOpenXRPredictedTime = false;
         /// <summary>
         /// Enable OpenXR time prediction which allows the hardware and runtime to set the

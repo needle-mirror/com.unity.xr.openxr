@@ -28,7 +28,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Microsoft Motion Controller Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone },
         Company = "Unity",
         Desc = "Allows for mapping input to the Microsoft Motion Controller interaction profile.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/microsoftmotioncontrollerprofile.html",

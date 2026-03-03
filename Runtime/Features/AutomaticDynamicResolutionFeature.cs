@@ -18,7 +18,7 @@ namespace UnityEngine.XR.OpenXR.Features
         UiName = k_UIName,
         Desc = @"Automatic Viewport Dynamic Resolution",
         Company = "Unity",
-        DocumentationLink = "",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/automaticdynamicresolution.html",
         OpenxrExtensionStrings = k_OpenXRRequestedExtensions,
         Version = "1.0.0",
         BuildTargetGroups = new[] { BuildTargetGroup.Android },

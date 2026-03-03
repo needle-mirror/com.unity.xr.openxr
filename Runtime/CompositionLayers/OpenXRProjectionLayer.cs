@@ -146,14 +146,13 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             XrView xrView1 = default;
             XrView xrView2 = default;
             bool validViews = ext_composition_layers_GetStereoViews(&xrView1, &xrView2);
-            XrView[] xrViews = new XrView[2] { xrView1, xrView2 };
 
             var nativeView1 = new XrCompositionLayerProjectionView()
             {
                 Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW,
                 Next = null,
-                Pose = validViews ? xrViews[0].Pose : default,
-                Fov = validViews ? xrViews[0].Fov : default,
+                Pose = validViews ? xrView1.Pose : default,
+                Fov = validViews ? xrView1.Fov : default,
                 SubImage = new XrSwapchainSubImage()
                 {
                     Swapchain = swapchainCreatedOutput.handle,
@@ -174,8 +173,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW,
                 Next = null,
-                Pose = validViews ? xrViews[1].Pose : default,
-                Fov = validViews ? xrViews[1].Fov : default,
+                Pose = validViews ? xrView2.Pose : default,
+                Fov = validViews ? xrView2.Fov : default,
                 SubImage = new XrSwapchainSubImage()
                 {
                     Swapchain = swapchainCreatedOutput.secondStereoHandle,
@@ -301,11 +300,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             bool validViews = ext_composition_layers_GetStereoViews(&view1, &view2);
             if (validViews)
             {
-                XrView[] views = new XrView[2] { view1, view2 };
-                nativeLayer.Views[0].Pose = views[0].Pose;
-                nativeLayer.Views[0].Fov = views[0].Fov;
-                nativeLayer.Views[1].Pose = views[1].Pose;
-                nativeLayer.Views[1].Fov = views[1].Fov;
+                nativeLayer.Views[0].Pose = view1.Pose;
+                nativeLayer.Views[0].Fov = view1.Fov;
+                nativeLayer.Views[1].Pose = view2.Pose;
+                nativeLayer.Views[1].Fov = view2.Fov;
             }
 
             bool isProjectionRig = layerInfo.Layer.LayerData.GetType() == typeof(ProjectionLayerRigData);

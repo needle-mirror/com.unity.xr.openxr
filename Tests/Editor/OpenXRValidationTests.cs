@@ -53,7 +53,7 @@ namespace UnityEditor.XR.OpenXR.Tests
 
             // Create another build validation rule for something else other than Standalone.
             // The build validation rule should not be enabled when we add the feature to the Standalone group.
-            buildValidationRule = OpenXRProjectValidationRulesSetup.ConvertRuleToBuildValidationRule(testRule, BuildTargetGroup.WSA);
+            buildValidationRule = OpenXRProjectValidationRulesSetup.ConvertRuleToBuildValidationRule(testRule, BuildTargetGroup.Android);
             standaloneSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Standalone);
             firstStandaloneSetting = standaloneSettings.features[0];
             try

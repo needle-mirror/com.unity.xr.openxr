@@ -117,7 +117,7 @@ namespace UnityEditor.XR.OpenXR
         {
             foreach (var buildTargetGroup in s_BuildTargetGroups)
             {
-                bool isOpenXRSupportedPlatform = buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android || buildTargetGroup == BuildTargetGroup.WSA;
+                bool isOpenXRSupportedPlatform = buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android;
                 if (!isOpenXRSupportedPlatform)
                     continue;
 

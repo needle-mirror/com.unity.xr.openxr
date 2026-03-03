@@ -12,7 +12,7 @@ namespace UnityEngine.XR.OpenXR.Samples.MeshingFeature
     /// </summary>
 #if UNITY_EDITOR
     [OpenXRFeature(UiName = "Sample: Meshing Teapot",
-        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Example feature extension showing how supply a mesh from native code.",
         DocumentationLink = Constants.k_DocumentationURL,

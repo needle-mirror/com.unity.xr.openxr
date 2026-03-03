@@ -27,7 +27,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
     /// </summary>
 #if UNITY_EDITOR
     [UnityEditor.XR.OpenXR.Features.OpenXRFeature(UiName = "Meta Quest Touch Pro Controller Profile",
-        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.WSA, BuildTargetGroup.Android},
+        BuildTargetGroups = new[] { BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Allows for mapping input to the Meta Quest Touch Pro Controller interaction profile.",
         DocumentationLink = Constants.k_DocumentationManualURL + "features/metaquesttouchprocontrollerprofile.html",

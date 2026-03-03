@@ -2547,6 +2547,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SystemEnvironmentDepthPropertiesMETA = 1000291007,
 
         /// <summary>
+        /// Struct is of type `XrEnvironmentDepthImageTimestampMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_TIMESTAMP_META`.
+        /// Provided by `XR_META_environment_depth`.
+        /// </summary>
+        EnvironmentDepthImageTimestampMETA = 1000291008,
+
+        /// <summary>
         /// Struct is of type `XrRenderModelCreateInfoEXT`.
         /// Equivalent to the OpenXR value `XR_TYPE_RENDER_MODEL_CREATE_INFO_EXT`.
         /// Provided by `XR_EXT_render_model`.
