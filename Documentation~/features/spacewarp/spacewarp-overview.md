@@ -18,7 +18,7 @@ For additional information about Application SpaceWarp on Meta devices, refer to
 * While SpaceWarp can improve your app's rendering performance, it doesn't simply double your frame rate. (Meta estimates a 70% improvement in the best cases for Quest headsets.) However, SpaceWarp doesn't work at all if your frame rate is already very low (around 18 fps or less).
 * Frame synthesis can introduce visual artifacts such as distortion and stuttering. Refer to [Visual artifacts](#visual-artifacts).
 * Not all objects can have SpaceWarp applied to them, which means they effectively render at half the framerate. Refer to [Unwarped objects](#unwarped-objects).
-* Unity does not support using SpaceWarp in the [URP compatibility mode](xref:urp-compatibility-mode).
+* Unity does not support using SpaceWarp in the [URP compatibility mode](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/compatibility-mode.html).
 
 ## Visual artifacts {#visual-artifacts}
 

@@ -10,7 +10,9 @@ The quad views extension is a form of foveated rendering, but uses a different r
 
 To use the Quad Views feature in your application, you only need to turn the feature on as described in [Enable Quad Views feature](#enable-xr-quad-views). No other settings or configuration are needed.
 
-Quad views are compatible with multiple render passes and post-processing. If you use quad views with single-pass instanced rendering enabled, the renderer performs two render passes, each rendering two views.
+Quad views is compatible with multiple render passes. If you use quad views with single-pass instanced rendering enabled, the renderer performs two render passes, each rendering two views.
+
+Quad views is compatible with [On-tile post-processing](xref:um-xr-graphics-on-tile-post-processing) effects, which are recommended for untethered XR devices. Using any post-processing effects that are not in the list of [Supported post-processing techniques](xref:um-xr-graphics-on-tile-post-processing#supported-techniques) may result in visual artifacts or decreased performance. Refer to [Optimize for untethered XR devices in URP](xref:urp-xr-untethered-device-optimization#post-processing) for more details.
 
 ## Prerequisites
 

@@ -151,7 +151,9 @@ namespace UnityEngine.XR.OpenXR.Input
 #else
             InputSystem.InputSystem.RegisterLayout<PoseControl>("Pose");
 #endif //USE_INPUT_SYSTEM_POSE_CONTROL
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
             InputSystem.InputSystem.RegisterLayout<OpenXRDevice>();
+#endif
             InputSystem.InputSystem.RegisterLayout<OpenXRHmd>(matches: new InputDeviceMatcher()
                 .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
                 .WithProduct(@"Head Tracking - OpenXR")

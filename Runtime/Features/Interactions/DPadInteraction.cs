@@ -250,9 +250,18 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         if (feature.enabled)
                         {
                             if (feature is DPadInteraction)
+                            {
                                 dpadFeatureEnabled = true;
-                            else if (!(feature as OpenXRInteractionFeature).IsAdditive && !(feature is EyeGazeInteraction))
-                                otherNonAdditiveInteractionFeatureEnabled = true;
+                            }
+                            else if (feature is OpenXRInteractionFeature interactionFeature && !interactionFeature.IsAdditive)
+                            {
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
+                                if (!(feature is EyeGazeInteraction))
+#endif
+                                {
+                                    otherNonAdditiveInteractionFeatureEnabled = true;
+                                }
+                            }
                         }
                     }
                     return dpadFeatureEnabled && otherNonAdditiveInteractionFeatureEnabled;

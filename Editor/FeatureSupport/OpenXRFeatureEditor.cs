@@ -53,7 +53,6 @@ namespace UnityEditor.XR.OpenXR.Features
             public static GUIStyle s_FeatureSetTitleLabel;
             public static GUIStyle s_ListLabel;
             public static GUIStyle s_ListSelectedLabel;
-            public static GUIStyle s_ListLabelToggle;
             public static GUIStyle s_Feature;
             public static GUIStyle s_FeatureSettings;
         }
@@ -110,6 +109,16 @@ namespace UnityEditor.XR.OpenXR.Features
             return (newRect, rect);
         }
 
+        bool HasRemainingChoices()
+        {
+            foreach (var key in interactionItems.Keys)
+            {
+                if (selectedFeatureIds.IndexOf(key) == -1)
+                    return true;
+            }
+            return false;
+        }
+
         void SetupInteractionListUI()
         {
             if (interactionFeaturesList != null)
@@ -137,7 +146,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 EditorGUI.LabelField(fieldRect, item.uiName, EditorStyles.label);
                 EditorGUI.EndDisabledGroup();
 
-                if (!String.IsNullOrEmpty(item.documentationLink))
+                if (!string.IsNullOrEmpty(item.documentationLink))
                 {
                     var size = EditorStyles.label.CalcSize(item.documentationIcon);
                     (fieldRect, rect) = TakeFromFrontOfRect(rect, size.x);
@@ -180,6 +189,10 @@ namespace UnityEditor.XR.OpenXR.Features
                     }
                 }
                 menu.DropDown(rect);
+            };
+            interactionFeaturesList.onCanAddCallback = list =>
+            {
+                return HasRemainingChoices();
             };
             interactionFeaturesList.onCanRemoveCallback = list =>
             {
@@ -271,15 +284,13 @@ namespace UnityEditor.XR.OpenXR.Features
             if (interactionItems.Count == 0)
                 return;
 
-            var iconSize = EditorGUIUtility.GetIconSize();
             EditorGUILayout.BeginVertical();
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.BeginHorizontal();
-            EditorGUIUtility.SetIconSize(new Vector2(30, 30));
+            EditorGUIUtility.SetIconSize(new Vector2(16, 16));
             GUILayout.Label(EditorGUIUtility.IconContent("console.infoicon"), new GUIStyle(EditorStyles.label));
-            EditorGUIUtility.SetIconSize(iconSize);
             GUILayout.Label("Only enable interaction profiles that you actually test, to ensure their input bindings are complete. Otherwise, disable that interaction profile, to allow the OpenXR runtime to remap user input from a profile you do test.", EditorStyles.wordWrappedLabel);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
@@ -297,7 +308,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
             if (this.selectedItem != null)
             {
-                if (String.IsNullOrEmpty(selectedItem.featureSetId))
+                if (string.IsNullOrEmpty(selectedItem.featureSetId))
                 {
                     filteredListItems = allListItems.
                         OrderBy(item => item.uiName.text).
@@ -428,7 +439,7 @@ namespace UnityEditor.XR.OpenXR.Features
                                             }
                                             else
                                             {
-                                                featureSetSettingsEditor = ScriptableObject.CreateInstance<OpenXRFeatureSettingsEditor>() as OpenXRFeatureSettingsEditor;
+                                                featureSetSettingsEditor = ScriptableObject.CreateInstance<OpenXRFeatureSettingsEditor>();
                                             }
                                         }
 
@@ -628,13 +639,6 @@ namespace UnityEditor.XR.OpenXR.Features
                 };
 
                 Styles.s_ListSelectedLabel = new GUIStyle(Styles.s_SelectionStyle)
-                {
-                    border = Styles.s_ListLabel.border,
-                    padding = Styles.s_ListLabel.padding,
-                    margin = Styles.s_ListLabel.margin
-                };
-
-                Styles.s_ListLabelToggle = new GUIStyle(EditorStyles.toggle)
                 {
                     border = Styles.s_ListLabel.border,
                     padding = Styles.s_ListLabel.padding,

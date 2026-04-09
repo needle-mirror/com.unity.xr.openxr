@@ -52,7 +52,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             /// Called by the <see cref="OpenXRLayerProvider"/> when a new <see cref="LayerData"/>
             /// object of the type registered to this <c>ILayerHandler</c> instance has been created.
             /// </summary>
-            /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+            /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
             /// that was just created.</param>
             public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo);
 
@@ -60,14 +60,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             /// Called by the <see cref="OpenXRLayerProvider"/> when a <see cref="LayerData"/> object
             /// of the type registered to this <c>ILayerHandler</c> instance has been destroyed or disabled.
             /// </summary>
-            /// <param name="removedLayerId"> The instance id of the CompositionLayer component that was removed.</param>
+            /// <param name="id"> The unique id of the CompositionLayer component that was removed.</param>
             public void RemoveLayer(int id);
 
             /// <summary>
             /// Called by the <see cref="OpenXRLayerProvider"/> when a <see cref="LayerData"/> object
             /// or any attached extension components have had a member modified.
             /// </summary>
-            /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+            /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
             /// that was modified.</param>
             public void ModifyLayer(CompositionLayerManager.LayerInfo layerInfo);
 
@@ -75,7 +75,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             /// Called every frame by the <see cref="OpenXRLayerProvider"/> for all currently active <see cref="LayerData"/> objects
             /// of the type registered to this <c>ILayerHandler</c> instance.
             /// </summary>
-            /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+            /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
             /// being set to active.</param>
             public void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo);
         }

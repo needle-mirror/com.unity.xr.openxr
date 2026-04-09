@@ -24,14 +24,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Calls the methods in its invocation list when a swapchain is created on the graphics thread inside the UnityOpenXR lib.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="swapchainHandle">The handle to the native swapchain that was just created.</param>
         public delegate void SwapchainCallbackDelegate(int layerId, ulong swapchainHandle);
 
         /// <summary>
         /// Calls the methods in its invocation list when a stereo swapchain is created on the graphics thread inside the UnityOpenXR lib.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="swapchainHandleLeft">The handle to one of the stereo swapchains that was just created.</param>
         /// <param name="swapchainHandleRight">The handle to one of the stereo swapchains that was just created.</param>
         public delegate void StereoSwapchainCallbackDelegate(int layerId, ulong swapchainHandleLeft, ulong swapchainHandleRight);
@@ -40,7 +40,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Helper method used to gather the extension components attached to a CompositionLayer GameObject.
         /// This method chains the native extension struct pointers of those extension components to initialize an OpenXR native object's Next pointer struct chain.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer.</param>
         /// <param name="extensionTarget"> Represents what part of the composition layer to retrieve extensions for.</param>
         /// <returns>A pointer to the head of an array of native extension objects that will be associated with a composition layer.</returns>
         public static unsafe void* GetExtensionsChain(
@@ -95,7 +95,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Create the <see cref="XrSwapchainCreateInfo"/> struct that is passed to OpenXR SDK to create a swapchain.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="createInfo">The struct used to create the swapchain.</param>
         /// <param name="isExternalSurface"> Optional parameter that can be used when an external surface will be used, like when using the Android Surface feature.</param>
         /// <param name="callback"> Optional parameter that can be used if your composition layer needs to know the handle after swapchain creation.</param>
@@ -107,7 +107,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Create the <see cref="XrSwapchainCreateInfo"/> struct that is passed to OpenXR SDK to create a swapchain for stereo projection, like Projection layer type.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="createInfo">The struct used to create the swapchain.</param>
         /// <param name="callback"> Optional parameter that can be used if your composition layer needs to know the handles after swapchain creation.</param>
         public static void CreateStereoSwapchain(int layerId, XrSwapchainCreateInfo createInfo, StereoSwapchainCallbackDelegate callback = null)
@@ -118,7 +118,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Submits a request to create or get an available render texture associated with the swapchain of the given layer id.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="callback">Callback that will be invoked with the current render texture id to use for the layer's swapchain.</param>
         /// <remarks>The callback will be invoked on the graphics thread. Work on the render texture must be done anywhere within the scene rendering phase (such as Application.OnBeforeRender).</remarks>
         public static void RequestRenderTextureId(int layerId, RenderTextureIdCallbackDelegate callback)
@@ -129,7 +129,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Submits a request to create or get an available stereo render texture associated with the stereo swapchain of the given layer id.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <param name="callback"> Callback that will be invoked with the current stereo render texture ids to use for the layer's swapchain</param>
         /// <remarks>The callback will be invoked on the graphics thread. Work on the render textures must be done anywhere within the scene rendering phase (such as Application.OnBeforeRender).</remarks>
         public static void RequestStereoRenderTextureIds(int layerId, StereoRenderTextureIdsCallbackDelegate callback)
@@ -140,7 +140,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Release and Destroy the swapchain according to the id provided.
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         public static void ReleaseSwapchain(int layerId)
         {
             ext_composition_layers_ReleaseAndDestroySwapchain(layerId);
@@ -196,7 +196,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Finds the render texture of the layer id.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer.</param>
         /// <returns>The render texture with the provided id or null if no render texture with that id was found.</returns>
         [Obsolete("OpenXRLayerUtility.FindRenderTexture is deprecated. If you want to query for a swapchain render texture then use OpenXRLayerUtility.RequestRenderTextureId instead", false)]
         public static RenderTexture FindRenderTexture(CompositionLayerManager.LayerInfo layerInfo)
@@ -208,8 +208,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Releases the swapchain image associated with the layer id.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
-        /// <returns>The render texture with the provided id or null if no render textrue with that id was found.</returns>
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer.</param>
+        /// <returns>The render texture with the provided id or null if no render texture with that id was found.</returns>
         [Obsolete("OpenXRLayerUtility.ReleaseSwapchain is deprecated. Swapchains are all automatically released by the graphics thread.", false)]
         public static void ReleaseSwapchain(CompositionLayerManager.LayerInfo layerInfo)
         {
@@ -253,7 +253,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Query the correct XR Textures for rendering and blit the layer textures.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer.</param>
         /// <param name="texture">The source texture that will be written into the provided render texture.</param>
         /// <param name="renderTexture">The render texture that will be searched for and written to.
         /// Will be null if no render texture can be found for the provided layerInfo object.</param>
@@ -275,7 +275,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Query the correct XR Textures for rendering and blit the layer textures (For Projection Layer type).
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer.</param>
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer.</param>
         /// <param name="renderTextureLeft">The left stereo render texture that will be searched for and written to.
         /// Will be null if no render textures can be found for the provided layerInfo object.</param>
         /// <param name="renderTextureRight">The right stereo render texture that will be searched for and written to.
@@ -316,7 +316,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Return the Surface object for Android External Surface support (Android only).
         /// </summary>
-        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="layerId">The unique id of the composition layer object.</param>
         /// <returns>Pointer to the android surface object.</returns>
         public static IntPtr GetLayerAndroidSurfaceObject(int layerId)
         {
@@ -325,7 +325,31 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 return surfaceObject;
             }
-            return IntPtr.Zero;
+            else
+            {
+#if UNITY_6000_4 && XR_COMPOSITION_LAYERS_2_4_OR_GREATER
+                // Check if we have been given an instanceID of an existing composition layer.
+                // If so, update the layer id to be the one used by the native plugin, which is necessary for the native plugin to find the correct surface object in its map.
+                foreach (var layer in CompositionLayerManager.Instance.CompositionLayers)
+                {
+#pragma warning disable CS0618
+                    var instanceId = layer.GetInstanceID();
+#pragma warning restore CS0618
+                    if(instanceId == layerId)
+                    {
+                        Debug.LogWarning("GetInstanceID is deprecated in Unity 6.4. Use CompositionLayerManager.TryGetLayerId instead.");
+                        surfaceObject = IntPtr.Zero;
+                        if (CompositionLayerManager.TryGetLayerId(layer, out layerId) && ext_composition_layers_GetLayerAndroidSurfaceObject(layerId, ref surfaceObject))
+                        {
+                            return surfaceObject;
+                        }
+                        break;
+                    }
+                }
+#endif
+                Debug.LogError($"Failed to get Android Surface Object for layer with id {layerId}. Make sure this layer's TexturesExtenson component is sourcing its texture from Android Surface (not Local Texture) and that the layer id was generated by CompositionLayerManager.TryGetLayerId.");
+                return IntPtr.Zero;
+            }
         }
 
         /// <summary>

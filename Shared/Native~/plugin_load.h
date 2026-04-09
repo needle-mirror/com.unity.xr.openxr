@@ -15,16 +15,9 @@
 #include <windows.h>
 #endif
 
-#if defined(XR_USE_PLATFORM_WIN32) && !defined(XR_USE_PLATFORM_UWP)
+#if defined(XR_USE_PLATFORM_WIN32)
 #include "errhandlingapi.h"
 #include "libloaderapi.h"
-
-typedef HMODULE PluginHandle;
-typedef FARPROC PluginFunc;
-
-#elif defined(XR_USE_PLATFORM_UWP)
-
-#include "errhandlingapi.h"
 
 typedef HMODULE PluginHandle;
 typedef FARPROC PluginFunc;

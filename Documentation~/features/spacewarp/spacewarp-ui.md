@@ -2,9 +2,23 @@
 uid: openxr-spacewarp-ui
 ---
 
+# UI compatibility with SpaceWarp
+
+Starting with Unity 6.5, Application SpaceWarp supports UI elements from the [Unity UI (uGUI)](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/index.html) and [TextMesh Pro](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/TextMeshPro/index.html) packages. Please note that UI shaders are usually transparent and it is likely that you will see visual artifacts when there are overlapping transparent objects moving in different directions.
+
+For a list of compatible Unity UI shaders, refer to [Compatible UI shaders](xref:openxr-spacewarp-shaders#compatible-ugui-shaders). For information about modifying custom UI shaders to work with Application SpaceWarp, refer to [Modify custom UI shaders](xref:openxr-spacewarp-shaders#modify-custom-ui-shaders).
+
+There are two steps REQUIRED to enable SpaceWarp on UGUI/TMP objects:
+
+* Enable the **Previous Position** in the **Additional Shader Channels** option of the canvas in which you want the UI elements to be compatible with SpaceWarp.
+* Enable SpaceWarp on the UI materials that you want to be compatible with SpaceWarp.
+
+> [!NOTE]
+> The UI shaders in versions of Unity before 6.5, didn't record the motion vectors required by SpaceWarp. For a workaround, refer to [UI incompatibility workaround](#ui-incompatibility-workaround).
+
 # UI incompatibility with SpaceWarp
 
-Application SpaceWarp doesn't currently support UI elements, including those in the [TextMesh Pro](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/TextMeshPro/index.html) and [Unity UI (uGUI)](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/index.html) packages, because the default UI shaders, like `UI/Default`, don't [record motion vectors](xref:openxr-spacewarp-shaders).
+The shaders used by UI elements in versions of Unity before 6.5 don't support Application SpaceWarp. The incompatible UI elements include those in the [TextMesh Pro](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/TextMeshPro/index.html) and [Unity UI (uGUI)](https://docs.unity3d.com/Packages/com.unity.ugui@latest?subfolder=/manual/index.html) packages, because the default UI shaders, like `UI/Default`, don't [record motion vectors](xref:openxr-spacewarp-shaders).
 
 Because UI material shaders don't set motion vectors, each pixel of a UI element in a scene uses the motion vector of the corresponding point on the nearest GameObject behind it. If there is no GameObject with a SpaceWarp-compatible material behind a pixel of a UI element, then the motion vector at that pixel is the zero vector (a vector containing only zeroes). As a result, some pixels of a UI element could have a non-zero motion vector, while other pixels of the same UI element could have the zero vector as its motion vector. This inconsistency can cause distortion or other rendering artifacts.
 

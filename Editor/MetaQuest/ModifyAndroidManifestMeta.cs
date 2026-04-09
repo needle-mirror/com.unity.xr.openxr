@@ -126,6 +126,19 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 });
             }
 
+            if (EnableSystemKeyboard())
+            {
+                elementsToAdd.Add(new ManifestElement()
+                {
+                    ElementPath = new List<string> { "manifest", "uses-feature" },
+                    Attributes = new Dictionary<string, string>
+                    {
+                        { "name", "oculus.software.overlay_keyboard" },
+                        { "required", "false" },
+                    }
+                });
+            }
+
             if (IsAppTargetingQuestPro() && IsEyeTrackingRequired())
             {
                 elementsToAdd.Add(
@@ -208,6 +221,16 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 return null;
 
             return questFeature.systemSplashScreen;
+        }
+
+        private static bool EnableSystemKeyboard()
+        {
+            var questFeature = GetFeatureFromSettings<MetaQuestFeature>(BuildTargetGroup.Android);
+
+            if (questFeature == null || !questFeature.enabled)
+                return false;
+
+            return questFeature.enableSystemKeyboard;
         }
 
         private static bool IsAppTargetingQuestPro()

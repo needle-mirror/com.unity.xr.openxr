@@ -42,7 +42,7 @@ namespace UnityEngine.XR.OpenXR
     public partial class OpenXRSettings
     {
         /// <summary>
-        /// Runtime color format - keep in sync with NativePlugin\Source\unity_types.h
+        /// Runtime color format - keep in sync with NativePlugin~\Source\unity_types.h
         /// </summary>
         public enum ColorSubmissionModeGroup
         {

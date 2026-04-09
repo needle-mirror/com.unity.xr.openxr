@@ -92,7 +92,6 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_ANALYTICS && ENABLE_CLOUD_SERVICES_ANALYTICS
             if (!s_Initialized && !Initialize())
                 return;
-
             var data = CreateInitializeEvent(success);
 
 #if UNITY_EDITOR
@@ -105,6 +104,14 @@ namespace UnityEngine.XR.OpenXR
 
         private static InitializeEvent CreateInitializeEvent(bool success)
         {
+            OpenXRSettings settings =
+#if UNITY_EDITOR
+                // Get the currently active build target group, when not available use current runtime settings
+                OpenXRSettings.GetSettingsForBuildTargetGroup(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget)) ?? OpenXRSettings.Instance;
+#else
+                // On device, the active instance is the runtime
+                OpenXRSettings.Instance;
+#endif
             return new InitializeEvent
             {
                 success = success,
@@ -118,14 +125,15 @@ namespace UnityEngine.XR.OpenXR
                 available_extensions = OpenXRRuntime.GetAvailableExtensions()
                     .Select(ext => $"{ext}_{OpenXRRuntime.GetExtensionVersion(ext)}")
                     .ToArray(),
-                enabled_features = OpenXRSettings.Instance.features
+                enabled_features = settings.features
                     .Where(f => f != null && f.enabled)
                     .Select(f => $"{f.GetType().FullName}_{f.version}").ToArray(),
-                failed_features = OpenXRSettings.Instance.features
+                failed_features = settings.features
                     .Where(f => f != null && f.failedInitialization)
                     .Select(f => $"{f.GetType().FullName}_{f.version}").ToArray()
             };
         }
+
 
 #if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         private static void SendEditorAnalytics(InitializeEvent data)

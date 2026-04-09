@@ -113,10 +113,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// </remarks>
         public static bool TrySubscribeToEventType(XrStructureType eventType, XrPollEventCallback callback)
         {
-            if (!s_TypedEventSubscribers.ContainsKey(eventType))
-                s_TypedEventSubscribers.Add(eventType, new HashSet<XrPollEventCallback>());
+            if (!s_TypedEventSubscribers.TryGetValue(eventType, out var callbacks))
+            {
+                callbacks = new HashSet<XrPollEventCallback>();
+                s_TypedEventSubscribers.Add(eventType, callbacks);
+            }
 
-            var isSuccess = s_TypedEventSubscribers[eventType].Add(callback);
+            var isSuccess = callbacks.Add(callback);
             if (!isSuccess)
                 return false;
 

@@ -19,7 +19,6 @@
         {
             "name": "com.unity.modules.unityanalytics",
             "expression": "1.0.0",
-            "excludePlatforms": ["PS5"],
             "define": "UNITY_ANALYTICS"
         },
         {
@@ -56,6 +55,16 @@
             "name": "Unity",
             "expression": "6000.1.10f1",
             "define": "SPACEWARP_RIGHT_HAND_NDC_SUPPORTED"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.5.0a9",
+            "define": "LIFECYCLE_APIS_AVAILABLE"
+        },
+        {
+            "name": "com.unity.xr.compositionlayers",
+            "expression": "2.4.0",
+            "define": "XR_COMPOSITION_LAYERS_2_4_OR_GREATER"
         }
     ],
     "noEngineReferences": false

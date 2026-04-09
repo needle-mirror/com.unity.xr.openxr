@@ -31,6 +31,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
         private Dictionary<string, bool> activeTargetDevices;
         private SerializedProperty forceRemoveInternetPermission;
         private SerializedProperty systemSplashScreen;
+        private SerializedProperty enableSystemKeyboard;
 
         private SerializedProperty symmetricProjection;
 
@@ -66,6 +67,8 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
                 serializedObject.FindProperty("forceRemoveInternetPermission");
             systemSplashScreen =
                 serializedObject.FindProperty("systemSplashScreen");
+            enableSystemKeyboard =
+                serializedObject.FindProperty("enableSystemKeyboard");
 
             symmetricProjection =
                 serializedObject.FindProperty("m_symmetricProjection");
@@ -124,6 +127,7 @@ namespace UnityEditor.XR.OpenXR.Features.MetaQuestSupport
             EditorGUILayout.LabelField("Manifest Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(forceRemoveInternetPermission);
             EditorGUILayout.PropertyField(systemSplashScreen);
+            EditorGUILayout.PropertyField(enableSystemKeyboard);
 
             EditorGUILayout.Space();
 

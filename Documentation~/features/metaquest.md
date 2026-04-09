@@ -74,6 +74,10 @@ Use the following settings to configure your project manifest:
 | :---------- | :-------------- |
 | **Force Remove Internet Permission** | Enable to force the removal of internet permissions added to the [Android App Manifest](xref:um-android-manifest). |
 | **System Splash Screen** | Uses a `PNG` in the `Assets` folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch, until the app submits the first frame.<br>Use the picker (&#8857;) to select an image from the `Assets` folder you want to use as the system splash screen image. |
+| **Enable System Keyboard** | Enables the system keyboard to show when interacting with UI input fields or when triggered manually from a script. Disable this option if you are using a custom software keyboard inside your application. |
+
+> [!NOTE]
+> If your project includes the **Meta XR Core SDK** package, you will need to choose between the **Enable System Keyboard** manifest setting above or the **Require System Keyboard** setting located in the **Quest Features** section of the **OVR Manager**. If both are enabled, you will receive a `Duplicate declaration of uses-feature` warning at build time.
 
 ### Target Devices
 

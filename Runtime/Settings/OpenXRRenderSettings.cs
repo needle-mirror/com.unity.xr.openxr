@@ -365,7 +365,7 @@ namespace UnityEngine.XR.OpenXR
 
 #if UNITY_2023_2_OR_NEWER
         [SerializeField]
-        BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.Legacy;
+        BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.SRPFoveation;
 #endif
         /// <summary>OnBeforeSerialize.</summary>
         public void OnBeforeSerialize()
@@ -492,7 +492,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_6000_2_OR_NEWER
         [SerializeField]
         [Tooltip("When enabled, Unity uses OpenXR's time prediction methods to predict the display presentation time of the next frame. OpenXR time prediction ensures that the user's view on the device matches their movement to enhance real-time feedback. This results in smoother rendering on OpenXR runtimes through synchronization between application and display rendering. Unity recommends enabling this setting for smoother rendering on headsets to reduce unwanted effects such as motion sickness.")]
-        private bool m_useOpenXRPredictedTime = false;
+        private bool m_useOpenXRPredictedTime = true;
         /// <summary>
         /// Enable OpenXR time prediction which allows the hardware and runtime to set the
         /// display time prediction for the next frame instead of Unity.

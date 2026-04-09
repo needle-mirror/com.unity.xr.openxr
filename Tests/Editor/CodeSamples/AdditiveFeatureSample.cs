@@ -56,24 +56,24 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
         {
             m_AdditiveMap = new ActionMapConfig
             {
-                name = "sample_user_additive_map",
-                localizedName = "Sample User Additive Map",
-                desiredInteractionProfile = "/interaction_profiles/sample/controller",
+                name = "sample_additive_map",
+                localizedName = "Sample Additive Map",
+                desiredInteractionProfile = "/interaction_profiles/sample",
 
                 deviceInfos = new List<DeviceConfig>
                 {
                     new DeviceConfig
                     {
-                        characteristics = InputDeviceCharacteristics.TrackedDevice |
-                                          InputDeviceCharacteristics.Controller |
-                                          InputDeviceCharacteristics.Left,
+                        characteristics = InputDeviceCharacteristics.TrackedDevice
+                                        | InputDeviceCharacteristics.Controller
+                                        | InputDeviceCharacteristics.Left,
                         userPath = UserPaths.leftHand
                     },
                     new DeviceConfig
                     {
-                        characteristics = InputDeviceCharacteristics.TrackedDevice |
-                                          InputDeviceCharacteristics.Controller |
-                                          InputDeviceCharacteristics.Right,
+                        characteristics = InputDeviceCharacteristics.TrackedDevice
+                                        | InputDeviceCharacteristics.Controller
+                                        | InputDeviceCharacteristics.Right,
                         userPath = UserPaths.rightHand
                     }
                 },
@@ -91,7 +91,8 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
                             new ActionBinding
                             {
                                 interactionPath = sampleThumbPosePath,
-                                interactionProfileName = "/interaction_profiles/sample/controller"
+                                interactionProfileName
+                                    = "/interaction_profiles/sample"
                             }
                         }
                     }
@@ -101,20 +102,40 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
         }
 
         /// <summary>
-        /// Adds sample binding actions to enabled left/right hand controllers that include a thumbpose
+        /// Adds sample binding actions to enabled left/right hand controllers
+        /// that include a thumb pose.
         /// </summary>
-        /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
-        /// <param name="additiveMap">Sample feature's additive map containg the extra sample binding to append.</param>
-        protected override void AddAdditiveActions(List<ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        /// <param name="actionMaps">The set of action maps from all
+        /// enabled non-additive interaction profiles that can be
+        /// augmented.</param>
+        /// <param name="additiveMap">Sample feature's additive map containing
+        /// the extra sample binding to append.</param>
+        protected override void AddAdditiveActions(
+            List<ActionMapConfig> actionMaps,
+            ActionMapConfig additiveMap)
         {
             foreach (var actionMap in actionMaps)
             {
-                var validUserPath = actionMap.deviceInfos.Where(d => d.userPath != null && ((String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.leftHand) == 0) ||
-                    (String.CompareOrdinal(d.userPath, OpenXRInteractionFeature.UserPaths.rightHand) == 0)));
+                var validUserPath = actionMap.deviceInfos.Where(
+                    d => d.userPath != null
+                        && (
+                         (String.CompareOrdinal(
+                            d.userPath,
+                            OpenXRInteractionFeature.UserPaths.leftHand)
+                            == 0
+                        )
+                        ||
+                        (String.CompareOrdinal(
+                            d.userPath,
+                            OpenXRInteractionFeature.UserPaths.rightHand)
+                            == 0)
+                    )
+                );
                 if (!validUserPath.Any())
                     continue;
 
-                foreach (var additiveAction in additiveMap.actions.Where(a => a.isAdditive))
+                foreach (var additiveAction
+                         in additiveMap.actions.Where(a => a.isAdditive))
                 {
                     actionMap.actions.Add(additiveAction);
                 }

@@ -106,14 +106,14 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 testEnvironment.Start();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 xrSessionIsValid = MockRuntime.Instance.XrSession != 0;
                 xrInstanceIsValid = MockRuntime.Instance.XrInstance != 0;
 
                 testEnvironment.Stop();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             Assert.IsTrue(xrSessionIsValid, "Session isn't valid");
@@ -128,22 +128,22 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 testEnvironment.Start();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 testEnvironment.Stop();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 testEnvironment.Start();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 xrSessionIsValid = MockRuntime.Instance.XrSession != 0;
                 xrInstanceIsValid = MockRuntime.Instance.XrInstance != 0;
 
                 testEnvironment.Stop();
 
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             Assert.IsTrue(xrSessionIsValid, "Session isn't valid");
@@ -170,10 +170,10 @@ namespace UnityEngine.XR.OpenXR.Tests
                 MockRuntime.Instance.TestCallback = methodsCallback;
 
                 testEnvironment.Start();
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 testEnvironment.Stop();
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             Assert.True(callbackSuccess, $"Callback \"{lifecycleCallback}\" was not called");
@@ -187,7 +187,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.NotNull(testFeature, "Feature was not found before running MockRuntime");
 
             testEnvironment.Start();
-            yield return new WaitForSeconds(1);
+            yield return null;
 
             testFeature = testEnvironment.Settings.GetFeature<MockRuntime>();
 
@@ -195,7 +195,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.True(testFeature.enabled, "Feature was not enabled");
 
             testEnvironment.Stop();
-            yield return new WaitForSeconds(1);
+            yield return null;
         }
 
         [UnityTest]
@@ -206,10 +206,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             using (var testEnvironment = MockOpenXREnvironment.CreateEnvironment())
             {
                 testEnvironment.Start();
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 testEnvironment.Stop();
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             var restoredSettings = XRGeneralSettings.Instance;
@@ -234,7 +234,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             using (var testEnvironment = MockOpenXREnvironment.CreateEnvironment())
             {
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 testAssetsExist = Directory.EnumerateFiles(testAssetsPath, "*", SearchOption.AllDirectories).Any();
             }
@@ -253,10 +253,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             using (var environment = MockOpenXREnvironment.CreateEnvironment())
             {
                 environment.Start();
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 environment.Stop();
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             var restoredLoaders = GetNamesOfActiveLoaders();
@@ -282,10 +282,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             using (var environment = MockOpenXREnvironment.CreateEnvironment())
             {
                 environment.Start();
-                yield return new WaitForSeconds(1);
+                yield return null;
 
                 environment.Stop();
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             var restoredSettings = OpenXRSettings.Instance;
@@ -303,9 +303,9 @@ namespace UnityEngine.XR.OpenXR.Tests
                 environment.Settings.RequestUseExtension(sampleExtension);
 
                 environment.Start();
-                yield return new WaitForSeconds(1);
+                yield return null;
                 environment.Stop();
-                yield return new WaitForSeconds(1);
+                yield return null;
             }
 
             Assert.IsFalse(IsExtensionAdded(sampleExtension), $"Sample extension {sampleExtension} was not removed");
@@ -327,14 +327,14 @@ namespace UnityEngine.XR.OpenXR.Tests
             mockRuntimeEnvironment.AddSupportedExtension("XR_FB_spatial_entity", XR_FB_spatial_entity_SPEC_VERSION);
 
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(1);
+            yield return null;
 
             Debug.Log("about to assert");
             Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_spatial_entity"), "XR_FB_spatial_entity should be enabled.");
             Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_META_spatial_entity_discovery"), "XR_META_spatial_entity_discovery shouldn't be enabled.");
 
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(1);
+            yield return null;
         }
 #endif
 
@@ -349,10 +349,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             // our "XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT" mock should not be called at the start
             s_NumTimesMockSysPropertiesCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockSysPropertiesCalled == 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
 
             // our "XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT" mock SHOULD be called when SET
             mockRuntimeEnvironment.SetSysPropertiesFunctionForXrStructureType(
@@ -360,10 +360,10 @@ namespace UnityEngine.XR.OpenXR.Tests
                 GetSysProperties_UserPresence_MockCallback());
             s_NumTimesMockSysPropertiesCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockSysPropertiesCalled > 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
 
             // our "XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT" mock SHOULD NOT be called when CLEARED
             mockRuntimeEnvironment.SetSysPropertiesFunctionForXrStructureType(
@@ -371,10 +371,10 @@ namespace UnityEngine.XR.OpenXR.Tests
                 IntPtr.Zero);
             s_NumTimesMockSysPropertiesCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockSysPropertiesCalled == 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
         }
 
         /// <summary>
@@ -389,10 +389,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             Console.WriteLine("TestSetFunctionForInterceptor() first test");
             s_NumTimesMockGetSystemCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockGetSystemCalled == 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
 
             // our "xrGetSystem" mock SHOULD be called when SET
             Console.WriteLine("TestSetFunctionForInterceptor() second test");
@@ -400,10 +400,10 @@ namespace UnityEngine.XR.OpenXR.Tests
                 "xrGetSystem", GetSystem_MockCallback());
             s_NumTimesMockGetSystemCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockGetSystemCalled > 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
 
             // our "xrGetSystem" mock SHOULD NOT be called when CLEARED
             Console.WriteLine("TestSetFunctionForInterceptor() third test");
@@ -411,10 +411,10 @@ namespace UnityEngine.XR.OpenXR.Tests
                 "xrGetSystem", IntPtr.Zero);
             s_NumTimesMockGetSystemCalled = 0;
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
             Assert.IsTrue(s_NumTimesMockGetSystemCalled == 0);
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(0.1F);
+            yield return null;
         }
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             mockRuntimeEnvironment.Settings.RequestUseExtension("XR_EXT_user_presence");
 
             mockRuntimeEnvironment.Start();
-            yield return new WaitForSeconds(1);
+            yield return null;
 
             List<InputDevice> hmdDevices = new List<InputDevice>();
             InputDevices.GetDevicesWithCharacteristics(InputDeviceCharacteristics.HeadMounted, hmdDevices);
@@ -447,7 +447,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             mockRuntimeEnvironment.EnqueueMockEventData(unmanagedEventData);
             Marshal.FreeHGlobal(unmanagedEventData);
             mockRuntimeEnvironment.ProcessEventQueue();
-            yield return new WaitForSeconds(1);
+            yield return null;
 
             bool hasValue = hmdDevices[0].TryGetFeatureValue(CommonUsages.userPresence, out bool isUserPresent);
             Assert.That(hasValue, Is.True);
@@ -464,14 +464,14 @@ namespace UnityEngine.XR.OpenXR.Tests
             mockRuntimeEnvironment.EnqueueMockEventData(unmanagedEventData);
             Marshal.FreeHGlobal(unmanagedEventData);
             mockRuntimeEnvironment.ProcessEventQueue();
-            yield return new WaitForSeconds(1);
+            yield return null;
 
             hasValue = hmdDevices[0].TryGetFeatureValue(CommonUsages.userPresence, out isUserPresent);
             Assert.That(hasValue, Is.True);
             Assert.That(isUserPresent, Is.True);
 
             mockRuntimeEnvironment.Stop();
-            yield return new WaitForSeconds(1);
+            yield return null;
         }
 
         static List<string> GetNamesOfActiveLoaders()

@@ -162,7 +162,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 .Distinct()
                 .ToList();
 
-            var featuresOnDisk = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
+            var featureAssetsMap = new Dictionary<OpenXRFeatureAttribute, OpenXRFeature>();
             string buildGroupName = isOpenXrSettingsAMockInstance ? "MockRuntime" : group.ToString();
             foreach (var featureAsset in featureAssets)
             {
@@ -173,7 +173,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 {
                     if (attr is OpenXRFeatureAttribute featureAttr)
                     {
-                        featuresOnDisk[featureAttr] = (OpenXRFeature)featureAsset;
+                        featureAssetsMap[featureAttr] = (OpenXRFeature)featureAsset;
                         break;
                     }
                 }
@@ -181,7 +181,7 @@ namespace UnityEditor.XR.OpenXR.Features
 
             // Find any features that haven't yet been added to the feature list and create instances of them
             var all = new List<OpenXRFeature>();
-            var mockRuntimeIsAlreadyInitialized = isOpenXrSettingsAMockInstance && featuresOnDisk.Any();
+            var mockRuntimeIsAlreadyInitialized = isOpenXrSettingsAMockInstance && featureAssetsMap.Any();
             foreach (var featureType in TypeCache.GetTypesWithAttribute<OpenXRFeatureAttribute>())
             {
                 foreach (Attribute attr in Attribute.GetCustomAttributes(featureType))
@@ -193,7 +193,7 @@ namespace UnityEditor.XR.OpenXR.Features
                         && !((IList)featureAttr.BuildTargetGroups).Contains(group))
                         break;
 
-                    if (!featuresOnDisk.TryGetValue(featureAttr, out var featureAsset))
+                    if (!featureAssetsMap.TryGetValue(featureAttr, out var featureAsset))
                     {
                         // Create a new one
                         featureAsset = (OpenXRFeature)ScriptableObject.CreateInstance(featureType);

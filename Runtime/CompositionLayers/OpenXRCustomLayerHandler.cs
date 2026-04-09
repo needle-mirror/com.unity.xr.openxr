@@ -180,7 +180,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// ]]>
         /// </code>
         /// </example>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// that was just created.</param>
         /// <param name="swapchainCreateInfo"> An <c>XrSwapchainCreateInfo</c> object created and initialized by the concrete implementation of this method.</param>
         /// <returns> A bool indicating success or failure.</returns>
@@ -245,7 +245,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// ]]>
         /// </code>
         /// </example>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// that was just created.</param>
         /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer,
         /// such as the associated swapchain handle.</param>
@@ -289,7 +289,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// ]]>
         /// </code>
         /// </example>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition
         /// layer that was modified.</param>
         /// <param name="nativeLayer"> A reference to the native OpenXR structure of the composition layer that was modified.
         /// The concrete implementation of this method should update the values of the structure as appropriate.</param>
@@ -297,7 +297,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         protected abstract bool ModifyNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref T nativeLayer);
 
         /// <summary>
-        /// Mapping of instance ids and native layer structs to help determine what layers are currently set to be active.
+        /// Mapping of unique ids and native layer structs to help determine what layers are currently set to be active.
         /// </summary>
         protected Dictionary<int, T> m_nativeLayers = new();
 
@@ -349,7 +349,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <see cref="OpenXRLayerProvider"/> when a new layer has been created.
         /// This implementation triggers the creation of a swapchain before the actual native layer struct is created.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// being created.</param>
         public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
@@ -412,7 +412,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <see cref="ModifyNativeLayer(CompositionLayerManager.LayerInfo, ref T)"/>
         /// by sending a reference to the native layer struct.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// that was modified.</param>
         public virtual void ModifyLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
@@ -437,7 +437,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
         /// <see cref="OpenXRLayerProvider"/> when a layer is destroyed or disabled.
         /// </summary>
-        /// <param name="removedLayerId"> The instance id of the CompositionLayer component that was removed.</param>
+        /// <param name="removedLayerId"> The unique id of the CompositionLayer component that was removed.</param>
         public virtual void RemoveLayer(int removedLayerId)
         {
             OpenXRLayerUtility.ReleaseSwapchain(removedLayerId);
@@ -454,7 +454,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Implements the <see cref="OpenXRLayerProvider.ILayerHandler"/> method that is called by the
         /// <see cref="OpenXRLayerProvider"/> when a layer is considered to be currently active.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// being set to active.</param>
         public virtual void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
@@ -518,7 +518,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// The static <see cref="OnCreatedSwapchainCallback(int, ulong)"/> method is passed as a callback and invoked when
         /// the swapchain has been created.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// that was just created.</param>
         protected virtual void CreateSwapchainAsync(CompositionLayerManager.LayerInfo layerInfo)
         {
@@ -543,7 +543,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// and asks this subclass to create the native layer struct by invoking
         /// <see cref="CreateNativeLayer(CompositionLayerManager.LayerInfo, SwapchainCreatedOutput, out T)"/>.
         /// </summary>
-        /// <param name="layerInfo"> Container for the instance id and CompositionLayer component of the composition layer
+        /// <param name="layerInfo"> Container for the unique id and CompositionLayer component of the composition layer
         /// that was just created.</param>
         /// <param name="swapchainOutput"> Information regarding the swapchain that was created for this layer, such as
         /// the associated swapchain handle.</param>
@@ -591,7 +591,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// Override this method to modify a native composition layer struct in response to when it is active.
         /// An active composition layer will invoke this every frame.
         /// </summary>
-        /// <param name="layerInfo">Container for the instance id and CompositionLayer component of the composition
+        /// <param name="layerInfo">Container for the unique id and CompositionLayer component of the composition
         /// layer that is active.</param>
         /// <param name="nativeLayer">A reference to the native OpenXR structure of the composition layer that is active.</param>
         /// <returns>Bool indicating success or failure.

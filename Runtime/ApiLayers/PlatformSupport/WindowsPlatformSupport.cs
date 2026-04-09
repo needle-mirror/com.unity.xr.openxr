@@ -39,13 +39,16 @@ namespace UnityEngine.XR.OpenXR
             /// </summary>
             public void Setup(IntPtr hookGetInstanceProcAddr)
             {
+#if UNITY_EDITOR
                 var processArchitecture = RuntimeInformation.ProcessArchitecture;
                 var archName = Enum.GetName(typeof(Architecture), processArchitecture);
-                Debug.Log("Setup, Process Architecture: " + archName);
                 if (string.IsNullOrEmpty(archName))
                     return;
 
                 var platformEnabledApiLayersDir = Path.Combine(GetApiLayersDir(), archName.ToLower());
+#else
+                var platformEnabledApiLayersDir = GetApiLayersDir();
+#endif
                 var existing = Environment.GetEnvironmentVariable(k_ApiLayerPathVar);
 
                 // Prepend our layer path to the existing environment variable to give it priority.

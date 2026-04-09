@@ -34,7 +34,7 @@ The following devices support automatic viewport dynamic resolution:
 
 Not all features are compatible with automatic viewport dynamic resolution. Refer to the following list to understand the features that aren't compatible with automatic viewport dynamic resolution:
 
-* Automatic viewport dynamic resolution isn't supported in the [URP compatibility mode](xref:urp-compatibility-mode)
+* Automatic viewport dynamic resolution isn't supported in the [URP compatibility mode](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/compatibility-mode.html)
 * If your project uses [Multiview Render Regions](xref:openxr-multiview-render-regions) and dynamic resolution together, Unity recommends that you enable [Final Pass Mode](xref:openxr-multiview-render-regions#reference). Avoid **All Passes** mode if your project uses dynamic resolution.
 
 ## Enable automatic viewport dynamic resolution

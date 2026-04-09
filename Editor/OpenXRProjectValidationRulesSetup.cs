@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
@@ -22,6 +23,8 @@ namespace UnityEditor.XR.OpenXR
 {
     internal class OpenXRProjectValidationRulesSetup
     {
+        const string k_FeaturesRefreshedSessionKey = "com.unity.xr.openxr.featuresRefreshed";
+
         static BuildTargetGroup[] s_BuildTargetGroups =
             ((BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup))).Distinct().ToArray();
 
@@ -115,11 +118,17 @@ namespace UnityEditor.XR.OpenXR
 
         static void AddOpenXRValidationRules()
         {
+            var isRefreshedThisSession = SessionState.GetBool(k_FeaturesRefreshedSessionKey, false);
+
             foreach (var buildTargetGroup in s_BuildTargetGroups)
             {
                 bool isOpenXRSupportedPlatform = buildTargetGroup == BuildTargetGroup.Standalone || buildTargetGroup == BuildTargetGroup.Android;
                 if (!isOpenXRSupportedPlatform)
                     continue;
+
+                // Only refresh features the first time the Editor is opened.
+                if (!isRefreshedThisSession)
+                    Features.FeatureHelpers.RefreshFeatures(buildTargetGroup);
 
                 var coreIssues = new List<BuildValidationRule>();
                 if (buildTargetGroup == BuildTargetGroup.Android)
@@ -136,6 +145,9 @@ namespace UnityEditor.XR.OpenXR
 
                 BuildValidator.AddRules(buildTargetGroup, coreIssues);
             }
+
+            if (!isRefreshedThisSession)
+                SessionState.SetBool(k_FeaturesRefreshedSessionKey, true);
         }
 
         static BuildValidationRule VulkanOffscreenSwapchainAndroidValidationRule()

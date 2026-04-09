@@ -124,6 +124,12 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
         [SerializeField, Tooltip("Uses a PNG in the Assets folder as the system splash screen image. If set, the OS will display the system splash screen as a high quality compositor layer as soon as the app is starting to launch until the app submits the first frame.")]
         public Texture2D systemSplashScreen;
 
+        /// <summary>
+        /// Enables the on-screen system keyboard. Disable this if you wish to use a custom software keyboard.
+        /// </summary>
+        [SerializeField, Tooltip("Enables the on-screen system keyboard. Disable this if you wish to use a custom software keyboard.")]
+        public bool enableSystemKeyboard = false;
+
         [SerializeField, FormerlySerializedAs("optimizeBufferDiscards"), Tooltip("Optimization that allows 4x MSAA textures to be memoryless on Vulkan")]
         bool m_optimizeBufferDiscards = true;
 

@@ -3919,6 +3919,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         UnpersistSpatialEntityCompletionEXT = 1000781003,
 
         /// <summary>
+        /// The struct is of type `XrEventDataGlobalDimmingLevelChangedANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_GLOBAL_DIMMING_LEVEL_CHANGED_ANDROID`.
+        /// Provided by `XR_ANDROID_global_passthrough_dimming`.
+        /// </summary>
+        EventDataGlobalDimmingLevelChangedAndroid = 1000796001,
+
+        /// <summary>
         /// The struct is of type `XrLoaderInitInfoPropertiesEXT`.
         ///Equivalent to the OpenXR value `XR_TYPE_LOADER_INIT_INFO_PROPERTIES_EXT`.
         /// Provided by `XR_EXT_loader_init_properties`.

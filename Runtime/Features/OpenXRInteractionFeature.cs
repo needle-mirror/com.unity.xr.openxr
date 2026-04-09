@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.XR.Management;
-using UnityEngine.XR.Management;
 #endif
 
 namespace UnityEngine.XR.OpenXR.Features
@@ -19,8 +18,8 @@ namespace UnityEngine.XR.OpenXR.Features
         /// <summary>
         /// Temporary static list used for action map creation
         /// </summary>
-        private static List<ActionMapConfig> m_CreatedActionMaps = null;
-        private static Dictionary<InteractionProfileType, Dictionary<string, bool>> m_InteractionProfileEnabledMaps = new Dictionary<InteractionProfileType, Dictionary<string, bool>>();
+        static List<ActionMapConfig> m_CreatedActionMaps;
+        static Dictionary<InteractionProfileType, Dictionary<string, bool>> m_InteractionProfileEnabledMaps = new();
 
         /// <summary>
         /// Flag that indicates this feature or profile is additive and its binding paths will be added to other non-additive profiles if enabled.
@@ -256,10 +255,10 @@ namespace UnityEngine.XR.OpenXR.Features
         protected void AddActionMap(ActionMapConfig map)
         {
             if (null == map)
-                throw new ArgumentNullException("map");
+                throw new ArgumentNullException(nameof(map));
 
             if (null == m_CreatedActionMaps)
-                throw new InvalidOperationException("ActionMap must be added from within the RegisterActionMapsWithRuntime method");
+                throw new InvalidOperationException($"ActionMap must be added from within the {nameof(RegisterActionMapsWithRuntime)} method");
 
             m_CreatedActionMaps.Add(map);
         }
@@ -282,22 +281,24 @@ namespace UnityEngine.XR.OpenXR.Features
         /// feature makes thumbstick and trackpad bindings available if the active profile doesn't
         /// already contain them.
         ///
-        /// To enable additve action bindings, your OpenXR interaction feature must:
+        /// To enable additive action bindings, your OpenXR interaction feature must:
         ///
         /// - Define an action map with one or more actions marked as `isAdditive`.
         /// (Refer to <see cref="ActionConfig.isAdditive"/> for more information.)
         /// - Override this `AddAdditiveActions()` function to add the additive actions to each of the
         /// maps in the <paramref name="actionMaps"/> parameter.
-        /// [!code-csharp[AdditiveFeatureSample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/AdditiveFeatureSample.cs#AdditiveFeatureSample)]
         /// </remarks>
+        /// <example>
+        /// <code source="../../Tests/Editor/CodeSamples/AdditiveFeatureSample.cs" region="AdditiveFeatureSample" title="Example OpenXRInteractionFeature subclass with additive actions"/>
+        /// </example>
         /// <param name="actionMaps">The set of action maps from all enabled non-additive interaction profiles that can be augmented.</param>
         /// <param name="additiveMap">The action map defined by an additive feature that contains extra actions/binding paths intended to be appended to existing non additive interaction profiles.</param>
-        protected internal virtual void AddAdditiveActions(List<OpenXRInteractionFeature.ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
+        protected internal virtual void AddAdditiveActions(List<ActionMapConfig> actionMaps, ActionMapConfig additiveMap)
         {
         }
 
 #if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
-        private static readonly Dictionary<string, (string[] actions, string[] augmented)> s_LastPayloadPerFeature = new Dictionary<string, (string[] actions, string[] augmented)>();
+        static readonly Dictionary<string, (string[] actions, string[] augmented)> s_LastPayloadPerFeature = new();
 #endif
 
         internal static void SendAdditiveAnalyticsData(OpenXRInteractionFeature feature)
@@ -306,7 +307,7 @@ namespace UnityEngine.XR.OpenXR.Features
             if (feature == null || !feature.enabled || !feature.IsAdditive)
                 return;
 
-            var additiveMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
+            var additiveMaps = new List<ActionMapConfig>();
             feature.CreateActionMaps(additiveMaps);
             if (additiveMaps.Count == 0)
                 return;
@@ -326,8 +327,8 @@ namespace UnityEngine.XR.OpenXR.Features
                 }
             }
 
-            var baseMaps = new List<OpenXRInteractionFeature.ActionMapConfig>();
-            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup);
+            var baseMaps = new List<ActionMapConfig>();
+            var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             if (settings != null)
             {
                 foreach (var curFeature in settings.GetFeatures<OpenXRFeature>())
@@ -386,7 +387,7 @@ namespace UnityEngine.XR.OpenXR.Features
                     m_InteractionProfileEnabledMaps[profileType][deviceLayoutName] = feature.enabled;
                     if (((OpenXRInteractionFeature) feature).IsAdditive)
                     {
-                        OpenXRInteractionFeature.SendAdditiveAnalyticsData((OpenXRInteractionFeature) feature);
+                        SendAdditiveAnalyticsData((OpenXRInteractionFeature) feature);
                     }
                 }
             }
@@ -409,7 +410,7 @@ namespace UnityEngine.XR.OpenXR.Features
 
                 var profileType = ((OpenXRInteractionFeature) feature).GetInteractionProfileType();
                 string deviceLayoutName = ((OpenXRInteractionFeature) feature).GetDeviceLayoutName();
-                if (String.IsNullOrEmpty(deviceLayoutName))
+                if (string.IsNullOrEmpty(deviceLayoutName))
                 {
                     Debug.LogWarningFormat("No GetDeviceLayoutName() override detected in {0}. Binding path validator for this interaction profile is not as effective. To fix, add GetDeviceLayoutName and GetInteractionProfileType override in this profile.", feature.nameUi);
                     continue;
@@ -509,7 +510,7 @@ namespace UnityEngine.XR.OpenXR.Features
             /// <param name="targetGroup">The given Unity build target group to check for an active OpenXR loader</param>
             protected internal static bool OpenXRLoaderEnabledForSelectedBuildTarget(BuildTargetGroup targetGroup)
             {
-                var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup)?.AssignedSettings;
+                var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup)?.Manager;
                 if (!settings)
                     return false;
                 bool loaderFound = false;

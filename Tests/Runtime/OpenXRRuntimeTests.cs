@@ -18,6 +18,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 {
     class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
+        const float k_oneFrameDuration = 1.0f / 72f; // 1 frame duration at 72 FPS
+
         [Test]
         public void TestAvailableExtensions()
         {
@@ -1323,7 +1325,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             try
             {
                 MockRuntime.KeepFunctionCallbacks = true;
-                float timeBetweenRestarts = 0.5f;
+                float timeBetweenRestarts = k_oneFrameDuration * 10;
 
                 yield return null;
 
@@ -1641,7 +1643,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             var initialXRCreateSwapchainCallback = MockRuntime.GetBeforeFunctionCallback("xrCreateSwapchain");
             try
             {
-                float timeBetweenRestarts = 1.0f;
+                float timeBetweenRestarts = k_oneFrameDuration * 10;
 
                 // Reduce the time between restarts to reduce the time of this test.
                 OpenXRRestarter.TimeBetweenRestartAttempts = timeBetweenRestarts;

@@ -20,7 +20,7 @@ To use Application SpaceWarp, your project must meet the following prerequisites
   > Right-handed NDCs for motion vectors are only supported in OpenXR 1.15.1+.
 
 * Universal Render Pipeline (URP) 17.0.3+
-* Rendergraph (SpaceWarp is not supported in [URP compatibility mode](xref:urp-compatibility-mode))
+* Rendergraph (SpaceWarp is not supported in [URP compatibility mode](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/compatibility-mode.html))
 * Vulkan graphics API
 * An OpenXR device package, such as [Unity OpenXR Meta](https://docs.unity3d.com/Packages/com.unity.xr.meta-openxr@latest) or [Unity OpenXR Android XR](https://docs.unity3d.com/Packages/com.unity.xr.androidxr-openxr@latest), that supports the OpenXR Application SpaceWarp feature.
 * XR Headset that supports the Khronos OpenXR Application SpaceWarp extension.

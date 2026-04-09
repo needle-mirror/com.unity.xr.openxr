@@ -18,10 +18,9 @@ namespace UnityEngine.XR.OpenXR
             const string k_AndroidApiLayersPath = "AndroidLayers";
             internal const string k_SoExt = ".so";
             const string k_Arm64Arch = "arm64-v8a";
-            const string k_X64Arch = "x86_64";
 
             // Only these architectures supported at the moment
-            static readonly Architecture[] s_SupportedArchitectures = new Architecture[] { Architecture.Arm64, Architecture.X64 };
+            static readonly Architecture[] s_SupportedArchitectures = new Architecture[] { Architecture.Arm64 };
             static readonly string[] s_SupportedExtensions = new string[] { k_SoExt };
 
             public void Setup(IntPtr hookGetInstanceProcAddr)
@@ -83,9 +82,6 @@ namespace UnityEngine.XR.OpenXR
                 {
                     case Architecture.Arm64:
                         return k_Arm64Arch;
-
-                    case Architecture.X64:
-                        return k_X64Arch;
                 }
 
                 return string.Empty;

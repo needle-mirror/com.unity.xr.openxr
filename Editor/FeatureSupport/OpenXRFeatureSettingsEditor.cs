@@ -1,18 +1,10 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
 using UnityEngine;
-using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
-
-using UnityEditor;
 
 namespace UnityEditor.XR.OpenXR.Features
 {
-    internal class OpenXRFeatureSettingsEditor : EditorWindow
+    class OpenXRFeatureSettingsEditor : EditorWindow
     {
         struct Styles
         {
@@ -21,8 +13,8 @@ namespace UnityEditor.XR.OpenXR.Features
 
         struct Content
         {
-            public static GUIContent k_NoSelectionTitleContent = new GUIContent("OpenXR Feature Settings");
-            public static GUIContent k_NoSelectionHelpMsg = new GUIContent("There is no current feature selected for the this build target. Go to Player Settings->XR Plug-in Management->OpenXR to select a settings for a feature to edit.");
+            public static GUIContent k_NoSelectionTitleContent = new("OpenXR Feature Settings");
+            public static GUIContent k_NoSelectionHelpMsg = new("There is no current feature selected for the this build target. Go to Player Settings->XR Plug-in Management->OpenXR to select a settings for a feature to edit.");
         }
 
 
@@ -35,18 +27,22 @@ namespace UnityEditor.XR.OpenXR.Features
             }
         }
 
+        [SerializeField]
         BuildTargetGroup activeBuildTarget;
+
+        [SerializeField]
         string activeFeatureId = String.Empty;
 
-        Editor activeItemEditor = null;
-        OpenXRFeature featureToEdit = null;
-        OpenXRFeatureAttribute featureAttr = null;
+        Editor activeItemEditor;
+        OpenXRFeature featureToEdit;
+        OpenXRFeatureAttribute featureAttr;
         GUIContent uiName;
         GUIContent categoryName;
         GUIContent partner;
         GUIContent version;
         string documentationLink;
-        bool itemDidChange = false;
+        bool itemDidChange;
+        Vector2 scrollBarPosition;
 
         internal BuildTargetGroup ActiveBuildTarget
         {
@@ -67,7 +63,7 @@ namespace UnityEditor.XR.OpenXR.Features
             get => activeFeatureId;
             set
             {
-                if (String.Compare(value, activeFeatureId, true) != 0)
+                if (string.Compare(value, activeFeatureId, true) != 0)
                 {
                     activeFeatureId = value;
                     itemDidChange = true;
@@ -82,10 +78,11 @@ namespace UnityEditor.XR.OpenXR.Features
                 return;
 
             itemDidChange = false;
-
+            scrollBarPosition = Vector2.zero;
             featureToEdit = null;
             titleContent = Content.k_NoSelectionTitleContent;
             activeItemEditor = null;
+            DestroyActiveItemEditor();
             categoryName = null;
             partner = null;
             version = null;
@@ -94,26 +91,45 @@ namespace UnityEditor.XR.OpenXR.Features
             featureToEdit = FeatureHelpers.GetFeatureWithIdForBuildTarget(activeBuildTarget, activeFeatureId);
             if (featureToEdit != null)
             {
-                foreach (Attribute attr in Attribute.GetCustomAttributes(featureToEdit.GetType()))
+                foreach (var attr in Attribute.GetCustomAttributes(featureToEdit.GetType()))
                 {
-                    if (attr is OpenXRFeatureAttribute)
+                    if (attr is OpenXRFeatureAttribute attribute)
                     {
-                        featureAttr = (OpenXRFeatureAttribute)attr;
+                        featureAttr = attribute;
                         break;
                     }
                 }
 
                 if (featureAttr != null)
                 {
-                    activeItemEditor = UnityEditor.Editor.CreateEditor(featureToEdit);
+                    activeItemEditor = Editor.CreateEditor(featureToEdit);
                     uiName = new GUIContent(featureAttr.UiName);
-                    categoryName = new GUIContent($"Category: {featureAttr.Category.ToString()}");
+                    categoryName = new GUIContent($"Category: {featureAttr.Category}");
                     partner = new GUIContent($"Author: {featureAttr.Company}");
                     version = new GUIContent($"Version: {featureAttr.Version}");
                     documentationLink = featureAttr.InternalDocumentationLink;
                     titleContent = uiName;
                 }
             }
+        }
+
+        public void OnEnable()
+        {
+            itemDidChange = true;
+        }
+
+        void OnDisable()
+        {
+            DestroyActiveItemEditor();
+        }
+
+        void DestroyActiveItemEditor()
+        {
+            if (activeItemEditor == null)
+                return;
+
+            DestroyImmediate(activeItemEditor);
+            activeItemEditor = null;
         }
 
         public void OnGUI()
@@ -130,6 +146,9 @@ namespace UnityEditor.XR.OpenXR.Features
                 EditorGUILayout.EndVertical();
                 return;
             }
+
+            using var scrollView = new EditorGUILayout.ScrollViewScope(scrollBarPosition);
+            scrollBarPosition = scrollView.scrollPosition;
 
             EditorGUILayout.Space();
 
@@ -158,11 +177,11 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             EditorGUILayout.Space();
-            if (!String.IsNullOrEmpty(documentationLink))
+            if (!string.IsNullOrEmpty(documentationLink))
             {
                 if (GUILayout.Button("Documentation", EditorStyles.linkLabel))
                 {
-                    UnityEngine.Application.OpenURL(documentationLink);
+                    Application.OpenURL(documentationLink);
                 }
             }
         }

@@ -3,7 +3,7 @@
 #include <cstring>
 #include <string>
 
-#if defined(XR_USE_PLATFORM_WIN32) && !defined(XR_USE_PLATFORM_UWP)
+#if defined(XR_USE_PLATFORM_WIN32)
 
 PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
 {
@@ -40,31 +40,6 @@ PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
     {
         int ret = GetLastError();
         fprintf(stderr, "LoadLibraryW failed, error = %d\n", ret);
-    }
-    return handle;
-}
-
-void Plugin_FreeLibrary(PluginHandle handle)
-{
-    FreeLibrary(handle);
-}
-
-PluginFunc Plugin_GetSymbol(PluginHandle handle, const char* symbol)
-{
-    return GetProcAddress(handle, symbol);
-}
-
-#elif defined(XR_USE_PLATFORM_UWP)
-
-PluginHandle Plugin_LoadLibrary(const wchar_t* libName)
-{
-    if (libName == NULL)
-        return NULL;
-    HMODULE handle = LoadPackagedLibrary(libName, 0);
-    if (handle == NULL)
-    {
-        int ret = GetLastError();
-        fprintf(stderr, "LoadPackagedLibrary failed, error = %d\n", ret);
     }
     return handle;
 }

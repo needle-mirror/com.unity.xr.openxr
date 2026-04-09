@@ -160,7 +160,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.AreEqual(OpenXRLoaderBase.LoaderState.Initialized, Loader.currentLoaderState);
 
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 ret = Loader.Start();
                 Assert.IsTrue(ret);

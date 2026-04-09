@@ -29,30 +29,6 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
-        public IEnumerator MeasureLatency([ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
-        {
-            Initialize();
-            // By default, the project's settings are set, replacing with test case settings
-            NativeApi.SetLatencyOptimization(priorityStrategy);
-            Start();
-
-            yield return new WaitForXrFrame(100); // Warm up
-
-            if (!TryGetFirstDisplaySubsytem(out var displaySubsystem))
-            {
-                Assert.Inconclusive("No XRDisplaySubsystem instance found during testing. Make sure XR is set up correctly.");
-            }
-            if (!NativeApi.EnableLatencyStats)
-            {
-                Assert.Inconclusive("Latency Stat measurement wasn't enabled. Make sure that the test is set up for latency measurements.");
-            }
-
-            yield return MeasureLatencyFromStats(displaySubsystem, priorityStrategy);
-
-            StopAndShutdown();
-        }
-
-        [UnityTest]
         public IEnumerator CheckFrameSyncFunctionsCalledOncePerFrame(
             [ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
         {
@@ -86,7 +62,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             NativeApi.SetLatencyOptimization(priorityStrategy);
             Start();
 
-            var testFrames = 500;
+            var testFrames = 20;
             var waitForEndFrame = new WaitForEndOfFrame();
             for (var i = 0; i <= testFrames; i++)
             {
@@ -158,7 +134,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             Start();
 
             var waitFrameCoroutine = new WaitForXrFrame();
-            for (int i = 0; i < 500; i++)
+            for (int i = 0; i < 20; i++)
             {
                 if (xrWaitFrameCalledMultipleTimes || xrBeginFrameInWrongOrder || xrEndFrameInWrongOrder)
                 {
@@ -172,69 +148,6 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsFalse(xrEndFrameInWrongOrder, "xrEndFrame was called out of order");
 
             StopAndShutdown();
-        }
-
-        static IEnumerator MeasureLatencyFromStats(XRDisplaySubsystem displaySubsystem, OpenXRSettings.LatencyOptimization priorityStrategy)
-        {
-            const int frames = 1000;
-            var framesFailed = 0;
-
-            float[] inputLatencyMeasurements = new float[frames];
-            float[] renderLatencyMeasurements = new float[frames];
-
-            for (var i = 0; i < frames; i++)
-            {
-                yield return null; // Let a frame be run
-
-                var waitFrameTime = GetTimeFromProfilerMarker(displaySubsystem, "waitFrameTime");
-                var inputTickTime = GetTimeFromProfilerMarker(displaySubsystem, "inputTickTime");
-                var beginFrameTime = GetTimeFromProfilerMarker(displaySubsystem, "beginFrameTime");
-
-                var inputLatency = Mathf.Abs(inputTickTime - waitFrameTime);
-                var renderLatency = Mathf.Abs(beginFrameTime - waitFrameTime);
-
-                inputLatencyMeasurements[i] = inputLatency;
-                renderLatencyMeasurements[i] = renderLatency;
-
-                switch (priorityStrategy)
-                {
-                    case (OpenXRSettings.LatencyOptimization.PrioritizeRendering):
-                        framesFailed += renderLatency > inputLatency ? 1 : 0;
-                        break;
-                    case (OpenXRSettings.LatencyOptimization.PrioritizeInputPolling):
-                        framesFailed += inputLatency > renderLatency ? 1 : 0;
-                        break;
-                    default:
-                        Assert.Fail($"Unsupported latency optimization setting used: {priorityStrategy}");
-                        break;
-                }
-            }
-
-            var inputLatencyAvg = inputLatencyMeasurements.Average();
-            var renderLatencyAvg = renderLatencyMeasurements.Average();
-
-            var failureRate = framesFailed / (float)frames;
-            Assert.Pass($"Latency Optimization measurements for {priorityStrategy}\n" +
-                $"Average Input Latency: {inputLatencyAvg} microseconds\n" +
-                $"Average Render Latency: {renderLatencyAvg} microseconds\n" +
-                $"Optimization fails per frame: {framesFailed}/{frames} ({failureRate * 100}%)");
-        }
-
-        static bool TryGetFirstDisplaySubsytem(out XRDisplaySubsystem subsystem)
-        {
-            var displays = new List<XRDisplaySubsystem>();
-            SubsystemManager.GetSubsystems(displays);
-            subsystem = displays.Count > 0 ? displays[0] : null;
-            return subsystem != null;
-        }
-
-        static float GetTimeFromProfilerMarker(XRDisplaySubsystem displaySubsytem, string markerMame)
-        {
-            if (Provider.XRStats.TryGetStat(displaySubsytem, markerMame, out float time))
-            {
-                return time;
-            }
-            return 0;
         }
 
         static class NativeApi

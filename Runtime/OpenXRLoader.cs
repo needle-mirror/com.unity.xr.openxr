@@ -17,6 +17,9 @@ using UnityEditor;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.OpenXR;
 #endif
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 [assembly: Preserve]
 
@@ -486,14 +489,7 @@ namespace UnityEngine.XR.OpenXR
                 currentLoaderState = LoaderState.Uninitialized;
                 actionSetsAttached = false;
 
-                if (unhandledExceptionHandler != null)
-                {
-                    AppDomain currentDomain = AppDomain.CurrentDomain;
-#pragma warning disable UAC0006
-                    currentDomain.UnhandledException -= unhandledExceptionHandler;
-#pragma warning restore UAC0006
-                    unhandledExceptionHandler = null;
-                }
+                OnCodeUnloading();
 
                 deinitializedInternal?.Invoke(this);
                 return base.Deinitialize();
@@ -751,13 +747,7 @@ namespace UnityEngine.XR.OpenXR
         {
             AppDomain currentDomain = AppDomain.CurrentDomain;
 
-            if (unhandledExceptionHandler != null)
-            {
-#pragma warning disable UAC0006
-                currentDomain.UnhandledException -= unhandledExceptionHandler;
-#pragma warning restore UAC0006
-                unhandledExceptionHandler = null;
-            }
+            OnCodeUnloading();
 
             unhandledExceptionHandler = ExceptionHandler;
 #pragma warning disable UAC0006
@@ -788,5 +778,26 @@ namespace UnityEngine.XR.OpenXR
         }
 
 #endif
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [OnCodeUnloading]
+#endif
+        static void OnCodeUnloading()
+        {
+            var instance = Instance;
+            if (instance != null && instance.unhandledExceptionHandler != null)
+            {
+                AppDomain currentDomain = AppDomain.CurrentDomain;
+                // Keeping UAC0006 as this event is properly managed in the lifecycle.
+                // We will continue to utilize AppDomain.CurrentDomain.UnhandledException,
+                // as the API itself is not the core issue.
+                // The key requirement is to guarantee that we consistently unsubscribe from
+                // this event before the ALC unloads to prevent memory leaks.
+#pragma warning disable UAC0006
+                currentDomain.UnhandledException -= instance.unhandledExceptionHandler;
+#pragma warning restore UAC0006
+                instance.unhandledExceptionHandler = null;
+            }
+        }
     }
 }

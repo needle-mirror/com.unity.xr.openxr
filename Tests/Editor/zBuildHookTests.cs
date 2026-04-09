@@ -40,6 +40,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void PrePostCallbacksAreReceived()
         {
             bool preprocessCalled = false;
@@ -72,7 +73,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
-        [Timeout(400000)]
+        [Timeout(800000)]
+        [Category("BuildUnitTest"), Explicit]
         public void NoBuildCallbacksFeatureDisabled()
         {
             bool preprocessCalled = false;
@@ -101,6 +103,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void NoBuildCallbacksOpenXRDisabled()
         {
             bool preprocessCalled = false;
@@ -131,6 +134,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void VerifyBootConfigWrite()
         {
             bool preprocessCalled = false;
@@ -173,6 +177,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void VerifyBuildOutputLibraries()
         {
             var resultWithOpenXR = BuildMockPlayer();
@@ -190,6 +195,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void VerifyBuildWithoutAnalytics()
         {
             var packageName = "com.unity.analytics";

@@ -17,6 +17,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         { }
 
         [Test]
+        [Category("BuildUnitTest"), Explicit]
         public void DuplicateSettingAssetTest()
         {
             // Store original file paths and backup

@@ -18,6 +18,7 @@ namespace UnityEngine.XR.OpenXR.Input
         {
             base.FinishSetup();
 
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
             var capabilities = description.capabilities;
             var deviceDescriptor = XRDeviceDescriptor.FromJson(capabilities);
 
@@ -35,6 +36,7 @@ namespace UnityEngine.XR.OpenXR.Input
                     InputSystem.SetDeviceUsage(this, CommonUsages.RightHand);
 #endif //UNITY_2019_3_OR_NEWER
             }
+#endif
         }
     }
 }

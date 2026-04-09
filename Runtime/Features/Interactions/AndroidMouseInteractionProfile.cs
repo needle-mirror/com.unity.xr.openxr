@@ -33,8 +33,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         struct AndroidMouseInteractionState : IInputStateTypeInfo
         {
             const int k_SizeInBytes = 60 + sizeof(bool) * 3 + sizeof(float) * 2;
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
             [InputControl(layout = "Pose", usage = "Aim")]
             public PoseState aim;
+#endif
             [InputControl(layout = "Button", usage = "Click")]
             public bool click;
             [InputControl(layout = "Button", usage = "SecondaryClick")]
@@ -62,6 +64,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         [Preserve, InputControlLayout(displayName = "Android Mouse Interaction (OpenXR)", stateType = typeof(AndroidMouseInteractionState), isGenericTypeOfDevice = true)]
         public class AndroidMouseInteraction : UnityEngine.InputSystem.InputDevice
         {
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
             /// <summary>
             /// A 3D pointer ray pose for interaction. Position is typically at the user's head location,
             /// and orientation where -Z direction is the forward aiming direction. Relative mouse movement
@@ -69,6 +72,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// via scroll input (positive scroll moves forward, negative moves backward).
             /// </summary>
             public PoseControl aim { get; private set; }
+#endif
 
             /// <summary>
             /// Primary mouse button (select/click). Returns <c>true</c> when the primary button is pressed.
@@ -97,7 +101,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             protected override void FinishSetup()
             {
                 base.FinishSetup();
+#if UNITY_INPUT_SYSTEM_ENABLE_XR
                 aim = GetChildControl<PoseControl>("aim");
+#endif
                 click = GetChildControl<ButtonControl>("click");
                 secondaryClick = GetChildControl<ButtonControl>("secondaryClick");
                 tertiaryClick = GetChildControl<ButtonControl>("tertiaryClick");
