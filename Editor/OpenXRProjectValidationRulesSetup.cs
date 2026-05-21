@@ -35,6 +35,23 @@ namespace UnityEditor.XR.OpenXR
         [InitializeOnLoadMethod]
         static void OpenXRProjectValidationCheck()
         {
+            if (UnityEditor.MPE.ProcessService.level != UnityEditor.MPE.ProcessLevel.Main)
+                return;
+
+            if (UnityEngine.Application.isBatchMode)
+            {
+                UpdateOpenXRProjectValidation();
+            }
+            else
+            {
+                EditorApplication.update += UpdateOpenXRProjectValidation;
+            }
+        }
+
+        static void UpdateOpenXRProjectValidation()
+        {
+            EditorApplication.update -= UpdateOpenXRProjectValidation;
+
             UnityEditor.PackageManager.Events.registeredPackages += (packageRegistrationEventArgs) =>
             {
                 // In the Player Settings UI we have to delay the call one frame to let OpenXRSettings constructor to get initialized

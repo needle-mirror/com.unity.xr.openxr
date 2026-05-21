@@ -4,7 +4,7 @@
   "useMemberPages": false,
   "showScriptRef": true,
   "xref": [
-        "com.unity.xr.compositionlayers",
+        "com.unity.xr.compositionlayers"
         ],
   "pmdt-additional-preprocessors": "XR_COMPOSITION_LAYERS"
 }

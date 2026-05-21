@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.17.1] - 2026-05-21
+
+### Fixed
+* Fixed crash caused by attempting to access assetdatabase during an InitializeOnLoad attribute method.
+
 ## [1.17.0] - 2026-04-09
 
 ### Added
