@@ -9,10 +9,47 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
-## [1.17.1] - 2026-05-21
+## [1.18.0-pre.1] - 2026-06-02
+
+### Added
+
+* Added a Starter Assets sample used to unify future OpenXR samples.
+* Reworked the OpenXR Controller sample and added new Graphics and Tracking Origin Mode samples.
+* Added Manual Documentation for the Runtime Debugger feature.
+* Added MetaOpenXRHandMeshData feature for accessing hand mesh geometry via `XR_FB_hand_tracking_mesh`. Supports Meta Quest and Android XR devices.
+* Added `ToString` overrides for the following types:
+  * `XrSpatialCapabilityConfigurationAnchorEXT`
+  * `XrSpatialCapabilityConfigurationAprilTagEXT`
+  * `XrSpatialCapabilityConfigurationArucoMarkerEXT`
+  * `XrSpatialCapabilityConfigurationMicroQrCodeEXT`
+  * `XrSpatialCapabilityConfigurationQrCodeEXT`
+  * `XrSpatialCapabilityConfigurationPlaneTrackingEXT`
+* Added native types for hand tracking extensions XR_EXT_hand_tracking, XR_EXT_hand_joints_motion_range, XR_EXT_hand_tracking_data_source.
+* Added convenience overloads to the OpenXR native API that allow you to get spatial buffer data without constructing an `XrSpatialBufferGetInfoEXT` struct yourself.
+* Added `OpenXRResultStatus.StatusCode.NotFound` and `OpenXRResultStatus.StatusCode.NotTracking` as additional error codes that can be returned by calls to the OpenXR Native API.
+* Added support for `XR_ANDROID_enumerate_system_extension_properties` to query whether the current
+  system configuration supports a particular extension via `OpenXRRuntime.IsSystemExtensionEnabled`.
+* Added Individual, Left and Right Target Eye option to Composition Layers, allowing per-eye textures for standard Quad, Cylinder, Equirect, and Cube layers.
+* Added built-in support for `XR_FB_eye_tracking_social`, exposing per-eye social gaze data as a Unity XR input device.
+* Added internal native API support for dynamically disabling Fragment Density Map (FDM) attachments at foveation level 0 (SRP Foveation).
+
+### Changed
+* Certain interaction profiles now test if hardware support is available on the system if the `XR_ANDROID_enumerate_system_properties` extension is available. Affected interaction profiles: hand, palm pose, hand common poses, D-pad, mouse.
+
+* Updated minimum supported editor version to 6000.0.
+* Changed behavior of Meta Quest build profile to automatically enable suggested controllers and Meta Quest Support.
+* Updated Hand Mesh Data documentation to clarify the exact feature label in OpenXR Project Settings, supported build targets (Android and Standalone), and automatic Android manifest configuration details.
 
 ### Fixed
+
+* Fixed a SIGSEGV crash so native textures are now safely cleaned up during graphics subsystem shutdown.
+* Fixed the Composition Layers Support project validation rule so dual-platform projects can disable the feature on platforms that do not use composition layers.
+* Fixed `XRDisplaySubsystem.contentProtectionEnabled` getter always returning false on OpenXR, and fixed the property having no effect on Meta Quest screen casting.
+* Fixed the "Meta Quest supports Thin Link Time Optimization" Project Validation to be an automatic Fix type instead of an Edit type.
+* Fixed the default foveated-rendering eye center being placed at the wrong location for each eyes, on PC Vulkan/DX12.
 * Fixed crash caused by attempting to access assetdatabase during an InitializeOnLoad attribute method.
+* Fixed issue where "Use OpenXR Time" setting was not applied before subsystem started up.
+* Fixed API Layers window rendering issue such that it renders without throwing `NullReferenceException`. ([UUM-141166](https://issuetracker.unity3d.com/issues/openxr-api-layers-window-is-not-rendered-and-nullreferenceexception-errors-are-thrown-when-the-api-layers-window-is-opened))
 
 ## [1.17.0] - 2026-04-09
 
@@ -21,6 +58,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added the Enable System Keyboard setting to the Meta Quest Feature configuration under Manifest Settings. ([UUM-135656](https://issuetracker.unity3d.com/product/unity/issues/guid/UUM-135656))
 * Added `XrStructureType.EventDataGlobalDimmingLevelChangedAndroid` to support the `XR_ANDROID_global_passthrough_dimming` extension.
 * Added analytics to track active build target when reported in Editor.
+* Added documentation for the [Debug Utils](xref:openxr-debug-utils) feature.
 
 ### Changed
 * Set `Use OpenXR Predicted Time` to `true` by default.
@@ -35,7 +73,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed compilation errors when OpenXR was present in Unity projects targeting non-XR supported platforms.
 * Fixed a problem with feature settings window so that it is no longer cleared after a domain reload.
 * Fixed a problem with feature validation so that all features are refreshed when we first gather validation rules.
+* Fixed compilation errors when OpenXR was present in Unity projects targeting non-XR supported platforms.
 * Fixed a problem with OpenXR API Layers so that we now set the correct path when running on Windows Standalone build.
+* Fixed modification of the OpenXR Package Settings asset every time a project was re-opened in the Unity Editor. ([UUM-138181](https://issuetracker.unity3d.com/product/unity/issues/guid/UUM-138181))
 
 ## [1.17.0-pre.2] - 2026-03-03
 
@@ -49,6 +89,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added Quad Views option for Foveated Rendering.
 * Added `OpenXRLayerUtility.RemoveActiveLayer` so ILayerHandler implementations can remove composition layers from the native list of active layers that were cached this frame.
 * Added analytics to track usage of additive APIs.
+* Added support for `XR_ANDROID_enumerate_system_extension_properties` to query whether the current
+  system configuration supports a particular extension via `OpenXRRuntime.IsSystemExtensionEnabled`.
 * Added validation rule to check that when the **Quad Views** option for **Foveated Rendering** is enabled, the OpenXR **Render Mode** is set to **Single Pass Instanced \ Multi-view**.
 * Added a scroll view to the OpenXR Feature Settings editor window so that content remains accessible when it exceeds the visible area.
 
@@ -86,7 +128,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-* Expose `IsAdditive` and `AddAdditiveActions` APIs to allow external additive features to augment exisiting interaction profiles.
+* Expose `IsAdditive` and `AddAdditiveActions` APIs to allow external additive features to augment existing interaction profiles.
 * Added [new package sample](xref:mock-runtime-tests-sample) that demonstrates usage of the `MockOpenXREnvironment` testing APIs.
 * Added the following members to the [OpenXR native API](xref:openxr-native-api):
   * `OpenXRNativeApi.xrCreateSpatialEntityFromIdEXT(XrSpatialContextEXT, XrSpatialEntityIdEXT, out XrSpatialEntityEXT)`
@@ -284,7 +326,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added `OpenXREditorSettings.VulkanOffscreenSwapchainNoMainDisplay` property to request at startup to use offscreen rendering for devices that require it. The setting can be enabled through the Project settings UI and build code. This setting should be disabled for handheld platforms.
 * Added Meta Quest input profile features when switching to Meta Quest Build Profile.
 * Added `Use OpenXR Predicted Time` UI setting to enable OpenXR time prediction which allows the hardware and runtime to set the display time prediction for the next frame instead of Unity.
-* Added a new OpenXrSetting, [LatencyOptimization](xref:project-configuration#latency-optimization) to allow developers to choose opt to prioritize rendering latency or input polling latency.
+* Added a new OpenXrSetting, [LatencyOptimization](xref:openxr-project-config#latency-optimization) to allow developers to choose to prioritize rendering latency or input polling latency.
 * Added optional project validation check for Link Time Optimization with Meta Quest.
 * Added `UnityXRDisplay::DestroyTexture` API so providers can access them to destroy textures created by `UnityXRDisplay::CreateTexture` API.
 * Added a validation rule for setting Latency Optimization to Prioritize Input Polling with Meta Quest Support enabled.

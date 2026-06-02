@@ -1,0 +1,23 @@
+{
+    "name": "Unity.XR.OpenXR.Features.MetaHandMeshData",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4847341ff46394e83bb78fbd0652937e",
+        "GUID:ce522b6ed64c8be4c989a1d26d0e3275"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.hands",
+            "expression": "1.9.0-pre.1",
+            "define": "XR_HANDS_1_9_OR_NEWER"
+        }
+    ],
+    "noEngineReferences": false
+}

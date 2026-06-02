@@ -188,6 +188,25 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual bool OnInstanceCreate(ulong xrInstance) => true;
 
         /// <summary>
+        /// Called when all extensions are ready. Some systems may require enumeration of optional extension
+        /// availability at the OnSystemChange stage.
+        ///
+        /// Override this method to validate that any necessary OpenXR extensions were successfully enabled
+        /// (<see cref="OpenXRRuntime.IsSystemExtensionEnabled">OpenXRRuntime.IsSystemExtensionEnabled</see>)
+        /// and that any required system properties are supported. If this method returns <see langword="false"/>,
+        /// the feature's <see cref="OpenXRFeature.enabled"/> property is set to <see langword="false"/>.
+        /// </summary>
+        /// <param name="xrInstance">Handle of the native `xrInstance`.</param>
+        /// <returns><see langword="true"/> if this feature successfully initialized. Otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// This cannot be used with loader-required features as required extensions must be available at
+        /// <see cref="OpenXRFeature.OnInstanceCreate"/>. Therefore, failures that return <see langword="false"/> will
+        /// simply disable the feature, not the loader.
+        /// </remarks>
+        /// <seealso href="xref:openxr-features#enabling-openxr-spec-extension-strings">Enabling OpenXR spec extension strings</seealso>
+        protected internal virtual bool OnExtensionsReady(ulong xrInstance) => true;
+
+        /// <summary>
         /// Called after xrGetSystem.
         /// </summary>
         /// <param name="xrSystem">Handle of the xrSystemId</param>
@@ -671,6 +690,7 @@ namespace UnityEngine.XR.OpenXR.Features
             XrRestartRequested,
             XrRequestRestartLoop,
             XrRequestGetSystemLoop,
+            XrExtensionsReady,
         };
 
         internal static void ReceiveNativeEvent(NativeEvent e, ulong payload)
@@ -695,8 +715,11 @@ namespace UnityEngine.XR.OpenXR.Features
                         feature.OnSystemChange(payload);
                         break;
                     case NativeEvent.XrInstanceChanged:
-                        feature.failedInitialization = !feature.OnInstanceCreate(payload);
+                        feature.failedInitialization |= !feature.OnInstanceCreate(payload);
                         requiredFeatureFailed |= (feature.required && feature.failedInitialization);
+                        break;
+                    case NativeEvent.XrExtensionsReady:
+                        feature.failedInitialization |= !feature.OnExtensionsReady(payload);
                         break;
                     case NativeEvent.XrSessionChanged:
                         feature.OnSessionCreate(payload);

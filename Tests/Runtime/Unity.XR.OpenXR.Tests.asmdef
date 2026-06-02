@@ -11,7 +11,9 @@
         "Unity.InputSystem",
         "Unity.XR.OpenXR.Features.MockRuntime",
         "Unity.XR.OpenXR.Features.ConformanceAutomation",
-        "Unity.XR.OpenXR.TestTooling"
+        "Unity.XR.OpenXR.TestTooling",
+        "Unity.XR.OpenXR.Features.MetaHandMeshData",
+        "Unity.XR.Hands"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -24,6 +26,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.hands",
+            "expression": "1.9.0-pre.1",
+            "define": "XR_HANDS_1_9_OR_NEWER"
+        }
+    ],
     "noEngineReferences": false
 }

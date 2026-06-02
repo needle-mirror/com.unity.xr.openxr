@@ -1,8 +1,8 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.17.1",
-  "unity": "2022.3",
+  "version": "1.18.0-pre.1",
+  "unity": "6000.0",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
     "openxr",
@@ -19,46 +19,46 @@
   },
   "samples": [
     {
+      "displayName": "Starter Assets",
+      "description": "Common assets required by OpenXR Samples, allowing for core interaction and navigation between samples.",
+      "path": "Samples~/StarterAssets"
+    },
+    {
       "displayName": "Controller",
-      "description": "Basic sample showing how to create and reference OpenXR action maps with the new input system.",
+      "description": "Basic sample showing how to create and reference OpenXR action maps with the new input system.\nRequires the OpenXR Starter Assets to be imported to function properly.",
       "path": "Samples~/Controller"
     },
     {
-      "displayName": "Controller XRInput",
-      "description": "Basic sample showing how to query OpenXR input with the XR Input APIs.",
-      "path": "Samples~/ControllerXRInput"
+      "displayName": "Graphics",
+      "description": "Sample showcasing several XR-specific graphics options. \nRequires the OpenXR Starter Assets to be imported to function properly.",
+      "path": "Samples~/Graphics"
+    },
+    {
+      "displayName": "Tracking Origin",
+      "description": "Demonstrates how the different tracking origin modes function, as well as options available to each mode.\nRequires the OpenXR Starter Assets to be imported to function properly.",
+      "path": "Samples~/TrackingOrigin"
     },
     {
       "displayName": "Meshing Subsystem Feature",
-      "description": "Shows a teapot mesh generated from native mesh subsystem with physics baked in background.",
+      "description": "Shows a teapot mesh generated from native mesh subsystem with physics baked in the background.",
       "path": "Samples~/MeshingFeature"
-    },
-    {
-      "displayName": "Intercept Feature",
-      "description": "Demonstrates how to intercept an OpenXR method.",
-      "path": "Samples~/InterceptFeature"
     },
     {
       "displayName": "Custom Composition Layer Feature",
       "description": "Demonstrates how to add support for a custom composition layer type.",
       "path": "Samples~/CustomCompositionLayerFeature"
-    },
-    {
-      "displayName": "Mock Runtime Test Suite Sample",
-      "description": "Build a low-level XR functional test suite using the Mock OpenXR Environment test tools.",
-      "path": "Samples~/MockRuntimeTestSample"
     }
   ],
   "_upm": {
-    "changelog": "### Fixed\n* Fixed crash caused by attempting to access assetdatabase during an InitializeOnLoad attribute method."
+    "changelog": "### Added\n\n* Added a Starter Assets sample used to unify future OpenXR samples.\n* Reworked the OpenXR Controller sample and added new Graphics and Tracking Origin Mode samples.\n* Added Manual Documentation for the Runtime Debugger feature.\n* Added MetaOpenXRHandMeshData feature for accessing hand mesh geometry via `XR_FB_hand_tracking_mesh`. Supports Meta Quest and Android XR devices.\n* Added `ToString` overrides for the following types:\n  * `XrSpatialCapabilityConfigurationAnchorEXT`\n  * `XrSpatialCapabilityConfigurationAprilTagEXT`\n  * `XrSpatialCapabilityConfigurationArucoMarkerEXT`\n  * `XrSpatialCapabilityConfigurationMicroQrCodeEXT`\n  * `XrSpatialCapabilityConfigurationQrCodeEXT`\n  * `XrSpatialCapabilityConfigurationPlaneTrackingEXT`\n* Added native types for hand tracking extensions XR_EXT_hand_tracking, XR_EXT_hand_joints_motion_range, XR_EXT_hand_tracking_data_source.\n* Added convenience overloads to the OpenXR native API that allow you to get spatial buffer data without constructing an `XrSpatialBufferGetInfoEXT` struct yourself.\n* Added `OpenXRResultStatus.StatusCode.NotFound` and `OpenXRResultStatus.StatusCode.NotTracking` as additional error codes that can be returned by calls to the OpenXR Native API.\n* Added support for `XR_ANDROID_enumerate_system_extension_properties` to query whether the current\n  system configuration supports a particular extension via `OpenXRRuntime.IsSystemExtensionEnabled`.\n* Added Individual, Left and Right Target Eye option to Composition Layers, allowing per-eye textures for standard Quad, Cylinder, Equirect, and Cube layers.\n* Added built-in support for `XR_FB_eye_tracking_social`, exposing per-eye social gaze data as a Unity XR input device.\n* Added internal native API support for dynamically disabling Fragment Density Map (FDM) attachments at foveation level 0 (SRP Foveation).\n\n### Changed\n* Certain interaction profiles now test if hardware support is available on the system if the `XR_ANDROID_enumerate_system_properties` extension is available. Affected interaction profiles: hand, palm pose, hand common poses, D-pad, mouse.\n\n* Updated minimum supported editor version to 6000.0.\n* Changed behavior of Meta Quest build profile to automatically enable suggested controllers and Meta Quest Support.\n* Updated Hand Mesh Data documentation to clarify the exact feature label in OpenXR Project Settings, supported build targets (Android and Standalone), and automatic Android manifest configuration details.\n\n### Fixed\n\n* Fixed a SIGSEGV crash so native textures are now safely cleaned up during graphics subsystem shutdown.\n* Fixed the Composition Layers Support project validation rule so dual-platform projects can disable the feature on platforms that do not use composition layers.\n* Fixed `XRDisplaySubsystem.contentProtectionEnabled` getter always returning false on OpenXR, and fixed the property having no effect on Meta Quest screen casting.\n* Fixed the \"Meta Quest supports Thin Link Time Optimization\" Project Validation to be an automatic Fix type instead of an Edit type.\n* Fixed the default foveated-rendering eye center being placed at the wrong location for each eyes, on PC Vulkan/DX12.\n* Fixed crash caused by attempting to access assetdatabase during an InitializeOnLoad attribute method.\n* Fixed issue where \"Use OpenXR Time\" setting was not applied before subsystem started up.\n* Fixed API Layers window rendering issue such that it renders without throwing `NullReferenceException`. ([UUM-141166](https://issuetracker.unity3d.com/issues/openxr-api-layers-window-is-not-rendered-and-nullreferenceexception-errors-are-thrown-when-the-api-layers-window-is-opened))"
   },
   "upmCi": {
-    "footprint": "5216ede9085270cf854b411fa1796a428c08ecde"
+    "footprint": "9a817afa4919433a466643dd188bf31847f08181"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.17/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.18/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.sdk.openxr.git",
     "type": "git",
-    "revision": "324c489e7ef96da024db00ff4380ed642d42830f"
+    "revision": "37e319210cbd8c91302cb85208ba5d02d09384c8"
   }
 }

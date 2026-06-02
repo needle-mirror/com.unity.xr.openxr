@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using XrFutureEXT = System.UInt64;
 using XrInstance = System.UInt64;
 using XrSession = System.UInt64;
+using XrSpatialBufferIdEXT = System.UInt64;
 using XrSpatialContextEXT = System.UInt64;
 using XrSpatialEntityEXT = System.UInt64;
 using XrSpatialEntityIdEXT = System.UInt64;
@@ -1175,6 +1176,61 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.String"/>
+        /// as a native array of bytes, allowing you to read the string and then dispose the array when you no longer
+        /// need the string in memory. Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/></param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// To read the output as a `string`, use the following example code:
+        /// ```
+        /// var result = xrGetSpatialBufferStringEXT(snapshot, info, allocator, out var buffer);
+        /// if (result.IsError()) return;
+        /// var myString = Encoding.UTF8.GetString(buffer.AsReadOnlySpan());
+        /// ```
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferStringEXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<byte> buffer)
+        {
+            return xrGetSpatialBufferStringEXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
+        }
+
+        /// <summary>
         /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Uint8"/>.
         /// Provided by `XR_EXT_spatial_entity`.
         /// </summary>
@@ -1272,6 +1328,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
 
             buffer = new NativeArray<byte>(checked((int)bufferCountOutput), allocator);
             return xrGetSpatialBufferUint8EXT(snapshot, info, bufferCountOutput, out _, (byte*)buffer.GetUnsafePtr());
+        }
+
+        /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Uint8"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/></param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferUint8EXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<byte> buffer)
+        {
+            return xrGetSpatialBufferUint8EXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
         }
 
         /// <summary>
@@ -1376,6 +1479,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Uint16"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/></param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferUint16EXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<ushort> buffer)
+        {
+            return xrGetSpatialBufferUint16EXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
+        }
+
+        /// <summary>
         /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Uint32"/>.
         /// Provided by `XR_EXT_spatial_entity`.
         /// </summary>
@@ -1474,6 +1624,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             buffer = new NativeArray<uint>(checked((int)bufferCountOutput), allocator);
             return xrGetSpatialBufferUint32EXT(
                 snapshot, info, bufferCountOutput, out _, (uint*)buffer.GetUnsafePtr());
+        }
+
+        /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Uint32"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/>.</param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferUint32EXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<uint> buffer)
+        {
+            return xrGetSpatialBufferUint32EXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
         }
 
         /// <summary>
@@ -1578,6 +1775,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Float"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/>.</param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferFloatEXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<float> buffer)
+        {
+            return xrGetSpatialBufferFloatEXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
+        }
+
+        /// <summary>
         /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Vector2f"/>.
         /// Provided by `XR_EXT_spatial_entity`.
         /// </summary>
@@ -1679,6 +1923,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         }
 
         /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Vector2f"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/>.</param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferVector2fEXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<XrVector2f> buffer)
+        {
+            return xrGetSpatialBufferVector2fEXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
+        }
+
+        /// <summary>
         /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Vector3f"/>.
         /// Provided by `XR_EXT_spatial_entity`.
         /// </summary>
@@ -1777,6 +2068,53 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             buffer = new NativeArray<XrVector3f>(checked((int)bufferCountOutput), allocator);
             return xrGetSpatialBufferVector3fEXT(
                 snapshot, info, bufferCountOutput, out _, (XrVector3f*)buffer.GetUnsafePtr());
+        }
+
+        /// <summary>
+        /// Gets the contents of a buffer of type <see cref="XrSpatialBufferTypeEXT.Vector3f"/>.
+        /// Provided by `XR_EXT_spatial_entity`.
+        /// </summary>
+        /// <param name="snapshot">The handle to a spatial snapshot.</param>
+        /// <param name="bufferId">The buffer ID to query.</param>
+        /// <param name="allocator">The allocation strategy to use for <paramref name="buffer"/>.</param>
+        /// <param name="buffer">The output array.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// Success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// Failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.SizeInsufficient"/></description></item>
+        ///   <item><description><see cref="XrResult.SpatialBufferIdInvalidEXT"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        ///
+        /// You are responsible to `Dispose` the output native array if you pass `Allocator.Persistent` as the
+        /// <paramref name="allocator"/> value.
+        /// </remarks>
+        /// <exception cref="OverflowException">Thrown if `buffer.Length` would exceed
+        /// <see cref="Int32.MaxValue"/>.</exception>
+        public static XrResult xrGetSpatialBufferVector3fEXT(
+            XrSpatialSnapshotEXT snapshot,
+            XrSpatialBufferIdEXT bufferId,
+            Allocator allocator,
+            out NativeArray<XrVector3f> buffer)
+        {
+            return xrGetSpatialBufferVector3fEXT(snapshot, new XrSpatialBufferGetInfoEXT(bufferId), allocator, out buffer);
         }
 
         /// <summary>

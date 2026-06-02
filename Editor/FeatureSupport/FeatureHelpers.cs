@@ -201,12 +201,6 @@ namespace UnityEditor.XR.OpenXR.Features
                         AssetDatabase.AddObjectToAsset(featureAsset, openXrSettings);
                         AssetDatabase.SaveAssets();
                     }
-                    else
-                    {
-                        // This line of code is required for changes to interaction profiles to be saved
-                        // when closing and re-opening the Editor.
-                        featureAsset.name = featureType.Name + " " + buildGroupName;
-                    }
 
                     if (featureAsset == null)
                         break;
@@ -253,12 +247,10 @@ namespace UnityEditor.XR.OpenXR.Features
             if (!mockRuntimeIsAlreadyInitialized)
             {
                 // Update the feature list
-                var originalFeatures = openXrSettings.features;
                 var newFeatures = all
                     .Where(f => f != null)
                     .OrderByDescending(f => f.priority)
-                    .ThenBy(f => f.nameUi)
-                    .ToArray();
+                    .ThenBy(f => f.nameUi);
 
                 // Populate the internal feature variables for all features
                 bool fieldChanged = false;
@@ -282,21 +274,31 @@ namespace UnityEditor.XR.OpenXR.Features
                             if (targetField == null)
                                 continue;
 
+                            // Often, when the instance fields are strings, either the target or source values may have it
+                            // assigned as null or empty string "".
+                            // In this case, we default to an empty string, and only if the field is of string type.
+                            // Otherwise, we may not be able to get accurate comparisons.
+                            var targetFieldValue = targetField.GetValueOrTypeDefault(feature, string.Empty);
+                            var sourceFieldValue = sourceField.GetValueOrTypeDefault(attr, string.Empty);
+
                             // Only set value if value is different
-                            if (targetField.GetValue(feature) == null
-                                || !targetField.GetValue(feature).Equals(sourceField.GetValue(attr)))
+                            if (targetFieldValue == null
+                                || !targetFieldValue.Equals(sourceFieldValue))
                             {
-                                targetField.SetValue(feature, sourceField.GetValue(attr));
+                                targetField.SetValue(feature, sourceFieldValue);
                                 fieldChanged = true;
                             }
                         }
                     }
                 }
 
+                // Check if features have been added or removed
+                var countChanged = openXrSettings.features == null || openXrSettings.features.Length != newFeatures.Count();
+
                 // Ensure the settings are saved after the features are populated
-                if (fieldChanged || originalFeatures == null || !originalFeatures.SequenceEqual(newFeatures))
+                if (fieldChanged || countChanged || !openXrSettings.features.SequenceEqual(newFeatures))
                 {
-                    openXrSettings.features = newFeatures;
+                    openXrSettings.features = newFeatures.ToArray();
                     EditorUtility.SetDirty(openXrSettings);
                 }
             }
@@ -411,6 +413,24 @@ namespace UnityEditor.XR.OpenXR.Features
 
             overrideLoaderFeature = default;
             return false;
+        }
+
+        /// <summary>
+        /// Returns the field value from the instance object.
+        ///
+        /// If the field value is null, and the field type is the same as the default value,
+        /// then it returns the default value instead.
+        /// </summary>
+        /// <typeparam name="T">Type of the default value to match.</typeparam>
+        /// <param name="field">Field from which retrieve the value.</param>
+        /// <param name="instance">Object from which to retrieve the field value.</param>
+        /// <param name="fieldDefaultValue">Default value to return, only if the field is of the same type.</param>
+        /// <returns>Value of the field in the instance object, or default value only if the field type matches its type.</returns>
+        static object GetValueOrTypeDefault<T>(this FieldInfo field, object instance, T fieldDefaultValue)
+        {
+            return field.FieldType == typeof(T) ?
+                field.GetValue(instance) ?? fieldDefaultValue :
+                field.GetValue(instance);
         }
     }
 }

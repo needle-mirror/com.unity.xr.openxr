@@ -19,7 +19,7 @@ namespace UnityEditor.XR.OpenXR.Analytics
 
         [Serializable]
         private struct Payload
-#if UNITY_2023_2_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+#if UNITY_6000_0_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
             : IAnalytic.IData
 #endif
         {
@@ -28,7 +28,7 @@ namespace UnityEditor.XR.OpenXR.Analytics
             public string[] additive_action_names;
         }
 
-#if UNITY_2023_2_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+#if UNITY_6000_0_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         [AnalyticInfo(eventName: kEventName,
                       vendorKey: kVendorKey,
                       version: kVersion,
@@ -59,7 +59,7 @@ namespace UnityEditor.XR.OpenXR.Analytics
                 additive_action_names = additiveActionNames
             };
 
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             EditorAnalytics.SendAnalytic(new Event(payload));
 #else
             EditorAnalytics.RegisterEventWithLimit(kEventName, kMaxPerHour, kMaxItems, kVendorKey);

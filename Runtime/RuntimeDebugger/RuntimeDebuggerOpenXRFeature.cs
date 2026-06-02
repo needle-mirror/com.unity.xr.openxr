@@ -18,7 +18,7 @@ namespace UnityEngine.XR.OpenXR.Features.RuntimeDebugger
         BuildTargetGroups = new[] {BuildTargetGroup.Standalone, BuildTargetGroup.Android},
         Company = "Unity",
         Desc = "Enables debugging of OpenXR calls and dumping runtime info.",
-        DocumentationLink = "",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/runtimedebugger.html",
         FeatureId = "com.unity.openxr.features.runtimedebugger",
         OpenxrExtensionStrings = "",
         Version = "1")]

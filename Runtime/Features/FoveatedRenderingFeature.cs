@@ -76,7 +76,7 @@ namespace UnityEngine.XR.OpenXR.Features
                 fixItMessage = "Set Vulkan as Graphics API"
             });
 #endif
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             rules.Add(new ValidationRule(this)
             {
                 message = "Only Legacy Foveated Rendering API usage is possible on Built-in Render Pipeline",
@@ -148,7 +148,7 @@ namespace UnityEngine.XR.OpenXR.Features
             private SerializedProperty subsampledLayout;
             static GUIContent s_SubsampledLayout = EditorGUIUtility.TrTextContent("Subsampled Layout (Vulkan)", "An optimization technique that can improve foveated rendering performance by optimizing eye texture sampling.");
 
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             private SerializedProperty foveatedRenderingApi;
             private SerializedObject openXRSettings;
             private BuildTargetGroup selectedBuildSettings;
@@ -181,7 +181,7 @@ namespace UnityEngine.XR.OpenXR.Features
             {
                 subsampledLayout = serializedObject.FindProperty("enableSubsampledLayout");
 
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 selectedBuildSettings = EditorUserBuildSettings.selectedBuildTargetGroup;
                 var currentSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
                 openXRSettings = new SerializedObject(currentSettings);
@@ -194,7 +194,7 @@ namespace UnityEngine.XR.OpenXR.Features
 
             public override void OnInspectorGUI()
             {
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 if (selectedBuildSettings != EditorUserBuildSettings.selectedBuildTargetGroup)
                 {
                     selectedBuildSettings = EditorUserBuildSettings.selectedBuildTargetGroup;
@@ -210,7 +210,7 @@ namespace UnityEngine.XR.OpenXR.Features
                 EditorGUIUtility.labelWidth = 300.0f;
                 serializedObject.Update();
                 EditorGUILayout.PropertyField(subsampledLayout, s_SubsampledLayout);
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
 
                 var currentSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
                 int newFoveatedRenderingApi;

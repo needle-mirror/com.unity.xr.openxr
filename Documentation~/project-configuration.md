@@ -156,7 +156,7 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Tests
 }
 ```
 
-<a name="depth-submission-mode"></a>
+<a name="color-submission-mode"></a>
 ### Set the color submission mode
 
 Some OpenXR runtimes support rendering to additional swapchain formats, such as 10- or 16-bit

@@ -39,6 +39,7 @@ namespace UnityEngine.XR.OpenXR.Features
         UiName = "Debug Utils",
         Desc = "Enables support for OpenXR Debug Utils extension.",
         Company = "Unity",
+        DocumentationLink = Constants.k_DocumentationManualURL + "features/debug-utils.html",
         Version = "1.0.0",
         OpenxrExtensionStrings = "XR_EXT_debug_utils",
         BuildTargetGroups = new[] { BuildTargetGroup.Android, BuildTargetGroup.Standalone },

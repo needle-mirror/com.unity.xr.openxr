@@ -9,7 +9,7 @@ OpenXR is an open, royalty-free standard developed by Khronos that aims to simpl
 
 This version of OpenXR is compatible with the following versions of the Unity Editor:
 
-* 2022.3 LTS+
+* 6000.0 LTS+
 
 ## Runtimes
 
@@ -63,7 +63,7 @@ For more information on how project validation works in OpenXR, see [Project val
 
 ## Troubleshooting
 
-If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/2022.3/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
+If you experience an issue, please [file a bug](https://unity3d.com/unity/qa/bug-reporting). When you do, please also check the [log file](https://docs.unity3d.com/6000.0/Documentation/Manual/LogFiles.html) to see if Unity supports the combination of OpenXR runtimes and features you are using. The log file will provide additional guidance.
 
 Unity generates a diagnostic log in either the Player or Editor log, depending on where you run the application. The diagnostic log starts with `==== Start Unity OpenXR Diagnostic Report ====` and ends with `==== End Unity OpenXR Diagnostic Report ====` log entries. It contains information about your application, Unity version, OpenXR runtime, OpenXR Extensions, and other aspects that can help diagnose issues.
 

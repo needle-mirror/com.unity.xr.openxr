@@ -1,8 +1,10 @@
-# Composition Layer Feature Sample
+# Custom Composition Layer Feature Sample
 
-Demonstrates how to add support for customized composition layer types using OpenXR.
+Demonstrates how to add support for [customized composition layer types using OpenXR](https://docs.unity3d.com/Packages/com.unity.xr.compositionlayers@latest/).
 
 This sample doesn't contain a sample scene. Instead it contains three scripts, as described in the following sections.
+
+For more documentation about this sample, refer to: https://docs.unity3d.com/Packages/com.unity.xr.openxr@latest?subfolder=samples/custom-composition-layer-feature.html
 
 ## Custom quad layer data
 

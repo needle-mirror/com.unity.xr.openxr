@@ -1754,6 +1754,10 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation"), "XR_FB_foveation EnableByDefault_NoOverride is available and should be enabled.");
             Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_configuration"), "XR_FB_foveation_configuration EnableByDefault_NoOverride is available and should be enabled.");
 
+            // {{"XR_ANDROID_enumerate_system_extension_properties"}, CreateAndroidEnumerateSystemExtensionPropertiesExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
+            // XR_ANDROID_enumerate_system_extension_properties is available, so should be enabled by default.
+            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_ANDROID_enumerate_system_extension_properties"), "XR_ANDROID_enumerate_system_extension_properties is available and should be enabled");
+
             // EnabledByDefault_AllowOverride type:
             // {{"XR_META_performance_metrics"}, CreateMetaPerformanceMetricsExtension, kBuiltinExtensionEnableType_EnableByDefault_AllowOverride}
             // XR_META_performance_metrics is available, and enabled externally, so should be enabled.
@@ -1771,6 +1775,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             // {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state", "XR_FB_foveation_vulkan"}, CreateOculusFoveationExtension, kBuiltinExtensionEnableType_EnabledExternally_NoOverride}
             // XR_FB_swapchain_update_state is not available, but enabled externally. XR_FB_foveation_vulkan is not availble.
             Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_vulkan"), "XR_FB_foveation_vulkan extension should be EnabledExternally_NoOverride.");
+
+
         }
 
         [UnityTest]
@@ -1838,6 +1844,30 @@ namespace UnityEngine.XR.OpenXR.Tests
             {
                 MockAdditiveFeature.MergeDetails.Clear();
             }
+        }
+
+        [UnityTest]
+        public IEnumerator AndroidEnumerateSystemExtensionProperties()
+        {
+            MockRuntime.SetFunctionCallback(
+                "xrCreateInstance",
+                null,
+                (_, _) =>
+                {
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("XR_ANDROID_enumerate_system_extension_properties", true);
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("XR_FB_foveation", true);
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("XR_FB_foveation_configuration", true);
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("mock_extname_wheeeeee", true);
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("mock_extname_bad_wheeeeee", false);
+                });
+
+            InitializeAndStart();
+            yield return new WaitForXrFrame(1);
+            Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("XR_ANDROID_enumerate_system_extension_properties"));
+            Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("XR_FB_foveation"));
+            Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("XR_FB_foveation_configuration"));
+            Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("mock_extname_wheeeeee"));
+            Assert.IsFalse(OpenXRRuntime.IsSystemExtensionEnabled("mock_extname_bad_wheeeeee"));
         }
     }
 }

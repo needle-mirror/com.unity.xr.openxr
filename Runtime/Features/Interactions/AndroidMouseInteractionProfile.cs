@@ -142,13 +142,22 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string scrollPath = "/input/scroll_android/value";
 
         const string k_DeviceLocalizedName = "Android Mouse Interaction";
+
         /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)
         {
+            // no-op; we want to delay the call to base.OnInstanceCreate() until OnExtensionsReady().
+            return true;
+        }
+
+        /// <inheritdoc/>
+        protected internal override bool OnExtensionsReady(ulong instance)
+        {
             // Requires Android mouse interaction extension
-            if (!OpenXRRuntime.IsExtensionEnabled(extensionString))
+            if (!OpenXRRuntime.IsSystemExtensionEnabled(extensionString))
                 return false;
 
+            // calling OnInstanceCreate here is intentional; the operation simply happens at a slightly later time.
             return base.OnInstanceCreate(instance);
         }
 

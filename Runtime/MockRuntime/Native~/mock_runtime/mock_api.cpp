@@ -361,6 +361,15 @@ MOCK_API_TRAMPOLINE(XrPerfSettingsLevelEXT, XR_PERF_SETTINGS_LEVEL_SUSTAINED_HIG
 }
 #endif
 
+MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled,
+    (const char* extName, bool enabled),
+    (extName, enabled))
+#if !TRAMPOLINE
+{
+    MockAndroidEnumerateSystemExtensionProperties::SetSystemExtensionEnabled(extName, enabled);
+}
+#endif
+
 #ifdef XR_USE_PLATFORM_ANDROID
 MOCK_API_TRAMPOLINE(bool, false, MockRuntime_IsAndroidThreadTypeRegistered,
     (uint32_t threadTypeValue),
@@ -407,6 +416,7 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_MetaPerformanceMetrics_SeedCounterOnce_Float)
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_CauseNotification)
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_GetPerformanceLevelHint)
+    GET_PROC_ADDRESS(MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled)
 #ifdef XR_USE_PLATFORM_ANDROID
     GET_PROC_ADDRESS(MockRuntime_IsAndroidThreadTypeRegistered)
     GET_PROC_ADDRESS(MockRuntime_GetRegisteredAndroidThreadsCount)

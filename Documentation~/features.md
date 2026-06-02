@@ -7,6 +7,8 @@ OpenXR is an extensible API that can be extended with new features. To facilitat
 
 For information about managing the OpenXR features in your project, refer to [Feature management](features/feature-management.md).
 
+<a name="enabling-openxr-spec-extension-strings"></a>
+
 For information about the available OpenXR features, refer to:
 
 | OpenXR feature                               | Description |
@@ -20,5 +22,6 @@ For information about the available OpenXR features, refer to:
 | [Multiview Render Regions](features/multiviewrenderregions.md) | An optimization technique that prevents processing on areas of the screen that are not visible to the user. |
 | [Application SpaceWarp](features/spacewarp.md) | An optimization technique that synthesizes every other frame. |
 | [Automatic dynamic resolution](features/automaticdynamicresolution.md) | Dynamically adjusts the resolution of your XR project to maintain a stable frame rate and improve graphical performance. |
+| [Hand Mesh Data](features/hand-mesh-data.md) | Provides access to hand mesh geometry for skinned hand rendering via XR\_FB\_hand\_tracking\_mesh. |
 
 For information about creating features as part of an OpenXR provider, refer to [Integrate OpenXR features](features/feature-integration.md).

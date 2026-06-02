@@ -90,6 +90,25 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             /// as the runtime is the source of the error.
             /// </remarks>
             Unsupported = -6,
+
+            /// <summary>
+            /// Indicates that the operation failed to return a value because a required lookup step failed.
+            /// </summary>
+            /// <remarks>
+            /// This value correlates to <see cref="XrSpatialPersistenceContextResultEXT.PersistUuidNotFound"/> for
+            /// spatial entity persistence operations that failed with this error.
+            /// </remarks>
+            NotFound = -7,
+
+            /// <summary>
+            /// Indicates that the operation failed to return a value because it required a native resource to be in a
+            /// `Tracking` state, but the operation terminated before tracking could be established.
+            /// </summary>
+            /// <remarks>
+            /// This value correlates to <see cref="XrSpatialPersistenceContextResultEXT.EntityNotTracking"/> for
+            /// spatial entity persistence operations that failed with this error.
+            /// </remarks>
+            NotTracking = -8,
         }
 
         /// <summary>

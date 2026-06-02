@@ -681,11 +681,22 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         public IEnumerator EyeGazeFeatureTest()
         {
+            MockRuntime.SetFunctionCallback(
+                "xrCreateInstance",
+                null,
+                (_, _) => MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled("XR_EXT_eye_gaze_interaction", true));
+
             EnableFeature<EyeGazeInteraction>();
+            var feature = OpenXRSettings.Instance.GetFeature<EyeGazeInteraction>();
+            Assert.NotNull(feature);
+            feature.enabled = true;
+
             InitializeAndStart();
             yield return new WaitForXrFrame(1);
 
             InputAction inputAction = new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked");
+            Assert.NotNull(inputAction);
+            Assert.Greater(inputAction.controls.Count, 0);
             InputControl control = inputAction.controls[0];
 
             var isTrackedHandle = OpenXRInput.GetActionHandle(new InputAction(null, InputActionType.Value, "<XRInputV1::EyeTrackingOpenXR>/pose/isTracked"));

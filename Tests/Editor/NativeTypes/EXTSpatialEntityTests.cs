@@ -526,6 +526,21 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrGetSpatialBufferStringEXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferStringEXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferStringEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferStringEXT(0, 123, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(13, array.Length);
+            Assert.AreEqual("Hello, world.", Encoding.UTF8.GetString(array.AsReadOnlySpan()));
+        }
+
+        [Test]
         public unsafe void xrGetSpatialBufferUint8EXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -559,6 +574,21 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 
             var getInfo = new XrSpatialBufferGetInfoEXT(123);
             var result = OpenXRNativeApi.xrGetSpatialBufferUint8EXT(0, getInfo, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(13, array.Length);
+            Assert.AreEqual("Hello, world.", Encoding.UTF8.GetString(array.AsReadOnlySpan()));
+        }
+
+        [Test]
+        public void xrGetSpatialBufferUint8EXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferUint8EXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferUint8EXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferUint8EXT(0, 123, Allocator.Temp, out var array);
 
             Assert.AreEqual(XrResult.Success, result);
             Assert.AreEqual(13, array.Length);
@@ -613,6 +643,25 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrGetSpatialBufferUint16EXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferUint16EXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferUint16EXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferUint16EXT(0, 123, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(5, array.Length);
+            Assert.AreEqual(1, array[0]);
+            Assert.AreEqual(2, array[1]);
+            Assert.AreEqual(3, array[2]);
+            Assert.AreEqual(4, array[3]);
+            Assert.AreEqual(5, array[4]);
+        }
+
+        [Test]
         public unsafe void xrGetSpatialBufferUint32EXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -646,6 +695,22 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 
             var getInfo = new XrSpatialBufferGetInfoEXT(123);
             var result = OpenXRNativeApi.xrGetSpatialBufferUint32EXT(0, getInfo, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(2, array.Length);
+            Assert.AreEqual(12345, array[0]);
+            Assert.AreEqual(67890, array[1]);
+        }
+
+        [Test]
+        public void xrGetSpatialBufferUint32EXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferUint32EXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferUint32EXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferUint32EXT(0, 123, Allocator.Temp, out var array);
 
             Assert.AreEqual(XrResult.Success, result);
             Assert.AreEqual(2, array.Length);
@@ -695,6 +760,22 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrGetSpatialBufferFloatEXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferFloatEXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferFloatEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferFloatEXT(0, 123, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(2, array.Length);
+            Assert.AreEqual(.333f, array[0]);
+            Assert.AreEqual(.12345f, array[1]);
+        }
+
+        [Test]
         public unsafe void xrGetSpatialBufferVector2fEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -736,6 +817,22 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        public void xrGetSpatialBufferVector2fEXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferVector2fEXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferVector2fEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferVector2fEXT(0, 123, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(2, array.Length);
+            Assert.IsTrue(new XrVector2f(1.5f, 2.5f).Equals(array[0]));
+            Assert.IsTrue(new XrVector2f(3.5f, 4.5f).Equals(array[1]));
+        }
+
+        [Test]
         public unsafe void xrGetSpatialBufferVector3fEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -769,6 +866,22 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 
             var getInfo = new XrSpatialBufferGetInfoEXT(123);
             var result = OpenXRNativeApi.xrGetSpatialBufferVector3fEXT(0, getInfo, Allocator.Temp, out var array);
+
+            Assert.AreEqual(XrResult.Success, result);
+            Assert.AreEqual(2, array.Length);
+            Assert.IsTrue(new XrVector3f(1.5f, 2.5f, 3.5f).Equals(array[0]));
+            Assert.IsTrue(new XrVector3f(4.5f, 5.5f, 6.5f).Equals(array[1]));
+        }
+
+        [Test]
+        public void xrGetSpatialBufferVector3fEXT_NativeArray_Convenience_ReturnsRuntimeValues()
+        {
+            m_Environment.SetFunctionForInterceptor(
+                "xrGetSpatialBufferVector3fEXT",
+                EXTSpatialEntityMocks.xrGetSpatialBufferVector3fEXT_Ptr);
+            m_Environment.Start();
+
+            var result = OpenXRNativeApi.xrGetSpatialBufferVector3fEXT(0, 123, Allocator.Temp, out var array);
 
             Assert.AreEqual(XrResult.Success, result);
             Assert.AreEqual(2, array.Length);

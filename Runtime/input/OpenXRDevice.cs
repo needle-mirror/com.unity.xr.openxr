@@ -24,7 +24,7 @@ namespace UnityEngine.XR.OpenXR.Input
 
             if (deviceDescriptor != null)
             {
-#if UNITY_2019_3_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 if ((deviceDescriptor.characteristics & InputDeviceCharacteristics.Left) != 0)
                     InputSystem.InputSystem.SetDeviceUsage(this, InputSystem.CommonUsages.LeftHand);
                 else if ((deviceDescriptor.characteristics & InputDeviceCharacteristics.Right) != 0)

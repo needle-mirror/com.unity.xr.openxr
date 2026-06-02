@@ -94,4 +94,4 @@ To check whether automatic viewport dynamic resolution is currently allowing aut
 * [Rendergraph](xref:urp-render-graph)
 * [Using the Universal Render Pipeline](xref:um-universal-render-pipeline)
 * [Shader Graph](xref:um-shader-graph)
-* [Resolution control in XR projects](xref:um-xr-graphics-resolution-scaling)
+* [Resolution control in XR projects](https://docs.unity3d.com/Documentation/Manual/xr-graphics-resolution-scaling.html)

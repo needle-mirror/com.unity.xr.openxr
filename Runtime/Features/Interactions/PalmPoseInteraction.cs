@@ -143,9 +143,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         if (feature.enabled)
                         {
                             if (feature is PalmPoseInteraction)
-                            {
                                 palmPoseFeatureEnabled = true;
-                            }
                             else if (feature is OpenXRInteractionFeature interactionFeature && !interactionFeature.IsAdditive)
                             {
 #if UNITY_INPUT_SYSTEM_ENABLE_XR
@@ -171,10 +169,18 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// <inheritdoc/>
         protected internal override bool OnInstanceCreate(ulong instance)
         {
+            // no-op; we want to delay the call to base.OnInstanceCreate() until OnExtensionsReady().
+            return true;
+        }
+
+        /// <inheritdoc/>
+        protected internal override bool OnExtensionsReady(ulong instance)
+        {
             // Requires the palmPose extension
-            if (!OpenXRRuntime.IsExtensionEnabled(extensionString))
+            if (!OpenXRRuntime.IsSystemExtensionEnabled(extensionString))
                 return false;
 
+            // calling OnInstanceCreate here is intentional; the operation simply happens at a slightly later time.
             return base.OnInstanceCreate(instance);
         }
 

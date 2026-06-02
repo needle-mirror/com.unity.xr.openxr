@@ -12,7 +12,7 @@ To use the Quad Views feature in your application, you only need to turn the fea
 
 Quad views is compatible with multiple render passes. If you use quad views with single-pass instanced rendering enabled, the renderer performs two render passes, each rendering two views.
 
-Quad views is compatible with [On-tile post-processing](xref:um-xr-graphics-on-tile-post-processing) effects, which are recommended for untethered XR devices. Using any post-processing effects that are not in the list of [Supported post-processing techniques](xref:um-xr-graphics-on-tile-post-processing#supported-techniques) may result in visual artifacts or decreased performance. Refer to [Optimize for untethered XR devices in URP](xref:urp-xr-untethered-device-optimization#post-processing) for more details.
+Quad views is compatible with [On-tile post-processing](https://docs.unity3d.com/Documentation/Manual/xr-graphics-on-tile-post-processing.html) effects, which are recommended for untethered XR devices. Using any post-processing effects that are not in the list of [Supported post-processing techniques](https://docs.unity3d.com/Documentation/Manual/xr-graphics-on-tile-post-processing.html#supported-techniques) may result in visual artifacts or decreased performance. Refer to [Optimize for untethered XR devices in URP](xref:urp-xr-untethered-device-optimization#post-processing) for more details.
 
 ## Prerequisites
 

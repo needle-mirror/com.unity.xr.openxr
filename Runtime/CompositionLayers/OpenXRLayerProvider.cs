@@ -307,6 +307,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             LayerHandlers.Clear();
+            OpenXRLayerUtility.ClearCubemapConversionCache();
             isStarted = false;
             Stopped?.Invoke();
         }

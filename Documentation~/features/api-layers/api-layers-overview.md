@@ -49,7 +49,7 @@ To enable these layers:
  * [API layer manifest](#api-layer-manifest): A `.json` file that describes the layer.
  * [API layer library](#api-layer-library): The native library that implements the OpenXR API layer.
 
-When you [Import an API layer](#import), the [ApiLayers](xref:UnityEngine.XR.OpenXR.ApiLayers) class copies these files from your source folder to the correct location within the [Unity API layers directory](#api-layer-folder). The files in your source folder are not affected by any of the [ApiLayers](xref:UnityEngine.XR.OpenXR.ApiLayers) methods.
+When you [Import an API layer](xref:openxr-api-layers-api#import), the [ApiLayers](xref:UnityEngine.XR.OpenXR.ApiLayers) class copies these files from your source folder to the correct location within the [Unity API layers directory](#api-layer-folder). The files in your source folder are not affected by any of the [ApiLayers](xref:UnityEngine.XR.OpenXR.ApiLayers) methods.
 
 ### Unity API layers directory {#api-layer-folder}
 

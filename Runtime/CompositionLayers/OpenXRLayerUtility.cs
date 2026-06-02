@@ -17,6 +17,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         internal unsafe delegate void LayerCallbackDelegate(int layerId, XrCompositionLayerBaseHeader* layer);
 
         static Dictionary<uint, RenderTexture> s_TextureMap = new();
+        static Dictionary<int, Cubemap> s_CubemapConversionCache = new();
+
+        internal static void ClearCubemapConversionCache()
+        {
+            foreach (var kvp in s_CubemapConversionCache)
+            {
+                if (kvp.Value != null)
+                    Object.Destroy(kvp.Value);
+            }
+            s_CubemapConversionCache.Clear();
+        }
 
         public delegate void RenderTextureIdCallbackDelegate(int layerId, uint texId);
         public delegate void StereoRenderTextureIdsCallbackDelegate(int layerId, uint leftTexId, uint rightTexId);
@@ -138,6 +149,18 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
+        /// Synchronously creates or gets the stereo render texture IDs for the given layer.
+        /// </summary>
+        /// <param name="layerId">The instance id of the composition layer object.</param>
+        /// <param name="leftId">Output left-eye render texture ID.</param>
+        /// <param name="rightId">Output right-eye render texture ID.</param>
+        /// <returns>True if the stereo render texture IDs were successfully retrieved.</returns>
+        public static bool CreateOrGetStereoRenderTextureIds(int layerId, out uint leftId, out uint rightId)
+        {
+            return ext_compositor_layers_CreateOrGetStereoRenderTextureIds(layerId, out leftId, out rightId);
+        }
+
+        /// <summary>
         /// Release and Destroy the swapchain according to the id provided.
         /// </summary>
         /// <param name="layerId">The unique id of the composition layer object.</param>
@@ -233,9 +256,18 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 // Check if graphics format or mipmap count is different and convert if necessary.
                 if (renderTexture.graphicsFormat != texture.graphicsFormat || renderTexture.mipmapCount != texture.mipmapCount)
                 {
-                    convertedTexture = new Cubemap(texture.width, renderTexture.graphicsFormat, Experimental.Rendering.TextureCreationFlags.None);
+                    int cacheKey = HashCode.Combine(texture.GetEntityId(), renderTexture.graphicsFormat);
+                    if (!s_CubemapConversionCache.TryGetValue(cacheKey, out convertedTexture)
+                        || convertedTexture == null
+                        || convertedTexture.width != texture.width)
+                    {
+                        if (convertedTexture != null)
+                            Object.Destroy(convertedTexture);
 
-                    // Convert the texture to the render texture format.
+                        convertedTexture = new Cubemap(texture.width, renderTexture.graphicsFormat, Experimental.Rendering.TextureCreationFlags.None);
+                        s_CubemapConversionCache[cacheKey] = convertedTexture;
+                    }
+
                     if (!Graphics.ConvertTexture(texture, convertedTexture))
                     {
                         Debug.LogError("Failed to convert Cubemap to Render Texture format!");

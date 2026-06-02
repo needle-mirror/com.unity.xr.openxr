@@ -1,4 +1,5 @@
 #if XR_COMPOSITION_LAYERS
+using System.Collections.Generic;
 using Unity.XR.CompositionLayers;
 using Unity.XR.CompositionLayers.Extensions;
 using Unity.XR.CompositionLayers.Layers;
@@ -13,6 +14,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         float savedDelta;
         bool layerDataChanged = false;
+
+        Dictionary<int, OpenXRStereoLayerData.RightEyeData<XrCompositionLayerCylinderKHR>> m_StereoData = new();
 
         struct CylinderLayerSize
         {
@@ -67,7 +70,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                             MipCount = (uint)texturesExtension.LeftTexture.mipmapCount,
                         };
 
-                        swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false);
+                        swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texturesExtension));
                         return true;
                     }
 
@@ -138,13 +141,22 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     scaledSize = FixAspectRatio(data, scaledSize, subImageWidth, subImageHeight);
                 }
 
+                bool isStereo = OpenXRStereoLayerData.IsStereoRequested(texturesExtension)
+                    && swapchainOutput.secondStereoHandle != 0;
+
+                var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
+                var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+                float radius = data.ApplyTransformScale ? scaledSize.radius : data.Radius;
+                float centralAngle = data.ApplyTransformScale ? scaledSize.centralAngle : data.CentralAngle;
+                float aspectRatio = data.ApplyTransformScale ? scaledSize.aspectRatio : data.AspectRatio;
+
                 nativeLayer = new XrCompositionLayerCylinderKHR()
                 {
                     Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR,
                     Next = OpenXRLayerUtility.GetExtensionsChain(layer, CompositionLayerExtension.ExtensionTarget.Layer),
-                    LayerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha,
+                    LayerFlags = layerFlags,
                     Space = OpenXRLayerUtility.GetCurrentAppSpace(),
-                    EyeVisibility = 0,
+                    EyeVisibility = OpenXRStereoLayerData.GetEyeVisibility(texturesExtension, isStereo),
                     SubImage = new XrSwapchainSubImage()
                     {
                         Swapchain = swapchainOutput.handle,
@@ -159,11 +171,51 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         },
                         ImageArrayIndex = 0
                     },
-                    Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation),
-                    Radius = data.ApplyTransformScale ? scaledSize.radius : data.Radius,
-                    CentralAngle = data.ApplyTransformScale ? scaledSize.centralAngle : data.CentralAngle,
-                    AspectRatio = data.ApplyTransformScale ? scaledSize.aspectRatio : data.AspectRatio,
+                    Pose = pose,
+                    Radius = radius,
+                    CentralAngle = centralAngle,
+                    AspectRatio = aspectRatio,
                 };
+
+                if (isStereo)
+                {
+                    m_StereoData[layer.Id] = new OpenXRStereoLayerData.RightEyeData<XrCompositionLayerCylinderKHR>
+                    {
+                        RightNativeLayer = new XrCompositionLayerCylinderKHR()
+                        {
+                            Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR,
+                            Next = OpenXRLayerUtility.GetExtensionsChain(layer, CompositionLayerExtension.ExtensionTarget.Layer),
+                            LayerFlags = layerFlags,
+                            Space = OpenXRLayerUtility.GetCurrentAppSpace(),
+                            EyeVisibility = XrEyeVisibility.Right,
+                            SubImage = new XrSwapchainSubImage()
+                            {
+                                Swapchain = swapchainOutput.secondStereoHandle,
+                                ImageRect = new XrRect2Di()
+                                {
+                                    Offset = new XrOffset2Di() { X = 0, Y = 0 },
+                                    Extent = new XrExtent2Di()
+                                    {
+                                        Width = subImageWidth,
+                                        Height = subImageHeight
+                                    }
+                                },
+                                ImageArrayIndex = 0
+                            },
+                            Pose = pose,
+                            Radius = radius,
+                            CentralAngle = centralAngle,
+                            AspectRatio = aspectRatio,
+                        },
+                        LeftTexture = texturesExtension.LeftTexture,
+                        RightTexture = texturesExtension.RightTexture,
+                    };
+                }
+                else
+                {
+                    m_StereoData.Remove(layer.Id);
+                }
+
                 layerDataChanged = true;
                 return true;
             }
@@ -176,7 +228,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
 
             var data = layerInfo.Layer.LayerData as CylinderLayerData;
-            GetSubImageDimensions(out int subImageWidth, out int subImageHeight, texturesExtension);
+            OpenXRStereoLayerData.GetSubImageDimensions(texturesExtension, out int subImageWidth, out int subImageHeight);
             nativeLayer.SubImage.ImageRect.Extent = new XrExtent2Di()
             {
                 Width = subImageWidth,
@@ -197,6 +249,23 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 nativeLayer.Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer);
             }
+
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
+            {
+                stereoData.RightNativeLayer.Pose = nativeLayer.Pose;
+                stereoData.RightNativeLayer.Radius = nativeLayer.Radius;
+                stereoData.RightNativeLayer.CentralAngle = nativeLayer.CentralAngle;
+                stereoData.RightNativeLayer.AspectRatio = nativeLayer.AspectRatio;
+                stereoData.RightNativeLayer.LayerFlags = nativeLayer.LayerFlags;
+                stereoData.RightNativeLayer.Space = nativeLayer.Space;
+                stereoData.RightNativeLayer.SubImage.ImageRect.Extent = nativeLayer.SubImage.ImageRect.Extent;
+
+                unsafe
+                {
+                    stereoData.RightNativeLayer.Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer);
+                }
+            }
+
             layerDataChanged = true;
             return true;
         }
@@ -231,34 +300,81 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (texturesExtension.CustomRects && layerDataChanged)
             {
-                GetSubImageDimensions(out int subImageWidth, out int subImageHeight, texturesExtension);
+                OpenXRStereoLayerData.GetSubImageDimensions(texturesExtension, out int subImageWidth, out int subImageHeight);
 
-                nativeLayer.SubImage.ImageRect = new XrRect2Di()
-                {
-                    Offset = new XrOffset2Di()
-                    {
-                        X = (int)(subImageWidth * texturesExtension.LeftEyeSourceRect.x),
-                        Y = (int)(subImageHeight * texturesExtension.LeftEyeSourceRect.y)
-                    },
+                nativeLayer.SubImage.ImageRect = OpenXRStereoLayerData.ToSubImageRect(texturesExtension.LeftEyeSourceRect, subImageWidth, subImageHeight);
 
-                    Extent = new XrExtent2Di()
-                    {
-                        Width = (int)(subImageWidth * texturesExtension.LeftEyeSourceRect.width),
-                        Height = (int)(subImageHeight * texturesExtension.LeftEyeSourceRect.height)
-                    }
-                };
+                var worldPose = OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache);
+                var currentPosition = worldPose.position;
 
-                var currentPosition = OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position;
                 float cylinderHeight = nativeLayer.Radius * nativeLayer.CentralAngle / nativeLayer.AspectRatio;
                 float transformedY = currentPosition.y + (((texturesExtension.LeftEyeDestinationRect.y + (0.5f * texturesExtension.LeftEyeDestinationRect.height) - 0.5f)) * (-1.0f * cylinderHeight));
-                nativeLayer.Pose = new XrPosef(new Vector3(currentPosition.x, transformedY, currentPosition.z), OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+                nativeLayer.Pose = new XrPosef(new Vector3(currentPosition.x, transformedY, currentPosition.z), worldPose.rotation);
 
                 nativeLayer.CentralAngle = nativeLayer.CentralAngle * texturesExtension.LeftEyeDestinationRect.width;
                 nativeLayer.AspectRatio = nativeLayer.AspectRatio * texturesExtension.LeftEyeDestinationRect.width / texturesExtension.LeftEyeDestinationRect.height;
+
+                if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
+                {
+                    stereoData.RightNativeLayer.SubImage.ImageRect = OpenXRStereoLayerData.ToSubImageRect(texturesExtension.RightEyeSourceRect, subImageWidth, subImageHeight);
+
+                    // Apply right-eye destination rect with cylinder-specific rotation
+                    var cylinderLayer = layerInfo.Layer.LayerData as CylinderLayerData;
+                    float rightRotationDelta = (texturesExtension.RightEyeDestinationRect.x + (0.5f * texturesExtension.RightEyeDestinationRect.width) - 0.5f) * cylinderLayer.CentralAngle / (float)System.Math.PI * 180.0f;
+
+                    float rightCylinderHeight = stereoData.RightNativeLayer.Radius * stereoData.RightNativeLayer.CentralAngle / stereoData.RightNativeLayer.AspectRatio;
+                    float rightTransformedY = currentPosition.y + (((texturesExtension.RightEyeDestinationRect.y + (0.5f * texturesExtension.RightEyeDestinationRect.height) - 0.5f)) * (-1.0f * rightCylinderHeight));
+
+                    Quaternion rightDeltaQuaternion = Quaternion.AngleAxis(rightRotationDelta, Vector3.up);
+                    stereoData.RightNativeLayer.Pose = new XrPosef(new Vector3(currentPosition.x, rightTransformedY, currentPosition.z), worldPose.rotation * rightDeltaQuaternion);
+                    stereoData.RightNativeLayer.CentralAngle = stereoData.RightNativeLayer.CentralAngle * texturesExtension.RightEyeDestinationRect.width;
+                    stereoData.RightNativeLayer.AspectRatio = stereoData.RightNativeLayer.AspectRatio * texturesExtension.RightEyeDestinationRect.width / texturesExtension.RightEyeDestinationRect.height;
+                }
+
                 layerDataChanged = false;
+            }
+            else if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
+            {
+                stereoData.RightNativeLayer.Pose = nativeLayer.Pose;
+                stereoData.RightNativeLayer.Space = nativeLayer.Space;
+                stereoData.RightNativeLayer.Radius = nativeLayer.Radius;
+                stereoData.RightNativeLayer.CentralAngle = nativeLayer.CentralAngle;
+                stereoData.RightNativeLayer.AspectRatio = nativeLayer.AspectRatio;
+            }
+
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereo))
+            {
+                if (!ValidateAndUpdateRenderInfo(layerInfo, texturesExtension))
+                    return false;
+
+                stereo.IsActive = true;
+                stereo.LeftTexture = texturesExtension.LeftTexture;
+                stereo.RightTexture = texturesExtension.RightTexture;
+                return true;
             }
 
             return base.ActiveNativeLayer(layerInfo, ref nativeLayer);
+        }
+
+        public override void RemoveLayer(int id)
+        {
+            m_StereoData.Remove(id);
+
+            base.RemoveLayer(id);
+        }
+
+        public override void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            base.SetActiveLayer(layerInfo);
+
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData) && stereoData.IsActive)
+                AppendActiveNativeLayer(stereoData.RightNativeLayer, layerInfo.Layer.Order);
+        }
+
+        public override void OnUpdate()
+        {
+            OpenXRStereoLayerData.WriteStereoTextures(m_StereoData);
+            base.OnUpdate();
         }
 
         static CylinderLayerSize FixAspectRatio(CylinderLayerData data, CylinderLayerSize scaledSize, int texWidth, int texHeight)
@@ -283,34 +399,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             return scaledSize;
         }
 
-        static void GetSubImageDimensions(out int width, out int height, TexturesExtension texturesExtension)
-        {
-            width = 0;
-            height = 0;
 
-            switch (texturesExtension.sourceTexture)
-            {
-                case TexturesExtension.SourceTextureEnum.LocalTexture:
-                {
-                    if (texturesExtension.LeftTexture != null)
-                    {
-                        width = texturesExtension.LeftTexture.width;
-                        height = texturesExtension.LeftTexture.height;
-                    }
-                    break;
-                }
-
-                case TexturesExtension.SourceTextureEnum.AndroidSurface:
-                {
-                    width = (int)texturesExtension.Resolution.x;
-                    height = (int)texturesExtension.Resolution.y;
-                    break;
-                }
-            }
-        }
     }
 
 }
-
-
 #endif

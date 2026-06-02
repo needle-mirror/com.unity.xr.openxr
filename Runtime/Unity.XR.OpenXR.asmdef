@@ -65,6 +65,11 @@
             "name": "com.unity.xr.compositionlayers",
             "expression": "2.4.0",
             "define": "XR_COMPOSITION_LAYERS_2_4_OR_GREATER"
+        },
+        {
+            "name": "com.unity.xr.compositionlayers",
+            "expression": "2.5.0",
+            "define": "XR_COMPOSITION_LAYERS_2_5_OR_GREATER"
         }
     ],
     "noEngineReferences": false

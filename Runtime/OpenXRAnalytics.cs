@@ -26,7 +26,7 @@ namespace UnityEngine.XR.OpenXR
 
         [Serializable]
         private struct InitializeEvent
-#if UNITY_2023_2_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+#if UNITY_6000_0_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
             : IAnalytic.IData
 #endif //UNITY_2023_2_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         {
@@ -41,7 +41,7 @@ namespace UnityEngine.XR.OpenXR
             public string[] failed_features;
         }
 
-#if UNITY_2023_2_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
+#if UNITY_6000_0_OR_NEWER && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         [AnalyticInfo(eventName: kEventInitialize, vendorKey: kVendorKey, maxEventsPerHour: kMaxEventsPerHour, maxNumberOfElements: kMaxNumberOfElements)]
         private class XrInitializeAnalytic : IAnalytic
         {
@@ -138,7 +138,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_EDITOR && ENABLE_CLOUD_SERVICES_ANALYTICS && UNITY_ANALYTICS
         private static void SendEditorAnalytics(InitializeEvent data)
         {
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             EditorAnalytics.SendAnalytic(new XrInitializeAnalytic(data));
 #else
             EditorAnalytics.SendEventWithLimit(kEventInitialize, data);

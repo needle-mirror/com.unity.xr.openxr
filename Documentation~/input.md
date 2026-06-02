@@ -6,7 +6,7 @@ uid: openxr-input
 
 This page details how to use and configure OpenXR input within Unity.
 
-For information on how to configure Unity to use OpenXR input, refer to the [Getting Started](#getting-started) section.
+For information on how to configure Unity to use OpenXR input, refer to the [Get started](#get-started) section.
 
 ## Overview
 
@@ -25,7 +25,7 @@ Interaction profiles manifest themselves as device layouts in the Unity [Input S
 > [!NOTE]
 > If you are developing an OpenXR-based plug-in or package and need to add a feature to support an interaction profile not currently available in the Unity OpenXR package, refer to [Create OpenXR interaction features](xref:openxr-interaction-feature).
 
-## Get started
+## Get started {#get-started}
 
 ### Controller sample
 

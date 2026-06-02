@@ -103,7 +103,7 @@ namespace UnityEditor.XR.OpenXR
 
                             return manager.activeLoaders.OfType<OpenXRLoader>().Any();
                         })
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                         .Any(buildTarget => PlayerSettings.GetGraphicsAPIs(buildTarget).Any(g => g == GraphicsDeviceType.OpenGLES3));
 #else
                         // Keeping OpenGL ES 2 support for 2022 and older versions.
@@ -280,7 +280,7 @@ namespace UnityEditor.XR.OpenXR
                     var feature = settings.GetFeature<OpenXRCompositionLayersFeature>();
                     feature.enabled = true;
                 },
-                error = true,
+                error = false,
             },
 #endif
         };

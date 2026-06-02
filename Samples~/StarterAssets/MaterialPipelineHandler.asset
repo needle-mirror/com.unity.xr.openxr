@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2df4bebae2c4be4f9fb3e5fd2c84240, type: 3}
+  m_Name: MaterialPipelineHandler
+  m_EditorClassIdentifier: Assembly-CSharp::UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.MaterialPipelineHandler
+  m_ShaderContainers:
+  - material: {fileID: 2100000, guid: 84e934aff3f863349b86abb14e5a9df0, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: ce163575e3388744b80e2938495d6e85, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 58ee3f837f954c546b47444780045eb1, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 349f05fad692ef84f96fdd0d49834001, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  m_AutoRefreshShaders: 1

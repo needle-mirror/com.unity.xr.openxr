@@ -635,6 +635,17 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         [DllImport(extLib, EntryPoint = "MockRuntime_PerformanceSettings_GetPerformanceLevelHint")]
         internal static extern PerformanceLevelHint PerformanceSettings_GetPerformanceLevelHint(PerformanceDomain domain);
 
+        // This function is timing-sensitive and must be called when the runtime is loaded, but before startup queries
+        // on IsSystemExtensionEnabled begin. Therefore, the preferred option is to wrap it with:
+        //
+        // MockRuntime.SetFunctionCallback(
+        //     "xrCreateInstance"
+        //     null,
+        //     (_, _) => MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled(...));
+        //
+        [DllImport(extLib, EntryPoint = "MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled")]
+        internal static extern void AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled(string extName, [MarshalAs(UnmanagedType.I1)] bool enabled);
+
 #if UNITY_EDITOR
         static void UseGenericLoaderAndroid()
         {
@@ -642,7 +653,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             defines += ";OPENXR_USE_KHRONOS_LOADER";
             PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, defines);
 
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             // Use GameActivity if possible so we have test coverage there.
             // No JNI on main thread when GameActivity is selected.
             PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;

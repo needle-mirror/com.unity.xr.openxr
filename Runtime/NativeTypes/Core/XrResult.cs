@@ -3,8 +3,38 @@ using System;
 namespace UnityEngine.XR.OpenXR.NativeTypes
 {
     /// <summary>
-    /// XR Results returned by XR subsystem callbacks
+    /// Represents OpenXR's `XrResult`, which is the return type of all OpenXR function calls.
     /// </summary>
+    /// <remarks>
+    /// Results can fall into three categories:
+    ///
+    /// <list type="bullet">
+    /// <item>
+    /// <term><b>Unqualified Success</b>: </term>
+    /// <description>The function executed without issue. <see cref="Success"/> is the only <c>XrResult</c> in this category.</description>
+    /// </item>
+    /// <item>
+    /// <term><b>Qualified success</b>: </term>
+    /// <description>The function didn't report an error, but the result might not be what you expected.
+    /// For example, sending a haptic impulse to a controller requires an active session and gives the
+    /// <c>XrResult</c>, <see cref="SessionNotFocused"/>, if your app doesn't have focus.
+    /// While the result isn't considered an error, the haptic signal isn't sent to the controller, either.
+    /// Qualified success results typically occur because of the state of the device or runtime. The same
+    /// function call could execute successfully in other conditions.</description>
+    /// </item>
+    /// <item>
+    /// <term><b>Error</b>: </term>
+    /// <description>The function encountered a runtime failure. Error results typically occur because a device
+    /// doesn't support a feature, a required permission hasn't been obtained, or you invoked the function incorrectly.</description>
+    /// </item>
+    /// </list>
+    /// Use the <see cref="XrResultExtensions"/> methods,
+    /// <see cref="XrResultExtensions.IsUnqualifiedSuccess(XrResult)"/>,
+    /// <see cref="XrResultExtensions.IsSuccess(XrResult)"/>, and
+    /// <see cref="XrResultExtensions.IsError(XrResult)"/> to determine the category of a result.
+    /// Note that both <c>IsUnqualifiedSuccess()</c> and <c>IsSuccess()</c> return <c>true</c> for the <see cref="Success"/> result.
+    /// </remarks>
+    /// <seealso href="https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#return-codes">OpenXR core API Return Codes</seealso>
     public enum XrResult
     {
         /// <summary>
@@ -13,7 +43,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         Success = 0,
 
         /// <summary>
-        /// The specified timeout time occurred before the operation could complete.
+        /// Obsolete. Use <see cref="TimeoutExpired"/> instead.
         /// </summary>
         [Obsolete("This value is misspelled and therefore deprecated in OpenXR Plug-in version 1.14.0. Use TimeoutExpired instead.", false)]
         TimeoutExpored = 1,
@@ -297,7 +327,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Insufficient permissions. This error is included for use by vendor extensions. The precise definition of
         /// `PermissionInsufficient` and actions possible by the developer or user to resolve it can vary by platform,
         /// extension or function. The developer should refer to the documentation of the function that returned the
-        /// error code and extension it was defined.
+        /// error code and extension in which it was defined.
         /// </summary>
         PermissionInsufficient = -1000710000,
 
@@ -307,7 +337,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         AndroidThreadSettingsIdInvalidKHR = -1000003000,
 
         /// <summary>
-        /// `xrSetAndroidApplicationThreadKHR` failed setting the thread attributes/priority. (Added by the `XR_KHR_android_thread_settings` extension)
+        /// Obsolete. Use <see cref="AndroidThreadSettingsFailureKHR"/> instead.
         /// </summary>
         [Obsolete("This enum value is misspelled and therefore deprecated in OpenXR Plug-in version 1.14.0. Use AndroidThreadSettingsFailureKHR instead.", false)]
         AndroidThreadSettingsdFailureKHR = -1000003001,

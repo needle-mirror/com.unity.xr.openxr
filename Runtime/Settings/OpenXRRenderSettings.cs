@@ -300,7 +300,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_6000_2_OR_NEWER
             Internal_SetUseOpenXRPredictedTime(m_useOpenXRPredictedTime);
 #endif
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             Internal_SetUsedFoveatedRenderingApi(m_foveatedRenderingApi);
 #endif
             Internal_SetRenderMode(m_renderMode);
@@ -330,7 +330,7 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_6000_2_OR_NEWER
             DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Use OpenXR Predicted Time", $"{m_useOpenXRPredictedTime}");
 #endif
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
             DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Foveated Rendering API", $"{m_foveatedRenderingApi}");
 #endif
         }
@@ -363,7 +363,7 @@ namespace UnityEngine.XR.OpenXR
         bool m_hasMigratedMultiviewRenderRegionSetting;
 #endif
 
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
         [SerializeField]
         BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.SRPFoveation;
 #endif
@@ -467,7 +467,7 @@ namespace UnityEngine.XR.OpenXR
         /// On Built-in Render Pipeline, only Legacy will be used.
         /// On Scriptable Render Pipelines, it is highly recommended to use the SRPFoveation API. More textures will use FDM with the SRPFoveation API.
         /// </summary>
-#if UNITY_2023_2_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
         public BackendFovationApi foveatedRenderingApi
         {
             get

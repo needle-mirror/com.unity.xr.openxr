@@ -103,6 +103,9 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
         MockAndroidThreadSettings::Init(*this);
 #endif
 
+    if ((createFlags & MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES) == MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES)
+        MockAndroidEnumerateSystemExtensionProperties::Init(*this);
+
     recommendedResolutionChanged = false;
 
     // Generate the internal strings
@@ -1755,6 +1758,9 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
     if (MockAndroidThreadSettings::Instance() && XR_SUCCESS == MockAndroidThreadSettings_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 #endif
+
+    if (MockAndroidEnumerateSystemExtensionProperties::Instance() && XR_SUCCESS == MockAndroidEnumerateSystemExtensionProperties_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;
 }

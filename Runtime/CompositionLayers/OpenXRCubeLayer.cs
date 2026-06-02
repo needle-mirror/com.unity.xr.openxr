@@ -12,6 +12,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     {
         public static bool ExtensionEnabled = OpenXRRuntime.IsExtensionEnabled("XR_KHR_composition_layer_cube");
 
+        Dictionary<int, OpenXRStereoLayerData.RightEyeData<XrCompositionLayerCubeKHR>> m_StereoData = new();
+
         protected override unsafe bool CreateSwapchain(CompositionLayerManager.LayerInfo layerInfo, out SwapchainCreateInfo swapchainCreateInfo)
         {
             TexturesExtension texture = layerInfo.Layer.GetComponent<TexturesExtension>();
@@ -21,7 +23,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
-            swapchainCreateInfo = new XrSwapchainCreateInfo()
+            var xrCreateInfo = new XrSwapchainCreateInfo()
             {
                 Type = (uint)XrStructureType.XR_TYPE_SWAPCHAIN_CREATE_INFO,
                 Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Swapchain),
@@ -35,6 +37,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 ArraySize = 1,
                 MipCount = (uint)texture.LeftTexture.mipmapCount,
             };
+
+            swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texture));
             return true;
         }
 
@@ -42,18 +46,49 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             var data = layerInfo.Layer.LayerData as CubeProjectionLayerData;
             var transform = layerInfo.Layer.GetComponent<Transform>();
+            var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
+
+            bool isStereo = OpenXRStereoLayerData.IsStereoRequested(texturesExtension)
+                && swapchainOutput.secondStereoHandle != 0;
+
+            var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
+            var orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
 
             nativeLayer = new XrCompositionLayerCubeKHR()
             {
                 Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_CUBE_KHR,
                 Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer),
-                LayerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha,
+                LayerFlags = layerFlags,
                 Space = OpenXRLayerUtility.GetCurrentAppSpace(),
-                EyeVisibility = 0,
+                EyeVisibility = OpenXRStereoLayerData.GetEyeVisibility(texturesExtension, isStereo),
                 Swapchain = swapchainOutput.handle,
                 ImageArrayIndex = 0,
-                Orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation)
+                Orientation = orientation
             };
+
+            if (isStereo)
+            {
+                m_StereoData[layerInfo.Id] = new OpenXRStereoLayerData.RightEyeData<XrCompositionLayerCubeKHR>
+                {
+                    RightNativeLayer = new XrCompositionLayerCubeKHR()
+                    {
+                        Type = (uint)XrStructureType.XR_TYPE_COMPOSITION_LAYER_CUBE_KHR,
+                        Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer),
+                        LayerFlags = layerFlags,
+                        Space = OpenXRLayerUtility.GetCurrentAppSpace(),
+                        EyeVisibility = XrEyeVisibility.Right,
+                        Swapchain = swapchainOutput.secondStereoHandle,
+                        ImageArrayIndex = 0,
+                        Orientation = orientation
+                    },
+                    LeftTexture = texturesExtension?.LeftTexture,
+                    RightTexture = texturesExtension?.RightTexture,
+                };
+            }
+            else
+            {
+                m_StereoData.Remove(layerInfo.Id);
+            }
 
             return true;
         }
@@ -68,13 +103,59 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
             nativeLayer.Orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
 
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
+            {
+                stereoData.RightNativeLayer.Space = nativeLayer.Space;
+                stereoData.RightNativeLayer.Orientation = nativeLayer.Orientation;
+                stereoData.RightNativeLayer.LayerFlags = nativeLayer.LayerFlags;
+            }
+
             return true;
         }
 
         protected override bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref XrCompositionLayerCubeKHR nativeLayer)
         {
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
+
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
+            {
+                stereoData.RightNativeLayer.Space = nativeLayer.Space;
+            }
+
+            var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereo))
+            {
+                if (!ValidateAndUpdateRenderInfo(layerInfo, texturesExtension))
+                    return false;
+
+                stereo.IsActive = true;
+                stereo.LeftTexture = texturesExtension?.LeftTexture;
+                stereo.RightTexture = texturesExtension?.RightTexture;
+                return true;
+            }
+
             return base.ActiveNativeLayer(layerInfo, ref nativeLayer);
+        }
+
+        public override void RemoveLayer(int id)
+        {
+            m_StereoData.Remove(id);
+
+            base.RemoveLayer(id);
+        }
+
+        public override void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            base.SetActiveLayer(layerInfo);
+
+            if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData) && stereoData.IsActive)
+                AppendActiveNativeLayer(stereoData.RightNativeLayer, layerInfo.Layer.Order);
+        }
+
+        public override void OnUpdate()
+        {
+            OpenXRStereoLayerData.WriteStereoTextures(m_StereoData);
+            base.OnUpdate();
         }
 
         protected override void Dispose(bool disposing)

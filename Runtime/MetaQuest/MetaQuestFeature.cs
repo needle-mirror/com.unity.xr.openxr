@@ -749,7 +749,6 @@ namespace UnityEngine.XR.OpenXR.Features.MetaQuestSupport
 
                             UserBuildSettings.linkTimeOptimization = Unity.Android.Types.AndroidLinkTimeOptimization.Thin;
                         },
-                        fixItAutomatic = false,
                     }
 #endif
             };

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -182,7 +183,7 @@ class zBuildSamplesYamatoOnly
 #endif
         new SampleBuildTargetSetup
         {
-            sampleRegex = new Regex(".*Render.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples
+            sampleRegex = new Regex(".*Render.*|.*Meta XR Core SDK.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples and Meta samples
             buildTarget = BuildTarget.Android,
             targetGroup = BuildTargetGroup.Android,
             setupPlayerSettings = (outputFile, identifier) =>
@@ -192,7 +193,7 @@ class zBuildSamplesYamatoOnly
                 EnableAndroidProfiles();
                 PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
                 PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-#if UNITY_2023_1_OR_NEWER
+#if UNITY_6000_0_OR_NEWER
                 PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
                 PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
 #endif
@@ -205,7 +206,7 @@ class zBuildSamplesYamatoOnly
         },
         new SampleBuildTargetSetup
         {
-            sampleRegex = new Regex("^(?!.*MetaSample).*$"), // Don't build the Meta Sample for GLES
+            sampleRegex = new Regex("^(?!.*Meta XR Core SDK)(?!.*MetaSample).*$"), // Don't build the Meta Sample for GLES
             buildTarget = BuildTarget.Android,
             targetGroup = BuildTargetGroup.Android,
             setupPlayerSettings = (outputFile, identifier) =>
@@ -273,6 +274,123 @@ class zBuildSamplesYamatoOnly
         return "OpenXR Samples";
     }
 
+    static void BuildCombinedSample()
+    {
+        string resultDir = GetResultDir();
+
+        Console.WriteLine("Result Dir: " + resultDir);
+
+        var sampleName = "Unknown Sample";
+        var projSamplesDir = new DirectoryInfo("Assets/Samples");
+        if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
+        {
+            // Use the name this sample as CombinedSample, if there exists samples to combine
+            sampleName = "CombinedSample";
+        }
+        else
+        {
+            // Otherwise use the current folder as the project name
+            projSamplesDir = new DirectoryInfo("Assets");
+            sampleName = new DirectoryInfo(".").Name;
+        }
+
+        PlayerSettings.colorSpace = ColorSpace.Linear;
+        FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
+
+        foreach (var setup in buildTargetSetup)
+        {
+            if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
+                continue;
+
+            if (EditorUserBuildSettings.activeBuildTarget != setup.buildTarget)
+                continue;
+
+            string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
+
+            string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
+            PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
+            Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
+            string outputFile = Path.Combine(outputDir,
+                PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
+            setup.setupPlayerSettings(outputFile, identifier);
+
+            // Adds all sample scenes into the build settings
+            string SampleDirectoryName = "Samples";
+            string PackageName = "OpenXR Plugin";
+            string sampleDirectoryPath = Path.Combine(SampleDirectoryName, PackageName);
+
+            var guids = AssetDatabase.FindAssets("t:Scene", new[] { sampleDirectoryPath });
+            var samplePaths = guids
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(p => p.EndsWith(".unity"))
+                .Distinct()
+                .ToList();
+
+            List<EditorBuildSettingsScene> sampleScenes = new List<EditorBuildSettingsScene>();
+            foreach (var path in samplePaths)
+            {
+                sampleScenes.Add(new EditorBuildSettingsScene(path, true));
+            }
+            EditorBuildSettings.scenes = sampleScenes.ToArray();
+
+            // Get the list of scenes set in build settings in the project
+            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => AssetDatabase.GUIDToAssetPath(s.guid)).ToArray();
+
+            // If there aren't any, just build all of the scenes found in the sample
+            if (scenes.Length == 0)
+                scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
+
+            // Swaps the starter scene to the front of the scene list, if it exists.
+            int starterSceneIndex = 0;
+            for (int i = 0; i < scenes.Length; i++)
+            {
+                if (scenes[i].Contains("Starter Scene"))
+                {
+                    starterSceneIndex = i;
+                }
+            }
+
+            if (scenes.Length > 0)
+            {
+                (scenes[0], scenes[starterSceneIndex]) = (scenes[starterSceneIndex], scenes[0]);
+            }
+
+            // Set up the build options, and get ready to build
+            BuildPlayerOptions buildOptions = new BuildPlayerOptions
+            {
+                scenes = scenes,
+                target = setup.buildTarget,
+                targetGroup = setup.targetGroup,
+                locationPathName = outputFile,
+            };
+
+            // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
+            var normalizedScenes = scenes.Select(p =>
+            {
+                // normalize separators
+                var s = p.Replace('\\', '/');
+                var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                    s = s.Substring(idx + 1);
+
+                return s;
+            }).ToArray();
+
+            // Use normalized scenes for the build
+            buildOptions.scenes = normalizedScenes;
+
+            Console.WriteLine($"=========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
+            var report = BuildPipeline.BuildPlayer(buildOptions);
+            Console.WriteLine($"=========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
+
+            if (report.summary.result == BuildResult.Failed)
+            {
+                EditorApplication.Exit(1);
+            }
+        }
+    }
+
     static void BuildSamples()
     {
         string resultDir = GetResultDir();
@@ -280,8 +398,8 @@ class zBuildSamplesYamatoOnly
         Console.WriteLine("Result Dir: " + resultDir);
 
         var sampleName = "Unknown Sample";
-        var projSamplesDir = new DirectoryInfo("Assets/Sample");
-        if (projSamplesDir.Exists)
+        var projSamplesDir = new DirectoryInfo(Path.Combine("Assets", "Samples"));
+        if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
         {
             // Use the directory name in the samples directory, if it exists
             sampleName = projSamplesDir.GetDirectories()[0].Name;

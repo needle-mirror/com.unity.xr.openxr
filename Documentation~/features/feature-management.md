@@ -4,7 +4,7 @@ uid: openxr-feature-management
 
 # Feature management
 
-![feature-ui](images/openxr-features.png)
+![feature-ui](../images/openxr-features.png)
 
 You can manage features from the **Project Settings &gt; XR Plug-in Management &gt; OpenXR** window.
 

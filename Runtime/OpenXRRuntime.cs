@@ -46,11 +46,27 @@ namespace UnityEngine.XR.OpenXR
         }
 
         /// <summary>
-        /// Describes whether the OpenXR Extension with the given name is enabled.
+        /// Describes whether the OpenXR Extension with the given name is enabled for the current runtime.
         /// </summary>
         /// <param name="extensionName">Name of the extension</param>
         /// <returns>True if the extension matching the given name is enabled, false otherwise</returns>
         public static bool IsExtensionEnabled(string extensionName) => Internal_IsExtensionEnabled(extensionName);
+
+        /// <summary>
+        /// Describes whether the OpenXR Extension with the given name is supported by the current
+        /// physical system configuration.
+        /// Requires a valid System ID; calling before OnSystemChanged will throw InvalidOperationException.
+        /// </summary>
+        /// <param name="extensionName">Name of the extension</param>
+        /// <returns>True if the extension matching the given name is supported, false otherwise</returns>
+        public static bool IsSystemExtensionEnabled(string extensionName)
+        {
+            if (!Internal_SystemReady())
+            {
+                throw new InvalidOperationException("IsSystemExtensionEnabled requires a valid System ID");
+            }
+            return Internal_IsSystemExtensionEnabled(extensionName);
+        }
 
         /// <summary>
         /// Queries if the OpenXR extension was requested. The extension may or may not be enabled.
@@ -135,14 +151,8 @@ namespace UnityEngine.XR.OpenXR
         /// </summary>
         public static bool retryInitializationOnFormFactorErrors
         {
-            get
-            {
-                return Internal_GetSoftRestartLoopAtInitialization();
-            }
-            set
-            {
-                Internal_SetSoftRestartLoopAtInitialization(value);
-            }
+            get { return Internal_GetSoftRestartLoopAtInitialization(); }
+            set { Internal_SetSoftRestartLoopAtInitialization(value); }
         }
 
         /// <summary>
@@ -175,18 +185,20 @@ namespace UnityEngine.XR.OpenXR
         internal static void ClearEvents()
         {
             if (wantsToQuit != null)
-                foreach (Func<bool> f in wantsToQuit.GetInvocationList()) wantsToQuit -= f;
+                foreach (Func<bool> f in wantsToQuit.GetInvocationList())
+                    wantsToQuit -= f;
 
             if (wantsToRestart != null)
-                foreach (Func<bool> f in wantsToRestart.GetInvocationList()) wantsToRestart -= f;
+                foreach (Func<bool> f in wantsToRestart.GetInvocationList())
+                    wantsToRestart -= f;
 
             wantsToQuit = null;
             wantsToRestart = null;
         }
-
 #endif
 
         internal static bool ShouldQuit() => InvokeEvent(wantsToQuit);
+
         internal static bool ShouldRestart() => InvokeEvent(wantsToRestart);
 
         const string LibraryName = "UnityOpenXR";
@@ -210,6 +222,10 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionEnabled")]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Internal_IsExtensionEnabled(string extensionName);
+
+        [DllImport(LibraryName, EntryPoint = "unity_ext_IsSystemExtensionEnabled")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        static extern bool Internal_IsSystemExtensionEnabled(string extensionName);
 
         [DllImport(LibraryName, EntryPoint = "unity_ext_IsExtensionRequested")]
         [return: MarshalAs(UnmanagedType.U1)]
@@ -266,6 +282,10 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "session_GetLastError", CharSet = CharSet.Ansi)]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Internal_GetLastError(out IntPtr error);
+
+        [DllImport(LibraryName, EntryPoint = "session_SystemReady")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        static extern bool Internal_SystemReady();
 
         /// <summary>
         /// Returns the last error message that was issued in the native code

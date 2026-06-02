@@ -310,6 +310,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         bool isRegisteredOnBeforeRender;
         Dictionary<int, LayerRenderInfo> m_RenderInfos = new();
         Dictionary<int, CompositionLayerManager.LayerInfo> m_LayerInfos = new();
+
         NativeArray<T> m_ActiveNativeLayers;
         NativeArray<int> m_ActiveNativeLayerOrders;
         int m_ActiveNativeLayerCount;
@@ -560,27 +561,32 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Ensures that the native arrays are of the same size as the m_nativeLayers map.
+        /// Ensures that the native arrays are large enough to hold all layers, including
+        /// the worst case where every layer is stereo (requiring two slots each).
         /// </summary>
         protected virtual void ResizeNativeArrays()
         {
+            int required = m_nativeLayers.Count * 2;
+            if (required < m_ActiveNativeLayerCount + 1)
+                required = m_ActiveNativeLayerCount + 1;
+
             if (!m_ActiveNativeLayers.IsCreated && !m_ActiveNativeLayerOrders.IsCreated)
             {
-                m_ActiveNativeLayers = new NativeArray<T>(m_nativeLayers.Count, Allocator.Persistent);
-                m_ActiveNativeLayerOrders = new NativeArray<int>(m_nativeLayers.Count, Allocator.Persistent);
+                m_ActiveNativeLayers = new NativeArray<T>(required, Allocator.Persistent);
+                m_ActiveNativeLayerOrders = new NativeArray<int>(required, Allocator.Persistent);
                 return;
             }
 
             Assertions.Assert.AreEqual(m_ActiveNativeLayers.Length, m_ActiveNativeLayerOrders.Length);
 
-            if (m_ActiveNativeLayers.Length < m_nativeLayers.Count)
+            if (m_ActiveNativeLayers.Length < required)
             {
-                var newLayerArray = new NativeArray<T>(m_nativeLayers.Count, Allocator.Persistent);
+                var newLayerArray = new NativeArray<T>(required, Allocator.Persistent);
                 NativeArray<T>.Copy(m_ActiveNativeLayers, newLayerArray, m_ActiveNativeLayers.Length);
                 m_ActiveNativeLayers.Dispose();
                 m_ActiveNativeLayers = newLayerArray;
 
-                var newOrderArray = new NativeArray<int>(m_nativeLayers.Count, Allocator.Persistent);
+                var newOrderArray = new NativeArray<int>(required, Allocator.Persistent);
                 NativeArray<int>.Copy(m_ActiveNativeLayerOrders, newOrderArray, m_ActiveNativeLayerOrders.Length);
                 m_ActiveNativeLayerOrders.Dispose();
                 m_ActiveNativeLayerOrders = newOrderArray;
@@ -588,17 +594,28 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Override this method to modify a native composition layer struct in response to when it is active.
-        /// An active composition layer will invoke this every frame.
+        /// Appends a native layer entry to the active arrays. Used by stereo layer handlers
+        /// to add the right-eye layer after the base class has added the left-eye layer.
+        /// </summary>
+        /// <param name="nativeLayer">The native layer struct to append.</param>
+        /// <param name="order">The sort order for the layer.</param>
+        protected void AppendActiveNativeLayer(T nativeLayer, int order)
+        {
+            m_ActiveNativeLayers[m_ActiveNativeLayerCount] = nativeLayer;
+            m_ActiveNativeLayerOrders[m_ActiveNativeLayerCount] = order;
+            ++m_ActiveNativeLayerCount;
+        }
+
+        /// <summary>
+        /// Validates texture dimensions and updates render info tracking. If the source texture
+        /// has changed dimensions, the swapchain is torn down and recreated.
         /// </summary>
         /// <param name="layerInfo">Container for the unique id and CompositionLayer component of the composition
         /// layer that is active.</param>
-        /// <param name="nativeLayer">A reference to the native OpenXR structure of the composition layer that is active.</param>
-        /// <returns>Bool indicating success or failure.
-        /// A failure case will result in the native composition layer struct not being added into the final XrFrameEndInfo struct.</returns>
-        protected virtual bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref T nativeLayer)
+        /// <param name="texturesExtension">The textures extension to validate dimensions against.</param>
+        /// <returns>True if the layer is valid and ready, false if a swapchain recreation was triggered.</returns>
+        protected bool ValidateAndUpdateRenderInfo(CompositionLayerManager.LayerInfo layerInfo, TexturesExtension texturesExtension)
         {
-            var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
             if (texturesExtension == null
                 || texturesExtension.LeftTexture == null
                 || texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.AndroidSurface)
@@ -645,6 +662,23 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             m_RenderInfos[layerInfo.Id].IsActiveLayer = true;
+            return true;
+        }
+
+        /// <summary>
+        /// Override this method to modify a native composition layer struct in response to when it is active.
+        /// An active composition layer will invoke this every frame.
+        /// </summary>
+        /// <param name="layerInfo">Container for the unique id and CompositionLayer component of the composition
+        /// layer that is active.</param>
+        /// <param name="nativeLayer">A reference to the native OpenXR structure of the composition layer that is active.</param>
+        /// <returns>Bool indicating success or failure.
+        /// A failure case will result in the native composition layer struct not being added into the final XrFrameEndInfo struct.</returns>
+        protected virtual bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref T nativeLayer)
+        {
+            var texturesExtension = layerInfo.Layer.GetComponent<TexturesExtension>();
+            if (!ValidateAndUpdateRenderInfo(layerInfo, texturesExtension))
+                return false;
 
             OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, OnRenderTextureIdIdCallback);
 

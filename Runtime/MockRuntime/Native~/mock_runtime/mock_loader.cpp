@@ -1,4 +1,5 @@
 #include "mock.h"
+#include "openxr/androidxr/xr_android_enumerate_system_extension_properties.h"
 #include <openxr/loader_interfaces.h>
 
 IUnityXRTrace* s_Trace = nullptr;
@@ -165,6 +166,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_FB_SWAPCHAIN_UPDATE_STATE_EXTENSION_NAME,
         XR_FB_swapchain_update_state_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES_EXTENSION_NAME,
+        XR_ANDROID_enumerate_system_extension_properties_SPEC_VERSION
     }
 #if defined(XR_USE_PLATFORM_ANDROID)
     ,{
@@ -374,6 +381,11 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
             flags |= MR_CREATE_KHR_ANDROID_THREAD_SETTINGS_EXT;
         }
 #endif
+
+        if (strncmp(XR_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES_EXTENSION_NAME, extension, sizeof(XR_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES;
+        }
     }
 
     if ((flags & MR_CREATE_ALL_GFX_EXT) == 0)
@@ -661,7 +673,7 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEndSession(XrSession sess
 {
     LOG_FUNC();
     CHECK_SESSION(session);
-    //CHECK_EXPECTED_RESULT(XR_SUCCESS, XR_ERROR_SESSION_NOT_STOPPING);
+    // CHECK_EXPECTED_RESULT(XR_SUCCESS, XR_ERROR_SESSION_NOT_STOPPING);
 
     MOCK_HOOK(s_runtime->EndSession());
 }

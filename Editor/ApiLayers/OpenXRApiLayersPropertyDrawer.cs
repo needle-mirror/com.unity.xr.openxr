@@ -29,6 +29,7 @@ namespace UnityEditor.XR.OpenXR
 
         ReorderableList m_ReorderableList;
         SerializedProperty m_ApiLayersProperty;
+        SerializedObject m_LastSerializedObject;
 
         /// <summary>
         /// Renders the GUI for the API layers settings, including controls for adding layers and managing the layer list.
@@ -49,7 +50,7 @@ namespace UnityEditor.XR.OpenXR
             if (s_SelectedApiLayersFeature == null)
                 return;
 
-            if (m_ReorderableList == null)
+            if (m_ReorderableList == null || m_LastSerializedObject != property.serializedObject)
                 InitializeList(property);
 
             // Button to add bundled layers from the OpenXR package (only available on Windows atm)
@@ -81,6 +82,7 @@ namespace UnityEditor.XR.OpenXR
         void InitializeList(SerializedProperty property)
         {
             m_ApiLayersProperty = property.FindPropertyRelative(k_ApiLayersProperty);
+            m_LastSerializedObject = property.serializedObject;
             m_ReorderableList = new ReorderableList(property.serializedObject, m_ApiLayersProperty, true, true, true, true)
             {
                 drawHeaderCallback = DrawHeader,

@@ -53,7 +53,7 @@ MyMockSettings.EnableFeature<MyCustomFeature>();
 MyMockSettings.RequestUseExtension("XR_CUSTOM_EXTENSION");
 ```
 
-After completing your test's setup, you can start the Mock Runtime with the [`MockOpenXREnvironment.Start`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironmentSettings.Start*) method. This method does the following:
+After completing your test's setup, you can start the Mock Runtime with the [`MockOpenXREnvironment.Start`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.Start) method. This method does the following:
 
 - Initializes the Unity OpenXR plugin
 - Loads all active features and its respective libraries
@@ -64,7 +64,7 @@ After completing your test's setup, you can start the Mock Runtime with the [`Mo
 MyMockEnvironment.Start();
 ```
 
-Once you have finished running your test case in the runtime, you can manually stop the runtime with the [`MockOpenXREnvironment.Stop`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironmentSettings.Stop*) method. You must stop the Mock OpenXR Environment instance in tests that share their mock environment with other test cases.
+Once you have finished running your test case in the runtime, you can manually stop the runtime with the [`MockOpenXREnvironment.Stop`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.Stop) method. You must stop the Mock OpenXR Environment instance in tests that share their mock environment with other test cases.
 You can stop and start the mock environment instance in the same test.
 
 ``` csharp
@@ -307,7 +307,7 @@ static unsafe XrResult SysProperties_UserPresence_MockCallback(XrSystemPropertie
 static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() => Marshal.GetFunctionPointerForDelegate((GetSystemProperties_Delegate)SysProperties_UserPresence_MockCallback);
 ```
 
-Then, during your test setup, you need to configure the Mock Runtime to use your desired system properties provider function with the [`MockOpenXREnvironment.SetSysPropertiesFunctionForXrStructureType`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXrEnvironment.SetSysPropertiesFunctionForXrStructureType*) method:
+Then, during your test setup, you need to configure the Mock Runtime to use your desired system properties provider function with the [`MockOpenXREnvironment.SetSysPropertiesFunctionForXrStructureType`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.SetSysPropertiesFunctionForXrStructureType(System.UInt32,System.IntPtr)) method:
 
 ``` csharp
 using var MyMockEnvironment = MockOpenXREnvironment.Create();
@@ -408,10 +408,10 @@ IEnumerator TestWithSystemPropertiesProvider()
 
 ## Queueing OpenXR events
 
-If your application needs to react to events sent from the OpenXR runtime, the Mock OpenXR Environment provides a mechanism for enqueuing the required events. Events must be sent after the Mock Runtime is running with the [`MockOpenXrEnvironment.Start`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXrEnvironment.Start*) method.
+If your application needs to react to events sent from the OpenXR runtime, the Mock OpenXR Environment provides a mechanism for enqueuing the required events. Events must be sent after the Mock Runtime is running with the [`MockOpenXREnvironment.Start`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.Start) method.
 
-1. The [`EnqueueMockEventData`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXrEnvironment.EnqueueMockEventData*) method allows you to enqueue native events into the Mock Runtime for processing. The event payload must be presented as native structure pointer, so when using a C# struct, you need to ensure that the struct binary layout exactly matches its corresponding native struct, and then marshal the managed structure to an unmanaged block of memory.
-2. The [`ProcessEventQueue`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXrEnvironment.ProcessEventQueue*) method lets you signal the Mock Runtime that it should send all the queued events to your XR app.
+1. The [`EnqueueMockEventData`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.EnqueueMockEventData(System.IntPtr)) method allows you to enqueue native events into the Mock Runtime for processing. The event payload must be presented as native structure pointer, so when using a C# struct, you need to ensure that the struct binary layout exactly matches its corresponding native struct, and then marshal the managed structure to an unmanaged block of memory.
+2. The [`ProcessEventQueue`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.ProcessEventQueue) method lets you signal the Mock Runtime that it should send all the queued events to your XR app.
 
 Here's an example on how to enqueue an event based on the OpenXR extension `XrEventDataUserPresenceChangedEXT`.
 

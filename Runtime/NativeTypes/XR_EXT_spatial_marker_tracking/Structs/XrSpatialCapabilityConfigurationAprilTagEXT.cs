@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.Assertions;
@@ -15,7 +17,6 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
     /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationAprilTagEXT"/>.
     /// </remarks>
     public readonly unsafe struct XrSpatialCapabilityConfigurationAprilTagEXT : ISpatialCapabilityConfiguration
-
     {
         /// <summary>
         /// The `XrStructureType` of this struct: <see cref="XrSpatialCapabilityConfigurationAprilTagEXT"/>.
@@ -163,5 +164,32 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
                 (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr(),
                 aprilDict)
         { }
+
+        /// <summary>
+        /// Get a string suitable for debugging purposes.
+        /// </summary>
+        /// <returns>The string.</returns>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("{");
+            sb.Append("  ").Append(type.ToString());
+            sb.Append("  ").Append(((IntPtr)next).ToString("X")).AppendLine();
+            sb.Append("  ").Append(capability.ToString()).AppendLine();
+            sb.AppendLine("  [");
+            for (var i = 0; i < enabledComponentCount; i++)
+            {
+                sb.Append("    ").Append(enabledComponents[i].ToString());
+                if (i < enabledComponentCount - 1)
+                    sb.AppendLine(",");
+                else
+                    sb.AppendLine();
+            }
+
+            sb.AppendLine("  ],");
+            sb.Append("  ").Append(aprilDict.ToString()).AppendLine();
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
     }
 }
