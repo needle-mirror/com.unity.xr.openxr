@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.18.0-pre.2] - 2026-06-16
+
+### Fixed
+
+* Fixed issue where "Use OpenXR Time" setting was not applied before subsystem started up.
+* Fixed a problem so that we are now setting "GPUAppLastFrameTime" and "GPUCompositorLastFrameTime" as seconds instead of milliseconds into XRStats.
+* Fixed compilation in Unity 6.0 due to missing `GetEntityId` method when the XR Composition Layers package is also installed.
+
 ## [1.18.0-pre.1] - 2026-06-02
 
 ### Added
@@ -39,6 +47,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Updated minimum supported editor version to 6000.0.
 * Changed behavior of Meta Quest build profile to automatically enable suggested controllers and Meta Quest Support.
 * Updated Hand Mesh Data documentation to clarify the exact feature label in OpenXR Project Settings, supported build targets (Android and Standalone), and automatic Android manifest configuration details.
+* Use OpenXR Delta Time opts to not use the deltaTime value provided by the runtime when the setting is false.
 
 ### Fixed
 
@@ -48,7 +57,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed the "Meta Quest supports Thin Link Time Optimization" Project Validation to be an automatic Fix type instead of an Edit type.
 * Fixed the default foveated-rendering eye center being placed at the wrong location for each eyes, on PC Vulkan/DX12.
 * Fixed crash caused by attempting to access assetdatabase during an InitializeOnLoad attribute method.
-* Fixed issue where "Use OpenXR Time" setting was not applied before subsystem started up.
 * Fixed API Layers window rendering issue such that it renders without throwing `NullReferenceException`. ([UUM-141166](https://issuetracker.unity3d.com/issues/openxr-api-layers-window-is-not-rendered-and-nullreferenceexception-errors-are-thrown-when-the-api-layers-window-is-opened))
 
 ## [1.17.0] - 2026-04-09

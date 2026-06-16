@@ -256,7 +256,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 // Check if graphics format or mipmap count is different and convert if necessary.
                 if (renderTexture.graphicsFormat != texture.graphicsFormat || renderTexture.mipmapCount != texture.mipmapCount)
                 {
+#if UNITY_6000_3_OR_NEWER
                     int cacheKey = HashCode.Combine(texture.GetEntityId(), renderTexture.graphicsFormat);
+#else
+                    int cacheKey = HashCode.Combine(texture.GetInstanceID(), renderTexture.graphicsFormat);
+#endif
                     if (!s_CubemapConversionCache.TryGetValue(cacheKey, out convertedTexture)
                         || convertedTexture == null
                         || convertedTexture.width != texture.width)
