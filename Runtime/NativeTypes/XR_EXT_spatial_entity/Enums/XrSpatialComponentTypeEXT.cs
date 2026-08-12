@@ -70,5 +70,24 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Equivalent to the OpenXR value `XR_SPATIAL_COMPONENT_TYPE_PERSISTENCE_EXT`.
         /// </summary>
         Persistence = 1000763000,
+
+        /// <summary>
+        /// Represents the Image 2D component type provided by `XR_EXT_spatial_image_tracking`.
+        /// Equivalent to the OpenXR value `XR_SPATIAL_COMPONENT_TYPE_IMAGE_2D_EXT`.
+        /// </summary>
+        Image2D = 1000782000,
+
+        /// <summary>
+        /// Represents the Raycast Result component type, which provides the pose of a raycast hit on an entity.
+        /// Equivalent to the OpenXR value `XR_SPATIAL_COMPONENT_TYPE_RAYCAST_RESULT_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        RaycastResult = 1000786000,
+
+        /// <summary>
+        /// Represents the Subsumed By component type provided by `XR_ANDROID_spatial_component_subsumed_by`.
+        /// Equivalent to the OpenXR value `XR_SPATIAL_COMPONENT_TYPE_SUBSUMED_BY_ANDROID`.
+        /// </summary>
+        SubsumedByANDROID = 1000791000
     }
 }

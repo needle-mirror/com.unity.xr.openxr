@@ -54,6 +54,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// allowing you to track the given position and rotation within the given spatial context.
         /// Provided by `XR_EXT_spatial_anchor`.
         /// </summary>
+        /// <param name="next">The pointer to the next structure in a structure chain</param>
         /// <param name="spatialContext">A spatial context previously created using
         /// `OpenXRNativeApi.xrCreateSpatialContextAsyncEXT`.</param>
         /// <param name="pose">The pose, in OpenXR coordinates, at which to create the anchor.</param>
@@ -86,12 +87,59 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// > Don't read the output if an error is returned.
         /// </remarks>
         [DllImport(
-            InternalConstants.openXRLibrary, EntryPoint = "EXT_spatial_anchor_xrCreateSpatialAnchorEXT_usingContext")]
-        public static extern OpenXRResultStatus xrCreateSpatialAnchorEXT(
+            InternalConstants.openXRLibrary, EntryPoint = "EXT_spatial_anchor_xrCreateSpatialAnchorEXT_usingContext_withNext")]
+        public static extern unsafe OpenXRResultStatus xrCreateSpatialAnchorEXT(
+            void* next,
             XrSpatialContextEXT spatialContext,
             in XrPosef pose,
             out XrSpatialEntityIdEXT anchorEntityId,
             out XrSpatialEntityEXT anchorEntity);
+
+        /// <summary>
+        /// Creates a spatial anchor in the specified spatial context at the given pose.
+        /// </summary>
+        /// <param name="spatialContext">A spatial context previously created using `OpenXRNativeApi.xrCreateSpatialContextAsyncEXT`.</param>
+        /// <param name="pose">The pose, in OpenXR coordinates, at which to create the anchor.</param>
+        /// <param name="anchorEntityId">Receives the ID of the created anchor entity.</param>
+        /// <param name="anchorEntity">Receives the spatial entity handle of the created anchor entity.</param>
+        /// <returns>The result of the operation.\
+        /// \
+        /// `nativeStatusCode` success codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.Success"/></description></item>
+        ///   <item><description><see cref="XrResult.LossPending"/></description></item>
+        /// </list>
+        /// `nativeStatusCode` failure codes:
+        /// <list type="bullet">
+        ///   <item><description><see cref="XrResult.FunctionUnsupported"/></description></item>
+        ///   <item><description><see cref="XrResult.ValidationFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.RuntimeFailure"/></description></item>
+        ///   <item><description><see cref="XrResult.HandleInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.InstanceLost"/></description></item>
+        ///   <item><description><see cref="XrResult.SessionLost"/></description></item>
+        ///   <item><description><see cref="XrResult.OutOfMemory"/></description></item>
+        ///   <item><description><see cref="XrResult.LimitReached"/></description></item>
+        ///   <item><description><see cref="XrResult.TimeInvalid"/></description></item>
+        ///   <item><description><see cref="XrResult.PoseInvalid"/></description></item>
+        /// </list>
+        /// </returns>
+        /// <remarks>
+        /// > [!IMPORTANT]
+        /// > Output parameters are only valid if the returned result `.IsSuccess()`.
+        /// > Don't read the output if an error is returned.
+        /// </remarks>
+        public static OpenXRResultStatus xrCreateSpatialAnchorEXT(
+            XrSpatialContextEXT spatialContext,
+            in XrPosef pose,
+            out XrSpatialEntityIdEXT anchorEntityId,
+            out XrSpatialEntityEXT anchorEntity)
+        {
+            unsafe
+            {
+                return xrCreateSpatialAnchorEXT(
+                    null, spatialContext, pose, out anchorEntityId, out anchorEntity);
+            }
+        }
 
         /// <summary>
         /// Creates an anchor in your app space at the next frame's predicted display time,

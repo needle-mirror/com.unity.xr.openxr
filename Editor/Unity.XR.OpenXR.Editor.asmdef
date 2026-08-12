@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEditor.XR.OpenXR",
     "references": [
         "Unity.XR.Management",
         "Unity.XR.Management.Editor",

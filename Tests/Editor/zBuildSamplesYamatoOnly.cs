@@ -16,461 +16,464 @@ using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 
-class zBuildSamplesYamatoOnly
+namespace UnityEditor.XR.OpenXR.Tests
 {
-    struct SampleBuildTargetSetup
+    class zBuildSamplesYamatoOnly
     {
-        public BuildTarget buildTarget;
-        public BuildTargetGroup targetGroup;
-        public Action<string, string> setupPlayerSettings;
-        public string outputPostfix;
-        public Regex sampleRegex;
-    }
-
-    static void WriteAndroidInstallerScripts(string outputFile, string identifier)
-    {
-        var dir = Path.GetDirectoryName(outputFile);
-        if (dir == null) return;
-        Directory.CreateDirectory(dir);
-
-        var scripts = new string[] { "install.command", "install.bat" };
-        foreach (var script in scripts)
+        struct SampleBuildTargetSetup
         {
-            var scriptPath = Path.Combine(dir, script);
-
-            var scriptContents = $"adb uninstall {identifier}\n" +
-                $"adb install \"{Path.GetFileName(outputFile)}\"\n\n";
-
-            File.AppendAllText(scriptPath, scriptContents);
+            public BuildTarget buildTarget;
+            public BuildTargetGroup targetGroup;
+            public Action<string, string> setupPlayerSettings;
+            public string outputPostfix;
+            public Regex sampleRegex;
         }
-    }
 
-    static void EnableQuestFeature()
-    {
-        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+        static void WriteAndroidInstallerScripts(string outputFile, string identifier)
         {
-            if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.metaquest", true) == 0)
+            var dir = Path.GetDirectoryName(outputFile);
+            if (dir == null) return;
+            Directory.CreateDirectory(dir);
+
+            var scripts = new string[] { "install.command", "install.bat" };
+            foreach (var script in scripts)
             {
-                Console.WriteLine($"Enable: {feature.nameUi}");
-                feature.enabled = true;
-                return;
+                var scriptPath = Path.Combine(dir, script);
+
+                var scriptContents = $"adb uninstall {identifier}\n" +
+                    $"adb install \"{Path.GetFileName(outputFile)}\"\n\n";
+
+                File.AppendAllText(scriptPath, scriptContents);
             }
         }
-        Assert.IsTrue(false, "Could not enable meta quest extension - if you're not on build machine you must copy dir MetaQuest to your project.");
-    }
 
-    static void EnableMSFTObserverFeature()
-    {
-        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+        static void EnableQuestFeature()
         {
-            if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.example.msftobserver", true) == 0)
+            foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
             {
-                Console.WriteLine($"Enable: {feature.nameUi}");
-                feature.enabled = true;
-                return;
-            }
-        }
-    }
-
-    static void EnableFeature<TFeatureType>() where TFeatureType : OpenXRFeature
-    {
-        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
-        {
-            if (feature is TFeatureType)
-            {
-                Console.WriteLine($"Enable: {feature.nameUi}");
-                feature.enabled = true;
-                break;
-            }
-        }
-    }
-
-    static void EnableSampleFeatures()
-    {
-        foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
-        {
-            if (feature.GetType().Namespace == null)
-            {
-                throw new Exception("All code in the OpenXR Package must be in a namespace.");
-            }
-
-            if (feature.GetType().Namespace.StartsWith("UnityEngine.XR.OpenXR.Samples"))
-            {
-                Console.WriteLine($"Enable: {feature.nameUi}");
-                feature.enabled = true;
-            }
-        }
-    }
-
-    static void EnableStandaloneProfiles()
-    {
-        EnableFeature<MetaQuestTouchPlusControllerProfile>();
-        EnableFeature<MicrosoftMotionControllerProfile>();
-        EnableFeature<HTCViveControllerProfile>();
-        EnableFeature<ValveIndexControllerProfile>();
-        EnableFeature<OculusTouchControllerProfile>();
-        EnableFeature<MetaQuestTouchProControllerProfile>();
-        EnableFeature<HandInteractionProfile>();
-        EnableFeature<PalmPoseInteraction>();
-        EnableFeature<DPadInteraction>();
-        EnableFeature<HandCommonPosesInteraction>();
-    }
-
-    static void EnableAndroidProfiles()
-    {
-        EnableFeature<OculusTouchControllerProfile>();
-        EnableFeature<MetaQuestTouchProControllerProfile>();
-    }
-
-    static SampleBuildTargetSetup[] buildTargetSetup =
-    {
-#if UNITY_EDITOR_WIN
-        new SampleBuildTargetSetup
-        {
-            buildTarget = BuildTarget.StandaloneWindows64,
-            targetGroup = BuildTargetGroup.Standalone,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableStandaloneProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
-            },
-            outputPostfix = "dx12",
-        },
-        new SampleBuildTargetSetup
-        {
-            sampleRegex = new Regex(".*Render.*"), // Only build dx12 variant for Render Samples
-            buildTarget = BuildTarget.StandaloneWindows64,
-            targetGroup = BuildTargetGroup.Standalone,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Direct3D11 });
-                QualitySettings.SetQualityLevel(5);
-                QualitySettings.antiAliasing = 4;
-            },
-            outputPostfix = "dx12",
-        },
-        new SampleBuildTargetSetup
-        {
-            sampleRegex = new Regex(".*Render.*"), // Only build vulkan variant for Render Samples
-            buildTarget = BuildTarget.StandaloneWindows64,
-            targetGroup = BuildTargetGroup.Standalone,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D12 });
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
-            },
-            outputPostfix = "vk",
-        },
-        new SampleBuildTargetSetup // Latency Optimization sample, Win64 DX12 variant
-        {
-            sampleRegex = new Regex(".*LatencyOptimization.*"),
-            buildTarget = BuildTarget.StandaloneWindows64,
-            targetGroup = BuildTargetGroup.Standalone,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableStandaloneProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
-                OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
-            },
-            outputPostfix = "prioritize-input-dx12",
-        },
-#endif
-        new SampleBuildTargetSetup
-        {
-            sampleRegex = new Regex(".*Render.*|.*Meta XR Core SDK.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples and Meta samples
-            buildTarget = BuildTarget.Android,
-            targetGroup = BuildTargetGroup.Android,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableQuestFeature();
-                EnableAndroidProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-#if UNITY_6000_0_OR_NEWER
-                PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
-                PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
-#endif
-                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-                WriteAndroidInstallerScripts(outputFile, identifier);
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
-            },
-            outputPostfix = "arm64_vk",
-        },
-        new SampleBuildTargetSetup
-        {
-            sampleRegex = new Regex("^(?!.*Meta XR Core SDK)(?!.*MetaSample).*$"), // Don't build the Meta Sample for GLES
-            buildTarget = BuildTarget.Android,
-            targetGroup = BuildTargetGroup.Android,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableQuestFeature();
-                EnableAndroidProfiles();
-                PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-                WriteAndroidInstallerScripts(outputFile, identifier);
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
-            },
-            outputPostfix = "arm64_gles3",
-        },
-        new SampleBuildTargetSetup // Latency Optimization sample, Android Vulkan variant
-        {
-            sampleRegex = new Regex(".*LatencyOptimization.*"),
-            buildTarget = BuildTarget.Android,
-            targetGroup = BuildTargetGroup.Android,
-            setupPlayerSettings = (outputFile, identifier) =>
-            {
-                EnableSampleFeatures();
-                EnableQuestFeature();
-                EnableAndroidProfiles();
-                PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
-                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-                WriteAndroidInstallerScripts(outputFile, identifier);
-                OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
-                OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
-            },
-            outputPostfix = "prioritize-input-arm64-vk",
-        },
-    };
-
-    static string GetBuildFileExt(BuildTarget target)
-    {
-        switch (target)
-        {
-            case BuildTarget.Android:
-                return ".apk";
-            case BuildTarget.StandaloneWindows:
-            case BuildTarget.StandaloneWindows64:
-                return ".exe";
-            default:
-                return "";
-        }
-    }
-
-    static string GetResultDir()
-    {
-        bool next = false;
-        foreach (var arg in System.Environment.GetCommandLineArgs())
-        {
-            if (next)
-                return arg;
-
-            if (arg == "-resultDir")
-                next = true;
-        }
-        return "OpenXR Samples";
-    }
-
-    static void BuildCombinedSample()
-    {
-        string resultDir = GetResultDir();
-
-        Console.WriteLine("Result Dir: " + resultDir);
-
-        var sampleName = "Unknown Sample";
-        var projSamplesDir = new DirectoryInfo("Assets/Samples");
-        if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
-        {
-            // Use the name this sample as CombinedSample, if there exists samples to combine
-            sampleName = "CombinedSample";
-        }
-        else
-        {
-            // Otherwise use the current folder as the project name
-            projSamplesDir = new DirectoryInfo("Assets");
-            sampleName = new DirectoryInfo(".").Name;
-        }
-
-        PlayerSettings.colorSpace = ColorSpace.Linear;
-        FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
-
-        foreach (var setup in buildTargetSetup)
-        {
-            if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
-                continue;
-
-            if (EditorUserBuildSettings.activeBuildTarget != setup.buildTarget)
-                continue;
-
-            string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
-
-            string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
-            PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
-            Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
-            string outputFile = Path.Combine(outputDir,
-                PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
-            setup.setupPlayerSettings(outputFile, identifier);
-
-            // Adds all sample scenes into the build settings
-            string SampleDirectoryName = "Samples";
-            string PackageName = "OpenXR Plugin";
-            string sampleDirectoryPath = Path.Combine(SampleDirectoryName, PackageName);
-
-            var guids = AssetDatabase.FindAssets("t:Scene", new[] { sampleDirectoryPath });
-            var samplePaths = guids
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Where(p => p.EndsWith(".unity"))
-                .Distinct()
-                .ToList();
-
-            List<EditorBuildSettingsScene> sampleScenes = new List<EditorBuildSettingsScene>();
-            foreach (var path in samplePaths)
-            {
-                sampleScenes.Add(new EditorBuildSettingsScene(path, true));
-            }
-            EditorBuildSettings.scenes = sampleScenes.ToArray();
-
-            // Get the list of scenes set in build settings in the project
-            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => AssetDatabase.GUIDToAssetPath(s.guid)).ToArray();
-
-            // If there aren't any, just build all of the scenes found in the sample
-            if (scenes.Length == 0)
-                scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
-
-            // Swaps the starter scene to the front of the scene list, if it exists.
-            int starterSceneIndex = 0;
-            for (int i = 0; i < scenes.Length; i++)
-            {
-                if (scenes[i].Contains("Starter Scene"))
+                if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.metaquest", true) == 0)
                 {
-                    starterSceneIndex = i;
+                    Console.WriteLine($"Enable: {feature.nameUi}");
+                    feature.enabled = true;
+                    return;
                 }
             }
-
-            if (scenes.Length > 0)
-            {
-                (scenes[0], scenes[starterSceneIndex]) = (scenes[starterSceneIndex], scenes[0]);
-            }
-
-            // Set up the build options, and get ready to build
-            BuildPlayerOptions buildOptions = new BuildPlayerOptions
-            {
-                scenes = scenes,
-                target = setup.buildTarget,
-                targetGroup = setup.targetGroup,
-                locationPathName = outputFile,
-            };
-
-            // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
-            var normalizedScenes = scenes.Select(p =>
-            {
-                // normalize separators
-                var s = p.Replace('\\', '/');
-                var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
-                if (idx >= 0)
-                    s = s.Substring(idx + 1);
-
-                return s;
-            }).ToArray();
-
-            // Use normalized scenes for the build
-            buildOptions.scenes = normalizedScenes;
-
-            Console.WriteLine($"=========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
-            var report = BuildPipeline.BuildPlayer(buildOptions);
-            Console.WriteLine($"=========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
-
-            if (report.summary.result == BuildResult.Failed)
-            {
-                EditorApplication.Exit(1);
-            }
-        }
-    }
-
-    static void BuildSamples()
-    {
-        string resultDir = GetResultDir();
-
-        Console.WriteLine("Result Dir: " + resultDir);
-
-        var sampleName = "Unknown Sample";
-        var projSamplesDir = new DirectoryInfo(Path.Combine("Assets", "Samples"));
-        if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
-        {
-            // Use the directory name in the samples directory, if it exists
-            sampleName = projSamplesDir.GetDirectories()[0].Name;
-        }
-        else
-        {
-            // Otherwise use the current folder as the project name
-            projSamplesDir = new DirectoryInfo("Assets");
-            sampleName = new DirectoryInfo(".").Name;
+            Assert.IsTrue(false, "Could not enable meta quest extension - if you're not on build machine you must copy dir MetaQuest to your project.");
         }
 
-        PlayerSettings.colorSpace = ColorSpace.Linear;
-        FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
-
-        foreach (var setup in buildTargetSetup)
+        static void EnableMSFTObserverFeature()
         {
-            if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
-                continue;
-
-            if (EditorUserBuildSettings.activeBuildTarget != setup.buildTarget)
-                continue;
-
-            string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
-
-            string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
-            PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
-            Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
-            string outputFile = Path.Combine(outputDir,
-                PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
-            setup.setupPlayerSettings(outputFile, identifier);
-
-            // Get the list of scenes set in build settings in the project
-            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
-
-            // If there aren't any, just build all of the scenes found in the sample
-            if (scenes.Length == 0)
+            foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
             {
-                scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
+                if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.example.msftobserver", true) == 0)
+                {
+                    Console.WriteLine($"Enable: {feature.nameUi}");
+                    feature.enabled = true;
+                    return;
+                }
+            }
+        }
+
+        static void EnableFeature<TFeatureType>() where TFeatureType : OpenXRFeature
+        {
+            foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+            {
+                if (feature is TFeatureType)
+                {
+                    Console.WriteLine($"Enable: {feature.nameUi}");
+                    feature.enabled = true;
+                    break;
+                }
+            }
+        }
+
+        static void EnableSampleFeatures()
+        {
+            foreach (var feature in OpenXRSettings.ActiveBuildTargetInstance.features)
+            {
+                if (feature.GetType().Namespace == null)
+                {
+                    throw new Exception("All code in the OpenXR Package must be in a namespace.");
+                }
+
+                if (feature.GetType().Namespace.StartsWith("UnityEngine.XR.OpenXR.Samples"))
+                {
+                    Console.WriteLine($"Enable: {feature.nameUi}");
+                    feature.enabled = true;
+                }
+            }
+        }
+
+        static void EnableStandaloneProfiles()
+        {
+            EnableFeature<MetaQuestTouchPlusControllerProfile>();
+            EnableFeature<MicrosoftMotionControllerProfile>();
+            EnableFeature<HTCViveControllerProfile>();
+            EnableFeature<ValveIndexControllerProfile>();
+            EnableFeature<OculusTouchControllerProfile>();
+            EnableFeature<MetaQuestTouchProControllerProfile>();
+            EnableFeature<HandInteractionProfile>();
+            EnableFeature<PalmPoseInteraction>();
+            EnableFeature<DPadInteraction>();
+            EnableFeature<HandCommonPosesInteraction>();
+        }
+
+        static void EnableAndroidProfiles()
+        {
+            EnableFeature<OculusTouchControllerProfile>();
+            EnableFeature<MetaQuestTouchProControllerProfile>();
+        }
+
+        static SampleBuildTargetSetup[] buildTargetSetup =
+        {
+    #if UNITY_EDITOR_WIN
+            new SampleBuildTargetSetup
+            {
+                buildTarget = BuildTarget.StandaloneWindows64,
+                targetGroup = BuildTargetGroup.Standalone,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    EnableStandaloneProfiles();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
+                },
+                outputPostfix = "dx12",
+            },
+            new SampleBuildTargetSetup
+            {
+                sampleRegex = new Regex(".*Render.*"), // Only build dx12 variant for Render Samples
+                buildTarget = BuildTarget.StandaloneWindows64,
+                targetGroup = BuildTargetGroup.Standalone,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Direct3D11 });
+                    QualitySettings.SetQualityLevel(5);
+                    QualitySettings.antiAliasing = 4;
+                },
+                outputPostfix = "dx12",
+            },
+            new SampleBuildTargetSetup
+            {
+                sampleRegex = new Regex(".*Render.*"), // Only build vulkan variant for Render Samples
+                buildTarget = BuildTarget.StandaloneWindows64,
+                targetGroup = BuildTargetGroup.Standalone,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.Direct3D12 });
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
+                },
+                outputPostfix = "vk",
+            },
+            new SampleBuildTargetSetup // Latency Optimization sample, Win64 DX12 variant
+            {
+                sampleRegex = new Regex(".*LatencyOptimization.*"),
+                buildTarget = BuildTarget.StandaloneWindows64,
+                targetGroup = BuildTargetGroup.Standalone,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    EnableStandaloneProfiles();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D12, GraphicsDeviceType.Vulkan });
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth24Bit;
+                    OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+                },
+                outputPostfix = "prioritize-input-dx12",
+            },
+    #endif
+            new SampleBuildTargetSetup
+            {
+                sampleRegex = new Regex(".*Render.*|.*Meta XR Core SDK.*|.*MetaSample.*"), // Only build vulkan variant for Render Samples and Meta samples
+                buildTarget = BuildTarget.Android,
+                targetGroup = BuildTargetGroup.Android,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    EnableQuestFeature();
+                    EnableAndroidProfiles();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
+                    PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+    #if UNITY_6000_0_OR_NEWER
+                    PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
+                    PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel33;
+    #endif
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+                    PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+                    WriteAndroidInstallerScripts(outputFile, identifier);
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
+                },
+                outputPostfix = "arm64_vk",
+            },
+            new SampleBuildTargetSetup
+            {
+                sampleRegex = new Regex("^(?!.*Meta XR Core SDK)(?!.*MetaSample).*$"), // Don't build the Meta Sample for GLES
+                buildTarget = BuildTarget.Android,
+                targetGroup = BuildTargetGroup.Android,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    EnableQuestFeature();
+                    EnableAndroidProfiles();
+                    PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
+                    PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+                    PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+                    WriteAndroidInstallerScripts(outputFile, identifier);
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
+                },
+                outputPostfix = "arm64_gles3",
+            },
+            new SampleBuildTargetSetup // Latency Optimization sample, Android Vulkan variant
+            {
+                sampleRegex = new Regex(".*LatencyOptimization.*"),
+                buildTarget = BuildTarget.Android,
+                targetGroup = BuildTargetGroup.Android,
+                setupPlayerSettings = (outputFile, identifier) =>
+                {
+                    EnableSampleFeatures();
+                    EnableQuestFeature();
+                    EnableAndroidProfiles();
+                    PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
+                    PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+                    PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+                    WriteAndroidInstallerScripts(outputFile, identifier);
+                    OpenXRSettings.ActiveBuildTargetInstance.depthSubmissionMode = OpenXRSettings.DepthSubmissionMode.Depth16Bit;
+                    OpenXRSettings.ActiveBuildTargetInstance.latencyOptimization = OpenXRSettings.LatencyOptimization.PrioritizeInputPolling;
+                },
+                outputPostfix = "prioritize-input-arm64-vk",
+            },
+        };
+
+        static string GetBuildFileExt(BuildTarget target)
+        {
+            switch (target)
+            {
+                case BuildTarget.Android:
+                    return ".apk";
+                case BuildTarget.StandaloneWindows:
+                case BuildTarget.StandaloneWindows64:
+                    return ".exe";
+                default:
+                    return "";
+            }
+        }
+
+        static string GetResultDir()
+        {
+            bool next = false;
+            foreach (var arg in System.Environment.GetCommandLineArgs())
+            {
+                if (next)
+                    return arg;
+
+                if (arg == "-resultDir")
+                    next = true;
+            }
+            return "OpenXR Samples";
+        }
+
+        static void BuildCombinedSample()
+        {
+            string resultDir = GetResultDir();
+
+            Console.WriteLine("Result Dir: " + resultDir);
+
+            var sampleName = "Unknown Sample";
+            var projSamplesDir = new DirectoryInfo("Assets/Samples");
+            if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
+            {
+                // Use the name this sample as CombinedSample, if there exists samples to combine
+                sampleName = "CombinedSample";
+            }
+            else
+            {
+                // Otherwise use the current folder as the project name
+                projSamplesDir = new DirectoryInfo("Assets");
+                sampleName = new DirectoryInfo(".").Name;
             }
 
-            BuildPlayerOptions buildOptions = new BuildPlayerOptions
+            PlayerSettings.colorSpace = ColorSpace.Linear;
+            FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
+
+            foreach (var setup in buildTargetSetup)
             {
-                scenes = scenes,
-                target = setup.buildTarget,
-                targetGroup = setup.targetGroup,
-                locationPathName = outputFile,
-            };
+                if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
+                    continue;
 
-            // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
-            var normalizedScenes = scenes.Select(p =>
+                if (EditorUserBuildSettings.activeBuildTarget != setup.buildTarget)
+                    continue;
+
+                string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
+
+                string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
+                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
+                PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
+                Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
+                string outputFile = Path.Combine(outputDir,
+                    PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
+                setup.setupPlayerSettings(outputFile, identifier);
+
+                // Adds all sample scenes into the build settings
+                string SampleDirectoryName = "Samples";
+                string PackageName = "OpenXR Plugin";
+                string sampleDirectoryPath = Path.Combine(SampleDirectoryName, PackageName);
+
+                var guids = AssetDatabase.FindAssets("t:Scene", new[] { sampleDirectoryPath });
+                var samplePaths = guids
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Where(p => p.EndsWith(".unity"))
+                    .Distinct()
+                    .ToList();
+
+                List<EditorBuildSettingsScene> sampleScenes = new List<EditorBuildSettingsScene>();
+                foreach (var path in samplePaths)
+                {
+                    sampleScenes.Add(new EditorBuildSettingsScene(path, true));
+                }
+                EditorBuildSettings.scenes = sampleScenes.ToArray();
+
+                // Get the list of scenes set in build settings in the project
+                var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => AssetDatabase.GUIDToAssetPath(s.guid)).ToArray();
+
+                // If there aren't any, just build all of the scenes found in the sample
+                if (scenes.Length == 0)
+                    scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
+
+                // Swaps the starter scene to the front of the scene list, if it exists.
+                int starterSceneIndex = 0;
+                for (int i = 0; i < scenes.Length; i++)
+                {
+                    if (scenes[i].Contains("Starter Scene"))
+                    {
+                        starterSceneIndex = i;
+                    }
+                }
+
+                if (scenes.Length > 0)
+                {
+                    (scenes[0], scenes[starterSceneIndex]) = (scenes[starterSceneIndex], scenes[0]);
+                }
+
+                // Set up the build options, and get ready to build
+                BuildPlayerOptions buildOptions = new BuildPlayerOptions
+                {
+                    scenes = scenes,
+                    target = setup.buildTarget,
+                    targetGroup = setup.targetGroup,
+                    locationPathName = outputFile,
+                };
+
+                // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
+                var normalizedScenes = scenes.Select(p =>
+                {
+                    // normalize separators
+                    var s = p.Replace('\\', '/');
+                    var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0)
+                        s = s.Substring(idx + 1);
+
+                    return s;
+                }).ToArray();
+
+                // Use normalized scenes for the build
+                buildOptions.scenes = normalizedScenes;
+
+                Console.WriteLine($"=========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
+                var report = BuildPipeline.BuildPlayer(buildOptions);
+                Console.WriteLine($"=========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
+
+                if (report.summary.result == BuildResult.Failed)
+                {
+                    EditorApplication.Exit(1);
+                }
+            }
+        }
+
+        static void BuildSamples()
+        {
+            string resultDir = GetResultDir();
+
+            Console.WriteLine("Result Dir: " + resultDir);
+
+            var sampleName = "Unknown Sample";
+            var projSamplesDir = new DirectoryInfo(Path.Combine("Assets", "Samples"));
+            if (projSamplesDir.Exists && projSamplesDir.GetDirectories().Count() > 0)
             {
-                // normalize separators
-                var s = p.Replace('\\', '/');
-                var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
-                if (idx >= 0)
-                    s = s.Substring(idx + 1);
-
-                return s;
-            }).ToArray();
-
-            // Use normalized scenes for the build
-            buildOptions.scenes = normalizedScenes;
-
-            Console.WriteLine($"[BuildSamples] =========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
-            var report = UnityEditor.BuildPipeline.BuildPlayer(buildOptions);
-            Console.WriteLine($"[BuildSamples] =========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
-
-            if (report.summary.result == BuildResult.Failed)
+                // Use the directory name in the samples directory, if it exists
+                sampleName = projSamplesDir.GetDirectories()[0].Name;
+            }
+            else
             {
-                EditorApplication.Exit(1);
+                // Otherwise use the current folder as the project name
+                projSamplesDir = new DirectoryInfo("Assets");
+                sampleName = new DirectoryInfo(".").Name;
+            }
+
+            PlayerSettings.colorSpace = ColorSpace.Linear;
+            FeatureHelpers.RefreshFeatures(EditorUserBuildSettings.selectedBuildTargetGroup);
+
+            foreach (var setup in buildTargetSetup)
+            {
+                if (setup.sampleRegex != null && !setup.sampleRegex.Match(sampleName).Success)
+                    continue;
+
+                if (EditorUserBuildSettings.activeBuildTarget != setup.buildTarget)
+                    continue;
+
+                string outputDir = Path.Combine(resultDir, setup.buildTarget.ToString());
+
+                string identifier = "com.openxr." + sampleName + "." + setup.outputPostfix;
+                PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.FromBuildTargetGroup(setup.targetGroup), identifier);
+                PlayerSettings.productName = "OpenXR " + sampleName + " " + setup.outputPostfix;
+                Console.WriteLine("=========== Setting up player settings (changing graphics apis)");
+                string outputFile = Path.Combine(outputDir,
+                    PlayerSettings.productName + GetBuildFileExt(setup.buildTarget));
+                setup.setupPlayerSettings(outputFile, identifier);
+
+                // Get the list of scenes set in build settings in the project
+                var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+
+                // If there aren't any, just build all of the scenes found in the sample
+                if (scenes.Length == 0)
+                {
+                    scenes = Directory.GetFiles(projSamplesDir.FullName, "*.unity", SearchOption.AllDirectories);
+                }
+
+                BuildPlayerOptions buildOptions = new BuildPlayerOptions
+                {
+                    scenes = scenes,
+                    target = setup.buildTarget,
+                    targetGroup = setup.targetGroup,
+                    locationPathName = outputFile,
+                };
+
+                // Normalize scene paths: convert absolute paths to asset-relative and use forward slashes
+                var normalizedScenes = scenes.Select(p =>
+                {
+                    // normalize separators
+                    var s = p.Replace('\\', '/');
+                    var idx = s.IndexOf("/Assets/", StringComparison.OrdinalIgnoreCase);
+                    if (idx >= 0)
+                        s = s.Substring(idx + 1);
+
+                    return s;
+                }).ToArray();
+
+                // Use normalized scenes for the build
+                buildOptions.scenes = normalizedScenes;
+
+                Console.WriteLine($"[BuildSamples] =========== Building {sampleName} {setup.buildTarget}_{setup.outputPostfix}");
+                var report = UnityEditor.BuildPipeline.BuildPlayer(buildOptions);
+                Console.WriteLine($"[BuildSamples] =========== Build Result {sampleName} {setup.buildTarget}_{setup.outputPostfix} {report.summary.result}");
+
+                if (report.summary.result == BuildResult.Failed)
+                {
+                    EditorApplication.Exit(1);
+                }
             }
         }
     }

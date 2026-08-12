@@ -75,7 +75,10 @@ namespace UnityEditor.XR.OpenXR
                 };
             };
 
-            AddOpenXRValidationRules();
+            if (!UnityEngine.Application.isBatchMode)
+            {
+                AddOpenXRValidationRules();
+            }
         }
 
         private static bool HasXRPackageVersionChanged(PackageRegistrationEventArgs packageRegistrationEventArgs)

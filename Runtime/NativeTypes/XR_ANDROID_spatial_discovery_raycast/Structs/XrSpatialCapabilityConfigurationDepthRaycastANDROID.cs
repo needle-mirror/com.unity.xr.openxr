@@ -1,0 +1,156 @@
+using System;
+using System.Text;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Assertions;
+
+namespace UnityEngine.XR.OpenXR.NativeTypes
+{
+    /// <summary>
+    /// Capability configuration struct for the depth raycast capability.
+    /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+    /// </summary>
+    /// <remarks>
+    /// > [!WARNING]
+    /// > Don't initialize this struct with the default parameterless constructor.
+    /// > Use a constructor with parameters to ensure that <see cref="type"/> is correctly initialized
+    /// > to <see cref="XrStructureType.SpatialCapabilityConfigurationDepthRaycastANDROID"/>.
+    /// </remarks>
+    public readonly unsafe struct XrSpatialCapabilityConfigurationDepthRaycastANDROID
+        : ISpatialCapabilityConfiguration
+    {
+        /// <summary>
+        /// The `XrStructureType` of this struct:
+        /// <see cref="XrStructureType.SpatialCapabilityConfigurationDepthRaycastANDROID"/>.
+        /// </summary>
+        public XrStructureType type { get; }
+
+        /// <summary>
+        /// `null` or a pointer to the next structure in a structure chain.
+        /// </summary>
+        public void* next { get; }
+
+        /// <summary>
+        /// The capability being configured: <see cref="XrSpatialCapabilityEXT.DepthRaycast"/>.
+        /// </summary>
+        public XrSpatialCapabilityEXT capability { get; }
+
+        /// <summary>
+        /// The count of elements in <see cref="enabledComponents"/>. Must be greater than `0`.
+        /// </summary>
+        public uint enabledComponentCount { get; }
+
+        /// <summary>
+        /// Pointer to an array of component types to enable for this capability. Must be non-null.
+        /// </summary>
+        public XrSpatialComponentTypeEXT* enabledComponents { get; }
+
+        /// <summary>
+        /// Construct an instance.
+        /// </summary>
+        /// <param name="next">The next pointer.</param>
+        /// <param name="enabledComponentCount">The count of elements in <paramref name="enabledComponents"/>.
+        /// Must be greater than `0`.</param>
+        /// <param name="enabledComponents">Pointer to an array of component types to enable for this capability.
+        /// Must be non-null.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            void* next, uint enabledComponentCount, XrSpatialComponentTypeEXT* enabledComponents)
+        {
+            Assert.IsTrue(enabledComponentCount > 0);
+            Assert.IsTrue(enabledComponents != null);
+
+            type = XrStructureType.SpatialCapabilityConfigurationDepthRaycastANDROID;
+            this.next = next;
+            capability = XrSpatialCapabilityEXT.DepthRaycast;
+            this.enabledComponentCount = enabledComponentCount;
+            this.enabledComponents = enabledComponents;
+        }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer.
+        /// </summary>
+        /// <param name="enabledComponentCount">The count of elements in <paramref name="enabledComponents"/>.
+        /// Must be greater than `0`.</param>
+        /// <param name="enabledComponents">Pointer to an array of component types to enable for this capability.
+        /// Must be non-null.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            uint enabledComponentCount, XrSpatialComponentTypeEXT* enabledComponents)
+            : this(null, enabledComponentCount, enabledComponents) { }
+
+        /// <summary>
+        /// Construct an instance from a native array.
+        /// </summary>
+        /// <param name="next">The next pointer</param>
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            void* next, NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
+            : this(
+                next, (uint)enabledComponents.Length, (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a native array.
+        /// </summary>
+        /// <param name="enabledComponents">Native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            NativeArray<XrSpatialComponentTypeEXT> enabledComponents)
+            : this(
+                null, (uint)enabledComponents.Length, (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafePtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance from a read-only native array.
+        /// </summary>
+        /// <param name="next">The next pointer</param>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            void* next, NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                next,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Construct an instance with a `null` next pointer from a read-only native array.
+        /// </summary>
+        /// <param name="enabledComponents">Read-only native array of component types to enable for this capability.
+        /// Must be non-empty.</param>
+        public XrSpatialCapabilityConfigurationDepthRaycastANDROID(
+            NativeArray<XrSpatialComponentTypeEXT>.ReadOnly enabledComponents)
+            : this(
+                null,
+                (uint)enabledComponents.Length,
+                (XrSpatialComponentTypeEXT*)enabledComponents.GetUnsafeReadOnlyPtr())
+        { }
+
+        /// <summary>
+        /// Get a string suitable for debugging purposes.
+        /// </summary>
+        /// <returns>The string.</returns>
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("{");
+            sb.Append("  ").Append(type.ToString()).AppendLine();
+            sb.Append("  ").Append(((IntPtr)next).ToString("X")).AppendLine();
+            sb.Append("  ").Append(capability.ToString()).AppendLine();
+            sb.AppendLine("  [");
+            for (var i = 0; i < enabledComponentCount; i++)
+            {
+                sb.Append("    ").Append(enabledComponents[i].ToString());
+                if (i < enabledComponentCount - 1)
+                    sb.AppendLine(",");
+                else
+                    sb.AppendLine();
+            }
+
+            sb.AppendLine("  ]");
+            sb.AppendLine("}");
+            return sb.ToString();
+        }
+    }
+}

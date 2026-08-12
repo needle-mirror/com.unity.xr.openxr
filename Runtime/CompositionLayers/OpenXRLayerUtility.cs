@@ -282,9 +282,62 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 for (int i = 0; i < 6; i++)
                     Graphics.CopyTexture(convertedTexture == null ? texture : convertedTexture, i, renderTexture, i);
             }
+            else if (CanTextureUseGraphicsCopy(texture, renderTexture))
+                Graphics.CopyTexture(texture, renderTexture);
             else
                 Graphics.Blit(texture, renderTexture);
         }
+
+
+        // Determines whether a Texture can be transferred with a direct GPU copy instead of a blit.
+        internal static bool CanTextureUseGraphicsCopy(Texture source, RenderTexture destination)
+        {
+            // The platform / graphics API must support a basic copy.
+            var copySupport = SystemInfo.copyTextureSupport;
+            if ((copySupport & Rendering.CopyTextureSupport.Basic) == 0)
+                return false;
+
+            // A non-RenderTexture source copied into the RenderTexture swapchain is a Texture-to-RenderTexture
+            // copy whose support is a separately reported capability by backends.
+            if (!(source is RenderTexture) && (copySupport & Rendering.CopyTextureSupport.TextureToRT) == 0)
+                return false;
+
+            if (source.width != destination.width || source.height != destination.height)
+                return false;
+
+            if (source.graphicsFormat != destination.graphicsFormat)
+                return false;
+
+            if (source.mipmapCount != destination.mipmapCount)
+                return false;
+
+            if (source.dimension != destination.dimension)
+                return false;
+
+            // A whole-texture copy transfers every array slice, so array slice counts must match.
+            if (GetSliceCount(source) != GetSliceCount(destination))
+                return false;
+
+            // MSAA sample counts
+            if (source is RenderTexture sourceRenderTexture)
+            {
+                if (sourceRenderTexture.antiAliasing != destination.antiAliasing)
+                    return false;
+            }
+            else if (destination.antiAliasing > 1)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        static int GetSliceCount(Texture texture) => texture switch
+        {
+            RenderTexture renderTexture => renderTexture.volumeDepth,
+            Texture2DArray textureArray => textureArray.depth,
+            _ => 1,
+        };
 
         /// <summary>
         /// Query the correct XR Textures for rendering and blit the layer textures.

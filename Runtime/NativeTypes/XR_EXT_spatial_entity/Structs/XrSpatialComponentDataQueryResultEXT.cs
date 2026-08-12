@@ -34,6 +34,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <seealso cref="XrSpatialComponentAnchorListEXT"/>
         /// <seealso cref="XrSpatialComponentBounded2DListEXT"/>
         /// <seealso cref="XrSpatialComponentBounded3DListEXT"/>
+        /// <seealso cref="XrSpatialComponentImage2DListEXT"/>
         /// <seealso cref="XrSpatialComponentMarkerListEXT"/>
         /// <seealso cref="XrSpatialComponentMesh2DListEXT"/>
         /// <seealso cref="XrSpatialComponentMesh3DListEXT"/>
@@ -42,6 +43,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <seealso cref="XrSpatialComponentPlaneAlignmentListEXT"/>
         /// <seealso cref="XrSpatialComponentPlaneSemanticLabelListEXT"/>
         /// <seealso cref="XrSpatialComponentPolygon2DListEXT"/>
+        /// <seealso cref="XrSpatialComponentRaycastResultListANDROID"/>
         public void* next { get; set; }
 
         /// <summary>

@@ -1,5 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.ConformanceAutomation",
+    "rootNamespace": "UnityEngine.XR.OpenXR.Features.ConformanceAutomation",
     "references": [
         "GUID:4847341ff46394e83bb78fbd0652937e"
     ],

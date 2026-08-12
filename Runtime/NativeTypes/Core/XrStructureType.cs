@@ -284,7 +284,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         SessionActionSetsAttachInfo = 60,
 
         /// <summary>
-        /// Struct is of type `XrActionsSyncInfo`. Equivalent to the OpenXR value `XR_TYPE_ACTION_SYNC_INFO`.
+        /// Struct is of type `XrActionsSyncInfo`. Equivalent to the OpenXR value `XR_TYPE_ACTIONS_SYNC_INFO`.
         /// </summary>
         ActionsSyncInfo = 61,
 
@@ -540,7 +540,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
 
         /// <summary>
         /// Struct is of type `XrGraphicsBindingMetalKHR`.
-        /// Equivalent to the OpenXR value `XR_TYPE_GRAPHICS_BINDINGS_METAL_KHR`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GRAPHICS_BINDING_METAL_KHR`.
         /// Provided by `XR_KHR_metal_enable`.
         /// </summary>
         GraphicsBindingMetalKHR = 1000029000,
@@ -1078,7 +1078,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
 
         /// <summary>
         /// Struct is of type `XrSceneMeshVertexBufferMSFT`.
-        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MESH_VERTEX_BUFFERS_MSFT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MESH_VERTEX_BUFFER_MSFT`.
         /// Provided by `XR_MSFT_scene_understanding`.
         /// </summary>
         SceneMeshVertexBufferMSFT = 1000097016,
@@ -1743,7 +1743,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
 
         /// <summary>
         /// Struct is of type `XrSceneMarkerTypeFilterMSFT`.
-        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MARKER_TYPE_FILTERS_MSFT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MARKER_TYPE_FILTER_MSFT`.
         /// Provided by `XR_MSFT_scene_marker`.
         /// </summary>
         SceneMarkerTypeFilterMSFT = 1000147001,
@@ -2995,6 +2995,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         AnchorSpaceCreateInfoBD = 1000389021,
 
         /// <summary>
+        /// Struct is of type `XrSpatialEntityComponentDataSphereBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_ENTITY_COMPONENT_DATA_SPHERE_BD`.
+        /// Provided by `XR_BD_spatial_sensing`.
+        /// </summary>
+        SpatialEntityComponentDataSphereBD = 1000389022,
+
+        /// <summary>
         /// Struct is of type `XrSystemSpatialAnchorPropertiesBD`.
         /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_SPATIAL_ANCHOR_PROPERTIES_BD`.
         /// Provided by `XR_BD_spatial_anchor`.
@@ -3933,6 +3940,55 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         LoaderInitInfoPropertiesEXT = 1000838000,
 
         /// <summary>
+        /// The struct is of type `XrSpatialReferenceImageEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_REFERENCE_IMAGE_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialReferenceImageEXT = 1000782000,
+
+        /// <summary>
+        /// The struct is of type `XrSpatialImageStaticOptimizationEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_IMAGE_STATIC_OPTIMIZATION_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialImageStaticOptimizationEXT = 1000782001,
+
+        /// <summary>
+        /// The struct is of type `XrSpatialImageSizeEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_IMAGE_SIZE_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialImageSizeEXT = 1000782002,
+
+        /// <summary>
+        /// The struct is of type `XrSpatialCapabilityConfigurationImageTrackingEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_CAPABILITY_CONFIGURATION_IMAGE_TRACKING_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialCapabilityConfigurationImageTrackingEXT = 1000782003,
+
+        /// <summary>
+        /// The struct is of type `XrSpatialImageTrackingDatabaseCreateInfoEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_IMAGE_TRACKING_DATABASE_CREATE_INFO_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialImageTrackingDatabaseCreateInfoEXT = 1000782004,
+
+        /// <summary>
+        /// The struct is of type `XrSpatialComponentImage2DListEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_COMPONENT_IMAGE_2D_LIST_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        SpatialComponentImage2DListEXT = 1000782005,
+
+        /// <summary>
+        /// The struct is of type `XrCreateSpatialImageTrackingDatabaseCompletionEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_CREATE_SPATIAL_IMAGE_TRACKING_DATABASE_COMPLETION_EXT`.
+        /// Provided by `XR_EXT_spatial_image_tracking`.
+        /// </summary>
+        CreateSpatialImageTrackingDatabaseCompletionEXT = 1000782006,
+
+        /// <summary>
         /// The struct is of type `XrGraphicsBindingVulkan2KHR`.
         ///Equivalent to the OpenXR value `XR_TYPE_GRAPHICS_BINDING_VULKAN2_KHR`.
         /// Provided by `XR_KHR_vulkan_enable2`.
@@ -3980,5 +4036,817 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Provided by `XR_KHR_locate_spaces`.
         /// </summary>
         SpaceVelocitiesKHR = SpaceVelocities,
+
+        /// <summary>
+        /// Struct is of type `XrBodyTrackingFidelityStatusMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_TRACKING_FIDELITY_STATUS_META`.
+        /// Provided by `XR_META_body_tracking_fidelity`.
+        /// </summary>
+        BodyTrackingFidelityStatusMETA = 1000284000,
+
+        /// <summary>
+        /// Struct is of type `XrSystemPropertiesBodyTrackingFidelityMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_PROPERTIES_BODY_TRACKING_FIDELITY_META`.
+        /// Provided by `XR_META_body_tracking_fidelity`.
+        /// </summary>
+        SystemPropertiesBodyTrackingFidelityMETA = 1000284001,
+
+        /// <summary>
+        /// Struct is of type `XrBodyTrackingPostureDataBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_TRACKING_POSTURE_DATA_BD`.
+        /// Provided by `XR_BD_body_tracking_auxiliary_metrics`.
+        /// </summary>
+        BodyTrackingPostureDataBD = 1000395001,
+
+        /// <summary>
+        /// Struct is of type `XrBodyJointVelocitiesBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_JOINT_VELOCITIES_BD`.
+        /// Provided by `XR_BD_body_tracking_auxiliary_metrics`.
+        /// </summary>
+        BodyJointVelocitiesBD = 1000395002,
+
+        /// <summary>
+        /// Struct is of type `XrBodyJointAccelerationsBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_JOINT_ACCELERATIONS_BD`.
+        /// Provided by `XR_BD_body_tracking_auxiliary_metrics`.
+        /// </summary>
+        BodyJointAccelerationsBD = 1000395003,
+
+        /// <summary>
+        /// Struct is of type `XrBodyTrackingStateBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BODY_TRACKING_STATE_BD`.
+        /// Provided by `XR_BD_body_tracking_auxiliary_metrics`.
+        /// </summary>
+        BodyTrackingStateBD = 1000395004,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialAudioRendererCreateInfoBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_AUDIO_RENDERER_CREATE_INFO_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SpatialAudioRendererCreateInfoBD = 1000409000,
+
+        /// <summary>
+        /// Struct is of type `XrAudioBufferBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_AUDIO_BUFFER_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        AudioBufferBD = 1000409001,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObjectDirectivityCardioidBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBJECT_DIRECTIVITY_CARDIOID_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObjectDirectivityCardioidBD = 1000409003,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObjectShapeSphereBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBJECT_SHAPE_SPHERE_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObjectShapeSphereBD = 1000409004,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObjectDistanceAttenuationBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBJECT_DISTANCE_ATTENUATION_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObjectDistanceAttenuationBD = 1000409005,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObjectDistanceAttenuationCurveBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBJECT_DISTANCE_ATTENUATION_CURVE_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObjectDistanceAttenuationCurveBD = 1000409006,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObjectConfigBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBJECT_CONFIG_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObjectConfigBD = 1000409007,
+
+        /// <summary>
+        /// Struct is of type `XrSoundFieldConfigBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_FIELD_CONFIG_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundFieldConfigBD = 1000409008,
+
+        /// <summary>
+        /// Struct is of type `XrSoundFieldChannelDefinitionSurroundBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_FIELD_CHANNEL_DEFINITION_SURROUND_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundFieldChannelDefinitionSurroundBD = 1000409009,
+
+        /// <summary>
+        /// Struct is of type `XrSoundFieldChannelDefinitionAmbixBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_FIELD_CHANNEL_DEFINITION_AMBIX_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundFieldChannelDefinitionAmbixBD = 1000409010,
+
+        /// <summary>
+        /// Struct is of type `XrSoundFieldChannelDefinitionFumaBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_FIELD_CHANNEL_DEFINITION_FUMA_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundFieldChannelDefinitionFumaBD = 1000409011,
+
+        /// <summary>
+        /// Struct is of type `XrSoundTriangleMeshBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_TRIANGLE_MESH_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundTriangleMeshBD = 1000409012,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObstacleConfigBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBSTACLE_CONFIG_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObstacleConfigBD = 1000409013,
+
+        /// <summary>
+        /// Struct is of type `XrSoundObstacleMaterialConfigBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SOUND_OBSTACLE_MATERIAL_CONFIG_BD`.
+        /// Provided by `XR_BD_spatial_audio_rendering`.
+        /// </summary>
+        SoundObstacleMaterialConfigBD = 1000409014,
+
+        /// <summary>
+        /// Struct is of type `XrEyesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EYES_ANDROID`.
+        /// Provided by `XR_ANDROID_eye_tracking`.
+        /// </summary>
+        EyesANDROID = 1000456000,
+
+        /// <summary>
+        /// Struct is of type `XrEyeTrackerCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EYE_TRACKER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_eye_tracking`.
+        /// </summary>
+        EyeTrackerCreateInfoANDROID = 1000456001,
+
+        /// <summary>
+        /// Struct is of type `XrEyesGetInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EYES_GET_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_eye_tracking`.
+        /// </summary>
+        EyesGetInfoANDROID = 1000456002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemEyeTrackingPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_EYE_TRACKING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_eye_tracking`.
+        /// </summary>
+        SystemEyeTrackingPropertiesANDROID = 1000456004,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataRecommendedResolutionChangedANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_RECOMMENDED_RESOLUTION_CHANGED_ANDROID`.
+        /// Provided by `XR_ANDROID_recommended_resolution`.
+        /// </summary>
+        EventDataRecommendedResolutionChangedANDROID = 1000461000,
+
+        /// <summary>
+        /// Struct is of type `XrPassthroughLayerCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_composition_layer_passthrough_mesh`.
+        /// </summary>
+        PassthroughLayerCreateInfoANDROID = 1000462000,
+
+        /// <summary>
+        /// Struct is of type `XrPassthroughLayerMeshANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PASSTHROUGH_LAYER_MESH_ANDROID`.
+        /// Provided by `XR_ANDROID_composition_layer_passthrough_mesh`.
+        /// </summary>
+        PassthroughLayerMeshANDROID = 1000462001,
+
+        /// <summary>
+        /// Struct is of type `XrCompositionLayerPassthroughANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_ANDROID`.
+        /// Provided by `XR_ANDROID_composition_layer_passthrough_mesh`.
+        /// </summary>
+        CompositionLayerPassthroughANDROID = 1000462002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemPassthroughLayerPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_PASSTHROUGH_LAYER_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_composition_layer_passthrough_mesh`.
+        /// </summary>
+        SystemPassthroughLayerPropertiesANDROID = 1000462003,
+
+        /// <summary>
+        /// Struct is of type `XrPerformanceMetricsStateANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PERFORMANCE_METRICS_STATE_ANDROID`.
+        /// Provided by `XR_ANDROID_performance_metrics`.
+        /// </summary>
+        PerformanceMetricsStateANDROID = 1000465000,
+
+        /// <summary>
+        /// Struct is of type `XrPerformanceMetricsCounterANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_PERFORMANCE_METRICS_COUNTER_ANDROID`.
+        /// Provided by `XR_ANDROID_performance_metrics`.
+        /// </summary>
+        PerformanceMetricsCounterANDROID = 1000465001,
+
+        /// <summary>
+        /// Struct is of type `XrSystemBoundaryVisibilityPropertiesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_BOUNDARY_VISIBILITY_PROPERTIES_META`.
+        /// Provided by `XR_META_boundary_visibility`.
+        /// </summary>
+        SystemBoundaryVisibilityPropertiesMETA = 1000528000,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataBoundaryVisibilityChangedMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_BOUNDARY_VISIBILITY_CHANGED_META`.
+        /// Provided by `XR_META_boundary_visibility`.
+        /// </summary>
+        EventDataBoundaryVisibilityChangedMETA = 1000528001,
+
+        /// <summary>
+        /// Struct is of type `XrFaceTrackingVisemesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_FACE_TRACKING_VISEMES_META`.
+        /// Provided by `XR_META_face_tracking_visemes`.
+        /// </summary>
+        FaceTrackingVisemesMETA = 1000541000,
+
+        /// <summary>
+        /// Struct is of type `XrSystemFaceTrackingVisemesPropertiesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_FACE_TRACKING_VISEMES_PROPERTIES_META`.
+        /// Provided by `XR_META_face_tracking_visemes`.
+        /// </summary>
+        SystemFaceTrackingVisemesPropertiesMETA = 1000541001,
+
+        /// <summary>
+        /// Struct is of type `XrRoomMeshFaceIndicesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ROOM_MESH_FACE_INDICES_META`.
+        /// Provided by `XR_META_spatial_entity_room_mesh`.
+        /// </summary>
+        RoomMeshFaceIndicesMETA = 1000553000,
+
+        /// <summary>
+        /// Struct is of type `XrSpaceRoomMeshGetInfoMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPACE_ROOM_MESH_GET_INFO_META`.
+        /// Provided by `XR_META_spatial_entity_room_mesh`.
+        /// </summary>
+        SpaceRoomMeshGetInfoMETA = 1000553001,
+
+        /// <summary>
+        /// Struct is of type `XrRoomMeshMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ROOM_MESH_META`.
+        /// Provided by `XR_META_spatial_entity_room_mesh`.
+        /// </summary>
+        RoomMeshMETA = 1000553002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemEnvironmentRaycastPropertiesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_ENVIRONMENT_RAYCAST_PROPERTIES_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        SystemEnvironmentRaycastPropertiesMETA = 1000592000,
+
+        /// <summary>
+        /// Struct is of type `XrEnvironmentRaycasterCreateInfoMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_RAYCASTER_CREATE_INFO_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        EnvironmentRaycasterCreateInfoMETA = 1000592001,
+
+        /// <summary>
+        /// Struct is of type `XrEnvironmentRaycasterCreateCompletionMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_RAYCASTER_CREATE_COMPLETION_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        EnvironmentRaycasterCreateCompletionMETA = 1000592002,
+
+        /// <summary>
+        /// Struct is of type `XrEnvironmentRaycastHitGetInfoMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_RAYCAST_HIT_GET_INFO_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        EnvironmentRaycastHitGetInfoMETA = 1000592003,
+
+        /// <summary>
+        /// Struct is of type `XrEnvironmentRaycastHitMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_RAYCAST_HIT_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        EnvironmentRaycastHitMETA = 1000592004,
+
+        /// <summary>
+        /// Struct is of type `XrEnvironmentRaycastFilterDistanceMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_ENVIRONMENT_RAYCAST_FILTER_DISTANCE_META`.
+        /// Provided by `XR_META_environment_raycast`.
+        /// </summary>
+        EnvironmentRaycastFilterDistanceMETA = 1000592005,
+
+        /// <summary>
+        /// Struct is of type `XrTilePropertiesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TILE_PROPERTIES_META`.
+        /// Provided by `XR_META_tile_properties_hint`.
+        /// </summary>
+        TilePropertiesMETA = 1000609000,
+
+        /// <summary>
+        /// Struct is of type `XrTilePropertiesHintMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TILE_PROPERTIES_HINT_META`.
+        /// Provided by `XR_META_tile_properties_hint`.
+        /// </summary>
+        TilePropertiesHintMETA = 1000609001,
+
+        /// <summary>
+        /// Struct is of type `XrHandTrackingUnextrapolatedPosesRequestMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_HAND_TRACKING_UNEXTRAPOLATED_POSES_REQUEST_META`.
+        /// Provided by `XR_META_hand_tracking_unextrapolated_poses`.
+        /// </summary>
+        HandTrackingUnextrapolatedPosesRequestMETA = 1000693000,
+
+        /// <summary>
+        /// Struct is of type `XrHandTrackingUnextrapolatedPosesMETA`.
+        /// Equivalent to the OpenXR value `XR_TYPE_HAND_TRACKING_UNEXTRAPOLATED_POSES_META`.
+        /// Provided by `XR_META_hand_tracking_unextrapolated_poses`.
+        /// </summary>
+        HandTrackingUnextrapolatedPosesMETA = 1000693001,
+
+        /// <summary>
+        /// Struct is of type `XrLightEstimatorCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_LIGHT_ESTIMATOR_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        LightEstimatorCreateInfoANDROID = 1000700000,
+
+        /// <summary>
+        /// Struct is of type `XrLightEstimateGetInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_LIGHT_ESTIMATE_GET_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        LightEstimateGetInfoANDROID = 1000700001,
+
+        /// <summary>
+        /// Struct is of type `XrLightEstimateANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_LIGHT_ESTIMATE_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        LightEstimateANDROID = 1000700002,
+
+        /// <summary>
+        /// Struct is of type `XrDirectionalLightANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_DIRECTIONAL_LIGHT_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        DirectionalLightANDROID = 1000700003,
+
+        /// <summary>
+        /// Struct is of type `XrSphericalHarmonicsANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPHERICAL_HARMONICS_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        SphericalHarmonicsANDROID = 1000700004,
+
+        /// <summary>
+        /// Struct is of type `XrAmbientLightANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_AMBIENT_LIGHT_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        AmbientLightANDROID = 1000700005,
+
+        /// <summary>
+        /// Struct is of type `XrSystemLightEstimationPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_LIGHT_ESTIMATION_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_light_estimation`.
+        /// </summary>
+        SystemLightEstimationPropertiesANDROID = 1000700006,
+
+        /// <summary>
+        /// Struct is of type `XrSystemQrCodeTrackingPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_QR_CODE_TRACKING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_qr_code`.
+        /// </summary>
+        SystemQrCodeTrackingPropertiesANDROID = 1000708000,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableQrCodeConfigurationANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_QR_CODE_CONFIGURATION_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_qr_code`.
+        /// </summary>
+        TrackableQrCodeConfigurationANDROID = 1000708001,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableQrCodeANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_QR_CODE_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_qr_code`.
+        /// </summary>
+        TrackableQrCodeANDROID = 1000708002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemImageTrackingPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_IMAGE_TRACKING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        SystemImageTrackingPropertiesANDROID = 1000709000,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableImageDatabaseEntryANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_IMAGE_DATABASE_ENTRY_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        TrackableImageDatabaseEntryANDROID = 1000709001,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableImageDatabaseCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_IMAGE_DATABASE_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        TrackableImageDatabaseCreateInfoANDROID = 1000709002,
+
+        /// <summary>
+        /// Struct is of type `XrCreateTrackableImageDatabaseCompletionANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_CREATE_TRACKABLE_IMAGE_DATABASE_COMPLETION_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        CreateTrackableImageDatabaseCompletionANDROID = 1000709003,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableImageConfigurationANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_IMAGE_CONFIGURATION_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        TrackableImageConfigurationANDROID = 1000709004,
+
+        /// <summary>
+        /// Struct is of type `XrTrackableImageANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_TRACKABLE_IMAGE_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        TrackableImageANDROID = 1000709005,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataImageTrackingLostANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_IMAGE_TRACKING_LOST_ANDROID`.
+        /// Provided by `XR_ANDROID_trackables_image`.
+        /// </summary>
+        EventDataImageTrackingLostANDROID = 1000709006,
+
+        /// <summary>
+        /// Struct is of type `XrSystemSceneMeshingPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_SCENE_MESHING_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SystemSceneMeshingPropertiesANDROID = 1000718000,
+
+        /// <summary>
+        /// Struct is of type `XrSceneMeshingTrackerCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MESHING_TRACKER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SceneMeshingTrackerCreateInfoANDROID = 1000718001,
+
+        /// <summary>
+        /// Struct is of type `XrSceneMeshSnapshotCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MESH_SNAPSHOT_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SceneMeshSnapshotCreateInfoANDROID = 1000718002,
+
+        /// <summary>
+        /// Struct is of type `XrSceneMeshSnapshotCreationResultANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_MESH_SNAPSHOT_CREATION_RESULT_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SceneMeshSnapshotCreationResultANDROID = 1000718003,
+
+        /// <summary>
+        /// Struct is of type `XrSceneSubmeshStateANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_SUBMESH_STATE_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SceneSubmeshStateANDROID = 1000718004,
+
+        /// <summary>
+        /// Struct is of type `XrSceneSubmeshDataANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SCENE_SUBMESH_DATA_ANDROID`.
+        /// Provided by `XR_ANDROID_scene_meshing`.
+        /// </summary>
+        SceneSubmeshDataANDROID = 1000718005,
+
+        /// <summary>
+        /// Struct is of type `XrStationaryReferenceSpaceGenerationIdGetInfoEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_STATIONARY_REFERENCE_SPACE_GENERATION_ID_GET_INFO_EXT`.
+        /// Provided by `XR_EXT_stationary_reference_space`.
+        /// </summary>
+        StationaryReferenceSpaceGenerationIdGetInfoEXT = 1000742001,
+
+        /// <summary>
+        /// Struct is of type `XrStationaryReferenceSpaceGenerationIdResultEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_STATIONARY_REFERENCE_SPACE_GENERATION_ID_RESULT_EXT`.
+        /// Provided by `XR_EXT_stationary_reference_space`.
+        /// </summary>
+        StationaryReferenceSpaceGenerationIdResultEXT = 1000742002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemDynamicObjectTrackingPropertiesBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_DYNAMIC_OBJECT_TRACKING_PROPERTIES_BD`.
+        /// Provided by `XR_BD_dynamic_object_tracking`.
+        /// </summary>
+        SystemDynamicObjectTrackingPropertiesBD = 1000746000,
+
+        /// <summary>
+        /// Struct is of type `XrSenseDataProviderCreateInfoDynamicObjectBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SENSE_DATA_PROVIDER_CREATE_INFO_DYNAMIC_OBJECT_BD`.
+        /// Provided by `XR_BD_dynamic_object_tracking`.
+        /// </summary>
+        SenseDataProviderCreateInfoDynamicObjectBD = 1000746001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialEntityComponentDataDynamicObjectBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_ENTITY_COMPONENT_DATA_DYNAMIC_OBJECT_BD`.
+        /// Provided by `XR_BD_dynamic_object_tracking`.
+        /// </summary>
+        SpatialEntityComponentDataDynamicObjectBD = 1000746002,
+
+        /// <summary>
+        /// Struct is of type `XrDynamicObjectDataBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_DYNAMIC_OBJECT_DATA_BD`.
+        /// Provided by `XR_BD_dynamic_object_tracking`.
+        /// </summary>
+        DynamicObjectDataBD = 1000746003,
+
+        /// <summary>
+        /// Struct is of type `XrSenseDataFilterDynamicObjectTypeBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SENSE_DATA_FILTER_DYNAMIC_OBJECT_TYPE_BD`.
+        /// Provided by `XR_BD_dynamic_object_tracking`.
+        /// </summary>
+        SenseDataFilterDynamicObjectTypeBD = 1000746004,
+
+        /// <summary>
+        /// Struct is of type `XrSystemDynamicObjectKeyboardPropertiesBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_DYNAMIC_OBJECT_KEYBOARD_PROPERTIES_BD`.
+        /// Provided by `XR_BD_dynamic_object_keyboard`.
+        /// </summary>
+        SystemDynamicObjectKeyboardPropertiesBD = 1000747000,
+
+        /// <summary>
+        /// Struct is of type `XrSystemDynamicObjectMousePropertiesBD`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_DYNAMIC_OBJECT_MOUSE_PROPERTIES_BD`.
+        /// Provided by `XR_BD_dynamic_object_mouse`.
+        /// </summary>
+        SystemDynamicObjectMousePropertiesBD = 1000748000,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialBoundsSpherefANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_BOUNDS_SPHEREF_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_bounds`.
+        /// </summary>
+        SpatialBoundsSpherefANDROID = 1000761000,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialBoundsBoxfANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_BOUNDS_BOXF_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_bounds`.
+        /// </summary>
+        SpatialBoundsBoxfANDROID = 1000761001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialBoundsFrustumfANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_BOUNDS_FRUSTUMF_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_bounds`.
+        /// </summary>
+        SpatialBoundsFrustumfANDROID = 1000761002,
+
+        /// <summary>
+        /// Struct is of type `XrHapticParametricVibrationEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_HAPTIC_PARAMETRIC_VIBRATION_EXT`.
+        /// Provided by `XR_EXT_haptic_parametric`.
+        /// </summary>
+        HapticParametricVibrationEXT = 1000775000,
+
+        /// <summary>
+        /// Struct is of type `XrHapticParametricPropertiesEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_HAPTIC_PARAMETRIC_PROPERTIES_EXT`.
+        /// Provided by `XR_EXT_haptic_parametric`.
+        /// </summary>
+        HapticParametricPropertiesEXT = 1000775001,
+
+        /// <summary>
+        /// Struct is of type `XrSystemHapticParametricPropertiesEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_HAPTIC_PARAMETRIC_PROPERTIES_EXT`.
+        /// Provided by `XR_EXT_haptic_parametric`.
+        /// </summary>
+        SystemHapticParametricPropertiesEXT = 1000775002,
+
+        /// <summary>
+        /// Struct is of type `XrColorSpacesEnumerateInfoSONY`.
+        /// Equivalent to the OpenXR value `XR_TYPE_COLOR_SPACES_ENUMERATE_INFO_SONY`.
+        /// Provided by `XR_SONY_swapchain_color_space`.
+        /// </summary>
+        ColorSpacesEnumerateInfoSONY = 1000776000,
+
+        /// <summary>
+        /// Struct is of type `XrSwapchainCreateInfoColorSpaceSONY`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SWAPCHAIN_CREATE_INFO_COLOR_SPACE_SONY`.
+        /// Provided by `XR_SONY_swapchain_color_space`.
+        /// </summary>
+        SwapchainCreateInfoColorSpaceSONY = 1000776001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialCapabilityConfigurationObjectTrackingANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_CAPABILITY_CONFIGURATION_OBJECT_TRACKING_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_object_tracking`.
+        /// </summary>
+        SpatialCapabilityConfigurationObjectTrackingANDROID = 1000785000,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialComponentObjectSemanticLabelListANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_COMPONENT_OBJECT_SEMANTIC_LABEL_LIST_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_object_tracking`.
+        /// </summary>
+        SpatialComponentObjectSemanticLabelListANDROID = 1000785001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialCapabilityConfigurationDepthRaycastANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_CAPABILITY_CONFIGURATION_DEPTH_RAYCAST_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        SpatialCapabilityConfigurationDepthRaycastANDROID = 1000786000,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialRaycastInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_RAYCAST_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        SpatialRaycastInfoANDROID = 1000786001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialComponentRaycastResultListANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_COMPONENT_RAYCAST_RESULT_LIST_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        SpatialComponentRaycastResultListANDROID = 1000786002,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialRaycastSnapshotCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_RAYCAST_SNAPSHOT_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        SpatialRaycastSnapshotCreateInfoANDROID = 1000786003,
+
+        /// <summary>
+        /// Struct is of type `XrGoogleCloudAuthInfoApiKeyANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GOOGLE_CLOUD_AUTH_INFO_API_KEY_ANDROID`.
+        /// Provided by `XR_ANDROID_google_cloud_auth`.
+        /// </summary>
+        GoogleCloudAuthInfoApiKeyANDROID = 1000787000,
+
+        /// <summary>
+        /// Struct is of type `XrGoogleCloudAuthInfoTokenANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GOOGLE_CLOUD_AUTH_INFO_TOKEN_ANDROID`.
+        /// Provided by `XR_ANDROID_google_cloud_auth`.
+        /// </summary>
+        GoogleCloudAuthInfoTokenANDROID = 1000787001,
+
+        /// <summary>
+        /// Struct is of type `XrGoogleCloudAuthInfoKeylessANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GOOGLE_CLOUD_AUTH_INFO_KEYLESS_ANDROID`.
+        /// Provided by `XR_ANDROID_google_cloud_auth`.
+        /// </summary>
+        GoogleCloudAuthInfoKeylessANDROID = 1000787002,
+
+        /// <summary>
+        /// Struct is of type `XrGoogleCloudAuthErrorResultANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GOOGLE_CLOUD_AUTH_ERROR_RESULT_ANDROID`.
+        /// Provided by `XR_ANDROID_google_cloud_auth`.
+        /// </summary>
+        GoogleCloudAuthErrorResultANDROID = 1000787003,
+
+        /// <summary>
+        /// Struct is of type `XrSystemGeospatialPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_GEOSPATIAL_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        SystemGeospatialPropertiesANDROID = 1000789000,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialTrackerCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_TRACKER_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        GeospatialTrackerCreateInfoANDROID = 1000789001,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataGeospatialTrackerStateChangedANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_GEOSPATIAL_TRACKER_STATE_CHANGED_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        EventDataGeospatialTrackerStateChangedANDROID = 1000789002,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialPoseFromPoseLocateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_POSE_FROM_POSE_LOCATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        GeospatialPoseFromPoseLocateInfoANDROID = 1000789003,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialPoseResultANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_POSE_RESULT_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        GeospatialPoseResultANDROID = 1000789004,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialPoseLocateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_POSE_LOCATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        GeospatialPoseLocateInfoANDROID = 1000789005,
+
+        /// <summary>
+        /// Struct is of type `XrVPSAvailabilityCheckCompletionANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_VPS_AVAILABILITY_CHECK_COMPLETION_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial`.
+        /// </summary>
+        VPSAvailabilityCheckCompletionANDROID = 1000789006,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialAnchorParentANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_ANCHOR_PARENT_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_entity_bound_anchor`.
+        /// </summary>
+        SpatialAnchorParentANDROID = 1000790000,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialDiscoveryUniqueEntitiesFilterANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_DISCOVERY_UNIQUE_ENTITIES_FILTER_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_component_subsumed_by`.
+        /// </summary>
+        SpatialDiscoveryUniqueEntitiesFilterANDROID = 1000791001,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialComponentSubsumedByListANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_COMPONENT_SUBSUMED_BY_LIST_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_component_subsumed_by`.
+        /// </summary>
+        SpatialComponentSubsumedByListANDROID = 1000791002,
+
+        /// <summary>
+        /// Struct is of type `XrSpatialAnchorSpaceFromIdCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SPATIAL_ANCHOR_SPACE_FROM_ID_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_anchor_space`.
+        /// </summary>
+        SpatialAnchorSpaceFromIdCreateInfoANDROID = 1000795000,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialAnchorCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_ANCHOR_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial_anchor`.
+        /// </summary>
+        GeospatialAnchorCreateInfoANDROID = 1000797000,
+
+        /// <summary>
+        /// Struct is of type `XrSurfaceAnchorCreateInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SURFACE_ANCHOR_CREATE_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial_anchor`.
+        /// </summary>
+        SurfaceAnchorCreateInfoANDROID = 1000797001,
+
+        /// <summary>
+        /// Struct is of type `XrSurfaceAnchorCreateCompletionANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SURFACE_ANCHOR_CREATE_COMPLETION_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial_anchor`.
+        /// </summary>
+        SurfaceAnchorCreateCompletionANDROID = 1000797002,
+
+        /// <summary>
+        /// Struct is of type `XrSystemGeospatialAnchorPropertiesANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_SYSTEM_GEOSPATIAL_ANCHOR_PROPERTIES_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial_anchor`.
+        /// </summary>
+        SystemGeospatialAnchorPropertiesANDROID = 1000797003,
+
+        /// <summary>
+        /// Struct is of type `XrGeospatialTrackerAnchorTrackingInfoANDROID`.
+        /// Equivalent to the OpenXR value `XR_TYPE_GEOSPATIAL_TRACKER_ANCHOR_TRACKING_INFO_ANDROID`.
+        /// Provided by `XR_ANDROID_geospatial_anchor`.
+        /// </summary>
+        GeospatialTrackerAnchorTrackingInfoANDROID = 1000797004,
+
+        /// <summary>
+        /// Struct is of type `XrBatteryStateDisplayEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_BATTERY_STATE_DISPLAY_EXT`.
+        /// Provided by `XR_EXT_interaction_profile_battery_state_display`.
+        /// </summary>
+        BatteryStateDisplayEXT = 1000836000,
+
+        /// <summary>
+        /// Struct is of type `XrEventDataViewConfigurationViewsChangedEXT`.
+        /// Equivalent to the OpenXR value `XR_TYPE_EVENT_DATA_VIEW_CONFIGURATION_VIEWS_CHANGED_EXT`.
+        /// Provided by `XR_EXT_view_configuration_views_change`.
+        /// </summary>
+        EventDataViewConfigurationViewsChangedEXT = 1000839000,
     }
 }

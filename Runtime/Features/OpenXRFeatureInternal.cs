@@ -46,6 +46,15 @@ namespace UnityEngine.XR.OpenXR.Features
         [return: MarshalAs(UnmanagedType.U1)]
         internal static extern bool Internal_GetAppSpace(out ulong appSpace);
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetPredictedDisplayTime")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool Internal_GetPredictedDisplayTime(out long predictedDisplayTime);
+
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_GetAppSpaceAndPredictedDisplayTime")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool Internal_GetAppSpaceAndPredictedDisplayTime(
+            out ulong appSpace, out long predictedDisplayTime);
+
         [DllImport(Library, EntryPoint = "NativeConfig_GetProcAddressPtr")]
         internal static extern IntPtr Internal_GetProcAddressPtr([MarshalAs(UnmanagedType.I1)] bool loaderDefault);
 

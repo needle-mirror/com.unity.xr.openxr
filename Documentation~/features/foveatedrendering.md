@@ -26,6 +26,7 @@ This topic covers aspects of foveated rendering specific to the Unity OpenXR pro
 * [Configure foveated rendering](#configure-foveated-rendering)
 * [Use the **SRP Foveation** API](#use-the-srp-foveation-api)
 * [Use the **Legacy** API](#use-the-legacy-api)
+* [Use dynamic foveation](#use-dynamic-foveation)
 * [Request eye-tracking permission on Android](#request-eye-tracking-permission)
 
 For general information about foveated rendering in Unity XR, refer to [Foveated rendering](https://docs.unity3d.com/Manual/xr-foveated-rendering.html).
@@ -74,7 +75,7 @@ Once configured in settings, you must also turn on foveated rendering at runtime
 Refer to the following topics for more information:
 
 * [Use the SRP Foveation API](#use-the-srp-foveation-api)
-* [Use the Legacy API](#use-the-srp-foveation-api)
+* [Use the Legacy API](#use-the-legacy-api)
 
 <a id="configure-srp-foveation"></a>
 ### Configure SRP Foveation
@@ -187,6 +188,43 @@ public class FoveationStarter : MonoBehaviour
 ```
 
 Refer to Meta's [OVRManager Class Reference](https://developer.oculus.com/reference/unity/v67/class_o_v_r_manager#acbd6d504192d2a2a7461382a4eae0715a84ec48f67b50df5ba7f823879769e0ad) for more information.
+
+<a id="use-dynamic-foveation"></a>
+## Use dynamic foveation
+
+With dynamic foveation, a supporting XR device varies the amount of foveation it applies while your application runs, which can improve performance when a content-heavy scene is presented to the user.
+
+Dynamic foveation doesn't set the amount of foveation itself. You control that with the foveation level, which you set through [XRDisplaySubsystem.foveatedRenderingLevel](xref:UnityEngine.XR.XRDisplaySubsystem.foveatedRenderingLevel), as described in [Use the SRP Foveation API](#use-the-srp-foveation-api). When dynamic foveation is disabled, the device applies that level constantly. When you enable dynamic foveation, the level becomes a maximum: the device applies less foveation when it has GPU capacity to spare, and increases foveation up to your level when it doesn't.
+
+> [!IMPORTANT]
+> Because the foveation level acts as a maximum, dynamic foveation has no effect while the foveation level is `0`, which is the default. Set a foveation level greater than zero for dynamic foveation to have an effect.
+
+Dynamic foveation is independent of [gaze-based foveated rendering](#configure-gaze-based-foveated-rendering). Enabling **Use Eye Tracking** doesn't enable dynamic foveation, and you must enable each one separately. You can use both at the same time, and Meta recommends doing so on Quest devices, so that the amount of foveation adjusts to the current GPU load while the high-resolution area follows the user's gaze.
+
+To use dynamic foveation, the XR application must use the Vulkan graphics API, enable the **Foveated Rendering** feature, and set the **Foveated Rendering Method** to **Foveated rendering (SRP API)**. The OpenXR runtime must also support the following extensions:
+* [XR\_FB\_foveation](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation)
+* [XR\_FB\_foveation\_configuration](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation_configuration)
+* [XR\_FB\_foveation\_vulkan](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation_vulkan)
+* [XR\_FB\_swapchain\_update\_state](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_swapchain_update_state)
+
+> [!NOTE]
+> Dynamic foveation isn't compatible with Quad Views foveation nor the Foveated rendering (Legacy API). Unity disables the **Dynamic Foveation (Vulkan)** setting when you set the **Foveated Rendering Method** to **Quad Views** or **Foveated rendering (Legacy API)**.
+
+To enable dynamic foveation in your Unity project:
+1. Open the **Project Settings** window.
+1. Under **XR Plug-in Management**, select the **OpenXR** settings.
+1. Select the tab for the platform you want to configure.
+1. In the list of **OpenXR Feature Groups**, select **All Features**.
+1. Under **OpenXR Feature Groups**, click the gear icon next to the **Foveated Rendering** feature.
+1. Enable the **Dynamic Foveation (Vulkan)** checkbox.
+
+![Dynamic foveation settings](../images/FoveatedRendering/xr-dynamic-foveation-settings.png)<br/>*Settings to enable dynamic foveation*
+
+Unity applies this setting when the OpenXR session starts. You can also turn dynamic foveation on or off at runtime with [FoveatedRenderingFeature.DynamicFoveationEnabled](xref:UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature.DynamicFoveationEnabled), which overrides the project setting for the rest of the session.
+
+The following code example sets a foveation level and then enables dynamic foveation, so that the device can vary the amount of foveation it applies up to that level:
+
+[!code-csharp[DynamicFoveationExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/DynamicFoveationExample.cs#DynamicFoveationExample)]
 
  <a id="request-eye-tracking-permission"></a>
 ## Request eye-tracking permission on Android

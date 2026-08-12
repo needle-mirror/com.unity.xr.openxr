@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.OculusQuestSupport",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEngine.XR.OpenXR.Features.OculusQuestSupport",
     "references": [
         "GUID:4847341ff46394e83bb78fbd0652937e",
         "GUID:95054a9710b0f114a85f6ced6b7f891c"

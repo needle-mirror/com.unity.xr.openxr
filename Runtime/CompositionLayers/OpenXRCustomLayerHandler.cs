@@ -120,6 +120,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             public bool IsNewTexture;
 
+            public bool IsDynamic;
+
             public class SwapchainImageInfo
             {
                 public RenderTexture RenderTexture;
@@ -307,7 +309,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         protected ConcurrentQueue<Action> actionsForMainThread = new();
 
-        bool isRegisteredOnBeforeRender;
         Dictionary<int, LayerRenderInfo> m_RenderInfos = new();
         Dictionary<int, CompositionLayerManager.LayerInfo> m_LayerInfos = new();
 
@@ -332,6 +333,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     action();
             }
 
+            WriteActiveLayerTextures();
+
             unsafe
             {
                 if (m_ActiveNativeLayerCount > 0 && CompositionLayerManager.Instance != null)
@@ -354,16 +357,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// being created.</param>
         public void CreateLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
-            if (!isRegisteredOnBeforeRender)
-            {
-                Application.onBeforeRender += OnBeforeRender;
-                isRegisteredOnBeforeRender = true;
-            }
-
             CreateSwapchainAsync(layerInfo);
         }
 
-        void OnBeforeRender()
+        void WriteActiveLayerTextures()
         {
             foreach(var container in m_RenderInfos.Values)
             {
@@ -390,8 +387,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 #endif
                 var isRenderTexture = container.Texture is RenderTexture;
 
-                // Layers that have a new texture or have video or are a RenderTexture must always have their swapchain image written to.
-                if (container.IsNewTexture || isVideo || isRenderTexture)
+                // Layers that have a new texture, have video, are a RenderTexture, or are flagged as dynamic must always have their swapchain image written to.
+                if (container.IsNewTexture || isVideo || isRenderTexture || container.IsDynamic)
                 {
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
                     swapchainImageInfo.IsWritten = true;
@@ -403,6 +400,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
                     swapchainImageInfo.IsWritten = true;
                 }
+
+                // Consume the flag so a layer that goes inactive without being removed stops being written next frame.
+                // Safe because this runs from OnUpdate, after the provider's SetActiveLayer pass, so a re-activated layer won't miss its first write.
+                container.IsActiveLayer = false;
             }
         }
 
@@ -504,12 +505,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 m_ActiveNativeLayers.Dispose();
             if (m_ActiveNativeLayerOrders.IsCreated)
                 m_ActiveNativeLayerOrders.Dispose();
-
-            if (isRegisteredOnBeforeRender)
-            {
-                Application.onBeforeRender -= OnBeforeRender;
-                isRegisteredOnBeforeRender = false;
-            }
         }
 
         /// <summary>
@@ -661,6 +656,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 m_RenderInfos.Add(layerInfo.Id, layerRenderInfo);
             }
 
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            m_RenderInfos[layerInfo.Id].IsDynamic = texturesExtension.IsDynamic;
+#endif
             m_RenderInfos[layerInfo.Id].IsActiveLayer = true;
             return true;
         }

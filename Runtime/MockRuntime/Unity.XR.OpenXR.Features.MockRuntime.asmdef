@@ -1,5 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.MockRuntime",
+    "rootNamespace": "UnityEngine.XR.OpenXR.Features.Mock",
     "references": [
         "Unity.XR.OpenXR",
         "Unity.XR.OpenXR.Editor",

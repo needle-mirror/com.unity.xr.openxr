@@ -42,6 +42,7 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <seealso cref="XrSpatialCapabilityConfigurationMicroQrCodeEXT"/>
         /// <seealso cref="XrSpatialCapabilityConfigurationArucoMarkerEXT"/>
         /// <seealso cref="XrSpatialCapabilityConfigurationAprilTagEXT"/>
+        /// <seealso cref="XrSpatialCapabilityConfigurationImageTrackingEXT"/>
         public XrSpatialCapabilityConfigurationBaseHeaderEXT** capabilityConfigs { get; }
 
         /// <summary>

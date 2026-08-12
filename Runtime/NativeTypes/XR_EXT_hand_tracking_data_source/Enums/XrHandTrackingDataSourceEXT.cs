@@ -18,5 +18,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Equivalent to the OpenXR value `XR_HAND_TRACKING_DATA_SOURCE_CONTROLLER_EXT`.
         /// </summary>
         Controller = 2,
+
+        /// <summary>
+        /// Hand tracking data is derived from wide motion mode inference, which estimates
+        /// hand poses when the hands are not directly visible to the tracking cameras.
+        /// Equivalent to the OpenXR value `XR_HAND_TRACKING_DATA_SOURCE_UNOBSTRUCTED_WIDE_MOTION_META`.
+        /// Provided by `XR_META_hand_tracking_wide_motion_mode2`.
+        /// </summary>
+        UnobstructedWideMotion = 1000695000,
     }
 }

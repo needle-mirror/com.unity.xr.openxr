@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.RuntimeDebugger",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEngine.XR.OpenXR.Features.RuntimeDebugger",
     "references": [
         "Unity.XR.OpenXR",
         "Unity.XR.OpenXR.Editor"

@@ -773,6 +773,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         ServiceNotReadyAndroid = -1000458000,
 
         /// <summary>
+        /// The provided mesh data exceeds the limit supported by the runtime. (Added by the `XR_ANDROID_composition_layer_passthrough_mesh` extension)
+        /// </summary>
+        MeshDataLimitExceededANDROID = -1000462000,
+
+        /// <summary>
         /// Returned by completion function to indicate future is not ready. (Added by the `XR_EXT_future` extension)
         /// </summary>
         FuturePendingEXT = -1000469001,
@@ -808,6 +813,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         FacialExpressionPermissionDeniedML = 1000482000,
 
         /// <summary>
+        /// The runtime successfully processed the request, but boundary visibility suppression is not allowed at this time. (Added by the `XR_META_boundary_visibility` extension)
+        /// </summary>
+        BoundaryVisibilitySuppressionNotAllowedMETA = 1000528000,
+
+        /// <summary>
         /// The network request failed. (Added by the `XR_META_colocation_discovery` extension)
         /// </summary>
         ColocationDiscoveryNetworkFailedMETA = -1000571001,
@@ -836,6 +846,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Operation not allowed because anchor is not owned by the XrSession in which the function is being called. (Added by the XR_ANDROID_anchor_sharing_export extension)
         /// </summary>
         AnchorNotOwnedByCallerAndroid = -1000701000,
+
+        /// <summary>
+        /// The provided image format is not supported by the runtime. (Added by the `XR_ANDROID_trackables_image` extension)
+        /// </summary>
+        ImageFormatUnsupportedANDROID = -1000709000,
 
         /// <summary>
         /// The specified spatial capability is not supported by the runtime or the system. (Added by the `XR_EXT_spatial_entity` extension)
@@ -876,6 +891,61 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// The scope configured for the persistence context is incompatible for the current spatial entity. (Added by the `XR_EXT_spatial_persistence_operations` extension)
         /// </summary>
         SpatialPersistenceScopeIncompatibleEXT = -1000781001,
+
+        /// <summary>
+        /// A format has been passed that is not supported by the runtime. (Added by the `XR_EXT_spatial_image_tracking` extension)
+        /// </summary>
+        SpatialImageFormatUnsupportedEXT = -1000782001,
+
+        /// <summary>
+        /// The data of an input image could not be evaluated successfully according to its input format and planes. (Added by the `XR_EXT_spatial_image_tracking` extension)
+        /// </summary>
+        SpatialImageInvalidEXT = -1000782002,
+
+        /// <summary>
+        /// An input image that requires a `XrSpatialImageSizeEXT` structure has not been provided with one. (Added by the `XR_EXT_spatial_image_tracking` extension)
+        /// </summary>
+        SpatialImageSizeMissingEXT = -1000782003,
+
+        /// <summary>
+        /// Keyless authentication has not been set up for this application. (Added by the `XR_ANDROID_google_cloud_auth` extension)
+        /// </summary>
+        KeylessAuthNotSetupANDROID = -1000787000,
+
+        /// <summary>
+        /// Keyless authentication failed. (Added by the `XR_ANDROID_google_cloud_auth` extension)
+        /// </summary>
+        KeylessAuthFailedANDROID = -1000787001,
+
+        /// <summary>
+        /// The geospatial tracker is not running. (Added by the `XR_ANDROID_geospatial` extension)
+        /// </summary>
+        GeospatialTrackerNotRunningANDROID = -1000789000,
+
+        /// <summary>
+        /// The provided geospatial coordinates are invalid. (Added by the `XR_ANDROID_geospatial` extension)
+        /// </summary>
+        GeospatialCoordinatesInvalidANDROID = -1000789001,
+
+        /// <summary>
+        /// Cloud authentication for geospatial services failed. (Added by the `XR_ANDROID_geospatial` extension)
+        /// </summary>
+        GeospatialCloudAuthFailedANDROID = -1000789002,
+
+        /// <summary>
+        /// The component required to attach a spatial anchor was not found on the specified entity. (Added by the `XR_ANDROID_spatial_entity_bound_anchor` extension)
+        /// </summary>
+        SpatialAnchorAttachableComponentNotFoundANDROID = -1000790001,
+
+        /// <summary>
+        /// The provided spatial anchor entity ID is invalid. (Added by the `XR_ANDROID_spatial_anchor_space` extension)
+        /// </summary>
+        SpatialAnchorEntityIdInvalidANDROID = -1000795001,
+
+        /// <summary>
+        /// The location provided for the surface anchor is not supported. (Added by the `XR_ANDROID_geospatial_anchor` extension)
+        /// </summary>
+        SurfaceAnchorLocationUnsupportedANDROID = -1000797000,
 
         /// <summary>
         /// Provided by `XR_KHR_maintenance1`

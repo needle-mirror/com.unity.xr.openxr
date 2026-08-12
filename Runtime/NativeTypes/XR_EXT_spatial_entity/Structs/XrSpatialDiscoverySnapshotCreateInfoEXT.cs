@@ -33,9 +33,13 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
 
         /// <summary>
         /// `null` or a pointer to the next structure in a structure chain.
-        /// No such structures are defined in core OpenXR or this extension.
+        /// No such structures are defined in core OpenXR or this extension, but other extensions define
+        /// structures that you can chain here.
         /// </summary>
-        // See also: XrSpatialDiscoveryPersistenceUuidFilterEXT, XrSpatialFilterTrackingStateEXT
+        /// <seealso cref="XrSpatialDiscoveryPersistenceUuidFilterEXT"/>
+        /// <seealso cref="XrSpatialFilterTrackingStateEXT"/>
+        /// <seealso cref="XrSpatialDiscoveryUniqueEntitiesFilterANDROID"/>
+        /// <seealso cref="XrSpatialRaycastInfoANDROID"/>
         public void* next { get; }
 
         /// <summary>

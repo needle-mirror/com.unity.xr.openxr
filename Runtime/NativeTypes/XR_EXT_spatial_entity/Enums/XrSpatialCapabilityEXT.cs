@@ -41,5 +41,18 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// Equivalent to the OpenXR value `XR_SPATIAL_CAPABILITY_ANCHOR_EXT`.
         /// </summary>
         Anchor = 1000762000,
+
+        /// <summary>
+        /// Represents the image tracking capability provided by `XR_EXT_spatial_image_tracking`.
+        /// Equivalent to the OpenXR value `XR_SPATIAL_CAPABILITY_IMAGE_TRACKING_EXT`.
+        /// </summary>
+        ImageTracking = 1000782000,
+
+        /// <summary>
+        /// Represents the capability to raycast against the depth buffer.
+        /// Equivalent to the OpenXR value `XR_SPATIAL_CAPABILITY_DEPTH_RAYCAST_ANDROID`.
+        /// Provided by `XR_ANDROID_spatial_discovery_raycast`.
+        /// </summary>
+        DepthRaycast = 1000786000,
     }
 }

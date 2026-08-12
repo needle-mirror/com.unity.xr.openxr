@@ -1,6 +1,6 @@
 {
-    "name": "UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests",
-    "rootNamespace": "",
+    "name": "Unity.XR.OpenXR.CodeSamples.Editor.Tests",
+    "rootNamespace": "UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests",
     "references": [
         "Unity.XR.OpenXR",
         "Unity.XR.OpenXR.Editor",

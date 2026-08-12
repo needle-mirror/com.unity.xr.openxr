@@ -62,6 +62,54 @@ namespace UnityEngine.XR.OpenXR.Features
 
         private const string k_EyeTrackingExtension = "XR_META_foveation_eye_tracked";
 
+        [SerializeField]
+        internal bool m_EnableDynamicFoveation;
+
+        /// <summary>
+        /// Gets or sets whether the OpenXR runtime is allowed to vary the amount of foveation it
+        /// applies, up to the foveation level your application sets.
+        /// </summary>
+        /// <remarks>
+        /// The foveation level itself is not controlled by this property. Set it with
+        /// <see cref="UnityEngine.XR.XRDisplaySubsystem.foveatedRenderingLevel"/>. When dynamic
+        /// foveation is disabled, the runtime applies that level constantly. When it is enabled,
+        /// the level becomes a maximum and the runtime applies less foveation when there is GPU
+        /// headroom to spare.
+        ///
+        /// Because the level acts as a maximum, dynamic foveation has no effect while the
+        /// foveation level is <c>0</c>, which is the default.
+        ///
+        /// Dynamic foveation requires the Vulkan graphics API, an OpenXR runtime that supports it,
+        /// and the <b>Foveated Rendering Method</b> set to <b>Foveated rendering (SRP API)</b>. It
+        /// has no effect with the Legacy API or Quad Views.
+        /// </remarks>
+        public bool DynamicFoveationEnabled
+        {
+            get
+            {
+                if (OpenXRLoaderBase.Instance == null)
+                    return m_EnableDynamicFoveation;
+
+                var result = Internal_GetFbFoveationDynamic(out var useFoveationDynamic);
+                if (result != XrResult.Success)
+                {
+                    Debug.LogWarning($"Failed to read the dynamic foveation state ({result}).");
+                    return false;
+                }
+
+                return useFoveationDynamic == XrFoveationDynamicFB.LevelEnabled;
+            }
+            set
+            {
+                if (OpenXRLoaderBase.Instance != null)
+                    ApplyDynamicFoveation(value);
+                else
+                    m_EnableDynamicFoveation = value;
+            }
+        }
+
+        ulong m_XrSession;
+
 #if UNITY_EDITOR
         private bool SettingsUseVulkan()
         {
@@ -165,6 +213,28 @@ namespace UnityEngine.XR.OpenXR.Features
                 }
             });
 
+            rules.Add(new ValidationRule(this)
+            {
+                message = "Dynamic foveation is only supported with the \"Foveated rendering (SRP API)\" foveation method.",
+                helpText = "Use the \"Foveated rendering (SRP API)\" foveation method, or disable dynamic foveation.",
+                checkPredicate = () =>
+                {
+                    var currentSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                    if (currentSettings == null) return true;
+
+                    if (DynamicFoveationEnabled)
+                        return currentSettings.foveatedRenderingApi == OpenXRSettings.BackendFovationApi.SRPFoveation;
+
+                    return true;
+                },
+                fixIt = () =>
+                {
+                    var currentSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
+                    if (currentSettings != null)
+                        currentSettings.foveatedRenderingApi = OpenXRSettings.BackendFovationApi.SRPFoveation;
+                }
+            });
+
         }
 
         [CustomEditor(typeof(FoveatedRenderingFeature))]
@@ -172,6 +242,7 @@ namespace UnityEngine.XR.OpenXR.Features
         {
             private SerializedProperty subsampledLayout;
             private SerializedProperty useEyeTracking;
+            SerializedProperty m_EnableDynamicFoveationProperty;
 #if LIFECYCLE_APIS_AVAILABLE
             // Static UI label caches; content never changes at runtime.
             [NoAutoStaticsCleanup]
@@ -181,11 +252,15 @@ namespace UnityEngine.XR.OpenXR.Features
             [NoAutoStaticsCleanup]
 #endif
             static GUIContent s_UseEyeTracking = EditorGUIUtility.TrTextContent("Use Eye Tracking", "When enabled, the eye tracking OpenXR extension is requested and eye tracking Android permissions are added to the manifest. Disable to use foveated rendering without eye tracking.");
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
+            static GUIContent s_DynamicFoveationContent = EditorGUIUtility.TrTextContent("Dynamic Foveation (Vulkan)", "Allows the device to vary the amount of foveation it applies, up to the foveation level your application sets, to improve performance. Has no effect while the foveation level is 0.");
 
-#if UNITY_6000_0_OR_NEWER
-            private SerializedProperty foveatedRenderingApi;
             private SerializedObject openXRSettings;
             private BuildTargetGroup selectedBuildSettings;
+#if UNITY_6000_0_OR_NEWER
+            private SerializedProperty foveatedRenderingApi;
 
 #if LIFECYCLE_APIS_AVAILABLE
             [NoAutoStaticsCleanup]
@@ -224,6 +299,7 @@ namespace UnityEngine.XR.OpenXR.Features
             {
                 subsampledLayout = serializedObject.FindProperty("enableSubsampledLayout");
                 useEyeTracking = serializedObject.FindProperty("useEyeTracking");
+                m_EnableDynamicFoveationProperty = serializedObject.FindProperty(nameof(m_EnableDynamicFoveation));
 
 #if UNITY_6000_0_OR_NEWER
                 selectedBuildSettings = EditorUserBuildSettings.selectedBuildTargetGroup;
@@ -283,8 +359,22 @@ namespace UnityEngine.XR.OpenXR.Features
                 }
 
                 GUILayout.EndHorizontal();
-                openXRSettings.ApplyModifiedProperties();
+
+                var isSrpFoveation = currentSettings.foveatedRenderingApi == OpenXRSettings.BackendFovationApi.SRPFoveation;
+                using (new EditorGUI.DisabledScope(!isSrpFoveation))
+                {
+                    EditorGUILayout.PropertyField(m_EnableDynamicFoveationProperty, s_DynamicFoveationContent);
+                }
+
+                if (!isSrpFoveation)
+                {
+                    EditorGUILayout.HelpBox("Dynamic foveation is only supported with SRP Foveation. Select SRP Foveation as the Foveated Rendering Method to use dynamic foveation.", MessageType.Info);
+                }
+#else
+                EditorGUILayout.PropertyField(m_EnableDynamicFoveationProperty, s_DynamicFoveationContent);
 #endif
+
+                openXRSettings.ApplyModifiedProperties();
                 serializedObject.ApplyModifiedProperties();
 
                 EditorGUIUtility.labelWidth = 0.0f;
@@ -327,6 +417,34 @@ namespace UnityEngine.XR.OpenXR.Features
             return wasSuccessful;
         }
 
+        void ApplyDynamicFoveation(bool enableDynamicFoveation)
+        {
+            if (m_XrSession == 0)
+                return;
+
+            if (enableDynamicFoveation &&
+                OpenXRSettings.ActiveBuildTargetInstance.foveatedRenderingApi != OpenXRSettings.BackendFovationApi.SRPFoveation)
+            {
+                Debug.LogWarning($"Dynamic foveation is only supported with SRP Foveation rendering method. The current set foveation rendering method is \"{OpenXRSettings.ActiveBuildTargetInstance.foveatedRenderingApi}\"");
+                return;
+            }
+
+            var result = Internal_GetFbFoveationLevel(out var currentFoveationLevel);
+            if (result != XrResult.Success)
+            {
+                Debug.LogWarning($"Failed to read the current foveation level ({result}). Dynamic foveation was not changed.");
+                return;
+            }
+
+            var useFoveationDynamic = enableDynamicFoveation
+                ? XrFoveationDynamicFB.LevelEnabled
+                : XrFoveationDynamicFB.Disabled;
+
+            result = Internal_SetFbFoveationLevel(m_XrSession, currentFoveationLevel, 0f, useFoveationDynamic);
+            if (result != XrResult.Success)
+                Debug.LogWarning($"Failed to set dynamic foveation ({result}).");
+        }
+
         /// <inheritdoc />
         protected internal override bool ShouldUseExtension(string ext)
         {
@@ -345,6 +463,19 @@ namespace UnityEngine.XR.OpenXR.Features
             TrySetSubsampledLayoutEnabled(enableSubsampledLayout);
 
             return base.OnInstanceCreate(instance);
+        }
+
+        /// <inheritdoc />
+        protected internal override void OnSessionCreate(ulong xrSession)
+        {
+            m_XrSession = xrSession;
+            ApplyDynamicFoveation(m_EnableDynamicFoveation);
+        }
+
+        /// <inheritdoc />
+        protected internal override void OnSessionDestroy(ulong xrSession)
+        {
+            m_XrSession = 0;
         }
 
         /// <inheritdoc />
@@ -368,5 +499,14 @@ namespace UnityEngine.XR.OpenXR.Features
 
         [DllImport(Library, EntryPoint = "MetaSetSubsampledLayout")]
         private static extern XrResult Internal_Unity_MetaSetSubsampledLayout([MarshalAs(UnmanagedType.U1)] bool enableSubsampling);
+
+        [DllImport(Library, EntryPoint = "FBSetFoveationLevel")]
+        static extern XrResult Internal_SetFbFoveationLevel(ulong session, XrFoveationLevelFB level, float verticalOffset, XrFoveationDynamicFB useFoveationDynamic);
+
+        [DllImport(Library, EntryPoint = "FBGetFoveationLevel")]
+        static extern XrResult Internal_GetFbFoveationLevel(out XrFoveationLevelFB level);
+
+        [DllImport(Library, EntryPoint = "FBGetFoveationDynamic")]
+        static extern XrResult Internal_GetFbFoveationDynamic(out XrFoveationDynamicFB useFoveationDynamic);
     }
 }

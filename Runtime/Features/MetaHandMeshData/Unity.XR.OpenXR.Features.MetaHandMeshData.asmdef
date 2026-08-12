@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.MetaHandMeshData",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEngine.XR.OpenXR.Features.Meta",
     "references": [
         "GUID:4847341ff46394e83bb78fbd0652937e",
         "GUID:ce522b6ed64c8be4c989a1d26d0e3275"

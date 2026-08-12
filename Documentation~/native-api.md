@@ -11,13 +11,18 @@ Refer to the OpenXR specification for more detailed information about each exten
 
 The OpenXR native API currently supports the following OpenXR extensions:
 
+* [XR_ANDROID_spatial_component_subsumed_by](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_component_subsumed_by)
+* [XR_ANDROID_spatial_discovery_raycast](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_discovery_raycast)
+* [XR_ANDROID_spatial_entity_bound_anchor](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_entity_bound_anchor)
 * [XR_EXT_future](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_future)
 * [XR_EXT_spatial_anchor](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_anchor)
 * [XR_EXT_spatial_entity](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_entity)
+* `XR_EXT_spatial_image_tracking` (not yet part of the public spec)
 * [XR_EXT_spatial_marker_tracking](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_marker_tracking)
 * [XR_EXT_spatial_persistence](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_persistence)
 * [XR_EXT_spatial_persistence_operations](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_persistence_operations)
 * [XR_EXT_spatial_plane_tracking](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_plane_tracking)
+* [XR_FB_foveation_configuration](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation_configuration)
 
 ### Enable extensions
 

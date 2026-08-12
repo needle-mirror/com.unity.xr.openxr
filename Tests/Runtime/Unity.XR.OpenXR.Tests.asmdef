@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Tests",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEngine.XR",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",

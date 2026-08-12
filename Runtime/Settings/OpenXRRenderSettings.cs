@@ -333,6 +333,9 @@ namespace UnityEngine.XR.OpenXR
 #if UNITY_6000_0_OR_NEWER
             DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Foveated Rendering API", $"{m_foveatedRenderingApi}");
 #endif
+            var foveatedRenderingFeature = GetFeature<FoveatedRenderingFeature>();
+            if (foveatedRenderingFeature != null)
+                DiagnosticReport.AddSectionEntry(diagnosticsSectionHandle, "Dynamic Foveation Enabled", $"{foveatedRenderingFeature.m_EnableDynamicFoveation}");
         }
 
         [SerializeField]
@@ -367,6 +370,7 @@ namespace UnityEngine.XR.OpenXR
         [SerializeField]
         BackendFovationApi m_foveatedRenderingApi = BackendFovationApi.SRPFoveation;
 #endif
+
         /// <summary>OnBeforeSerialize.</summary>
         public void OnBeforeSerialize()
         {

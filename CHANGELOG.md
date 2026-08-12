@@ -9,12 +9,36 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.19.0-pre.1] - 2026-08-12
+
+### Added
+
+* Added support for the Composition Layers Dynamic Texture option, rewriting a dynamic layer's swapchain image every frame so textures updated externally on the GPU no longer appear static. Requires XR Composition Layers 2.6.0 or newer.
+* Added `XrHandTrackingDataSourceEXT.UnobstructedWideMotion` to support the `XR_META_hand_tracking_wide_motion_mode2` extension.
+* Added support for the following OpenXR extensions to the [OpenXR Native API](xref:openxr-native-api):
+  * [XR_ANDROID_spatial_component_subsumed_by](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_component_subsumed_by)
+  * [XR_ANDROID_spatial_discovery_raycast](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_discovery_raycast)
+  * [XR_ANDROID_spatial_entity_bound_anchor](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_entity_bound_anchor)
+  * `XR_EXT_spatial_image_tracking` (not yet part of the public spec)
+
+### Changed
+
+* Composition layer texture transfer now uses `Graphics.CopyTexture` instead `Graphics.Blit` if copy preconditions are met. `Graphics.Blit` remains as the fallback path.
+* Updated OpenXR specification libraries and headers to version 1.1.62.
+
+### Fixed
+
+* Fixed `OpenXRCustomLayerHandler` continuing to render video and RenderTexture composition layers every frame after they became inactive without being removed.
+
 ## [1.18.0] - 2026-08-04
 
 ### Added
 
 * Added `gripOrientation` and `pointerOrientation` as aliases for `deviceRotation` and `pointerRotation` in `HandInteractionProfile`.
 * Added `palmOrientation` as an alias for `palmRotation` in `PalmPoseInteraction`.
+* Added a dynamic foveation toggle to `FoveatedRenderingFeature`, which allows the OpenXR runtime to vary the amount of foveation it applies, up to the foveation level your application sets, on devices that support it. You can find this setting in the `FoveatedRenderingFeature` project settings view as **Dynamic Foveation (Vulkan)**.
+* Added `FoveatedRenderingFeature.DynamicFoveationEnabled` to turn dynamic foveation on or off through script.
+* Added the `XR_FB_foveation_configuration` native types `XrFoveationLevelFB`, `XrFoveationDynamicFB`, and `XrFoveationLevelProfileCreateInfoFB`.
 
 ### Changed
 
@@ -30,14 +54,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed `XrSpatialPersistenceDataEXT` to use 4-byte alignment instead of 8-byte alignment, correctly aligning its size with the OpenXR C ABI.
 * Fixed [`PalmPoseInteraction.PalmPose`](xref:UnityEngine.XR.OpenXR.Features.Interactions.PalmPoseInteraction.PalmPose) input device not finishing setup of all input control properties where the input control properties other than `palmPose` were `null`.
 * Fixed `OpenXRHmd` input device not finishing setup of the `userPresence` input control property.
+* Fixed crash when using the XR_KHR_vulkan_enable2 extension, Vulkan, and OpenXR on an in-Editor app.
 * Fixed some input devices not setting up the `StickControl`/`Vector2Control` input control properties correctly when `USE_STICK_CONTROL_THUMBSTICKS` scripting define symbol was not defined in the project.
+* Fixed `OpenXRCustomLayerHandler` continuing to render video and RenderTexture composition layers every frame after they became inactive without being removed.
 * Fixed several regressions from package version 1.17.0 caused by "Fixed compilation errors when OpenXR was present in Unity projects targeting non-XR supported platforms.":
   * Fixed the Android Mouse Interaction (OpenXR) [`AndroidMouseInteractionProfile.AndroidMouseInteraction`](xref:UnityEngine.XR.OpenXR.Features.Interactions.AndroidMouseInteractionProfile.AndroidMouseInteraction) input device not having the `aim` property.
   * Fixed the [`OpenXRDevice`](xref:UnityEngine.XR.OpenXR.Input.OpenXRDevice) not setting `{LeftHand}`/`{RightHand}` input device usages. This affects some derived input devices such as Hand Interaction Poses (OpenXR) ([`HandCommonPosesInteraction.HandInteractionPoses`](xref:UnityEngine.XR.OpenXR.Features.Interactions.HandCommonPosesInteraction.HandInteractionPoses)).
   * Fixed the `OpenXRDevice` not being registered with the Input System as a base layout.
   * Fixed some conditions for enabling Project Validation rules related to D-Pad Binding and Palm Pose features when only the Eye Gaze Interaction Profile is enabled.
-  * Fixed an issue where package setting assets would be refreshed on Unity Editor startup, causing import errors. This was implemented by separating refreshing OpenXR Features from querying OpenXR Features.
-  * Fixed compilation errors caused by lack of StaticCleanup attributes in Unity 6.7.
+* Fixed an issue where package setting assets would be refreshed on Unity Editor startup, causing import errors. This was implemented by separating refreshing OpenXR Features from querying OpenXR Features.
+* Fixed compilation errors caused by lack of StaticCleanup attributes in Unity 6.7.
+
+### Security
 
 ## [1.18.0-pre.2] - 2026-06-16
 

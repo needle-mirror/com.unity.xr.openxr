@@ -1,6 +1,6 @@
 {
     "name": "Unity.XR.OpenXR.Features.MetaHandMeshData.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "UnityEditor.XR.OpenXR.Features.Meta",
     "references": [
         "Unity.XR.OpenXR",
         "Unity.XR.OpenXR.Editor",
