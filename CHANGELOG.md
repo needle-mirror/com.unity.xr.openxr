@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
+## [1.19.0-pre.2] - 2026-09-09
+
+### Added
+
+* Added mipmap support for composition layers with the `CopyFromSource` and `AutoGenerate` mip modes on Local Texture layers. Applies to Quad, Cylinder, Cube, and Equirect layers, and requires Unity 6000.7.0a4 or newer.
+* Added the Meta Temporal Pixel Synthesis feature, which uses the `XR_META_temporal_pixel_synthesis` extension to let the runtime apply temporal anti-aliasing and upscaling to your rendered frames. Moving this work to the runtime can improve performance compared with performing it in your application. Refer to [Temporal Pixel Synthesis](xref:openxr-temporal-pixel-synthesis).
+* Added `skipFDMForFinalPassesSRP` as a sub-option for SRP-based Foveated Rendering.
+* Added native types for the hand tracking extension `XR_META_hand_tracking_unextrapolated_poses`.
+
+### Fixed
+
+* Fixed error log that appeared after reimporting Meshing Subsystem Feature.
+* Fixed composition layer static fields, events, and caches being reported as errors by the Unity 6.7 statics-cleanup analyzer.
+* Fixed composition layer textures appearing vertically flipped on graphics APIs whose texture coordinates start at the top (such as Metal, Direct3D and Vulkan) when the copy-texture transfer path was used. These transfers now fall back to `Graphics.Blit`, which preserves the upright orientation.
+* Fixed Equirect composition layers so that partial-sphere configurations render correctly and match the Editor emulation preview. Requires XR Composition Layers 2.6.0 or newer.
+* Fixed compile error in temporal pixel synthesis feature code.
+* Fixed a `NullReferenceException` thrown when loading OpenXR settings or building a player while the OpenXR Package Settings asset contains a feature whose script is missing, which can happen after removing a package that provided an OpenXR feature.
+* Fixed OpenXR features that do not define `BuildTargetGroups` in their `OpenXRFeatureAttribute` disappearing from the OpenXR Project Settings window. Omitting `BuildTargetGroups` once again means that the feature supports every build target group.
+* Fixed how temporal pixel synthesis works with quad views.
+* Fixed a possible compiler error in Unity 6.6 when this package is used in combination with XR Plug-in Management 4.7.0 or newer.
+* Fixed a crash on the CoreCLR scripting backend caused by managed callback delegates being garbage collected while native code still held their function pointers. Delegates passed to the OpenXR native plugin are now rooted in static fields for the lifetime of the process.
+* Fixed a `KeyNotFoundException` thrown when a composition layer was removed while its swapchain creation request was still in flight. The swapchain callbacks now verify that the layer is still present before processing the result.
+* Fixed the Play Mode OpenXR Runtime selector throwing `PlatformNotSupportedException` and `NullReferenceException` on macOS when the Editor runs on CoreCLR, which doesn't support the Windows Registry on non-Windows platforms.
+
 ## [1.19.0-pre.1] - 2026-08-12
 
 ### Added
@@ -20,6 +44,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   * [XR_ANDROID_spatial_discovery_raycast](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_discovery_raycast)
   * [XR_ANDROID_spatial_entity_bound_anchor](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_ANDROID_spatial_entity_bound_anchor)
   * `XR_EXT_spatial_image_tracking` (not yet part of the public spec)
+* Added a dynamic foveation toggle to `FoveatedRenderingFeature`, which allows the OpenXR runtime to vary the amount of foveation it applies, up to the foveation level your application sets, on devices that support it. You can find this setting in the `FoveatedRenderingFeature` project settings view as **Dynamic Foveation (Vulkan)**. Refer to [Use dynamic foveation](xref:openxr-foveated-rendering-dynamic).
+* Added `FoveatedRenderingFeature.DynamicFoveationEnabled` to turn dynamic foveation on or off through script.
+* Added the `XR_FB_foveation_configuration` native types `XrFoveationLevelFB`, `XrFoveationDynamicFB`, and `XrFoveationLevelProfileCreateInfoFB`.
 
 ### Changed
 
@@ -36,9 +63,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * Added `gripOrientation` and `pointerOrientation` as aliases for `deviceRotation` and `pointerRotation` in `HandInteractionProfile`.
 * Added `palmOrientation` as an alias for `palmRotation` in `PalmPoseInteraction`.
-* Added a dynamic foveation toggle to `FoveatedRenderingFeature`, which allows the OpenXR runtime to vary the amount of foveation it applies, up to the foveation level your application sets, on devices that support it. You can find this setting in the `FoveatedRenderingFeature` project settings view as **Dynamic Foveation (Vulkan)**.
-* Added `FoveatedRenderingFeature.DynamicFoveationEnabled` to turn dynamic foveation on or off through script.
-* Added the `XR_FB_foveation_configuration` native types `XrFoveationLevelFB`, `XrFoveationDynamicFB`, and `XrFoveationLevelProfileCreateInfoFB`.
 
 ### Changed
 

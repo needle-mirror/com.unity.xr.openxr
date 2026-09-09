@@ -76,6 +76,21 @@ namespace UnityEditor.XR.OpenXR.Samples.MeshingFeature
             // Target path is 'Assets/<sample folder name>`
             var target = Path.Combine("Assets", Path.GetFileNameWithoutExtension(source));
 
+            if (AssetDatabase.IsValidFolder(target))
+            {
+
+                if (IsSameManifest(source, target))
+                {
+                    AssetDatabase.DeleteAsset(source);
+                }
+                else
+                {
+                    Debug.LogError($"Cannot install the Meshing Subsystem Feature plugin: '{target}' already exists and does not match the plugin at '{source}' (different version, or an unrelated folder). Remove or rename '{target}' manually, then reimport the sample.");
+                    return;
+                }
+            }
+            else
+            {
             // Attempt to move the entire folder
             var moveResult = AssetDatabase.MoveAsset(source, target);
             if (!string.IsNullOrWhiteSpace(moveResult))
@@ -99,11 +114,23 @@ namespace UnityEditor.XR.OpenXR.Samples.MeshingFeature
 
                 requestCloseAndRelaunchWithCurrentArgumentsMethod.Invoke(null, null);
             }
+            }
 
             // Self destruct
             AssetDatabase.DeleteAsset(Path.Combine(Path.GetDirectoryName(source), "Editor"));
         }
 
+        private static bool IsSameManifest(string source, string target)
+        {
+            var manifestFileName = Path.GetFileName(k_MeshingFeaturePath);
+            var sourceManifestPath = Path.Combine(source, manifestFileName);
+            var targetManifestPath = Path.Combine(target, manifestFileName);
+
+            if (!File.Exists(sourceManifestPath) || !File.Exists(targetManifestPath))
+                return false;
+
+            return File.ReadAllText(sourceManifestPath) == File.ReadAllText(targetManifestPath);
+        }
 #endif
     }
 }

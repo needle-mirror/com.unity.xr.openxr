@@ -31,19 +31,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         if (texturesExtension.LeftTexture == null)
                             goto default;
 
+                        var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension);
                         var xrCreateInfo = new XrSwapchainCreateInfo()
                         {
                             Type = (uint)XrStructureType.XR_TYPE_SWAPCHAIN_CREATE_INFO,
                             Next = OpenXRLayerUtility.GetExtensionsChain(layer, CompositionLayerExtension.ExtensionTarget.Swapchain),
                             CreateFlags = 0,
-                            UsageFlags = (ulong)(XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT),
+                            UsageFlags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(mipCount),
                             Format = OpenXRLayerUtility.GetDefaultColorFormat(),
                             SampleCount = 1,
                             Width = (uint)texturesExtension.LeftTexture.width,
                             Height = (uint)texturesExtension.LeftTexture.height,
                             FaceCount = 1,
                             ArraySize = 1,
-                            MipCount = (uint)texturesExtension.LeftTexture.mipmapCount,
+                            MipCount = mipCount,
                         };
 
                         swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texturesExtension));
@@ -339,6 +340,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 stereo.IsActive = true;
                 stereo.LeftTexture = texturesExtension.LeftTexture;
                 stereo.RightTexture = texturesExtension.RightTexture;
+                stereo.MipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
                 return true;
             }
 

@@ -107,6 +107,21 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
 #endif
         public static event ScriptEventDelegate onScriptEvent;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly ScriptEventDelegate s_ReceiveScriptEventDelegate = ReceiveScriptEvent;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly BeforeFunctionDelegate s_BeforeFunctionDelegate = BeforeFunctionCallback;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly AfterFunctionDelegate s_AfterFunctionDelegate = AfterFunctionCallback;
+
         /// <summary>
         /// The feature id string. This is used to give the feature a well known id for reference.
         /// </summary>
@@ -180,8 +195,8 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             }
 
             MockRuntime_RegisterFunctionCallbacks(
-                s_BeforeFunctionCallbacks != null ? BeforeFunctionCallback : null,
-                s_AfterFunctionCallbacks != null ? AfterFunctionCallback : null);
+                s_BeforeFunctionCallbacks != null ? s_BeforeFunctionDelegate : null,
+                s_AfterFunctionCallbacks != null ? s_AfterFunctionDelegate : null);
         }
 
         /// <summary>
@@ -340,7 +355,7 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             if (result)
                 XrInstance = xrInstance;
 
-            Internal_RegisterScriptEventCallback(ReceiveScriptEvent);
+            Internal_RegisterScriptEventCallback(s_ReceiveScriptEventDelegate);
 
             return result;
         }

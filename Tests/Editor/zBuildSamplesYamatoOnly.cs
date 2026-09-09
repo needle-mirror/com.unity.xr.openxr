@@ -15,6 +15,9 @@ using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
@@ -124,6 +127,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             EnableFeature<MetaQuestTouchProControllerProfile>();
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static SampleBuildTargetSetup[] buildTargetSetup =
         {
     #if UNITY_EDITOR_WIN

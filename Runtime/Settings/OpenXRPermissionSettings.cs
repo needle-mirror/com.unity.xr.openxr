@@ -40,6 +40,9 @@ namespace UnityEngine.XR.OpenXR
                 var permissionsToRequest = new List<string>();
                 foreach (var feature in ActiveBuildTargetInstance.features)
                 {
+                    if (feature == null)
+                        continue;
+
                     if (String.Compare(feature.featureIdInternal, "com.unity.openxr.feature.metaquest", true) == 0 && feature.enabled)
                     {
                         metaQuestFeatureEnabled = true;

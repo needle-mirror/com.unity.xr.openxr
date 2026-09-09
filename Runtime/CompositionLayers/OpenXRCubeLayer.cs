@@ -5,11 +5,17 @@ using Unity.XR.CompositionLayers.Extensions;
 using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Services;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
     internal class OpenXRCubeLayer : OpenXRCustomLayerHandler<XrCompositionLayerCubeKHR>
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static bool ExtensionEnabled = OpenXRRuntime.IsExtensionEnabled("XR_KHR_composition_layer_cube");
 
         Dictionary<int, OpenXRStereoLayerData.RightEyeData<XrCompositionLayerCubeKHR>> m_StereoData = new();
@@ -23,19 +29,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
+            var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texture);
             var xrCreateInfo = new XrSwapchainCreateInfo()
             {
                 Type = (uint)XrStructureType.XR_TYPE_SWAPCHAIN_CREATE_INFO,
                 Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Swapchain),
                 CreateFlags = 0,
-                UsageFlags = (ulong)(XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT),
+                UsageFlags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(mipCount),
                 Format = OpenXRLayerUtility.GetDefaultColorFormat(),
                 SampleCount = 1,
                 Width = (uint)(texture.LeftTexture.width),
                 Height = (uint)(texture.LeftTexture.height),
                 FaceCount = 6,
                 ArraySize = 1,
-                MipCount = (uint)texture.LeftTexture.mipmapCount,
+                MipCount = mipCount,
             };
 
             swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texture));
@@ -131,6 +138,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 stereo.IsActive = true;
                 stereo.LeftTexture = texturesExtension?.LeftTexture;
                 stereo.RightTexture = texturesExtension?.RightTexture;
+                stereo.MipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
                 return true;
             }
 

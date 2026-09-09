@@ -62,6 +62,11 @@
             "define": "LIFECYCLE_APIS_AVAILABLE"
         },
         {
+            "name": "Unity",
+            "expression": "6000.7.0a4",
+            "define": "UNITY_ENGINE_MIPMAPS_SUPPORT"
+        },
+        {
             "name": "com.unity.xr.compositionlayers",
             "expression": "2.4.0",
             "define": "XR_COMPOSITION_LAYERS_2_4_OR_GREATER"

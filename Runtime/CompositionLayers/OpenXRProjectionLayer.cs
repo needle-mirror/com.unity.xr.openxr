@@ -10,6 +10,9 @@ using Unity.XR.CompositionLayers.Services;
 using UnityEngine.Rendering;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using Unity.Collections.LowLevel.Unsafe;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
@@ -40,7 +43,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Dictionary<int, ProjectionData> m_ProjectionData = new Dictionary<int, ProjectionData>();
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly OpenXRLayerUtility.StereoRenderTextureIdsCallbackDelegate
+            s_OnStereoRenderTextureIdsCallback = OnStereoRenderTextureIdsCallback;
+
         bool m_isMainCameraRendered = false;
         bool m_isOnBeforeRender = false;
 
@@ -334,7 +347,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
-            OpenXRLayerUtility.RequestStereoRenderTextureIds(layerInfo.Id, OnStereoRenderTextureIdsCallback);
+            OpenXRLayerUtility.RequestStereoRenderTextureIds(layerInfo.Id, s_OnStereoRenderTextureIdsCallback);
 
             return true;
         }

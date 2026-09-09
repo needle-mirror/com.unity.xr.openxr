@@ -2,6 +2,9 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using XrInstance = System.UInt64;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
@@ -34,15 +37,32 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrPollFutureEXT_delegate xrPollFutureEXT_Ready_Delegate = xrPollFutureEXT_Ready;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrPollFutureEXT_Ready_Ptr =
-            Marshal.GetFunctionPointerForDelegate((xrPollFutureEXT_delegate)xrPollFutureEXT_Ready);
+            Marshal.GetFunctionPointerForDelegate(xrPollFutureEXT_Ready_Delegate);
 
         internal static XrResult xrCancelFutureEXT(XrInstance instance, in XrFutureCancelInfoEXT cancelInfo)
         {
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrCancelFutureEXT_delegate xrCancelFutureEXT_Delegate = xrCancelFutureEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrCancelFutureEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate((xrCancelFutureEXT_delegate)xrCancelFutureEXT);
+            Marshal.GetFunctionPointerForDelegate(xrCancelFutureEXT_Delegate);
     }
 }

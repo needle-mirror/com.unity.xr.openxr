@@ -4,6 +4,9 @@ using AOT;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using XrSpatialContextEXT = System.UInt64;
 using XrSpatialSnapshotEXT = System.UInt64;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
@@ -28,12 +31,18 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         /// The `componentTypeCount` the runtime last received, so tests can verify what the managed and
         /// `_usingContext` overloads forwarded.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static uint lastComponentTypeCount;
 
         /// <summary>
         /// The raycast info the runtime last received, so tests can verify what the `_usingContext` overload
         /// built natively.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static XrSpatialRaycastInfoANDROID lastRaycastInfo;
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialRaycastSnapshotANDROID_delegate))]
@@ -48,8 +57,17 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrCreateSpatialRaycastSnapshotANDROID_delegate xrCreateSpatialRaycastSnapshotANDROID_Delegate =
+            xrCreateSpatialRaycastSnapshotANDROID;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrCreateSpatialRaycastSnapshotANDROID_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialRaycastSnapshotANDROID_delegate)xrCreateSpatialRaycastSnapshotANDROID);
+            Marshal.GetFunctionPointerForDelegate(xrCreateSpatialRaycastSnapshotANDROID_Delegate);
     }
 }

@@ -7,6 +7,9 @@ using XrInstance = System.UInt64;
 using XrSession = System.UInt64;
 using XrSpatialImageTrackingDatabaseEXT = System.UInt64;
 using XrSystemId = System.UInt64;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
@@ -73,9 +76,18 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrCreateSpatialImageTrackingDatabaseAsyncEXT_delegate
+            xrCreateSpatialImageTrackingDatabaseAsyncEXT_Delegate = xrCreateSpatialImageTrackingDatabaseAsyncEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrCreateSpatialImageTrackingDatabaseAsyncEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialImageTrackingDatabaseAsyncEXT_delegate)xrCreateSpatialImageTrackingDatabaseAsyncEXT);
+            Marshal.GetFunctionPointerForDelegate(xrCreateSpatialImageTrackingDatabaseAsyncEXT_Delegate);
 
         [MonoPInvokeCallback(typeof(xrCreateSpatialImageTrackingDatabaseCompleteEXT_delegate))]
         internal static XrResult xrCreateSpatialImageTrackingDatabaseCompleteEXT(
@@ -86,10 +98,17 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrCreateSpatialImageTrackingDatabaseCompleteEXT_delegate
+            xrCreateSpatialImageTrackingDatabaseCompleteEXT_Delegate = xrCreateSpatialImageTrackingDatabaseCompleteEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrCreateSpatialImageTrackingDatabaseCompleteEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialImageTrackingDatabaseCompleteEXT_delegate)
-                xrCreateSpatialImageTrackingDatabaseCompleteEXT);
+            Marshal.GetFunctionPointerForDelegate(xrCreateSpatialImageTrackingDatabaseCompleteEXT_Delegate);
 
         [MonoPInvokeCallback(typeof(xrDestroySpatialImageTrackingDatabaseEXT_delegate))]
         internal static XrResult xrDestroySpatialImageTrackingDatabaseEXT(XrSpatialImageTrackingDatabaseEXT database)
@@ -97,9 +116,17 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrDestroySpatialImageTrackingDatabaseEXT_delegate
+            xrDestroySpatialImageTrackingDatabaseEXT_Delegate = xrDestroySpatialImageTrackingDatabaseEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrDestroySpatialImageTrackingDatabaseEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrDestroySpatialImageTrackingDatabaseEXT_delegate)xrDestroySpatialImageTrackingDatabaseEXT);
+            Marshal.GetFunctionPointerForDelegate(xrDestroySpatialImageTrackingDatabaseEXT_Delegate);
 
         [MonoPInvokeCallback(typeof(xrEnumerateSpatialReferenceImageFormatsEXT_delegate))]
         internal static unsafe XrResult xrEnumerateSpatialReferenceImageFormatsEXT(
@@ -122,8 +149,16 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
-        internal static unsafe IntPtr xrEnumerateSpatialReferenceImageFormatsEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrEnumerateSpatialReferenceImageFormatsEXT_delegate)xrEnumerateSpatialReferenceImageFormatsEXT);
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe xrEnumerateSpatialReferenceImageFormatsEXT_delegate
+            xrEnumerateSpatialReferenceImageFormatsEXT_Delegate = xrEnumerateSpatialReferenceImageFormatsEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        internal static IntPtr xrEnumerateSpatialReferenceImageFormatsEXT_Ptr =
+            Marshal.GetFunctionPointerForDelegate(xrEnumerateSpatialReferenceImageFormatsEXT_Delegate);
     }
 }

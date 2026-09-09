@@ -7,6 +7,9 @@ using UnityEngine.Scripting;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Input;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 #if USE_INPUT_SYSTEM_POSE_CONTROL
 using PoseControl = UnityEngine.InputSystem.XR.PoseControl;
@@ -39,12 +42,33 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// Stores merged additive actions for all features (used for testing).
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static readonly List<(string profile, List<(string name, string type, List<string> bindPaths, bool isAdditive)>)> MergeDetails = new();
 
         /// <summary>
         /// Stores if layout was registered, used for testing
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static bool registeredLayout = false;
+
+        /// <summary>
+        /// Clears the merge records and layout-registration flag captured by this mock.
+        /// </summary>
+        /// <remarks>
+        /// Both fields outlive any single test. <see cref="MergeDetails"/> is appended to whenever an
+        /// additive merge runs, and <see cref="registeredLayout"/> is written by the OpenXR feature
+        /// lifecycle rather than by test setup, so a test that asserts on either must reset them first
+        /// or it may observe a previous test's values instead of its own.
+        /// </remarks>
+        internal static void ResetTestState()
+        {
+            MergeDetails.Clear();
+            registeredLayout = false;
+        }
 
         /// <summary>
         /// Name of the device layout associated with this mock feature.

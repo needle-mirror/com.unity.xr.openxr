@@ -63,6 +63,53 @@ namespace UnityEngine.XR.OpenXR.Features
         private const string k_EyeTrackingExtension = "XR_META_foveation_eye_tracked";
 
         [SerializeField]
+        bool m_SkipFDMForFinalPassesSRP;
+
+        [SerializeField]
+        bool m_SkipFDMForFinalPassesSRPOverridden;
+
+        /// <summary>
+        /// Controls whether a Fragment Density Map (FDM) is attached to final render passes such as URP's FinalBlit
+        /// and UberPost, when using the SRP Foveation API. This has no effect on the Legacy foveated rendering API or
+        /// on Quad Views.
+        /// </summary>
+        /// <remarks>
+        /// On Meta Quest, attaching an FDM to a render pass forces the driver into binning mode, which has a lot of
+        /// setup overhead regardless of how complex the pass actually is. Skipping it lets the driver use direct
+        /// rendering mode for those passes instead. AndroidXR has its own approach to foveating the UberPost
+        /// pass and wants FDM kept attached there, so unless explicitly set via script, this defaults to
+        /// <see langword="true"/> only when the Meta Quest build profile is the confirmed active build profile, and
+        /// <see langword="false"/> otherwise - including for AndroidXR, Standalone, and the generic Android build
+        /// profile, since there is no reliable way to confirm a Meta device is in use in that last case.
+        /// Set this via script if you need to override the default.
+        /// Setting this immediately forwards the value to the XR Display Subsystem if it has already been created; if
+        /// it has not (for example, if this is set before the OpenXR loader has started), the native call safely
+        /// no-ops and the value is (re)applied once the subsystem is created, so it still takes effect for that run.
+        /// Note that Meta Quest's driver may still use binning mode for these passes regardless of this setting if MSAA is enabled.
+        /// </remarks>
+        public bool skipFDMForFinalPassesSRP
+        {
+            get => m_SkipFDMForFinalPassesSRPOverridden
+                ? m_SkipFDMForFinalPassesSRP
+                : DefaultSkipFDMForFinalPassesSRP;
+            set
+            {
+                m_SkipFDMForFinalPassesSRP = value;
+                m_SkipFDMForFinalPassesSRPOverridden = true;
+                Internal_SetSkipFDMForFinalPasses(value);
+            }
+        }
+
+        // FDM is skipped on final passes specifically for Meta Quest devices.
+        // AndroidXR wants FDM kept attached for its own UberPost foveation approach.
+        // Users can still override this via script on any platform.
+#if UNITY_META_QUEST
+        static bool DefaultSkipFDMForFinalPassesSRP => true;
+#else
+        static bool DefaultSkipFDMForFinalPassesSRP => false;
+#endif
+
+        [SerializeField]
         internal bool m_EnableDynamicFoveation;
 
         /// <summary>
@@ -484,6 +531,16 @@ namespace UnityEngine.XR.OpenXR.Features
             return Internal_Unity_intercept_xrGetInstanceProcAddr(func);
         }
 
+        /// <inheritdoc />
+        protected internal override void OnSubsystemCreate()
+        {
+            // The native display provider isn't created until the XR Display subsystem itself is created, which
+            // happens after OnInstanceCreate runs. Applying the value here (rather than in OnInstanceCreate) is what
+            // actually reaches the display subsystem instead of silently no-oping every time.
+            Internal_SetSkipFDMForFinalPasses(skipFDMForFinalPassesSRP);
+            base.OnSubsystemCreate();
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////////////
         private const string Library = "UnityOpenXR";
 
@@ -499,6 +556,9 @@ namespace UnityEngine.XR.OpenXR.Features
 
         [DllImport(Library, EntryPoint = "MetaSetSubsampledLayout")]
         private static extern XrResult Internal_Unity_MetaSetSubsampledLayout([MarshalAs(UnmanagedType.U1)] bool enableSubsampling);
+
+        [DllImport(Library, EntryPoint = "NativeConfig_SetSkipFDMForFinalPasses")]
+        private static extern void Internal_SetSkipFDMForFinalPasses([MarshalAs(UnmanagedType.I1)] bool skipFDM);
 
         [DllImport(Library, EntryPoint = "FBSetFoveationLevel")]
         static extern XrResult Internal_SetFbFoveationLevel(ulong session, XrFoveationLevelFB level, float verticalOffset, XrFoveationDynamicFB useFoveationDynamic);

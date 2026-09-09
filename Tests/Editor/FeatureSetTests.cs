@@ -161,6 +161,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         {
             base.AfterTest();
             OpenXRFeature.canSetFeatureDisabled = OpenXRFeatureSetManager.CanFeatureBeDisabled;
+            ClearFeatureInfos();
         }
 
         [Test]

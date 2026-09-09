@@ -6,6 +6,9 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.TestTools;
 using UnityEngine.TestTools.Utils;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -63,6 +66,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsFalse(sawCreateSession);
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static XrResult[] beginSessionSuccessResults =
         {
             XrResult.Success,
@@ -70,7 +76,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
-        public IEnumerator BeginSessionSuccessWithValues([ValueSource("beginSessionSuccessResults")]
+        public IEnumerator BeginSessionSuccessWithValues([ValueSource(nameof(beginSessionSuccessResults))]
             XrResult successResult)
         {
             var states = new List<XrSessionState>();

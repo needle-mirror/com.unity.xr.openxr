@@ -6,9 +6,25 @@ using Unity.XR.CompositionLayers;
 using Unity.XR.CompositionLayers.Extensions;
 using Unity.XR.CompositionLayers.Services;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
+    /// <summary>
+    /// Provider-local representation of how mip levels should be written into a layer swapchain, mirroring
+    /// <c>TexturesExtension.MipMapModeEnum</c>. Kept independent of the Composition Layers API so the mip
+    /// write path compiles and runs against Composition Layers versions that predate that enum, where it
+    /// simply behaves as <see cref="MipMapWriteMode.None"/>.
+    /// </summary>
+    internal enum MipMapWriteMode
+    {
+        None,
+        CopyFromSource,
+        AutoGenerate,
+    }
+
     /// <summary>
     /// A general-purpose helper class for composition layer support.
     /// </summary>
@@ -16,8 +32,24 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     {
         internal unsafe delegate void LayerCallbackDelegate(int layerId, XrCompositionLayerBaseHeader* layer);
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Dictionary<uint, RenderTexture> s_TextureMap = new();
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Dictionary<int, Cubemap> s_CubemapConversionCache = new();
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+#if UNITY_6000_3_OR_NEWER
+        static HashSet<EntityId> s_LoggedCopyFromSourceFallback = new();
+#else
+        static HashSet<int> s_LoggedCopyFromSourceFallback = new();
+#endif
+
+        const int k_CubeFaceCount = 6;
 
         internal static void ClearCubemapConversionCache()
         {
@@ -27,6 +59,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     Object.Destroy(kvp.Value);
             }
             s_CubemapConversionCache.Clear();
+        }
+
+        // s_TextureMap only caches references to swapchain RenderTextures that we do not own, so drop the
+        // stale references without destroying the textures.
+        internal static void ClearRenderTextureCache()
+        {
+            s_TextureMap.Clear();
+            s_LoggedCopyFromSourceFallback.Clear();
         }
 
         public delegate void RenderTextureIdCallbackDelegate(int layerId, uint texId);
@@ -102,6 +142,74 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// </summary>
         /// <returns>A handle to the current xr session.</returns>
         public static ulong GetXRSession() => Features.OpenXRFeature.Internal_GetXRSession(out ulong xrSessionHandle) ? xrSessionHandle : 0;
+
+        // Computes the number of swapchain mip levels to request for a layer, honoring the layer's mip mode.
+        internal static uint GetSwapchainMipCount(TexturesExtension texturesExtension)
+        {
+            if (texturesExtension == null || texturesExtension.LeftTexture == null)
+            {
+                Debug.LogWarning("GetSwapchainMipCount: textures extension or its texture is null. Defaulting to a single mip level.");
+                return 1u;
+            }
+
+#if UNITY_ENGINE_MIPMAPS_SUPPORT
+            var mipMapMode = GetMipMapWriteMode(texturesExtension);
+            var sourceMipmapCount = texturesExtension.LeftTexture.mipmapCount;
+            return mipMapMode != MipMapWriteMode.None && sourceMipmapCount > 1 ? (uint)sourceMipmapCount : 1u;
+#else
+            return 1u;
+#endif
+        }
+
+        // Individual swapchain mip levels can only be written on graphics APIs that expose per-mip surfaces as
+        // copy/render targets. OpenGL(ES) silently lands every per-mip write in mip 0, so on those APIs authored
+        // (CopyFromSource) mips fall back to a generated chain (Blit + GenerateMips) instead.
+        static bool SwapchainSupportsPerMipWrites()
+        {
+            var api = SystemInfo.graphicsDeviceType;
+            return api != Rendering.GraphicsDeviceType.OpenGLES3
+                && api != Rendering.GraphicsDeviceType.OpenGLCore;
+        }
+
+        // Reads a layer's mip mode as a provider-local <see cref="MipMapWriteMode"/>.
+        internal static MipMapWriteMode GetMipMapWriteMode(TexturesExtension texturesExtension)
+        {
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            return texturesExtension == null
+                ? MipMapWriteMode.None
+                : GetMipMapWriteMode(texturesExtension.MipMapMode);
+#else
+            return MipMapWriteMode.None;
+#endif
+        }
+
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+        static MipMapWriteMode GetMipMapWriteMode(TexturesExtension.MipMapModeEnum mipMapMode)
+        {
+            switch (mipMapMode)
+            {
+                case TexturesExtension.MipMapModeEnum.CopyFromSource:
+                    return MipMapWriteMode.CopyFromSource;
+                case TexturesExtension.MipMapModeEnum.AutoGenerate:
+                    return MipMapWriteMode.AutoGenerate;
+                default:
+                    return MipMapWriteMode.None;
+            }
+        }
+#endif
+
+        // Returns the usage flags to request for a color swapchain with the given mip count.
+        internal static ulong GetColorSwapchainUsageFlags(uint mipCount)
+        {
+            var usageFlags = XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_SAMPLED_BIT
+                | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
+
+            if (mipCount > 1)
+                usageFlags |= XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT
+                    | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
+
+            return (ulong)usageFlags;
+        }
 
         /// <summary>
         /// Create the <see cref="XrSwapchainCreateInfo"/> struct that is passed to OpenXR SDK to create a swapchain.
@@ -240,14 +348,22 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         /// <summary>
-        /// Handles transfering texture data to a render texture.
+        /// Handles transfering texture data to a render texture, writing only the full-resolution image (mip level 0).
         /// </summary>
         /// <param name="texture">The source texture that will be written into the provided render texture.</param>
         /// <param name="renderTexture">The render texture that will be written to.</param>
         public static void WriteToRenderTexture(Texture texture, RenderTexture renderTexture)
         {
+            WriteToRenderTexture(texture, renderTexture, MipMapWriteMode.None);
+        }
+
+        // Handles transfering texture data to a render texture, propagating mipmap levels according to the provided <see cref="MipMapWriteMode"/>.
+        internal static void WriteToRenderTexture(Texture texture, RenderTexture renderTexture, MipMapWriteMode mipMapMode)
+        {
             if (texture == null || renderTexture == null)
                 return;
+
+            bool isDestinationMipped = renderTexture.useMipMap && renderTexture.mipmapCount > 1;
 
             if (renderTexture.dimension == Rendering.TextureDimension.Cube && texture.dimension == Rendering.TextureDimension.Cube)
             {
@@ -268,7 +384,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         if (convertedTexture != null)
                             Object.Destroy(convertedTexture);
 
-                        convertedTexture = new Cubemap(texture.width, renderTexture.graphicsFormat, Experimental.Rendering.TextureCreationFlags.None);
+                        var creationFlags = texture.mipmapCount > 1
+                            ? Experimental.Rendering.TextureCreationFlags.MipChain
+                            : Experimental.Rendering.TextureCreationFlags.None;
+                        convertedTexture = new Cubemap(texture.width, renderTexture.graphicsFormat, creationFlags);
                         s_CubemapConversionCache[cacheKey] = convertedTexture;
                     }
 
@@ -279,15 +398,131 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     }
                 }
 
-                for (int i = 0; i < 6; i++)
-                    Graphics.CopyTexture(convertedTexture == null ? texture : convertedTexture, i, renderTexture, i);
+                Texture cubeSource = convertedTexture == null ? texture : convertedTexture;
+
+                if (isDestinationMipped && mipMapMode == MipMapWriteMode.CopyFromSource && SwapchainSupportsPerMipWrites())
+                {
+                    if (cubeSource.mipmapCount == renderTexture.mipmapCount)
+                    {
+                        for (int i = 0; i < k_CubeFaceCount; i++)
+                        {
+                            Graphics.CopyTexture(cubeSource, i, renderTexture, i);
+                        }
+                        return;
+                    }
+
+                    if (ShouldLogCopyFromSourceFallback(renderTexture))
+                        Debug.LogWarning("WriteToRenderTexture: CopyFromSource could not copy the cubemap mips directly " +
+                            "(source and swapchain mip counts differ). Falling back to auto-generated mips.");
+                }
+
+                if (isDestinationMipped)
+                {
+                    for (int i = 0; i < k_CubeFaceCount; i++)
+                    {
+                        Graphics.CopyTexture(cubeSource, i, 0, renderTexture, i, 0);
+                    }
+                    renderTexture.GenerateMips();
+                    return;
+                }
+
+                for (int i = 0; i < k_CubeFaceCount; i++)
+                {
+                    Graphics.CopyTexture(cubeSource, i, 0, renderTexture, i, 0);
+                }
+                return;
             }
-            else if (CanTextureUseGraphicsCopy(texture, renderTexture))
+
+            bool isRawCopyWouldFlip = RawCopyIntoSwapchainWouldFlip();
+
+            if (isDestinationMipped && mipMapMode == MipMapWriteMode.CopyFromSource && SwapchainSupportsPerMipWrites())
+            {
+                if (TryWriteAuthoredMips(texture, renderTexture))
+                    return;
+
+                if (ShouldLogCopyFromSourceFallback(renderTexture))
+                    Debug.LogWarning("WriteToRenderTexture: CopyFromSource could not copy the source mips directly " +
+                        "(unsupported copy, or a size, format, or mip-count mismatch with the swapchain). " +
+                        "Falling back to auto-generated mips.");
+            }
+
+            if (isDestinationMipped
+                && (mipMapMode == MipMapWriteMode.AutoGenerate
+                    || mipMapMode == MipMapWriteMode.CopyFromSource))
+            {
+                Graphics.Blit(texture, renderTexture);
+                renderTexture.GenerateMips();
+                return;
+            }
+
+            if (!isRawCopyWouldFlip && CanTextureUseGraphicsCopy(texture, renderTexture))
                 Graphics.CopyTexture(texture, renderTexture);
             else
                 Graphics.Blit(texture, renderTexture);
         }
 
+        // Warns at most once per destination swapchain render texture so the per-frame writes do not spam the console
+        static bool ShouldLogCopyFromSourceFallback(RenderTexture renderTexture)
+        {
+#if UNITY_6000_3_OR_NEWER
+            return s_LoggedCopyFromSourceFallback.Add(renderTexture.GetEntityId());
+#else
+            return s_LoggedCopyFromSourceFallback.Add(renderTexture.GetInstanceID());
+#endif
+        }
+
+        // Graphics.CopyTexture is a raw image copy and any (non-cube) layer texture created without AllowVerticalFlip on
+        // top-left-origin graphics APIs (Metal, D3D, Vulkan) when copied lands upside down regardless of the source type, blit stays upright.
+        static bool RawCopyIntoSwapchainWouldFlip() => SystemInfo.graphicsUVStartsAtTop;
+
+        static bool TryWriteAuthoredMips(Texture source, RenderTexture destination)
+        {
+            if (source.dimension != Rendering.TextureDimension.Tex2D
+                || destination.dimension != Rendering.TextureDimension.Tex2D)
+                return false;
+
+            if (Experimental.Rendering.GraphicsFormatUtility.IsCompressedFormat(source.graphicsFormat))
+                return false;
+
+            var copySupport = SystemInfo.copyTextureSupport;
+            if ((copySupport & Rendering.CopyTextureSupport.Basic) == 0)
+                return false;
+
+            if (!(source is RenderTexture) && (copySupport & Rendering.CopyTextureSupport.TextureToRT) == 0)
+                return false;
+
+            if (source is RenderTexture sourceRenderTexture && sourceRenderTexture.antiAliasing > 1)
+                return false;
+
+            if (source.width != destination.width || source.height != destination.height)
+                return false;
+
+            int mipCount = destination.mipmapCount;
+            if (mipCount <= 1 || source.mipmapCount < mipCount)
+                return false;
+
+            var previousActive = RenderTexture.active;
+            for (int mip = 0; mip < mipCount; mip++)
+            {
+                int mipWidth = Mathf.Max(1, destination.width >> mip);
+                int mipHeight = Mathf.Max(1, destination.height >> mip);
+
+                var sourceMip = RenderTexture.GetTemporary(
+                    new RenderTextureDescriptor(mipWidth, mipHeight, source.graphicsFormat, 0));
+                Graphics.CopyTexture(source, 0, mip, sourceMip, 0, 0);
+
+                var converted = RenderTexture.GetTemporary(
+                    new RenderTextureDescriptor(mipWidth, mipHeight, destination.graphicsFormat, 0));
+                Graphics.Blit(sourceMip, converted);
+                Graphics.CopyTexture(converted, 0, 0, destination, 0, mip);
+
+                RenderTexture.ReleaseTemporary(sourceMip);
+                RenderTexture.ReleaseTemporary(converted);
+            }
+            RenderTexture.active = previousActive;
+
+            return true;
+        }
 
         // Determines whether a Texture can be transferred with a direct GPU copy instead of a blit.
         internal static bool CanTextureUseGraphicsCopy(Texture source, RenderTexture destination)

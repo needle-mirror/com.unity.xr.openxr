@@ -15,6 +15,9 @@ using UnityEngine.XR.OpenXR.Features.ConformanceAutomation;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.Input;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 #if USE_INPUT_SYSTEM_POSE_CONTROL
 using PoseStruct = UnityEngine.InputSystem.XR.PoseState;
 #else
@@ -25,6 +28,9 @@ namespace UnityEngine.XR.OpenXR.Tests
 {
     class OpenXRInputTestsBase : OpenXRLoaderSetup
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly List<XRNodeState> s_NodeStates = new();
 
         protected static bool IsNodeTracked(XRNode node)
@@ -37,6 +43,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// List of all known interaction features and their associated devices for testing
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         protected static readonly (Type featureType, Type layoutType, string layoutNameOverride)[] s_InteractionFeatureLayouts = {
             (typeof(OculusTouchControllerProfile), typeof(OculusTouchControllerProfile.OculusTouchController), null),
             (typeof(EyeGazeInteraction), typeof(EyeGazeInteraction.EyeGazeDevice), "EyeGaze"),
@@ -58,6 +67,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// List of interaction features that should not be tested.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         protected static readonly Type[] s_IgnoreInteractionFeatures = {
             typeof(MockInteractionFeature),
             typeof(HandCommonPosesInteraction),
@@ -93,6 +105,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// Every concrete Input System device defined in the OpenXR package.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly Type[] s_AllOpenXRInputDeviceTypes = typeof(OpenXRInteractionFeature).Assembly.GetTypes()
             .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition && typeof(InputSystem.InputDevice).IsAssignableFrom(t))
             .OrderBy(t => t.FullName)
@@ -561,6 +576,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         static readonly Regex k_ErrorInvalidActionSetName = new(".*Invalid ActionSet name.*");
         static readonly Regex k_ErrorInvalidActionType = new(@".*Invalid action type \'\d*' for action '.*'");
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly (Action<OpenXRInteractionFeature.ActionMapConfig> filter, Regex expectLog, Regex expectReport)[] s_ActionMapTests =
         {
             // One or more device infos must be specified
@@ -638,6 +656,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// Defines a list of OpenXR API methods to test failure with
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly (string function, XrResult result, Regex expectLog)[] s_RuntimeFailureTests =
         {
             ("xrSuggestInteractionProfileBindings", XrResult.FeatureUnsupported, new Regex(".*Failed to suggest bindings for interaction profile.*XR_ERROR_FEATURE_UNSUPPORTED.*")),

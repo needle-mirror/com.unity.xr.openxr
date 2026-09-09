@@ -4,32 +4,38 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.XR.OpenXR.Features;
 using static UnityEditor.XR.OpenXR.Features.OpenXRFeatureSetManager;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
-    internal static class OpenXREditorTestHelpers
+    static class OpenXREditorTestHelpers
     {
         public delegate bool FeatureInfoPredicate(FeatureHelpersInternal.FeatureInfo featureInfo);
 
         public static bool FeatureEnabled(FeatureHelpersInternal.FeatureInfo featureInfo) => featureInfo.Feature.enabled;
         public static bool FeatureDisabled(FeatureHelpersInternal.FeatureInfo featureInfo) => !featureInfo.Feature.enabled;
 
-        private static Dictionary<BuildTargetGroup, FeatureHelpersInternal.FeatureInfo[]> s_FeatureInfos;
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly Dictionary<BuildTargetGroup, FeatureHelpersInternal.FeatureInfo[]> k_FeatureInfos = new();
 
-        private static BuildTargetGroup[] s_BuildTargetGroups =
+        static readonly BuildTargetGroup[] k_BuildTargetGroups =
             ((BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup))).Distinct().ToArray();
 
         /// <summary>
         /// Return the distinct list of build target groups to test
         /// </summary>
-        public static BuildTargetGroup[] GetBuildTargetGroups() => s_BuildTargetGroups;
+        public static BuildTargetGroup[] GetBuildTargetGroups() => k_BuildTargetGroups;
 
         /// <summary>
         /// Clear the FeatureInfo cache
         /// </summary>
         public static void ClearFeatureInfos()
         {
-            s_FeatureInfos = null;
+            k_FeatureInfos.Clear();
         }
 
         /// <summary>
@@ -39,13 +45,10 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// <returns>Array of FeatureInfos for the build target group</returns>
         public static FeatureHelpersInternal.FeatureInfo[] GetFeatureInfos(BuildTargetGroup buildTargetGroup)
         {
-            if (null == s_FeatureInfos)
-                s_FeatureInfos = new Dictionary<BuildTargetGroup, FeatureHelpersInternal.FeatureInfo[]>();
-
-            if (!s_FeatureInfos.TryGetValue(buildTargetGroup, out var featureInfos))
+            if (!k_FeatureInfos.TryGetValue(buildTargetGroup, out var featureInfos))
             {
                 featureInfos = FeatureHelpersInternal.GetAllFeatureInfo(buildTargetGroup).Features.ToArray();
-                s_FeatureInfos[buildTargetGroup] = featureInfos;
+                k_FeatureInfos[buildTargetGroup] = featureInfos;
             }
 
             return featureInfos;

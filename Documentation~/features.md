@@ -21,6 +21,7 @@ For information about the available OpenXR features, refer to:
 | [Quad Views](features/quadviews.md) | An optimization technique that renders peripheral areas at a lower resolution. A sub-option of [Foveated Rendering](features/foveatedrendering.md). |
 | [Multiview Render Regions](features/multiviewrenderregions.md) | An optimization technique that prevents processing on areas of the screen that are not visible to the user. |
 | [Application SpaceWarp](features/spacewarp.md) | An optimization technique that synthesizes every other frame. |
+| [Temporal Pixel Synthesis](features/temporalpixelsynthesis.md) | An image-quality technique that lets the Meta runtime apply temporal anti-aliasing and upscaling to rendered frames, by providing per-view motion vector, depth, and stencil data. |
 | [Automatic dynamic resolution](features/automaticdynamicresolution.md) | Dynamically adjusts the resolution of your XR project to maintain a stable frame rate and improve graphical performance. |
 | [Hand Mesh Data](features/hand-mesh-data.md) | Provides access to hand mesh geometry for skinned hand rendering via XR\_FB\_hand\_tracking\_mesh. |
 

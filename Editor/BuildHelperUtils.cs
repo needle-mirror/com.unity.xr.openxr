@@ -43,7 +43,7 @@ namespace UnityEditor.XR.OpenXR
                     var allSettings = AssetDatabase.LoadAssetAtPath(path, typeof(XRGeneralSettingsPerBuildTarget)) as XRGeneralSettingsPerBuildTarget;
                     if (allSettings != null)
                     {
-#if UNITY_6000_7_OR_NEWER
+#if XRM_4_7_0_OR_NEWER
                         EditorBuildSettings.AddConfigObject(XRGeneralSettings.settingsKey, allSettings, true);
 #else
                         EditorBuildSettings.AddConfigObject(XRGeneralSettings.k_SettingsKey, allSettings, true);

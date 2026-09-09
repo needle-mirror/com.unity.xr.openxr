@@ -2,6 +2,9 @@
 using System;
 using Unity.XR.CompositionLayers.Services;
 using UnityEngine.XR.OpenXR.CompositionLayers;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
@@ -82,7 +85,13 @@ namespace UnityEngine.XR.OpenXR.Features.CompositionLayers
 
         class ApplicationLifecycleHook : MonoBehaviour
         {
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
             static event Action<bool> OnPause;
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
             static ApplicationLifecycleHook Instance;
 
             public static void Init(Action<bool> OnPauseCallback)

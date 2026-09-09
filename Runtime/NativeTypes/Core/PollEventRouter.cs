@@ -37,6 +37,17 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         static readonly Dictionary<XrStructureType, HashSet<XrPollEventCallback>> s_TypedEventSubscribers = new();
         static int numSubscribersToEventReceived => s_SubscribersToAllEvents.Count + s_TypedEventSubscribers.Count;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe XrPollEventCallback s_OnXrPollEvent = OnXrPollEvent;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe IntPtr s_XrPollEventCallback =
+            Marshal.GetFunctionPointerForDelegate(s_OnXrPollEvent);
+
         static void RegisterNativeCallback()
         {
             OpenXRLoaderBase.deinitializedInternal += ClearAllState;
@@ -56,14 +67,6 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
             s_TypedEventSubscribers.Clear();
             Internal_UnregisterPollEventCallback();
         }
-
-#if LIFECYCLE_APIS_AVAILABLE
-        // Function pointer for a static method; the value never becomes stale and doesn't need to be
-        // recomputed between Play mode sessions.
-        [NoAutoStaticsCleanup]
-#endif
-        static readonly unsafe IntPtr s_XrPollEventCallback =
-            Marshal.GetFunctionPointerForDelegate((XrPollEventCallback)OnXrPollEvent);
 
         [MonoPInvokeCallback(typeof(XrPollEventCallback))]
         static unsafe void OnXrPollEvent(XrEventDataBaseHeader* eventData)

@@ -7,6 +7,9 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.XR.OpenXR.TestTooling;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 using XrFoveationProfileFB = System.UIntPtr;
 using XrSession = System.UIntPtr;
 using XrSwapchain = System.UIntPtr;
@@ -38,16 +41,33 @@ namespace UnityEngine.XR.OpenXR.Tests
         static readonly XrFoveationProfileFB k_MockProfileHandle = new(0xF0EA7104);
 
         // What the plugin submitted in the most recent xrCreateFoveationProfileFB call.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static XrFoveationLevelFB s_LastLevel;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static XrFoveationDynamicFB s_LastDynamic;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static int s_CreateProfileCallCount;
 
         // Set if any profile submitted during a test enabled dynamic foveation. The native layer
         // decides for itself how many profiles to create, so tests assert on what those profiles
         // contained rather than on how many of them there were.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static bool s_SawDynamicEnabled;
 
         // Anything the interceptor threw, so it can be reported instead of aborting the process.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Exception s_InterceptorException;
 
         MockOpenXREnvironment m_Environment;
@@ -311,8 +331,17 @@ namespace UnityEngine.XR.OpenXR.Tests
         internal delegate XrResult UpdateSwapchain_Delegate(XrSwapchain swapchain, IntPtr state);
 
         // Held in static fields so the delegates are not collected while native holds the pointers.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly CreateFoveationProfile_Delegate k_CreateFoveationProfile = CreateFoveationProfile_MockCallback;
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly DestroyFoveationProfile_Delegate k_DestroyFoveationProfile = DestroyFoveationProfile_MockCallback;
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly UpdateSwapchain_Delegate k_UpdateSwapchain = UpdateSwapchain_MockCallback;
 
         static readonly IntPtr k_CreateFoveationProfilePtr = Marshal.GetFunctionPointerForDelegate(k_CreateFoveationProfile);

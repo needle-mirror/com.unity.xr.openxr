@@ -20,6 +20,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             public Texture RightTexture;
 
+            public MipMapWriteMode MipMapMode;
+
             public bool IsActive;
         }
 
@@ -100,14 +102,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     {
                         var leftRT = OpenXRLayerUtility.FindRenderTexture(leftId);
                         if (leftRT != null)
-                            OpenXRLayerUtility.WriteToRenderTexture(data.LeftTexture, leftRT);
+                            OpenXRLayerUtility.WriteToRenderTexture(data.LeftTexture, leftRT, data.MipMapMode);
                     }
 
                     if (rightId != 0 && data.RightTexture != null)
                     {
                         var rightRT = OpenXRLayerUtility.FindRenderTexture(rightId);
                         if (rightRT != null)
-                            OpenXRLayerUtility.WriteToRenderTexture(data.RightTexture, rightRT);
+                            OpenXRLayerUtility.WriteToRenderTexture(data.RightTexture, rightRT, data.MipMapMode);
                     }
                 }
 

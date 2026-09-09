@@ -12,7 +12,8 @@
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:4ddd23ea56a3a40f0aa0036d1624a53e",
         "GUID:9de2e6a33a93480478eaf8469cfe8f10",
-        "GUID:f9fe0089ec81f4079af78eb2287a6163"
+        "GUID:f9fe0089ec81f4079af78eb2287a6163",
+        "GUID:3f088b6c6874b1b49a97747d1259079a"
     ],
     "includePlatforms": [
         "Editor"
@@ -37,6 +38,11 @@
             "name": "com.unity.xr.compositionlayers",
             "expression": "1.0.0",
             "define": "XR_COMPOSITION_LAYERS_1_0_0_OR_NEWER"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.5.0a9",
+            "define": "LIFECYCLE_APIS_AVAILABLE"
         }
     ],
     "noEngineReferences": false

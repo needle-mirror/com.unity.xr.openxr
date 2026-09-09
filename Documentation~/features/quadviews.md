@@ -46,7 +46,7 @@ To enable quad views:
    ![Enable the quad views feature in your Project Settings](../images/quad-views-enable.png)
 
 > [!NOTE]
-> You can use quad views without eye tracking. Disable the **Use Eye Tracking** checkbox in the **Foveated Rendering** settings if you don't want to use gaze-based foveated rendering. Refer to [Configure gaze-based foveated rendering](xref:openxr-foveated-rendering#configure-gaze-based-foveated-rendering) for more information.
+> You can use quad views without eye tracking. Disable the **Use Eye Tracking** checkbox in the **Foveated Rendering** settings if you don't want to use gaze-based foveated rendering. Refer to [Configure gaze-based foveated rendering](xref:openxr-foveated-rendering-gaze-based) for more information.
 
 > [!NOTE]
 > The quad views implementation for a device determines the size, position, and resolution of the quad views. No additional options or runtime APIs for controlling quad views are available.

@@ -81,11 +81,14 @@ namespace UnityEditor.XR.OpenXR
             {
                 get
                 {
-                    string str = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
-#if UNITY_EDITOR_OSX
-                    str = File.Exists("/usr/local/share/openxr/1/active_runtime.json") ? "/usr/local/share/openxr/1/active_runtime.json" : "";
+#if UNITY_EDITOR_WIN
+                    return (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Khronos\OpenXR\1", "ActiveRuntime", "");
+#elif UNITY_EDITOR_OSX
+                    return File.Exists("/usr/local/share/openxr/1/active_runtime.json") ? "/usr/local/share/openxr/1/active_runtime.json" : "";
+#else
+                    // The Windows Registry is not available on non-Windows platforms under CoreCLR.
+                    return "";
 #endif
-                    return str;
                 }
             }
 
@@ -144,9 +147,14 @@ namespace UnityEditor.XR.OpenXR
             {
                 get
                 {
+#if UNITY_EDITOR_WIN
                     var oculusPath = (string)Registry.GetValue(installLocKey, installLocValue, "");
                     if (string.IsNullOrEmpty(oculusPath)) return "";
                     return Path.Combine(oculusPath, jsonName);
+#else
+                    // The Windows Registry is not available on non-Windows platforms under CoreCLR.
+                    return "";
+#endif
                 }
             }
 
@@ -279,9 +287,12 @@ namespace UnityEditor.XR.OpenXR
 
         internal static List<RuntimeDetector> GenerateRuntimeDetectorList()
         {
-            RegistryKey availableRuntimesKey = Registry.LocalMachine.OpenSubKey(k_availableRuntimesRegistryKey, false);
             Dictionary<string, int> runtimePathToValue = new Dictionary<string, int>();
 
+#if UNITY_EDITOR_WIN
+            // The Windows Registry is not available on non-Windows platforms under CoreCLR
+            // (Registry.LocalMachine is null and Registry APIs throw PlatformNotSupportedException).
+            RegistryKey availableRuntimesKey = Registry.LocalMachine.OpenSubKey(k_availableRuntimesRegistryKey, false);
             if (availableRuntimesKey != null)
             {
                 foreach (string jsonPath in availableRuntimesKey.GetValueNames())
@@ -290,6 +301,7 @@ namespace UnityEditor.XR.OpenXR
                     runtimePathToValue.Add(jsonPath, availableValue);
                 }
             }
+#endif
 
             return GenerateRuntimeDetectorList(runtimePathToValue);
         }

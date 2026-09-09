@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
 using UnityEngine;
+using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Interactions;
 using UnityEngine.XR.OpenXR.Features.Mock;
@@ -16,6 +18,12 @@ namespace UnityEditor.XR.OpenXR.Tests
 {
     class FeatureTests : OpenXRLoaderSetup
     {
+        public override void AfterTest()
+        {
+            base.AfterTest();
+            ClearFeatureInfos();
+        }
+
         [Test]
         public void EnableFeatures()
         {
@@ -43,14 +51,20 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         }
 
-        [Test]
-        public void ValidationError()
+        [UnityTest]
+        [Description("A feature's failing validation rule fails a player build, and invoking fixIt clears " +
+                     "the issue.")]
+        public IEnumerator ValidationError()
         {
             bool errorFixed = false;
             var feature = ScriptableObject.CreateInstance<TestFeature>();
 
             // Wait one frame to safely enable the TestFeature scriptable object.
-            EditorApplication.delayCall += () =>
+            // This must be a yield inside the test (not EditorApplication.delayCall) so the body
+            // runs within the test's log scope and its assertions count toward the result.
+            yield return null;
+
+            try
             {
                 // Set up a validation check ...
                 MockRuntime.Instance.TestCallback = (s, o) =>
@@ -91,11 +105,13 @@ namespace UnityEditor.XR.OpenXR.Tests
                 // Now there's zero validation issues ...
                 OpenXRProjectValidation.GetCurrentValidationIssues(validationIssues, BuildTargetGroup.Standalone);
                 Assert.AreEqual(0, validationIssues.Count);
-
+            }
+            finally
+            {
                 // Close the validation window ...
                 OpenXRProjectValidationRulesSetup.CloseWindow();
-            };
-
+                UnityEngine.Object.DestroyImmediate(feature);
+            }
         }
 
         [Test]

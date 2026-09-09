@@ -136,9 +136,13 @@ To set up mocked extension support, you need to do the following steps:
         return XrResult.Success;
     }
 
+    static readonly MyCustomExtensionFunction_Delegate s_MyFunctionInterceptor = MyFunctionInterceptor;
+
     // The function interceptor needs to be marshalled into a pointer that the Mock Runtime can use as a native function pointer
-    static unsafe IntPtr GetFunctionInterceptor() => Marshal.GetFunctionPointerForDelegate((MyCustomExtensionFunction_Delegate)MyFunctionInterceptor);
+    static unsafe IntPtr GetFunctionInterceptor() => Marshal.GetFunctionPointerForDelegate(s_MyFunctionInterceptor);
     ```
+
+    Keep the delegate in a `static readonly` field that outlives the native registration, because `Marshal.GetFunctionPointerForDelegate` does not keep its argument alive and the garbage collector can otherwise free the delegate while the Mock Runtime still holds the function pointer.
 
     > [!IMPORTANT]
     > Do not perform assertions directly inside a mocked function interceptor's code block. Assertions throw managed exceptions that the native code in Mock Runtime can't handle, potentially causing a crash. Instead, use static variables to store the internal state of your function interceptor, and then, in your test, execute the assertions.
@@ -244,8 +248,10 @@ public class MyMockFunctionInterceptorTest
         return XrResult.Success;
     }
 
+    static readonly MyCustomExtensionFunction_Delegate s_MyFunctionInterceptor = MyFunctionInterceptor;
+
     // Getter for marshaling the function pointer
-    static unsafe IntPtr GetFunctionInterceptor() => Marshal.GetFunctionPointerForDelegate((MyCustomExtensionFunction_Delegate)MyFunctionInterceptor);
+    static unsafe IntPtr GetFunctionInterceptor() => Marshal.GetFunctionPointerForDelegate(s_MyFunctionInterceptor);
 
     // Variable used to check if the XR function interceptor was called by native code
     static bool MyFunctionWasCalled = false;
@@ -303,8 +309,10 @@ static unsafe XrResult SysProperties_UserPresence_MockCallback(XrSystemPropertie
     return XrResult.Success;
 }
 
+static readonly GetSystemProperties_Delegate s_SysPropertiesUserPresenceMockCallback = SysProperties_UserPresence_MockCallback;
+
 // Getter for marshaling the function pointer
-static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() => Marshal.GetFunctionPointerForDelegate((GetSystemProperties_Delegate)SysProperties_UserPresence_MockCallback);
+static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() => Marshal.GetFunctionPointerForDelegate(s_SysPropertiesUserPresenceMockCallback);
 ```
 
 Then, during your test setup, you need to configure the Mock Runtime to use your desired system properties provider function with the [`MockOpenXREnvironment.SetSysPropertiesFunctionForXrStructureType`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.SetSysPropertiesFunctionForXrStructureType(System.UInt32,System.IntPtr)) method:
@@ -340,7 +348,9 @@ public class SystemPropertiesTest
         return XrResult.Success;
     }
 
-    static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() => Marshal.GetFunctionPointerForDelegate((GetSystemProperties_Delegate)SysProperties_UserPresence_MockCallback);
+    static readonly GetSystemProperties_Delegate s_SysPropertiesUserPresenceMockCallback = SysProperties_UserPresence_MockCallback;
+
+    static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() => Marshal.GetFunctionPointerForDelegate(s_SysPropertiesUserPresenceMockCallback);
 
     static uint s_NumTimesMockSysPropertiesCalled;
 

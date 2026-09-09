@@ -89,6 +89,11 @@ namespace UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings
 #endif
         public static event UnityAction<PerformanceChangeNotification> OnXrPerformanceChangeNotification;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly NativeApi.XrPerformanceNotificationDelegate s_PerformanceNotificationCallback = OnXrPerformanceNotificationCallback;
+
         /// <summary>
         /// Provides the OpenXR runtime with the desired performance level to be used for the specified domain.
         /// </summary>
@@ -117,7 +122,7 @@ namespace UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings
         {
             return base.OnInstanceCreate(xrInstance) &&
                 OpenXRRuntime.IsExtensionEnabled(extensionString) &&
-                NativeApi.xr_performance_settings_setEventCallback(OnXrPerformanceNotificationCallback);
+                NativeApi.xr_performance_settings_setEventCallback(s_PerformanceNotificationCallback);
         }
 
         [AOT.MonoPInvokeCallback(typeof(NativeApi.XrPerformanceNotificationDelegate))]

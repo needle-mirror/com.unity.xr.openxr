@@ -8,15 +8,24 @@ using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using static UnityEditor.XR.OpenXR.Features.FeatureHelpersInternal;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
     internal class CustomLoaderTests
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly OpenXRApiVersion s_upgradedVersion = new(
             (ushort)(OpenXRApiVersion.Current.Major + 1),
             (ushort)(OpenXRApiVersion.Current.Minor + 1),
             OpenXRApiVersion.Current.Patch + 1);
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly OpenXRApiVersion s_downgradedVersion = new(
             (ushort)(OpenXRApiVersion.Current.Major - 1),
             (ushort)(OpenXRApiVersion.Current.Minor - 1),
@@ -24,6 +33,9 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         internal class MockFeature : OpenXRFeature { }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly FeatureInfo s_OverrideLoader = new()
         {
             Attribute = new OpenXRFeatureAttribute
@@ -38,6 +50,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             HasLoaderForBuildTarget = true,
         };
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly FeatureInfo s_LoaderWithHighVersionHighPriority = new()
         {
             Attribute = new OpenXRFeatureAttribute
@@ -52,6 +67,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             HasLoaderForBuildTarget = true
         };
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly FeatureInfo s_LoaderWithHighVersionLowPriority = new()
         {
             Attribute = new OpenXRFeatureAttribute
@@ -66,6 +84,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             HasLoaderForBuildTarget = true
         };
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly FeatureInfo s_DowngradedLoader = new()
         {
             Attribute = new OpenXRFeatureAttribute
@@ -80,6 +101,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             HasLoaderForBuildTarget = true
         };
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         private static readonly FeatureInfo s_UpgradedButInactiveLoader = new()
         {
             Attribute = new OpenXRFeatureAttribute

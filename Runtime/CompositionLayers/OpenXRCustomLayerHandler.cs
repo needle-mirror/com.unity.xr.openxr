@@ -15,6 +15,9 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 #if UNITY_VIDEO
 using UnityEngine.Video;
 #endif
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
@@ -116,6 +119,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             public uint RenderTextureId;
 
+            public uint SwapchainMipCount;
+
+            public MipMapWriteMode MipMapMode;
+
             public bool IsActiveLayer;
 
             public bool IsNewTexture;
@@ -137,7 +144,28 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Singleton instance of this specific handler.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         protected static OpenXRCustomLayerHandler<T> Instance;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly OpenXRLayerUtility.RenderTextureIdCallbackDelegate
+            s_OnRenderTextureIdIdCallback = OnRenderTextureIdIdCallback;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly OpenXRLayerUtility.SwapchainCallbackDelegate
+            s_OnCreatedSwapchainCallback = OnCreatedSwapchainCallback;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly OpenXRLayerUtility.StereoSwapchainCallbackDelegate
+            s_OnCreatedStereoSwapchainCallback = OnCreatedStereoSwapchainCallback;
 
         /// <summary>
         /// Deinitializes this instance of <c>OpenXRCustomLayerHandler&lt;T&gt;</c>.
@@ -390,14 +418,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 // Layers that have a new texture, have video, are a RenderTexture, or are flagged as dynamic must always have their swapchain image written to.
                 if (container.IsNewTexture || isVideo || isRenderTexture || container.IsDynamic)
                 {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture, container.MipMapMode);
                     swapchainImageInfo.IsWritten = true;
                 }
 
                 // For all other layers only write to the swapchain image if it has not already been written.
                 else if (!swapchainImageInfo.IsWritten)
                 {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture);
+                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture, container.MipMapMode);
                     swapchainImageInfo.IsWritten = true;
                 }
 
@@ -525,13 +553,13 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (swapChainInfo.isStereo)
                 OpenXRLayerUtility.CreateStereoSwapchain(
-                    layerInfo.Id, swapChainInfo.nativeStruct, OnCreatedStereoSwapchainCallback);
+                    layerInfo.Id, swapChainInfo.nativeStruct, s_OnCreatedStereoSwapchainCallback);
             else
                 OpenXRLayerUtility.CreateSwapchain(
                     layerInfo.Id,
                     swapChainInfo.nativeStruct,
                     swapChainInfo.isExternalSurface,
-                    OnCreatedSwapchainCallback);
+                    s_OnCreatedSwapchainCallback);
         }
 
         /// <summary>
@@ -620,21 +648,22 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 container.IsNewTexture = container.Texture != texturesExtension.LeftTexture;
 
+                var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension);
+
+                bool dimensionsChanged = container.IsNewTexture
+                    && (container.Texture.width != texturesExtension.LeftTexture.width
+                        || container.Texture.height != texturesExtension.LeftTexture.height);
+
+                if (dimensionsChanged || mipCount != container.SwapchainMipCount)
+                {
+                    RemoveLayer(layerInfo.Id);
+                    CreateSwapchainAsync(layerInfo);
+                    return false;
+                }
+
                 if (container.IsNewTexture)
                 {
-                    // If we have a new texture with different dimensions then we need to release the current swapchain and create another.
-                    // This is an async procedure that also creates a new native layer object.
-                    if (container.Texture.width != texturesExtension.LeftTexture.width
-                        || container.Texture.height != texturesExtension.LeftTexture.height)
-                    {
-                        RemoveLayer(layerInfo.Id);
-                        CreateSwapchainAsync(layerInfo);
-                        return false;
-                    }
-                    else
-                    {
-                        container.Texture = texturesExtension.LeftTexture;
-                    }
+                    container.Texture = texturesExtension.LeftTexture;
 #if UNITY_VIDEO
                     container.VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
 #endif
@@ -647,6 +676,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 var layerRenderInfo = new LayerRenderInfo
                 {
                     Texture = texturesExtension.LeftTexture,
+                    SwapchainMipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension),
 #if UNITY_VIDEO
                     VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>(),
 #endif
@@ -659,6 +689,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 #if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
             m_RenderInfos[layerInfo.Id].IsDynamic = texturesExtension.IsDynamic;
 #endif
+            var mipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
+            if (m_RenderInfos[layerInfo.Id].MipMapMode != mipMapMode)
+                m_RenderInfos[layerInfo.Id].SwapchainImageInfos.Clear();
+            m_RenderInfos[layerInfo.Id].MipMapMode = mipMapMode;
             m_RenderInfos[layerInfo.Id].IsActiveLayer = true;
             return true;
         }
@@ -678,7 +712,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             if (!ValidateAndUpdateRenderInfo(layerInfo, texturesExtension))
                 return false;
 
-            OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, OnRenderTextureIdIdCallback);
+            OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, s_OnRenderTextureIdIdCallback);
 
             return true;
         }
@@ -700,8 +734,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             Instance?.actionsForMainThread.Enqueue(() =>
             {
+                if (Instance == null || !Instance.m_LayerInfos.TryGetValue(layerId, out var layerInfo))
+                    return;
+
                 Instance.OnCreatedSwapchain(
-                    Instance.m_LayerInfos[layerId],
+                    layerInfo,
                     new SwapchainCreatedOutput { handle = swapchainHandle });
             });
         }
@@ -711,8 +748,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             Instance?.actionsForMainThread.Enqueue(() =>
             {
+                if (Instance == null || !Instance.m_LayerInfos.TryGetValue(layerId, out var layerInfo))
+                    return;
+
                 Instance.OnCreatedSwapchain(
-                    Instance.m_LayerInfos[layerId],
+                    layerInfo,
                     new SwapchainCreatedOutput
                     {
                         handle = swapchainHandleLeft, secondStereoHandle = swapchainHandleRight

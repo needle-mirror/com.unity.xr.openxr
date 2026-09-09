@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -20,6 +23,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             }
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly List<TestCase<int>> s_compareToTestCases = new()
         {
             // Null case
@@ -45,6 +51,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.AreEqual(testCase.expectedResult, testCase.a.CompareTo(testCase.b));
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly List<TestCase<bool>> s_equalsTestCases = new()
         {
             // Null case

@@ -19,6 +19,9 @@ using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.TestTooling;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 using Assert = UnityEngine.Assertions.Assert;
 
 [assembly: InternalsVisibleTo("Unity.XR.OpenXR.Editor.Tests")]
@@ -246,6 +249,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             m_HasSetupRun = false;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Dictionary<XrSessionState, HashSet<XrSessionState>> s_AllowedStateTransitions = new()
         {
             { XrSessionState.Unknown, new HashSet<XrSessionState> { XrSessionState.Unknown } },

@@ -25,6 +25,11 @@
             "name": "Unity",
             "expression": "6000.5.0a9",
             "define": "LIFECYCLE_APIS_AVAILABLE"
+        },
+        {
+            "name": "com.unity.xr.management",
+            "expression": "4.7.0",
+            "define": "XRM_4_7_0_OR_NEWER"
         }
     ],
     "noEngineReferences": false

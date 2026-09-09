@@ -8,6 +8,9 @@ using UnityEngine.TestTools;
 using UnityEngine.XR.OpenXR.Features;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 using XrSession = System.UIntPtr;
 using XrSwapchain = System.UIntPtr;
 using XrSwapchainCreateFlags = System.UInt64;
@@ -22,6 +25,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         const uint s_VulkanSubsampledBit = 0x00004000;
 
         // used to test whether the last call to xrCreateSwapchain was flagged for subsampling
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static bool s_HasSubsamplingFlag;
 
         protected override void CustomOneTimeSetup()
@@ -152,9 +158,15 @@ namespace UnityEngine.XR.OpenXR.Tests
             internal VkImageCreateFlags additionalCreateFlags;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer. Declared before
+        // CreateSwapchain because static field initializers run in declaration order.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe CreateSwapchain_Delegate k_CreateSwapchain = CreateSwapchain_MockCallback;
+
         internal static readonly unsafe IntPtr CreateSwapchain =
-            Marshal.GetFunctionPointerForDelegate(
-                new CreateSwapchain_Delegate(CreateSwapchain_MockCallback));
+            Marshal.GetFunctionPointerForDelegate(k_CreateSwapchain);
 
         internal unsafe delegate int CreateSwapchain_Delegate(
             XrSession session,

@@ -98,6 +98,11 @@ namespace UnityEngine.XR.OpenXR
 #endif
         static List<XRInputSubsystemDescriptor> s_InputSubsystemDescriptors = new();
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly ReceiveNativeEventDelegate s_ReceiveNativeEventDelegate = ReceiveNativeEvent;
+
         /// <summary>
         /// Represents the running OpenXRLoader instance. This value should be non null after calling
         /// Initialize until a subsequent call to DeInitialize is made.
@@ -741,7 +746,7 @@ namespace UnityEngine.XR.OpenXR
 
         internal static void RegisterOpenXRCallbacks()
         {
-            Internal_SetCallbacks(ReceiveNativeEvent);
+            Internal_SetCallbacks(s_ReceiveNativeEventDelegate);
         }
 
 #if UNITY_EDITOR

@@ -6,6 +6,9 @@ using Unity.XR.CompositionLayers;
 using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Provider;
 using Unity.XR.CompositionLayers.Services;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
@@ -98,18 +101,30 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// You can use this event to wait for the <c>OpenXRLayerProvider</c> to finish registering its built-in layer handlers
         /// so that you can override them with your own custom layer handlers.
         /// </remarks>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static event Action Started;
 
         /// <summary>
         /// Calls the methods in its invocation list when the <c>OpenXRLayerProvider</c> has stopped and is disposed.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static event Action Stopped;
 
         /// <summary>
         /// Reports whether the <c>OpenXRLayerProvider</c> has already been created and started.
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static bool isStarted { get; set; }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static Dictionary<Type, ILayerHandler> LayerHandlers = new Dictionary<Type, ILayerHandler>();
         static readonly ProfilerMarker s_OpenXRLayerProviderCreate = new ProfilerMarker("OpenXRLayerProvider.Create");
         static readonly ProfilerMarker s_OpenXRLayerProviderRemove = new ProfilerMarker("OpenXRLayerProvider.Remove");
@@ -308,6 +323,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             LayerHandlers.Clear();
             OpenXRLayerUtility.ClearCubemapConversionCache();
+            OpenXRLayerUtility.ClearRenderTextureCache();
             isStarted = false;
             Stopped?.Invoke();
         }

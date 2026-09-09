@@ -151,7 +151,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
 
             AssetDatabase.SaveAssets();
 
-#if UNITY_6000_7_OR_NEWER
+#if XRM_4_7_0_OR_NEWER
             EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.settingsKey, out m_OriginalSettingsPerBuildTarget);
             EditorBuildSettings.AddConfigObject(XRGeneralSettings.settingsKey, m_SettingsPerBuildTarget, true);
 #else
@@ -186,7 +186,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
         {
 #if UNITY_EDITOR
             if (m_OriginalSettingsPerBuildTarget != null)
-#if UNITY_6000_7_OR_NEWER
+#if XRM_4_7_0_OR_NEWER
                 EditorBuildSettings.AddConfigObject(XRGeneralSettings.settingsKey, m_OriginalSettingsPerBuildTarget, true);
             else
                 EditorBuildSettings.RemoveConfigObject(XRGeneralSettings.settingsKey);

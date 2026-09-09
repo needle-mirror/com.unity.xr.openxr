@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using XrFutureEXT = System.UInt64;
 using XrSpatialPersistenceContextEXT = System.UInt64;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
@@ -69,9 +72,18 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrPersistSpatialEntityAsyncEXT_delegate
+            xrPersistSpatialEntityAsyncEXT_Delegate = xrPersistSpatialEntityAsyncEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrPersistSpatialEntityAsyncEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrPersistSpatialEntityAsyncEXT_delegate)xrPersistSpatialEntityAsyncEXT);
+            Marshal.GetFunctionPointerForDelegate(xrPersistSpatialEntityAsyncEXT_Delegate);
 
         internal static XrResult xrPersistSpatialEntityCompleteEXT(
             XrSpatialPersistenceContextEXT persistenceContext,
@@ -84,9 +96,17 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrPersistSpatialEntityCompleteEXT_delegate
+            xrPersistSpatialEntityCompleteEXT_Delegate = xrPersistSpatialEntityCompleteEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrPersistSpatialEntityCompleteEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrPersistSpatialEntityCompleteEXT_delegate)xrPersistSpatialEntityCompleteEXT);
+            Marshal.GetFunctionPointerForDelegate(xrPersistSpatialEntityCompleteEXT_Delegate);
 
         internal static XrResult xrUnpersistSpatialEntityAsyncEXT(
             XrSpatialPersistenceContextEXT persistenceContext,
@@ -97,9 +117,17 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrUnpersistSpatialEntityAsyncEXT_delegate
+            xrUnpersistSpatialEntityAsyncEXT_Delegate = xrUnpersistSpatialEntityAsyncEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrUnpersistSpatialEntityAsyncEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrUnpersistSpatialEntityAsyncEXT_delegate)xrUnpersistSpatialEntityAsyncEXT);
+            Marshal.GetFunctionPointerForDelegate(xrUnpersistSpatialEntityAsyncEXT_Delegate);
 
         internal static XrResult xrUnpersistSpatialEntityCompleteEXT(
             XrSpatialPersistenceContextEXT persistenceContext,
@@ -111,8 +139,16 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrUnpersistSpatialEntityCompleteEXT_delegate
+            xrUnpersistSpatialEntityCompleteEXT_Delegate = xrUnpersistSpatialEntityCompleteEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrUnpersistSpatialEntityCompleteEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrUnpersistSpatialEntityCompleteEXT_delegate)xrUnpersistSpatialEntityCompleteEXT);
+            Marshal.GetFunctionPointerForDelegate(xrUnpersistSpatialEntityCompleteEXT_Delegate);
     }
 }

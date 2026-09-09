@@ -5,6 +5,9 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using XrSpatialContextEXT = System.UInt64;
 using XrSpatialEntityEXT = System.UInt64;
 using XrSpatialEntityIdEXT = System.UInt64;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
@@ -37,8 +40,16 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
             return XrResult.Success;
         }
 
+        // Rooted so the delegate is not collected while native holds its pointer.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly xrCreateSpatialAnchorEXT_delegate xrCreateSpatialAnchorEXT_Delegate = xrCreateSpatialAnchorEXT;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static IntPtr xrCreateSpatialAnchorEXT_Ptr =
-            Marshal.GetFunctionPointerForDelegate(
-                (xrCreateSpatialAnchorEXT_delegate)xrCreateSpatialAnchorEXT);
+            Marshal.GetFunctionPointerForDelegate(xrCreateSpatialAnchorEXT_Delegate);
     }
 }

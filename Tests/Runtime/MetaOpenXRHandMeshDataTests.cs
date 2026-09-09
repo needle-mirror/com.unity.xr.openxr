@@ -11,8 +11,12 @@ using UnityEngine.XR.OpenXR.Features.Meta;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.XR.OpenXR.TestTooling;
+using UnityEngine.XR.Hands;
 using UnityEngine.XR.Hands.OpenXR;
 using UnityEngine.XR.Hands.OpenXR.Meshing;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
@@ -134,6 +138,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         MockOpenXREnvironment m_Environment;
         Dictionary<Type, OpenXRFeature> m_EnabledFeaturesInProject = new();
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static int s_XrGetHandMeshFBCallCount;
 
         static readonly IntPtr s_TrackCallsPtr = MockXrGetHandMeshFBInterceptors.TrackCallsPtr;
@@ -259,14 +266,39 @@ namespace UnityEngine.XR.OpenXR.Tests
                     "feature in the test project's OpenXR settings to run this test.");
         }
 
+        // Which errors HandTracking logs at startup depends on whether the 'OpenXR Hands'
+        // descriptor is registered in this editor session. XR Hands' own tests register it as
+        // a side effect that outlives their fixtures, so the integration test project (both
+        // suites, one session) sees it registered while this package's runs do not. Without
+        // it, no subsystem is created and the mesh feature finds no provider; with it, the
+        // subsystem's provider fails to initialize against the mock runtime.
         void ExpectHandTrackingStartupErrors()
         {
-            // When XR_EXT_hand_tracking is supported with interceptors, HandTracking
-            // still can't find its subsystem descriptor in the mock environment.
+            if (IsHandSubsystemDescriptorRegistered())
+            {
+                LogAssert.Expect(LogType.Error,
+                    "OpenXR hand provider failed to initialize - no data will be tracked or surfaced!");
+                return;
+            }
+
             LogAssert.Expect(LogType.Error,
                 "Failed to find descriptor 'OpenXR Hands' - HandTracking OpenXR feature will not do anything!");
             LogAssert.Expect(LogType.Warning,
                 "Hand Tracking Subsystem feature is not enabled - subsystem APIs for hand mesh data will fail.");
+        }
+
+        static bool IsHandSubsystemDescriptorRegistered()
+        {
+            var descriptors = new List<XRHandSubsystemDescriptor>();
+            SubsystemManager.GetSubsystemDescriptors(descriptors);
+
+            foreach (var descriptor in descriptors)
+            {
+                if (descriptor.id == "OpenXR Hands")
+                    return true;
+            }
+
+            return false;
         }
 
         void InstallAllInterceptors()
@@ -390,8 +422,17 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     static unsafe class MockXrGetHandMeshFBInterceptors
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrGetHandMeshFB_Delegate s_TrackCalls = TrackCalls;
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrGetHandMeshFB_Delegate s_ReturnError = ReturnError;
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrGetHandMeshFB_Delegate s_ReturnCounts = ReturnCounts;
 
         public static IntPtr TrackCallsPtr => Marshal.GetFunctionPointerForDelegate(s_TrackCalls);
@@ -439,10 +480,24 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     static unsafe class MockHandTrackingInterceptors
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrCreateHandTrackerEXT_Delegate s_Create = CreateHandTracker;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrDestroyHandTrackerEXT_Delegate s_Destroy = DestroyHandTracker;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly MockXrLocateHandJointsEXT_Delegate s_Locate = LocateHandJoints;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static ulong s_NextHandTracker = 100;
 
         public static IntPtr CreateHandTrackerPtr => Marshal.GetFunctionPointerForDelegate(s_Create);

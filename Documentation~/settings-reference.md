@@ -30,7 +30,6 @@ The following table describes the settings that are common to PC and Android pla
 | **Auto Color Submission Mode** | If enabled, Unity uses the default color submission mode for your platform. This is typically `8bpc RGBA/BGRA`. You can choose your own Color Submission Mode if you disable this property, as outlined in [Color Submission Mode](#color-submission-mode).  |
 | **Latency Optimization**       | Choose how the OpenXR plug-in minimizes latency for input polling or rendering. <br>The options are: <ul>**Prioritize Rendering**: The time between when a frame is simulated and when the frame is submitted to the device for rendering is minimized. This reduces the extrapolation/warping of the rendered scene and objects. </li><li>**Prioritize Input Polling**: The time between when input is polled and when the frame is submitted to the device for rendering is minimized. This makes interacting with the world feel more responsive.</li> </ul> For more information refer to [Set latency optimization](xref:openxr-project-config#latency-optimization) |
 | **Depth Submission Mode**      | Choose how depth information is passed to the renderer. To learn how to choose the appropriate option for your project, refer to [Set the depth submission mode](xref:openxr-project-config#depth-submission-mode).  |
-| **Foveated Rendering Api**     | Choose the API if your project uses foveated rendering. To learn more, refer to [Foveated rendering](xref:openxr-foveated-rendering). |
 | **Use Open XR Predicted Time** | When enabled, Unity uses OpenXR's time prediction methods to predict the display presentation time of the next frame. OpenXR time prediction ensures that the user's view on the device matches their movement to enhance real-time feedback. **Use OpenXR Time Prediction** results in smoother rendering on OpenXR runtimes through synchronization between application and display rendering.<br>Unity recommends that you enable this setting for smoother rendering on headsets to reduce unwanted effects such as motion sickness. Other time-based manipulations in your project might affect the performance of this setting. |
 | **Additional Graphics Queue (Vulkan)** | When enabled, Unity creates an additional graphics queue that the Quest runtime uses for [Mixed Reality Capture](https://developers.meta.com/horizon/resources/mixed-reality-capture-and-casting) (Meta developer documentation). This enables the Quest runtime to dedicate the primary graphics queue to standard rendering tasks, and the additional queue for rendering required by Mixed Reality Capture. Enable **Additional Graphics Queue (Vulkan)** if your project targets Meta Quest runtimes and uses Meta’s Mixed Reality Capture. If your project targets other runtimes, or doesn’t use Mixed Reality Capture on Quest, you can safely disable this setting. |
 
@@ -43,6 +42,17 @@ To understand the available options and which color submission mode to use for y
 ### Enabled interaction profiles
 
 Use the **Enabled Interaction Profiles** section to add the configuration profiles you want to use in your project. To learn about the available OpenXR interaction profiles, visit [Input in Unity OpenXR](xref:openxr-input).
+
+### Foveated Rendering feature settings
+
+The **Foveated Rendering** feature has its own settings, which Unity shows when you select the gear icon next to the feature in the **OpenXR Feature Groups** list. The following table outlines these settings:
+
+| **Property** | Description |
+| :----------- | :---------- |
+| **Subsampled Layout (Vulkan)** | An optimization that can improve foveated rendering performance by changing how the device samples eye textures. To learn more, refer to [Subsampled layout](xref:openxr-subsampled-layout). |
+| **Use Eye Tracking** | When enabled, the build requests the eye tracking OpenXR extension and adds the eye tracking Android permissions to the manifest. Disable it to use foveated rendering without eye tracking. To learn more, refer to [Configure gaze-based foveated rendering](xref:openxr-foveated-rendering-gaze-based). |
+| **Foveated Rendering Method** | Choose the foveation method your project uses. The option names differ by platform: on Android the options are **Foveated rendering (Legacy API)**, **Foveated rendering (SRP API)**, and, in Unity 6000.5 and later, **Quad Views**; on other platforms they're **Legacy** and **SRP Foveation**. To learn more, refer to [Foveated rendering](xref:openxr-foveated-rendering). |
+| **Dynamic Foveation (Vulkan)** | When enabled, the device varies the amount of foveation it applies, up to the foveation level your application sets. Unity disables this setting unless **Foveated Rendering Method** uses the scriptable render pipeline (SRP) foveation option. To learn more, refer to [Use dynamic foveation](xref:openxr-foveated-rendering-dynamic). |
 
 ## PC settings
 

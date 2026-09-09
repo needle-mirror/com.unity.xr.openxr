@@ -65,11 +65,14 @@ namespace UnityEditor.XR.OpenXR.Features
                 return null;
 
             var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(buildTargetGroup);
-            if (settings == null)
+            if (settings == null || settings.features == null)
                 return null;
 
             foreach (var feature in settings.features)
             {
+                if (feature == null)
+                    continue;
+
                 if (string.Compare(featureId, feature.featureIdInternal, true) == 0)
                     return feature;
             }
@@ -190,7 +193,7 @@ namespace UnityEditor.XR.OpenXR.Features
                 OpenXRFeatureAttribute featureAttr = GetOpenXRFeatureAttribute(openXRFeature.GetType());
                 if (featureAttr == null)
                     continue;
-                if (featureAttr.BuildTargetGroups == null || !featureAttr.BuildTargetGroups.Contains(group))
+                if (featureAttr.BuildTargetGroups != null && !featureAttr.BuildTargetGroups.Contains(group))
                     continue;
                 if (isOpenXrSettingsAMockInstance && !openXRFeature.name.Contains("MockRuntime"))
                     continue;
@@ -227,7 +230,13 @@ namespace UnityEditor.XR.OpenXR.Features
             bool isOpenXrSettingsAMockInstance = ((IPackageSettings2)openXrPackageSettings).IsSettingsLocatorFuncOverriden();
             string buildGroupName = isOpenXrSettingsAMockInstance ? "MockRuntime" : group.ToString();
 
-            List<OpenXRFeature> allOpenXRFeatures = openXrSettings.features.ToList();
+            List<OpenXRFeature> allOpenXRFeatures = new();
+            foreach(var feature in openXrSettings.features)
+            {
+                // A feature can be loaded as null because its class has been removed from the project
+                if (feature != null)
+                    allOpenXRFeatures.Add(feature);
+            }
             featureAssetsMap.Clear();
 
             // Iterate through all types that have the OpenXRFeatureAttribute, and create ScriptableObjects for the ones that are valid for the current BuildTargetGroup
@@ -307,7 +316,12 @@ namespace UnityEditor.XR.OpenXR.Features
                 }
             }
 
-            openXrSettings.features = allOpenXRFeatures.ToArray();
+            var updatedOpenXRFeatures = allOpenXRFeatures.ToArray();
+            if (!HasSameFeatureReferences(openXrSettings.features, updatedOpenXRFeatures))
+            {
+                openXrSettings.features = updatedOpenXRFeatures;
+                EditorUtility.SetDirty(openXrSettings);
+            }
 
             List<FeatureInfo> allFeatureInfo = allOpenXRFeatures.Select(x => GetFeatureInfo(x, group)).ToList();
             if (TryFindCustomLoaderWithHighestPriority(allFeatureInfo, out var customLoaderFeatureInfo) && !string.IsNullOrWhiteSpace(customLoaderFeatureInfo.CustomLoaderName))
@@ -324,6 +338,20 @@ namespace UnityEditor.XR.OpenXR.Features
                 AssetDatabase.SaveAssetIfDirty(openXrSettings);
 
             AssetDatabase.SaveAssets();
+        }
+
+        static bool HasSameFeatureReferences(OpenXRFeature[] currentFeatures, OpenXRFeature[] updatedFeatures)
+        {
+            if (currentFeatures == null || currentFeatures.Length != updatedFeatures.Length)
+                return false;
+
+            for (var i = 0; i < currentFeatures.Length; i++)
+            {
+                if (!ReferenceEquals(currentFeatures[i], updatedFeatures[i]))
+                    return false;
+            }
+
+            return true;
         }
 
         static IEnumerable<Object> GetPackageSettingsFeatureAssets(OpenXRPackageSettings openXrPackageSettings)

@@ -13,12 +13,24 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.Diagnostics;
 using System.Reflection;
 using UnityEngine.XR.OpenXR.Features.Interactions;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
     class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
         const float k_oneFrameDuration = 1.0f / 72f; // 1 frame duration at 72 FPS
+
+        public override void BeforeTest()
+        {
+            // MockAdditiveFeature records merges and layout registration in statics that nothing in
+            // the feature lifecycle clears, so any test asserting on them could otherwise pass on a
+            // value left behind by an earlier test in this fixture.
+            MockAdditiveFeature.ResetTestState();
+            base.BeforeTest();
+        }
 
         [Test]
         public void TestAvailableExtensions()
@@ -428,6 +440,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.AreEqual(true, OpenXRRuntime.IsExtensionEnabled(MockRuntime.XR_UNITY_mock_test));
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static OpenXRSettings.DepthSubmissionMode[] depthModes = new OpenXRSettings.DepthSubmissionMode[]
         {
             OpenXRSettings.DepthSubmissionMode.None,
@@ -489,6 +504,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// List of extensions to test against runtime loader version greater than 1.1
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         protected static readonly (string extName, bool expected)[] s_ExtensionsEnableExamples1_1 =
         {
             ("XR_EXT_palm_pose", true), //not available for mockruntime, but promoted to core in 1.1 loader, so expect enabled as default.
@@ -528,6 +546,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <summary>
         /// List of extensions to test against runtime loader version 1.0
         /// </summary>
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         protected static readonly (string extName, bool expected)[] s_ExtensionsEnableExamples1_0 =
         {
             ("XR_EXT_palm_pose", false), //not available for mockruntime, so expect not enabled.
@@ -1842,7 +1863,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             }
             finally
             {
-                MockAdditiveFeature.MergeDetails.Clear();
+                // BeforeTest already clears this for the fixture; resetting here as well keeps the
+                // state from leaking into tests outside it.
+                MockAdditiveFeature.ResetTestState();
             }
         }
 
@@ -1868,6 +1891,29 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("XR_FB_foveation_configuration"));
             Assert.IsTrue(OpenXRRuntime.IsSystemExtensionEnabled("mock_extname_wheeeeee"));
             Assert.IsFalse(OpenXRRuntime.IsSystemExtensionEnabled("mock_extname_bad_wheeeeee"));
+        }
+
+        [UnityTest]
+        public IEnumerator SkipFDMForFinalPassesSRP()
+        {
+            var feature = EnableFeature<FoveatedRenderingFeature>();
+
+#if UNITY_META_QUEST
+            const bool expectedDefault = true;
+#else
+            const bool expectedDefault = false;
+#endif
+            Assert.AreEqual(expectedDefault, feature.skipFDMForFinalPassesSRP);
+
+            Assert.DoesNotThrow(() => feature.skipFDMForFinalPassesSRP = !expectedDefault);
+            Assert.AreEqual(!expectedDefault, feature.skipFDMForFinalPassesSRP);
+
+            InitializeAndStart();
+            yield return new WaitForXrFrame(1);
+            Assert.AreEqual(!expectedDefault, feature.skipFDMForFinalPassesSRP);
+
+            Assert.DoesNotThrow(() => feature.skipFDMForFinalPassesSRP = expectedDefault);
+            Assert.AreEqual(expectedDefault, feature.skipFDMForFinalPassesSRP);
         }
     }
 }

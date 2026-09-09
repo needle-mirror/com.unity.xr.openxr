@@ -11,6 +11,9 @@ using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Tests;
 using Assert = UnityEngine.Assertions.Assert;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
@@ -32,11 +35,18 @@ namespace UnityEditor.XR.OpenXR.Tests
             opts.targetGroup = BuildTargetGroup.Standalone;
             opts.locationPathName = "mocktest/mocktest.exe";
 
+            // Note: LogAssert requires an active test log scope, so this must be called from
+            // within a test body (not from EditorApplication.delayCall or similar deferred callbacks).
             UnityEngine.TestTools.LogAssert.ignoreFailingMessages = true;
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, opts.target);
-            var report = BuildPipeline.BuildPlayer(opts);
-            UnityEngine.TestTools.LogAssert.ignoreFailingMessages = false;
-            return report;
+            try
+            {
+                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, opts.target);
+                return BuildPipeline.BuildPlayer(opts);
+            }
+            finally
+            {
+                UnityEngine.TestTools.LogAssert.ignoreFailingMessages = false;
+            }
         }
 
         [Test]
@@ -209,6 +219,9 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         internal class BuildCallbacks : OpenXRFeatureBuildHooks
         {
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
             [NonSerialized] internal static Func<string, object, bool> TestCallback = (methodName, param) => true;
 
             public override int callbackOrder => 1;
@@ -237,6 +250,9 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         internal class BootConfigTests : OpenXRFeatureBuildHooks
         {
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
             [NonSerialized] internal static Func<string, object, bool> TestCallback = (methodName, param) => true;
 
             public override int callbackOrder => 1;
@@ -245,6 +261,9 @@ namespace UnityEditor.XR.OpenXR.Tests
             // For this test, we want to ensure that the last run actually cleans up any settings that we've
             // stored into the boot settings of the EditorUserBuildSettings. We need the last run BuildReport
             // in order to check the EditorUserBuildSettings.
+#if LIFECYCLE_APIS_AVAILABLE
+            [NoAutoStaticsCleanup]
+#endif
             private static BuildReport s_lastRunBuildReport;
 
             protected override void OnPreprocessBuildExt(BuildReport report)

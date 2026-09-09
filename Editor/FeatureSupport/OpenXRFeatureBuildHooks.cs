@@ -42,6 +42,9 @@ namespace UnityEditor.XR.OpenXR.Features
             {
                 foreach (var ext in buildTargetOpenXRSettings.features)
                 {
+                    if (ext == null)
+                        continue;
+
                     if (featureType == ext.GetType())
                     {
                         _ext = ext;

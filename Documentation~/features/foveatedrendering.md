@@ -3,244 +3,27 @@ uid: openxr-foveated-rendering
 ---
 # Foveated rendering in OpenXR
 
-Foveated rendering is an optimization technique that can speed up rendering with little perceived impact on visual quality. Foveated rendering works by lowering the resolution of areas in the user's peripheral vision. On headsets that support eye-tracking as well as foveated rendering, the higher-resolution area can be centered where the user is currently looking. Without eye-tracking, the higher resolution area is fixed near the middle of the screen. Fixed foveated rendering can be more apparent to the user since they can shift their eyes to look at the peripheral areas.
+Understand the foveated rendering methods that the Unity OpenXR provider plug-in supports, and configure the one your project needs.
 
-> [!NOTE]
-> Quad Views is a type of Foveated Rendering but uses a different rendering technique. For more information on Quad Views, see [Compare quad views and foveated rendering](xref:openxr-quad-views#compare-quad-views-and-foveated-rendering).
+Foveated rendering is an optimization technique that can speed up rendering with minimal perceived impact on visual quality. It works by lowering the resolution of areas in the user's peripheral vision.
 
-OpenXR platforms use the variable shading rate (VSR) technique for foveated rendering, which does not require you to change custom shaders. (However, if you are creating assets that should work on all XR platforms, refer to the "Foveated rendering shaders" topic in [Foveated rendering](https://docs.unity3d.com/Manual/xr-foveated-rendering.html) to learn how to write shaders and shader graphs that work under all supported foveated rendering methods.)
+The plug-in provides two foveation methods: the Unity scriptable render pipeline (SRP) foveation API, and a legacy API that uses the Meta XR Core SDK. You can also add gaze-based foveated rendering, which follows the user's eyes, and dynamic foveation, which varies the amount of foveation as GPU load changes.
 
-OpenXR devices can implement VRS using a variety of techniques and a single device can support more than one implementation. The Unity OpenXR plug-in chooses from the following techniques, in this order, depending on what the current device supports:
+These pages cover the aspects of foveated rendering that are specific to the Unity OpenXR provider plug-in. For general information about foveated rendering in Unity XR, refer to [Foveated rendering](xref:um-xr-foveated-rendering) in the Unity Manual.
 
-1. Gaze-based Fragment Density Map (GFDM) from provider.
-2. Fixed Fragment Density Map (FFDM) from provider.
-3. Fragment Shading Rate (FSR) using a provider's texture.
-4. Fragment Shading Rate using a compute shader calculated from the asymmetric FOVs the provider gives.
+| **Topic** | **Description** |
+| :-------- | :-------------- |
+| [Introduction to foveated rendering in OpenXR](xref:openxr-foveated-rendering-introduction) | Learn how OpenXR devices implement foveated rendering, and how the two foveation methods differ. |
+| [Foveated rendering requirements reference](xref:openxr-foveated-rendering-requirements) | Find the Unity versions, packages, render pipelines, and graphics APIs that each foveation method requires. |
+| [Use the SRP foveation API](xref:openxr-foveated-rendering-srp-api) | Configure the SRP foveation method, then set the foveation level at runtime with `XRDisplaySubsystem`. |
+| [Use the legacy foveation API](xref:openxr-foveated-rendering-legacy-api) | Configure the legacy method with the Meta XR Core SDK, then set the foveation level at runtime with `OVRManager`. |
+| [Configure gaze-based foveated rendering](xref:openxr-foveated-rendering-gaze-based) | Enable eye tracking so the device centers the high-resolution area where the user looks. |
+| [Request eye-tracking permission on Android](xref:openxr-foveated-rendering-eye-tracking-permission) | Declare and request the Android permission that gaze-based foveated rendering requires. |
+| [Use dynamic foveation](xref:openxr-foveated-rendering-dynamic) | Let the device vary the amount of foveation it applies, up to the level you set. |
 
-> [!NOTE]
-> On Vulkan, FDM Foveated Rendering will be automatically disabled at runtime if the physical device running OpenXR does not support fragment density maps (VK_EXT_fragment_density_map).
+## Additional resources
 
-This topic covers aspects of foveated rendering specific to the Unity OpenXR provider plug-in:
-
-* [Prerequisites](#prerequisites)
-* [Configure foveated rendering](#configure-foveated-rendering)
-* [Use the **SRP Foveation** API](#use-the-srp-foveation-api)
-* [Use the **Legacy** API](#use-the-legacy-api)
-* [Use dynamic foveation](#use-dynamic-foveation)
-* [Request eye-tracking permission on Android](#request-eye-tracking-permission)
-
-For general information about foveated rendering in Unity XR, refer to [Foveated rendering](https://docs.unity3d.com/Manual/xr-foveated-rendering.html).
-
-<a id="prerequisites"></a>
-## Prerequisites
-
-To use the foveated rendering feature in OpenXR, your project must meet the following prerequisites:
-
-* Unity 6+
-* Unity OpenXR plugin (com.unity.xr.openxr) 1.11.0+
-* Universal Rendering Pipeline
-
-Alternately, you can use the Meta Core XR SDK package to access the OpenXR foveated rendering feature on Quest devices:
-
-* Unity 2022.2+, Unity 6+
-* Unity OpenXR plugin (com.unity.xr.openxr) 1.11.0+
-* Meta Core XR SDK 68.0+
-* Built-in or Universal Rendering Pipeline
-
-> [!IMPORTANT]
-> In Unity 6.5 and newer, the Built-In Render Pipeline is deprecated and will be made obsolete in a future release. For more information, refer to [Migrating from the Built-In Render Pipeline to URP](https://docs.unity3d.com/6000.5/Documentation/Manual/urp/upgrading-from-birp.html) and [Render pipeline feature comparison](https://docs.unity3d.com/6000.5/Documentation/Manual/render-pipelines-feature-comparison.html).
-
-> [!NOTE]
-> The primary differences between the Unity **SRP Foveation** API and the Meta API for foveated rendering include:
->
-> * They uses different APIs and code paths to enable and control foveated rendering on a device.
-> * The Unity **SRP Foveation** API works on all platforms that support foveated rendering, which allows you to share code across different types of devices.
-> * The Unity **SRP Foveation** API does not support the Built-in Rendering Pipeline.
-> * The Meta API, which only works on Quest devices, supports Unity 2022.3 and the Built-in Render Pipeline.
-> * The Meta API does not support foveated rendering when you use intermediate render targets. Intermediate rendering targets are used by post-processing, tone mapping and camera stacking, for example, and may be used by other rendering features, too.
->
-> Unity recommends that you use the Unity **SRP Foveation** API where possible for better compatibility. You can still use other features from the Meta Core XR SDK in conjunction with the **SRP Foveation** API, if desired.
-
-<a id="configure-foveated-rendering"></a>
-## Configure foveated rendering
-
-You can configure foveated rendering in a project that meets the [Prerequisites](#prerequisites):
-
-* [Configure SRP Foveation](#configure-srp-foveation)
-* [Configure Legacy foveated rendering](#configure-legacy-foveated-rendering)
-* [Configure gaze-based foveated rendering](#configure-gaze-based-foveated-rendering)
-
-Once configured in settings, you must also turn on foveated rendering at runtime. By default, the foveated rendering strength or level is set to off. You must also set a runtime flag to use gaze-based foveated rendering.
-
-Refer to the following topics for more information:
-
-* [Use the SRP Foveation API](#use-the-srp-foveation-api)
-* [Use the Legacy API](#use-the-legacy-api)
-
-<a id="configure-srp-foveation"></a>
-### Configure SRP Foveation
-
-To enable the **SRP Foveation** API in Unity 6+:
-
-1. Open the **Project Settings** window.
-2. Under **XR Plug-in Management**, select the **OpenXR** settings.
-3. In the list of **OpenXR Feature Groups**, select **All Features**.
-4. Under **OpenXR Feature Groups**, enable the **Foveated Rendering** feature.
-5. Click the gear to open the sub-option window.
-6. Set the **Foveated Rendering Method** option to **Foveated rendering (SRP API)**.
-
-![SRP Foveation settings](../images/FoveatedRendering/xr-foveation-srp-api-settings.png)<br/>*Settings to enable foveated rendering with the **SRP Foveation** API*
-
-After you have configured the settings, you must also turn on foveated rendering at runtime. Refer to [Use the SRP Foveation API](#use-the-srp-foveation-api) for more information.
-
-> [!NOTE]
-> You must configure the project to use the [Universal Render Pipeline (URP)](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@17.0/manual/InstallURPIntoAProject.html) if you have not already done so.
-
-<a id="configure-legacy-foveated-rendering"></a>
-### Configure Legacy foveated rendering
-
-In Unity 6+, set the OpenXR **Foveated Rendering Method** option to **Legacy** to use the Meta Core XR SDK, which only supports the Meta Quest family of devices. In Unity 2022, there is no option to select a **Foveated Rendering Method**. Only the legacy API using the Meta Core XR SDK is supported.
-
-1. Install the [Meta Core XR SDK](com.unity3d.kharma:upmpackage/com.meta.xr.sdk.core) package, if necessary. You can get this package from the [Unity Asset Store](https://assetstore.unity.com/packages/tools/integration/meta-xr-core-sdk-269169). The package adds the Meta OpenXR feature group to the OpenXR along with the associated features. Refer to the [Meta Developer site](https://developer.oculus.com/downloads/package/meta-xr-core-sdk/68.0) for more information.
-2. Open the **Project Settings** window.
-3. Select the **XR Plug-in Management** settings from the list on the left.
-4. Select the **Android** tab.
-5. Under **OpenXR**, enable the **Meta XR feature group**, which is added when you install the Meta Core SDK package. (You might be prompted to restart the Unity Editor, which you can do now or after you finish configure these settings.)
-
-   ![Enable Meta XR feature group](../images/FoveatedRendering/xr-meta-feature-group.png)
-
-6. Select the **OpenXR** settings area (below **XR Plug-in Management**).
-7. Set the **Foveated Rendering Method** option to **Foveated rendering (Legacy API)**.
-8. In the list of **OpenXR Feature Groups**, select **All Features**.
-9. Disable the **Foveated Rendering** feature, if it is enabled.
-10. Enable the **Meta XR Foveation** feature.
-11. (Optional) Enable the **Meta XR Eye Tracked Foveation** feature.
-
-![Legacy Foveation settings](../images/FoveatedRendering/xr-foveation-legacy-settings.png)<br/>*Settings to enable foveated rendering with the **Legacy** API*
-
-After you have configured the settings, you must also turn on foveated rendering at runtime. Refer to [Use the Legacy API](#use-the-legacy-api) for more information.
-
-> [!NOTE]
-> The Meta Core XR SDK is a third-party package, which is not under Unity control. The OpenXR features and API it provides can change without notice.
-
-<a id="configure-gaze-based-foveated-rendering"></a>
-### Configure gaze-based foveated rendering
-
-Devices that provide eye tracking can support gaze-based foveated rendering in which the highest resolution area is centered where the user is looking.
-
-To use eye tracking, you need to enable eye tracking as follows:
-
-1. Open the **Project Settings** window.
-1. Under **XR Plug-in Management**, select the **OpenXR** settings.
-1. Select the **Android, Meta Quest, Android XR** tab.
-1. In the list of **OpenXR Feature Groups**, select **All Features**.
-1. Under **OpenXR Feature Groups**, click the gear icon next to the **Foveated Rendering** feature.
-1. Enable the **Use Eye Tracking** checkbox.
-
-**Use Eye Tracking** controls whether the build requests the eye tracking OpenXR extension and writes the required Android permissions and manifest flags at build time. Unity enables eye tracking by default. Disable it if you want to use foveated rendering, including [Quad Views](xref:openxr-quad-views), without requesting eye tracking or its associated Android permissions.
-
-When using the Unity **SRP Foveation** API, you need to [turn the feature on at runtime](#use-the-srp-foveation-api) and make sure any required permissions are enabled.
-
-When using the **Legacy**, Meta Core XR SDK, you must enable the **Meta XR Eye Tracked Foveation** OpenXR feature.
-
-To use eye-tracking data, you must [Request eye-tracking permission on Android](#request-eye-tracking-permission). Other platforms may have similar requirements.
-
-<a id="use-the-srp-foveation-api"></a>
-## Use the SRP Foveation API
-
-After you have configured foveated rendering in the OpenXR settings, you must also turn the feature on at runtime. If you want to use gaze-based foveated rendering, you must set a runtime flag, which might require user permission.
-
-To specify the amount, or *strength*, of the foveation effect, you must assign a value between 0 and 1 to the [XRDisplaySubsystem.foveatedRenderingLevel](xref:UnityEngine.XR.XRDisplaySubsystem.foveatedRenderingLevel) property. The default value of zero turns foveation off altogether. A value of one is the maximum strength. Different device types can interprete this value in the way that best suits their native API. Meta Quest devices, for example, have discrete levels for setting the foveation strength: if you assign a value of `0.5` to `foveatedRenderingLevel`, the provider plug-in sets the device's *medium* foveation level.
-
-To specify that you want to use gaze-based foveated rendering, set [XRDisplaySubsystem.foveatedRenderingFlags](xref:UnityEngine.XR.XRDisplaySubsystem.foveatedRenderingFlags) to [FoveatedRenderingFlags.GazeAllowed](xref:UnityEngine.XR.XRDisplaySubsystem.FoveatedRenderingFlags.GazeAllowed). If you do not set this flag, the device doesn't support gaze-based foveated rendering, or the user turns off or denies permission to use eye-tracking, then fixed foveated rendering is performed.
-
-To set either of these foveated rendering APIs, you must first get a reference to the active [XRDisplaySubsystem](xref:UnityEngine.XR.XRDisplaySubsystem) from the Unity [SubsystemManager](xref:UnityEngine.SubsystemManager). Unity supports multiple subsystems of the same type, and returns a list when you get the subsystems of a given type. Ordinarily, only one `XRDisplaySubsystem` exists and you can use the lone subsystem in the `XRDisplaySubsystem` list returned by [SubsystemManager.GetSubsystems](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/SubsystemManager.GetSubsystems.html).
-
-The following code example illustrates how to set foveated rendering to full strength and enable gaze-based foveation after getting the instance of the active `XRDisplaySubsystem`:
-
-[!code-csharp[FoveationSrpApiExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/FoveationSrpApiExample.cs#FoveationSrpApiExample)]
-
-> [!NOTE]
-> This code example relies on methods available in Unity 6+. It does not compile in earlier versions.
-
-<a id="use-the-legacy-api"></a>
-## Use the Legacy API
-
- This API was built only for Quest headsets; it may not be supported on other devices. You must install Meta's Core XR SDK package for this API to be available.
-
-After you configured foveated rendering in the OpenXR settings, you must also turn the feature on at runtime. If you want to use gaze-based foveated rendering, you must set a runtime flag, which might require user permission.
-
-The following code example illustrates how to set foveated rendering to High and enable gaze-based foveation using the **Legacy API** and the Meta Core XR SDK package:
-
-``` csharp
-using UnityEngine;
-using UnityEngine.XR;
-
-public class FoveationStarter : MonoBehaviour
-{
-    private void Start()
-    {
-        // Only use with the Meta Core SDK.
-        OVRManager.foveatedRenderingLevel = OVRManager.FoveatedRenderingLevel.High;
-        OVRManager.eyeTrackedFoveatedRenderingEnabled = true;
-    }
-}
-```
-
-Refer to Meta's [OVRManager Class Reference](https://developer.oculus.com/reference/unity/v67/class_o_v_r_manager#acbd6d504192d2a2a7461382a4eae0715a84ec48f67b50df5ba7f823879769e0ad) for more information.
-
-<a id="use-dynamic-foveation"></a>
-## Use dynamic foveation
-
-With dynamic foveation, a supporting XR device varies the amount of foveation it applies while your application runs, which can improve performance when a content-heavy scene is presented to the user.
-
-Dynamic foveation doesn't set the amount of foveation itself. You control that with the foveation level, which you set through [XRDisplaySubsystem.foveatedRenderingLevel](xref:UnityEngine.XR.XRDisplaySubsystem.foveatedRenderingLevel), as described in [Use the SRP Foveation API](#use-the-srp-foveation-api). When dynamic foveation is disabled, the device applies that level constantly. When you enable dynamic foveation, the level becomes a maximum: the device applies less foveation when it has GPU capacity to spare, and increases foveation up to your level when it doesn't.
-
-> [!IMPORTANT]
-> Because the foveation level acts as a maximum, dynamic foveation has no effect while the foveation level is `0`, which is the default. Set a foveation level greater than zero for dynamic foveation to have an effect.
-
-Dynamic foveation is independent of [gaze-based foveated rendering](#configure-gaze-based-foveated-rendering). Enabling **Use Eye Tracking** doesn't enable dynamic foveation, and you must enable each one separately. You can use both at the same time, and Meta recommends doing so on Quest devices, so that the amount of foveation adjusts to the current GPU load while the high-resolution area follows the user's gaze.
-
-To use dynamic foveation, the XR application must use the Vulkan graphics API, enable the **Foveated Rendering** feature, and set the **Foveated Rendering Method** to **Foveated rendering (SRP API)**. The OpenXR runtime must also support the following extensions:
-* [XR\_FB\_foveation](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation)
-* [XR\_FB\_foveation\_configuration](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation_configuration)
-* [XR\_FB\_foveation\_vulkan](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_foveation_vulkan)
-* [XR\_FB\_swapchain\_update\_state](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_FB_swapchain_update_state)
-
-> [!NOTE]
-> Dynamic foveation isn't compatible with Quad Views foveation nor the Foveated rendering (Legacy API). Unity disables the **Dynamic Foveation (Vulkan)** setting when you set the **Foveated Rendering Method** to **Quad Views** or **Foveated rendering (Legacy API)**.
-
-To enable dynamic foveation in your Unity project:
-1. Open the **Project Settings** window.
-1. Under **XR Plug-in Management**, select the **OpenXR** settings.
-1. Select the tab for the platform you want to configure.
-1. In the list of **OpenXR Feature Groups**, select **All Features**.
-1. Under **OpenXR Feature Groups**, click the gear icon next to the **Foveated Rendering** feature.
-1. Enable the **Dynamic Foveation (Vulkan)** checkbox.
-
-![Dynamic foveation settings](../images/FoveatedRendering/xr-dynamic-foveation-settings.png)<br/>*Settings to enable dynamic foveation*
-
-Unity applies this setting when the OpenXR session starts. You can also turn dynamic foveation on or off at runtime with [FoveatedRenderingFeature.DynamicFoveationEnabled](xref:UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature.DynamicFoveationEnabled), which overrides the project setting for the rest of the session.
-
-The following code example sets a foveation level and then enables dynamic foveation, so that the device can vary the amount of foveation it applies up to that level:
-
-[!code-csharp[DynamicFoveationExample](../../../com.unity.xr.openxr/Tests/Editor/CodeSamples/DynamicFoveationExample.cs#DynamicFoveationExample)]
-
- <a id="request-eye-tracking-permission"></a>
-## Request eye-tracking permission on Android
-
-The Android platform requires the user to grant permission before your app can access eye-tracking data. Eye-tracking permission is required to use gaze-based foveated rendering.
-
-To declare that your application uses eye tracking, you must add a `uses-feature` and a `uses-permission` element to your application's Android manifest file:
-
-``` xml
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
-    <uses-feature android:name="oculus.software.eye_tracking" android:required="false" />
-    <uses-permission android:name="com.oculus.permission.EYE_TRACKING" />
-    ... the rest of the manifest elements ...
-```
-
-Refer to [Declare permissions for an application](xref:um-android-permissions-declare) for instructions about how to add these and other custom elements to the Android manifest.
-
-If the user denies permission, your application uses fixed foveated rendering instead. Refer to [Request runtime permissions
-](xref:um-android-requesting-permissions) for more information about handling Android permissions issues, including how to handle cases where the user has denied permission.
+* [Subsampled layout](xref:openxr-subsampled-layout)
+* [Quad views](xref:openxr-quad-views)
+* [OpenXR settings reference](xref:openxr-settings)
+* [Foveated rendering](xref:um-xr-foveated-rendering) (Unity Manual)

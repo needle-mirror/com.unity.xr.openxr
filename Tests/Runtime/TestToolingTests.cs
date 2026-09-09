@@ -11,6 +11,9 @@ using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR.Features.Mock;
 using UnityEngine.XR.OpenXR.NativeTypes;
 using UnityEngine.XR.OpenXR.TestTooling;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 using XrInstance = System.UInt64;
 using XrSystemId = System.UInt64;
 using XrFormFactor = System.UInt32;
@@ -56,6 +59,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         const uint XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT = 1000470000;
         internal const int EventDataBufferSize = 128;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static uint s_NumTimesMockSysPropertiesCalled;
 
         static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() =>
@@ -70,6 +76,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             return XrResult.Success;
         }
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static uint s_NumTimesMockGetSystemCalled;
 
         static unsafe IntPtr GetSystem_MockCallback() =>

@@ -6,6 +6,9 @@ using Unity.XR.CompositionLayers.Extensions;
 using Unity.XR.CompositionLayers.Layers;
 using Unity.XR.CompositionLayers.Services;
 using UnityEngine.XR.OpenXR.NativeTypes;
+#if LIFECYCLE_APIS_AVAILABLE
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace UnityEngine.XR.OpenXR.CompositionLayers
 {
@@ -13,6 +16,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     //OpenXR Composition Layer - Equirect Layer support : only the interior of the mesh surface will be visible
     internal class OpenXREquirectLayer : OpenXRCustomLayerHandler<XrCompositionLayerEquirectKHR>
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static bool ExtensionEnabled = OpenXRRuntime.IsExtensionEnabled("XR_KHR_composition_layer_equirect");
 
         Dictionary<int, OpenXRStereoLayerData.RightEyeData<XrCompositionLayerEquirectKHR>> m_StereoData = new();
@@ -26,19 +32,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
+            var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension);
             var xrCreateInfo = new XrSwapchainCreateInfo()
             {
                 Type = (uint)XrStructureType.XR_TYPE_SWAPCHAIN_CREATE_INFO,
                 Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Swapchain),
                 CreateFlags = 0,
-                UsageFlags = (ulong)(XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT),
+                UsageFlags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(mipCount),
                 Format = OpenXRLayerUtility.GetDefaultColorFormat(),
                 SampleCount = 1,
                 Width = (uint)(texturesExtension.LeftTexture.width),
                 Height = (uint)(texturesExtension.LeftTexture.height),
                 FaceCount = 1,
                 ArraySize = 1,
-                MipCount = (uint)texturesExtension.LeftTexture.mipmapCount,
+                MipCount = mipCount,
             };
 
             swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texturesExtension));
@@ -179,6 +186,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         protected override bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref XrCompositionLayerEquirectKHR nativeLayer)
         {
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            var data = layerInfo.Layer.LayerData as EquirectMeshLayerData;
+            if (data != null && data.UpperVerticalAngle <= data.LowerVerticalAngle)
+            {
+                // Undefined/degenerate band (upper <= lower): skip submission and clear the stereo flag.
+                if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoEntry))
+                    stereoEntry.IsActive = false;
+                return false;
+            }
+#endif
+
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
 
             if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
@@ -195,6 +213,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 stereo.IsActive = true;
                 stereo.LeftTexture = texturesExtension?.LeftTexture;
                 stereo.RightTexture = texturesExtension?.RightTexture;
+                stereo.MipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
                 return true;
             }
 
@@ -236,6 +255,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
     internal class OpenXREquirect2Layer : OpenXRCustomLayerHandler<XrCompositionLayerEquirect2KHR>
     {
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         public static bool ExtensionEnabled = OpenXRRuntime.IsExtensionEnabled("XR_KHR_composition_layer_equirect2");
 
         Dictionary<int, OpenXRStereoLayerData.RightEyeData<XrCompositionLayerEquirect2KHR>> m_StereoData = new();
@@ -249,19 +271,20 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
             }
 
+            var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension);
             var xrCreateInfo = new XrSwapchainCreateInfo()
             {
                 Type = (uint)XrStructureType.XR_TYPE_SWAPCHAIN_CREATE_INFO,
                 Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Swapchain),
                 CreateFlags = 0,
-                UsageFlags = (ulong)(XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XrSwapchainUsageFlags.XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT),
+                UsageFlags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(mipCount),
                 Format = OpenXRLayerUtility.GetDefaultColorFormat(),
                 SampleCount = 1,
                 Width = (uint)(texturesExtension.LeftTexture.width),
                 Height = (uint)(texturesExtension.LeftTexture.height),
                 FaceCount = 1,
                 ArraySize = 1,
-                MipCount = (uint)texturesExtension.LeftTexture.mipmapCount,
+                MipCount = mipCount,
             };
 
             swapchainCreateInfo = new SwapchainCreateInfo(xrCreateInfo, isExternalSurface: false, isStereo: OpenXRStereoLayerData.IsStereoRequested(texturesExtension));
@@ -279,6 +302,12 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             var transform = layerInfo.Layer.GetComponent<Transform>();
             var data = layerInfo.Layer.LayerData as EquirectMeshLayerData;
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            var lowerVerticalAngle = data.LowerVerticalAngle;
+#else
+            // Composition Layers below 2.6 has no angle migration, so preserve the legacy negated submission.
+            var lowerVerticalAngle = -data.LowerVerticalAngle;
+#endif
 
             OpenXRStereoLayerData.GetSubImageDimensions(texturesExtension, out int subImageWidth, out int subImageHeight);
 
@@ -313,7 +342,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 Radius = data.Radius,
                 CentralHorizontalAngle = data.CentralHorizontalAngle,
                 UpperVerticalAngle = data.UpperVerticalAngle,
-                LowerVerticalAngle = -data.LowerVerticalAngle
+                LowerVerticalAngle = lowerVerticalAngle
             };
 
             if (isStereo)
@@ -345,7 +374,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         Radius = data.Radius,
                         CentralHorizontalAngle = data.CentralHorizontalAngle,
                         UpperVerticalAngle = data.UpperVerticalAngle,
-                        LowerVerticalAngle = -data.LowerVerticalAngle
+                        LowerVerticalAngle = lowerVerticalAngle
                     },
                     LeftTexture = texturesExtension.LeftTexture,
                     RightTexture = texturesExtension.RightTexture,
@@ -367,6 +396,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             var transform = layerInfo.Layer.GetComponent<Transform>();
             var data = layerInfo.Layer.LayerData as EquirectMeshLayerData;
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            var lowerVerticalAngle = data.LowerVerticalAngle;
+#else
+            var lowerVerticalAngle = -data.LowerVerticalAngle;
+#endif
 
             nativeLayer.SubImage.ImageRect.Extent = new XrExtent2Di()
             {
@@ -377,7 +411,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             nativeLayer.Radius = data.Radius;
             nativeLayer.CentralHorizontalAngle = data.CentralHorizontalAngle;
             nativeLayer.UpperVerticalAngle = data.UpperVerticalAngle;
-            nativeLayer.LowerVerticalAngle = -data.LowerVerticalAngle;
+            nativeLayer.LowerVerticalAngle = lowerVerticalAngle;
 
             nativeLayer.Next = OpenXRLayerUtility.GetExtensionsChain(layerInfo, CompositionLayerExtension.ExtensionTarget.Layer);
 
@@ -403,6 +437,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         protected override bool ActiveNativeLayer(CompositionLayerManager.LayerInfo layerInfo, ref XrCompositionLayerEquirect2KHR nativeLayer)
         {
+#if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
+            var data = layerInfo.Layer.LayerData as EquirectMeshLayerData;
+            if (data != null && data.UpperVerticalAngle <= data.LowerVerticalAngle)
+            {
+                // Undefined/degenerate band (upper <= lower): skip submission and clear the stereo flag.
+                if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoEntry))
+                    stereoEntry.IsActive = false;
+                return false;
+            }
+#endif
+
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
 
             if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
@@ -419,6 +464,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 stereo.IsActive = true;
                 stereo.LeftTexture = texturesExtension?.LeftTexture;
                 stereo.RightTexture = texturesExtension?.RightTexture;
+                stereo.MipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
                 return true;
             }
 
@@ -444,11 +490,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             OpenXRStereoLayerData.WriteStereoTextures(m_StereoData);
             base.OnUpdate();
-        }
-
-        Vector2 CalculateScale(float centralHorizontalAngle, float upperVerticalAngle, float lowerVerticalAngle)
-        {
-            return new Vector2((2.0f * (float)Math.PI) / centralHorizontalAngle, (float)Math.PI / (upperVerticalAngle - lowerVerticalAngle));
         }
     }
 

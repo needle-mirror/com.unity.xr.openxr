@@ -31,6 +31,16 @@
             "name": "com.unity.xr.hands",
             "expression": "1.9.0-pre.1",
             "define": "XR_HANDS_1_9_OR_NEWER"
+        },
+        {
+            "name": "com.unity.xr.management",
+            "expression": "4.7.0",
+            "define": "XRM_4_7_0_OR_NEWER"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.5.0a9",
+            "define": "LIFECYCLE_APIS_AVAILABLE"
         }
     ],
     "noEngineReferences": false
