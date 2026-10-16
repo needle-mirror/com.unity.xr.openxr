@@ -20,9 +20,12 @@ using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "MetaHandMeshData")]
     class MetaOpenXRHandMeshDataTests
     {
         [Test]
+        [Description("The MetaOpenXRHandMeshData feature id is com.unity.openxr.feature.metahandmeshdata.")]
         public void FeatureId_IsCorrect()
         {
             Assert.AreEqual("com.unity.openxr.feature.metahandmeshdata", MetaOpenXRHandMeshData.featureId);
@@ -30,6 +33,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
 #if UNITY_EDITOR
         [Test]
+        [NUnit.Framework.Property("Requires", "EditorOnly")]
+        [Description("The feature class carries an OpenXRFeature attribute.")]
         public void Feature_HasOpenXRFeatureAttribute()
         {
             var attrs = typeof(MetaOpenXRHandMeshData).GetCustomAttributes(
@@ -38,6 +43,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [NUnit.Framework.Property("Requires", "EditorOnly")]
+        [Description("The feature's OpenXRFeature attribute requests the XR_FB_hand_tracking_mesh extension.")]
         public void Feature_RequestsHandTrackingMeshExtension()
         {
             var attrs = typeof(MetaOpenXRHandMeshData).GetCustomAttributes(
@@ -133,6 +140,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     // --- MockRuntime lifecycle tests ---
 
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "MetaHandMeshData")]
     class MetaOpenXRHandMeshDataMockRuntimeTests
     {
         MockOpenXREnvironment m_Environment;
@@ -143,12 +152,35 @@ namespace UnityEngine.XR.OpenXR.Tests
 #endif
         internal static int s_XrGetHandMeshFBCallCount;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_TrackCallsPtr = MockXrGetHandMeshFBInterceptors.TrackCallsPtr;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_ReturnErrorPtr = MockXrGetHandMeshFBInterceptors.ReturnErrorPtr;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_ReturnCountsPtr = MockXrGetHandMeshFBInterceptors.ReturnCountsPtr;
+
 #if !OPENXR_USE_KHRONOS_LOADER
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_CreateHandTrackerPtr = MockHandTrackingInterceptors.CreateHandTrackerPtr;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_DestroyHandTrackerPtr = MockHandTrackingInterceptors.DestroyHandTrackerPtr;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr s_LocateHandJointsPtr = MockHandTrackingInterceptors.LocateHandJointsPtr;
 #endif
 
@@ -205,6 +237,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 #if !OPENXR_USE_KHRONOS_LOADER
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("When the runtime advertises XR_FB_hand_tracking_mesh, the extension is enabled at " +
+                     "session start.")]
         public IEnumerator Extension_IsEnabled_WhenSupported()
         {
             IgnoreIfHandTrackingDescriptorUnavailable();
@@ -221,6 +255,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("The feature stays enabled even when the runtime does not support " +
+                     "XR_FB_hand_tracking_mesh.")]
         public IEnumerator Feature_RemainsEnabled_WhenExtensionUnsupported()
         {
             IgnoreIfHandTrackingDescriptorUnavailable();
@@ -238,6 +274,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("The feature is still enabled after the session has started with the extension " +
+                     "available.")]
         public IEnumerator Feature_RemainsEnabled_AfterStart()
         {
             IgnoreIfHandTrackingDescriptorUnavailable();
@@ -316,6 +354,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("xrGetHandMeshFB returning an error does not bring down the loader and leaves the " +
+                     "extension enabled.")]
         public IEnumerator Interceptor_XrGetHandMeshFB_ErrorDoesNotCrashRuntime()
         {
             InstallAllInterceptors();
@@ -332,6 +372,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("With hand tracking and hand mesh both advertised, XR_EXT_hand_tracking and " +
+                     "XR_FB_hand_tracking_mesh are both enabled.")]
         public IEnumerator Interceptor_BothExtensions_AreEnabled()
         {
             InstallAllInterceptors();
@@ -348,6 +390,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer })]
+        [Description("An xrGetHandMeshFB interceptor that reports joint, vertex and index counts does not " +
+                     "crash the runtime and leaves the extension enabled.")]
         public IEnumerator Interceptor_XrGetHandMeshFB_CountsInterceptorDoesNotCrash()
         {
             InstallAllInterceptors();
@@ -366,6 +410,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     // --- No hand tracking test ---
 
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "MetaHandMeshData")]
     class MetaOpenXRHandMeshDataNoHandTrackingTests
     {
         MockOpenXREnvironment m_Environment;
@@ -407,6 +453,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Starting with the mesh feature enabled but HandTracking disabled logs the " +
+                     "hand-tracking-subsystem-not-enabled warning.")]
         public IEnumerator Start_WithoutHandTracking_LogsWarning()
         {
             m_Environment.AddSupportedExtension("XR_FB_hand_tracking_mesh", 3);

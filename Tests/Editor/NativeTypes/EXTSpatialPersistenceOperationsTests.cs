@@ -3,6 +3,8 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "SpatialEntities")]
     class EXTSpatialPersistenceOperationsTests : MockRuntimeEditorTestBase
     {
         public override void OneTimeSetUp()
@@ -19,6 +21,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The async persist binding returns the runtime's result and future handle.")]
         public void xrPersistSpatialEntityAsyncEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -34,6 +37,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing a persist future yields a success futureResult, a Success persistResult " +
+                     "and the runtime's persist UUID.")]
         public void xrPersistSpatialEntityCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -50,6 +55,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The async unpersist binding taking an unpersist-info struct returns the runtime's " +
+                     "result and future handle.")]
         public void xrUnpersistSpatialEntityAsyncEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -65,6 +72,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience unpersist overload taking a bare XrUuid returns the runtime's result " +
+                     "and future handle.")]
         public void xrUnpersistSpatialEntityAsyncEXT_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -79,6 +88,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing an unpersist future yields a success futureResult and a Success " +
+                     "unpersistResult.")]
         public void xrUnpersistSpatialEntityCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

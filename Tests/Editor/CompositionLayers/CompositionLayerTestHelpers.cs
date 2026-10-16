@@ -1,5 +1,6 @@
 #if XR_COMPOSITION_LAYERS_1_0_0_OR_NEWER
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using CopyTextureSupport = UnityEngine.Rendering.CopyTextureSupport;
@@ -42,7 +43,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         public RenderTexture CreateRenderTexture(int width, int height, GraphicsFormat format, int mipCount = 1,
-            TextureDimension dimension = TextureDimension.Tex2D, int slices = 1, int msaaSamples = 1)
+            TextureDimension dimension = TextureDimension.Tex2D, int slices = 1, int msaaSamples = 1,
+            bool allowVerticalFlip = true)
         {
             var descriptor = new RenderTextureDescriptor(width, height, format, 0)
             {
@@ -54,10 +56,26 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
                 autoGenerateMips = false,
             };
 
+            if (!allowVerticalFlip)
+            {
+                descriptor = WithoutVerticalFlip(descriptor);
+            }
+
             var renderTexture = new RenderTexture(descriptor);
             renderTexture.Create();
             m_Created.Add(renderTexture);
             return renderTexture;
+        }
+
+        // XR swapchain textures are created with AllowVerticalFlip cleared, which RenderTextureDescriptor has no public setter for.
+        static RenderTextureDescriptor WithoutVerticalFlip(RenderTextureDescriptor descriptor)
+        {
+            var flagsField = typeof(RenderTextureDescriptor).GetField("_flags", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(flagsField, "RenderTextureDescriptor._flags not found; cannot model a swapchain texture.");
+
+            object boxed = descriptor;
+            flagsField.SetValue(boxed, descriptor.flags & ~RenderTextureCreationFlags.AllowVerticalFlip);
+            return (RenderTextureDescriptor)boxed;
         }
 
         public Texture2D CreateTexture2D(int width, int height, GraphicsFormat format, int mipCount = 1)

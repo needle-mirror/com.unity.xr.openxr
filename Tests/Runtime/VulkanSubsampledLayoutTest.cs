@@ -20,6 +20,9 @@ using VkImageUsageFlags = System.UInt32;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Rendering")]
+    [NUnit.Framework.Property("Requires", "Gpu")]
     class VulkanSubsampledLayoutTest : MockRuntimeTestBase
     {
         const uint s_VulkanSubsampledBit = 0x00004000;
@@ -50,6 +53,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
         [Category("VulkanTest")]
+        [Description("On Vulkan, swapchains created with subsampled layout disabled carry no subsampled-bit " +
+                     "create flag.")]
         public IEnumerator VulkanSubsampledLayout_InitiallyDisabled_ShouldNotContainFlag()
         {
             if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
@@ -66,6 +71,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
         [Category("VulkanTest")]
+        [Description("On Vulkan, enabling subsampled layout mid-session recreates swapchains with the " +
+                     "subsampled-bit flag and reports the layout as enabled.")]
         public IEnumerator VulkanSubsampledLayout_EnabledAtRuntime_ShouldContainFlag()
         {
             if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
@@ -89,6 +96,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
         [Category("VulkanTest")]
+        [Description("On Vulkan, enabling subsampled layout before the first frame produces swapchains that " +
+                     "carry the subsampled-bit flag.")]
         public IEnumerator VulkanSubsampledLayout_InitiallyEnabled_ShouldContainFlag()
         {
             if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
@@ -107,6 +116,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
         [Category("VulkanTest")]
+        [Description("On Vulkan, disabling subsampled layout mid-session recreates swapchains without the " +
+                     "subsampled-bit flag and reports the layout as disabled.")]
         public IEnumerator VulkanSubsampledLayout_DisabledAtRuntime_ShouldNotContainFlag()
         {
             if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Vulkan)
@@ -130,6 +141,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("On a non-Vulkan graphics API, enabling subsampled layout logs an error saying it is " +
+                     "Vulkan-only.")]
         public void VulkanSubsampledLayout_VulkanDisabled_SetSubsamplingShouldFail()
         {
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Vulkan)
@@ -165,6 +178,9 @@ namespace UnityEngine.XR.OpenXR.Tests
 #endif
         static readonly unsafe CreateSwapchain_Delegate k_CreateSwapchain = CreateSwapchain_MockCallback;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         internal static readonly unsafe IntPtr CreateSwapchain =
             Marshal.GetFunctionPointerForDelegate(k_CreateSwapchain);
 

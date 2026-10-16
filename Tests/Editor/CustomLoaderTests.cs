@@ -14,6 +14,8 @@ using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "Loader")]
     internal class CustomLoaderTests
     {
 #if LIFECYCLE_APIS_AVAILABLE
@@ -127,6 +129,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
 
         [Test]
+        [Description("With no custom loader features registered, no custom loader is reported and the " +
+                     "built-in loader is used.")]
         public void UseDefaultCustomLoader()
         {
             var customLoaderFeatures = new List<FeatureInfo>();
@@ -138,6 +142,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A loader feature with no LoaderVersion acts as an override and wins over versioned " +
+                     "loaders regardless of their priority.")]
         public void UseOverrideLoader()
         {
             var customLoaderFeatures = new List<FeatureInfo>()
@@ -155,6 +161,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Among custom loaders newer than the built-in one, the highest-priority feature is " +
+                     "selected.")]
         public void UseLoaderWithHighestVersionAndHighPriority()
         {
             var customLoaderFeatures = new List<FeatureInfo>()
@@ -171,6 +179,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A custom loader older than the built-in loader is never selected, even when it is the " +
+                     "only candidate.")]
         public void UseDefaultLoaderWhileDowngradedLoaderIsActive()
         {
             var customLoaderFeatures = new List<FeatureInfo>()
@@ -185,6 +195,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A newer custom loader whose feature is disabled is never selected.")]
         public void UseDefaultLoaderWhileUpgradedLoaderIsInactive()
         {
             var customLoaderFeatures = new List<FeatureInfo>()
@@ -199,6 +210,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Two active override loaders log an error naming both features, since the choice " +
+                     "between them is ambiguous.")]
         public void LogErrorWhenManyOverrideLoadersAreActive()
         {
             var customLoaderFeatures = new List<FeatureInfo>()

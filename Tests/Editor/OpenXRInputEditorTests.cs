@@ -10,6 +10,10 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "Input")]
+    [Property("Covers", "Interactions")]
+    [Property("Covers", "Settings")]
     internal class OpenXRInputEditorTests : OpenXRInputTestsBase
     {
         /// <summary>
@@ -18,6 +22,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// </summary>
 #if !INPUT_SYSTEM_BINDING_VALIDATOR
         [Test]
+        [Description("Enabling an interaction profile feature registers its Input System device layout, " +
+                     "and disabling the feature removes the layout again.")]
         public void DeviceLayoutRegistration([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
             var layoutName = interactionFeature.layoutNameOverride ?? interactionFeature.layoutType.Name;
@@ -40,6 +46,9 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// the device layout depending on whether the feature is enabled in at least one build target.
         /// </summary>
         [Test]
+        [Description("When the same interaction feature exists for several build targets, its device " +
+                     "layout stays registered while any one is enabled and is removed only once all are " +
+                     "disabled.")]
         public void InteractionFeatureLayoutRegistration()
         {
             var packageSettings = OpenXRSettings.GetPackageSettings();

@@ -8,6 +8,8 @@ using UnityEngine.XR.OpenXR.Tests;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "ProjectValidation")]
     class OpenXRValidationTests : OpenXRLoaderSetup
     {
         internal class FakeFeature : OpenXRFeature
@@ -17,6 +19,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         /// Test that IsRuleEnabled will be true at the correct time for a BuildValidationRule.
         /// </summary>
         [Test]
+        [Description("A build validation rule converted from a feature rule is enabled only when that " +
+                     "feature is active in the settings of the rule's own build target group.")]
         public void IsRuleEnabledTest()
         {
             // Create a validation rule that is enabled when FakeFeature is active

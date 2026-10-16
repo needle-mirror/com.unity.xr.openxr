@@ -11,9 +11,13 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Loader")]
     class XRLoaderLifecycleTests : OpenXRLoaderSetup
     {
         [Test]
+        [Description("Feature callbacks fire in order HookGetInstanceProcAddr, OnSubsystemCreate, " +
+                     "OnSubsystemStart on start, and OnSubsystemStop before OnSubsystemDestroy on shutdown.")]
         public void FullLifecycleOrder()
         {
             bool subsystemCreate = false;
@@ -79,15 +83,22 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A non-required feature whose OnInstanceCreate succeeds stays enabled, keeps receiving " +
+                     "callbacks, and the loader comes up.")]
         public void InstanceCreate() => TestInstanceCreate(true, false);
 
         [Test]
+        [Description("A non-required feature whose OnInstanceCreate fails is disabled and receives no " +
+                     "further callbacks, while the loader still comes up.")]
         public void InstanceCreateFail() => TestInstanceCreate(false, false);
 
         [Test]
+        [Description("A required feature whose OnInstanceCreate succeeds lets the loader come up.")]
         public void InstanceCreateRequired() => TestInstanceCreate(true, true);
 
         [Test]
+        [Description("A required feature whose OnInstanceCreate fails aborts loader start, leaving no " +
+                     "loader instance.")]
         public void InstanceCreateFailRequired() => TestInstanceCreate(false, true);
 
         public void TestInstanceCreate(bool result, bool required)
@@ -141,6 +152,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Shutting down a loader that was never initialized invokes no feature callbacks.")]
         public void DeinitWithoutInit()
         {
             bool callback = false;

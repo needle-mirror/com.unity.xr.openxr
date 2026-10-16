@@ -16,6 +16,8 @@ using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "CompositionLayers")]
     internal class CompositionLayerMipMapTests
     {
         const int k_Size = 64;
@@ -30,6 +32,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         public void TearDown() => m_Helpers.Cleanup();
 
         [Test]
+        [Description("Usage flags for a single-mip color swapchain include SAMPLED but neither transfer bit.")]
         public void SingleMipSwapchain_UsageFlags_OmitsTransferBits()
         {
             var flags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(1);
@@ -42,6 +45,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A zero mip count, as used by external-surface swapchains, produces the same flags as a " +
+                     "single mip: SAMPLED without the transfer bits.")]
         public void ZeroMipSwapchain_UsageFlags_OmitsTransferBits()
         {
             // 0 is the degenerate count used by external-surface swapchains and should behave like a single mip.
@@ -55,6 +60,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("Usage flags for a mipped swapchain include both TRANSFER_SRC and TRANSFER_DST so " +
+                     "AutoGenerate and per-mip copies can work.")]
         public void MultiMipSwapchain_UsageFlags_IncludesBothTransferBits()
         {
             var flags = OpenXRLayerUtility.GetColorSwapchainUsageFlags(4);
@@ -65,6 +72,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
                 "A mipped swapchain must request TRANSFER_DST for per-mip copies.");
         }
 
+        [Description("GetSwapchainMipCount is 1 for mode None or a single-mip source, and matches the source " +
+                     "mip count for CopyFromSource and AutoGenerate only where the engine supports mipmaps.")]
         [TestCase(TexturesExtension.MipMapModeEnum.None, 4, 1u)]
 #if UNITY_ENGINE_MIPMAPS_SUPPORT
         [TestCase(TexturesExtension.MipMapModeEnum.CopyFromSource, 4, 4u)]
@@ -84,6 +93,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A null textures extension yields one mip level and logs a warning.")]
         public void GetSwapchainMipCount_NullExtension_ReturnsOne()
         {
             LogAssert.Expect(LogType.Warning, "GetSwapchainMipCount: textures extension or its texture is null. Defaulting to a single mip level.");
@@ -91,6 +101,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A textures extension with no left texture yields one mip level and logs a warning.")]
         public void GetSwapchainMipCount_NullLeftTexture_ReturnsOne()
         {
             var extension = CreateTexturesExtension(null, TexturesExtension.MipMapModeEnum.CopyFromSource);
@@ -102,6 +113,9 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         // The write tests below exercise the write path in isolation from swapchain allocation.
 
         [Test]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("CopyFromSource writes each authored mip of a Texture2D into the matching destination " +
+                     "mip unchanged.")]
         public void WriteToRenderTexture_CopyFromSource_PreservesEachAuthoredMip()
         {
             m_Helpers.RequireCopySupport();
@@ -121,6 +135,9 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("CopyFromSource writes each authored mip of a RenderTexture source into the matching " +
+                     "destination mip unchanged.")]
         public void WriteToRenderTexture_CopyFromSource_RenderTextureSource_PreservesEachAuthoredMip()
         {
             m_Helpers.RequireCopySupport();
@@ -139,43 +156,65 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
             }
         }
 
-        // Orientation check that writes a vertically-split pattern with CopyFromSource, then checks each mip against the
-        // standard single-mip write of the same level. The comparison is independent of the API's UV origin.
-        [Test]
-        public void WriteToRenderTexture_CopyFromSource_MatchesReferenceOrientationPerMip()
+        // CopyFromSource must land each mip in the same orientation as the None path. Sampling all four
+        // corners of a per-corner-colored pattern catches a vertical flip, a horizontal mirror, or both.
+        [TestCase(false, TestName = "WriteToRenderTexture_CopyFromSource_MatchesReferenceOrientationPerMip_SwapchainTexture")]
+        [TestCase(true, TestName = "WriteToRenderTexture_CopyFromSource_MatchesReferenceOrientationPerMip_OrdinaryRenderTexture")]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("Each mip written by CopyFromSource has the same orientation as a single-mip None write " +
+                     "of that level, so no mip lands vertically flipped or horizontally mirrored. Covers both " +
+                     "swapchain-style render textures (no AllowVerticalFlip) and ordinary ones.")]
+        public void WriteToRenderTexture_CopyFromSource_MatchesReferenceOrientationPerMip(bool allowVerticalFlip)
         {
             m_Helpers.RequireCopySupport();
             RequirePerMipWrites();
 
             const int mipCount = 4;
-            var source = CreatePerMipVerticalSplitTexture(k_Size, mipCount);
+            var source = CreatePerMipQuadrantTexture(k_Size, mipCount);
 
-            var subject = m_Helpers.CreateRenderTexture(k_Size, k_Size, k_Format, mipCount);
+            var subject = m_Helpers.CreateRenderTexture(k_Size, k_Size, k_Format, mipCount, allowVerticalFlip: allowVerticalFlip);
             OpenXRLayerUtility.WriteToRenderTexture(source, subject, MipMapWriteMode.CopyFromSource);
+
+            // (u, v) sample points for the four corners, kept off the exact edges to avoid clamp ambiguity.
+            var corners = new[]
+            {
+                (u: 0.25f, v: 0.25f, name: "bottom-left"),
+                (u: 0.75f, v: 0.25f, name: "bottom-right"),
+                (u: 0.25f, v: 0.75f, name: "top-left"),
+                (u: 0.75f, v: 0.75f, name: "top-right"),
+            };
 
             for (int mip = 0; mip < mipCount; mip++)
             {
                 int mipSize = Mathf.Max(1, k_Size >> mip);
+                if (mipSize < 2)
+                {
+                    continue;
+                }
 
-                // The single-mip None write is the canonical upright orientation for this device; CopyFromSource
-                // must land each mip the same way.
-                var referenceSource = CreateSingleMipVerticalSplit(mipSize, k_MipColors[mip], k_MipColorsBottom[mip]);
-                var reference = m_Helpers.CreateRenderTexture(mipSize, mipSize, k_Format, 1);
+                var referenceSource = CreateSingleMipQuadrant(mipSize, mip);
+                var reference = m_Helpers.CreateRenderTexture(mipSize, mipSize, k_Format, 1, allowVerticalFlip: allowVerticalFlip);
                 OpenXRLayerUtility.WriteToRenderTexture(referenceSource, reference, MipMapWriteMode.None);
 
-                var refTop = ReadRenderTextureMipAt(reference, 0, 0.5f, 0.75f);
-                var refBottom = ReadRenderTextureMipAt(reference, 0, 0.5f, 0.25f);
-                var subTop = ReadRenderTextureMipAt(subject, mip, 0.5f, 0.75f);
-                var subBottom = ReadRenderTextureMipAt(subject, mip, 0.5f, 0.25f);
+                foreach (var corner in corners)
+                {
+                    var referenceColor = ReadRenderTextureMipAt(reference, 0, corner.u, corner.v);
+                    var subjectColor = ReadRenderTextureMipAt(subject, mip, corner.u, corner.v);
+                    AssertColorsApproximatelyEqual(referenceColor, subjectColor, $"mip {mip} {corner.name}");
+                }
 
-                Assert.IsTrue(ColorsDiffer(refTop, refBottom),
-                    $"mip {mip}: reference top and bottom are identical, so this sample cannot detect a flip.");
-                AssertColorsApproximatelyEqual(refTop, subTop, $"mip {mip} top");
-                AssertColorsApproximatelyEqual(refBottom, subBottom, $"mip {mip} bottom");
+                // Without distinct corners a flip or mirror would be undetectable.
+                var bottomLeft = ReadRenderTextureMipAt(reference, 0, corners[0].u, corners[0].v);
+                var bottomRight = ReadRenderTextureMipAt(reference, 0, corners[1].u, corners[1].v);
+                var topLeft = ReadRenderTextureMipAt(reference, 0, corners[2].u, corners[2].v);
+                Assert.IsTrue(ColorsDiffer(bottomLeft, topLeft) && ColorsDiffer(bottomLeft, bottomRight),
+                    $"mip {mip}: reference corners are not distinct enough to detect a flip or mirror.");
             }
         }
 
         [Test]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("AutoGenerate fills every destination mip from a solid single-mip source.")]
         public void WriteToRenderTexture_AutoGenerate_PopulatesAllMips()
         {
             m_Helpers.RequireCopySupport();
@@ -201,6 +240,9 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("When the source has fewer mips than the destination, CopyFromSource falls back to Blit " +
+                     "plus GenerateMips and warns once per render texture rather than on every write.")]
         public void WriteToRenderTexture_CopyFromSource_FallbackWarnsOncePerRenderTexture()
         {
             m_Helpers.RequireCopySupport();
@@ -219,6 +261,9 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [NUnit.Framework.Property("Requires", "Gpu")]
+        [Description("CopyFromSource writes every face and mip of a cubemap source into the matching slots " +
+                     "of a cube render texture unchanged.")]
         public void WriteToRenderTexture_Cube_CopyFromSource_PreservesEachFaceAndMip()
         {
             m_Helpers.RequireCopySupport();
@@ -296,8 +341,31 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
             return texture;
         }
 
-        // Each mip is split: lower rows use k_MipColorsBottom[mip], upper rows use k_MipColors[mip].
-        Texture2D CreatePerMipVerticalSplitTexture(int size, int mipCount)
+        // The four quadrant colors for a mip: a distinct color in each corner so an orientation check can tell a
+        // vertical flip from a horizontal mirror. Texture rows run bottom-to-top, so y < size/2 is the bottom half.
+        static Color QuadrantColor(int mip, bool bottom, bool left)
+        {
+            var colors = bottom ? k_MipColorsBottom : k_MipColors;
+            var baseColor = colors[mip];
+            // Darken the left column so left and right corners differ within the same top/bottom band.
+            return left ? new Color(baseColor.r * 0.5f, baseColor.g * 0.5f, baseColor.b * 0.5f, baseColor.a) : baseColor;
+        }
+
+        static void FillQuadrants(Color[] pixels, int width, int height, int mip)
+        {
+            for (var y = 0; y < height; y++)
+            {
+                var bottom = y < height / 2;
+                for (var x = 0; x < width; x++)
+                {
+                    var left = x < width / 2;
+                    pixels[y * width + x] = QuadrantColor(mip, bottom, left);
+                }
+            }
+        }
+
+        // Each mip is a four-quadrant pattern (see QuadrantColor), preserved into the authored mip chain.
+        Texture2D CreatePerMipQuadrantTexture(int size, int mipCount)
         {
             var texture = m_Helpers.CreateTexture2D(size, size, k_Format, mipCount);
             for (int mip = 0; mip < mipCount; mip++)
@@ -305,29 +373,19 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
                 int mipWidth = Mathf.Max(1, size >> mip);
                 int mipHeight = Mathf.Max(1, size >> mip);
                 var pixels = new Color[mipWidth * mipHeight];
-                for (int y = 0; y < mipHeight; y++)
-                {
-                    var rowColor = y < mipHeight / 2 ? k_MipColorsBottom[mip] : k_MipColors[mip];
-                    for (int x = 0; x < mipWidth; x++)
-                        pixels[y * mipWidth + x] = rowColor;
-                }
+                FillQuadrants(pixels, mipWidth, mipHeight, mip);
                 texture.SetPixels(pixels, mip);
             }
             texture.Apply(false);
             return texture;
         }
 
-        // Single-mip counterpart of one CreatePerMipVerticalSplitTexture level, used as the orientation reference.
-        Texture2D CreateSingleMipVerticalSplit(int size, Color top, Color bottom)
+        // Single-mip counterpart of one CreatePerMipQuadrantTexture level, used as the orientation reference.
+        Texture2D CreateSingleMipQuadrant(int size, int mip)
         {
             var texture = m_Helpers.CreateTexture2D(size, size, k_Format, 1);
             var pixels = new Color[size * size];
-            for (int y = 0; y < size; y++)
-            {
-                var rowColor = y < size / 2 ? bottom : top;
-                for (int x = 0; x < size; x++)
-                    pixels[y * size + x] = rowColor;
-            }
+            FillQuadrants(pixels, size, size, mip);
             texture.SetPixels(pixels);
             texture.Apply(false);
             return texture;

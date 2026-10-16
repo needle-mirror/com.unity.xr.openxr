@@ -46,7 +46,7 @@ namespace UnityEditor.XR.OpenXR
         [InitializeOnLoadMethod]
         static void OpenXRProjectValidationCheck()
         {
-            if (UnityEditor.MPE.ProcessService.level != UnityEditor.MPE.ProcessLevel.Main)
+            if (UnityEditor.MPE.ProcessService.level != UnityEditor.MPE.ProcessLevel.Main || AssetDatabase.IsAssetImportWorkerProcess())
                 return;
 
             if (UnityEngine.Application.isBatchMode)

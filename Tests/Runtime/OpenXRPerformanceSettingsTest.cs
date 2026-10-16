@@ -6,9 +6,13 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "PerformanceSettings")]
     class OpenXRPerformanceSettingsTest : OpenXRLoaderSetup
     {
         [UnityTest]
+        [Description("SetPerformanceLevelHint on the performance settings feature reaches the runtime, " +
+                     "which reports the same hint back for that domain.")]
         public IEnumerator PerformanceLevelHintIsSet()
         {
             EnableMockRuntime();
@@ -34,6 +38,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A runtime performance notification (CPU thermal, Normal to Warning) is delivered to " +
+                     "OnXrPerformanceChangeNotification with matching fields.")]
         public IEnumerator ReceiveEventNotification_NormalToWarning()
         {
             EnableMockRuntime();
@@ -70,6 +76,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("With the performance settings feature disabled, SetPerformanceLevelHint returns false.")]
         public IEnumerator ExtensionNotInitialized()
         {
             EnableFeature<XrPerformanceSettingsFeature>(false);

@@ -100,6 +100,9 @@ namespace UnityEngine.XR.OpenXR.Tests
 
     }
 
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Input")]
+    [NUnit.Framework.Property("Covers", "Interactions")]
     class OpenXRInputTests : OpenXRInputTestsBase
     {
         /// <summary>
@@ -125,6 +128,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests whether or not the device layout for an interaction feature is registered at runtime
         /// </summary>
         [UnityTest]
+        [Description("Starting OpenXR with an interaction profile feature enabled registers that feature's " +
+                     "Input System device layout.")]
         public IEnumerator DeviceLayoutRegistration([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
             var layoutName = interactionFeature.layoutNameOverride ?? interactionFeature.layoutType.Name;
@@ -472,6 +477,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// </summary>
         [UnityTest]
         [Ignore("This test is ignored temporarily because it causes timeouts all over Editor versions.")]
+        [Description("For every control of every interaction profile layout, drives values through the " +
+                     "conformance automation extension and checks they arrive on a bound action, covering " +
+                     "buttons, axes, sticks, poses, haptics and usages.")]
         public IEnumerator ValidateControls([ValueSource(nameof(s_InteractionFeatureLayouts))] (Type featureType, Type layoutType, string layoutNameOverride) interactionFeature)
         {
             // Enable the needed features
@@ -633,6 +641,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
+        [Description("Invalid ActionMapConfig fields (missing devices, bad profile paths, user paths, names, " +
+                     "usages, action types) log the expected error and appear in the diagnostic report, " +
+                     "while optional fields may be empty.")]
         public IEnumerator ValidateActionMapConfig([ValueSource(nameof(s_ActionMapTests))] (Action<OpenXRInteractionFeature.ActionMapConfig> filter, Regex expectLog, Regex expectReport) test)
         {
             var feature = EnableFeature<MockInteractionFeature>();
@@ -671,6 +682,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Test a failure in suggested bindings.
         /// </summary>
         [UnityTest]
+        [Description("When the runtime fails xrSuggestInteractionProfileBindings, xrCreateActionSet, " +
+                     "xrCreateAction or xrAttachSessionActionSets, the matching error is logged and recorded " +
+                     "in the diagnostic report.")]
         public IEnumerator RuntimeMethodFailure([ValueSource(nameof(s_RuntimeFailureTests))] (string function, XrResult result, Regex expectLog) test)
         {
             MockRuntime.SetFunctionCallback(test.function, _ => test.result);
@@ -687,6 +701,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Ensures that the `interactionFeatureLayouts` list is not missing any entries
         /// </summary>
         [Test]
+        [Description("Every non-obsolete interaction profile feature in the settings, minus the known " +
+                     "exclusions, appears in this fixture's interaction feature layout list.")]
         public void AllInteractionFeaturesCovered()
         {
             // Array of all known interaction features
@@ -709,6 +725,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// <see cref="InputControl"/> properties in <c>FinishSetup</c> so that none are left null.
         /// </summary>
         [Test]
+        [Description("Every Input System device type in the package assigns all of its InputControl " +
+                     "properties in FinishSetup, so none is left null once the device is created.")]
         public void DeviceInputControlPropertiesInitialized([ValueSource(nameof(s_AllOpenXRInputDeviceTypes))] Type deviceType)
         {
             // The device layout is registered under a temporary name and force created with InputSystem.AddDevice so
@@ -758,6 +776,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// (Since the EyeGaze features use pose instead of devicePose)
         /// </summary>
         [UnityTest]
+        [Description("With eye gaze interaction enabled, the EyeTrackingOpenXR pose/isTracked, position and " +
+                     "rotation controls resolve to non-zero OpenXR action handles.")]
         public IEnumerator EyeGazeFeatureTest()
         {
             MockRuntime.SetFunctionCallback(
@@ -787,6 +807,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The left-hand node reports tracking acquired after start, lost when the runtime clears " +
+                     "its space location flags, and acquired again once they are restored.")]
         public IEnumerator InputTrackingAquiredAndLost()
         {
             EnableFeature<OculusTouchControllerProfile>();
@@ -827,6 +849,8 @@ namespace UnityEngine.XR.OpenXR.Tests
             Assert.IsTrue(tracked, "There's no tracking after resetting space location flags");
         }
         [UnityTest]
+        [Description("TryGetInputSourceName returns a non-empty name for every Oculus Touch control, the " +
+                     "same across hands for shared controls and different for hand-specific ones.")]
         public IEnumerator TestGetInputSourceName()
         {
             EnableMockRuntime();

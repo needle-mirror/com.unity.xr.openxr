@@ -498,7 +498,7 @@ PrefabInstance:
     - target: {fileID: 2426041839020455222, guid: d3c1f89f0e4fc8645bd16e46677664cc, type: 3}
       propertyPath: _actionReference
       value: 
-      objectReference: {fileID: -5684558904543120851, guid: 1635490aa68143442b5322b29b340c59, type: 3}
+      objectReference: {fileID: -5796143589662280788, guid: 1635490aa68143442b5322b29b340c59, type: 3}
     - target: {fileID: 2426041839020455223, guid: d3c1f89f0e4fc8645bd16e46677664cc, type: 3}
       propertyPath: action
       value: 

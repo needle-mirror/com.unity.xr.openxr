@@ -6,15 +6,21 @@ using UnityEngine.XR.OpenXR.Tests;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Settings")]
     class BootConfigEditorTests : OpenXRLoaderSetup
     {
         [Test]
+        [Description("Boot config entries written for the Android build target round-trip " +
+                     "through a re-read, and unset keys report absent.")]
         public void TestCanCreateBootConfigAndroid()
         {
             TestBuildTarget(BuildTarget.Android);
         }
 
         [Test]
+        [Description("Boot config entries written for both 32- and 64-bit standalone Windows " +
+                     "build targets round-trip through a re-read.")]
         public void TestCanCreateBootConfigWindows()
         {
             TestBuildTarget(BuildTarget.StandaloneWindows);

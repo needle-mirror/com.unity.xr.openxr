@@ -20,6 +20,10 @@ namespace UnityEditor.XR.OpenXR.Tests
     // If you change this file, be sure to run the "no players" tests on yamato.
     // APV jobs don't include "players" such as standalone, so `BuildMockPlayer()`
     // will fail during APV.  The "no players" job on yamato will catch this.
+    // Level carried as a Property, not a Category: every test here is [Explicit], and a
+    // Level.Build category sweep would count as an explicit match and run them.
+    [NUnit.Framework.Property("PyramidLevel", "Build")]
+    [NUnit.Framework.Property("Covers", "BuildPipeline")]
     class zBuildHookTests : OpenXRLoaderSetup
     {
         internal static BuildReport BuildMockPlayer()
@@ -51,6 +55,9 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("Building a mock player invokes OnPreprocessBuildExt and OnPostprocessBuildExt on the " +
+                     "feature's build hooks; the build result itself is asserted only on the OpenXR Yamato " +
+                     "lanes.")]
         public void PrePostCallbacksAreReceived()
         {
             bool preprocessCalled = false;
@@ -85,6 +92,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         [Test]
         [Timeout(800000)]
         [Category("BuildUnitTest"), Explicit]
+        [Description("With the Mock Runtime feature disabled, a player build invokes none of its build " +
+                     "hooks.")]
         public void NoBuildCallbacksFeatureDisabled()
         {
             bool preprocessCalled = false;
@@ -114,6 +123,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("With the OpenXR loader removed from XR Management, a player build invokes no OpenXR " +
+                     "feature build hooks.")]
         public void NoBuildCallbacksOpenXRDisabled()
         {
             bool preprocessCalled = false;
@@ -145,6 +156,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("Boot-config values set in OnProcessBootConfigExt are readable in OnPostprocessBuildExt " +
+                     "and are cleaned out of the user build settings once the build finishes.")]
         public void VerifyBootConfigWrite()
         {
             bool preprocessCalled = false;
@@ -188,6 +201,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("A player built with the OpenXR loader active ships the openxr_loader/UnityOpenXR " +
+                     "native library, and one built with the loader removed does not.")]
         public void VerifyBuildOutputLibraries()
         {
             var resultWithOpenXR = BuildMockPlayer();
@@ -206,6 +221,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("A player build still succeeds after com.unity.analytics is removed from the project; " +
+                     "asserted only on the OpenXR Yamato lanes.")]
         public void VerifyBuildWithoutAnalytics()
         {
             var packageName = "com.unity.analytics";

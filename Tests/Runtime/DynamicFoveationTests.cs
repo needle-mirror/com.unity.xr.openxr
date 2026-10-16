@@ -25,6 +25,9 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// through one native cache. These tests intercept `xrCreateFoveationProfileFB` so they can assert
     /// on what actually reached the runtime rather than on what the C# layer cached.
     /// </remarks>
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Rendering")]
+    [NUnit.Framework.Property("Covers", "Features")]
     class DynamicFoveationTests
     {
         // All four are required before the plugin creates its foveation extension. The Mock Runtime
@@ -157,6 +160,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Enabling dynamic foveation submits a new foveation profile that keeps the previously " +
+                     "set level and sets the dynamic flag.")]
         public void EnablingDynamicFoveationPreservesTheFoveationLevel()
         {
             m_Environment.Start();
@@ -178,6 +183,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Disabling dynamic foveation submits a new foveation profile that keeps the previously " +
+                     "set level and clears the dynamic flag.")]
         public void DisablingDynamicFoveationPreservesTheFoveationLevel()
         {
             m_Environment.Start();
@@ -199,6 +206,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A DynamicFoveationEnabled setting made before any session exists is applied once the " +
+                     "session is created.")]
         public void DynamicFoveationSettingIsAppliedWhenTheSessionIsCreated()
         {
             var feature = GetFoveatedRenderingFeature();
@@ -221,6 +230,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// contract this feature keeps.
         /// </remarks>
         [Test]
+        [Description("With the setting off, starting a session never submits a profile with dynamic " +
+                     "foveation enabled and the native flag reads Disabled.")]
         public void DisabledDynamicFoveationSettingDoesNotEnableDynamicFoveation()
         {
             // CustomSetup already left the setting disabled, and no loader is running yet.
@@ -335,17 +346,30 @@ namespace UnityEngine.XR.OpenXR.Tests
         [NoAutoStaticsCleanup]
 #endif
         static readonly CreateFoveationProfile_Delegate k_CreateFoveationProfile = CreateFoveationProfile_MockCallback;
+
 #if LIFECYCLE_APIS_AVAILABLE
         [NoAutoStaticsCleanup]
 #endif
         static readonly DestroyFoveationProfile_Delegate k_DestroyFoveationProfile = DestroyFoveationProfile_MockCallback;
+
 #if LIFECYCLE_APIS_AVAILABLE
         [NoAutoStaticsCleanup]
 #endif
         static readonly UpdateSwapchain_Delegate k_UpdateSwapchain = UpdateSwapchain_MockCallback;
 
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr k_CreateFoveationProfilePtr = Marshal.GetFunctionPointerForDelegate(k_CreateFoveationProfile);
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr k_DestroyFoveationProfilePtr = Marshal.GetFunctionPointerForDelegate(k_DestroyFoveationProfile);
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
         static readonly IntPtr k_UpdateSwapchainPtr = Marshal.GetFunctionPointerForDelegate(k_UpdateSwapchain);
 
         [MonoPInvokeCallback(typeof(CreateFoveationProfile_Delegate))]

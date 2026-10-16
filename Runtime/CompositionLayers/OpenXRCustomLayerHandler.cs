@@ -108,7 +108,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <summary>
         /// Container for grouping render information for each composition layer.
         /// </summary>
-        class LayerRenderInfo
+        internal class LayerRenderInfo
         {
             public Dictionary<uint, SwapchainImageInfo> SwapchainImageInfos = new();
             public Texture Texture;
@@ -119,6 +119,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             public uint RenderTextureId;
 
+            public bool HasAcquiredImage;
+
             public uint SwapchainMipCount;
 
             public MipMapWriteMode MipMapMode;
@@ -128,6 +130,38 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             public bool IsNewTexture;
 
             public bool IsDynamic;
+
+            // A static layer is settled once the runtime hands it an image it has already written: every image the
+            // compositor can show holds the current content, so the layer stops acquiring images.
+            public bool IsSettled;
+
+            public bool NeedsSwapchainImage(bool requiresContinuousWrite) => requiresContinuousWrite || !IsSettled;
+
+            // Records the image acquired this frame and returns whether it must be written. Continuous layers write
+            // every image; a static layer writes each image once and settles when an already-written one comes back.
+            public bool RecordAcquiredImage(RenderTexture renderTexture, bool requiresContinuousWrite)
+            {
+                if (!SwapchainImageInfos.TryGetValue(RenderTextureId, out var swapchainImageInfo))
+                {
+                    swapchainImageInfo = new SwapchainImageInfo { RenderTexture = renderTexture };
+                    SwapchainImageInfos.Add(RenderTextureId, swapchainImageInfo);
+                }
+
+                if (!requiresContinuousWrite && swapchainImageInfo.IsWritten)
+                {
+                    IsSettled = true;
+                    return false;
+                }
+
+                swapchainImageInfo.IsWritten = true;
+                return true;
+            }
+
+            public void InvalidateSwapchainImages()
+            {
+                SwapchainImageInfos.Clear();
+                IsSettled = false;
+            }
 
             public class SwapchainImageInfo
             {
@@ -388,50 +422,59 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             CreateSwapchainAsync(layerInfo);
         }
 
+        static bool RequiresContinuousWrite(LayerRenderInfo layerRenderInfo)
+        {
+            var isVideo = false;
+#if UNITY_VIDEO
+            isVideo = layerRenderInfo.VideoPlayer != null && layerRenderInfo.VideoPlayer.enabled;
+#endif
+            return layerRenderInfo.IsNewTexture || isVideo || layerRenderInfo.Texture is RenderTexture || layerRenderInfo.IsDynamic;
+        }
+
+        bool NeedsSwapchainImage(int layerId)
+        {
+            if (!m_RenderInfos.TryGetValue(layerId, out var layerRenderInfo))
+            {
+                return true;
+            }
+
+            return layerRenderInfo.NeedsSwapchainImage(RequiresContinuousWrite(layerRenderInfo));
+        }
+
         void WriteActiveLayerTextures()
         {
-            foreach(var container in m_RenderInfos.Values)
+            foreach(var layerRenderInfo in m_RenderInfos.Values)
             {
-                if (!container.IsActiveLayer)
+                if (!layerRenderInfo.IsActiveLayer)
                     continue;
 
-                var renderTexture = OpenXRLayerUtility.FindRenderTexture(container.RenderTextureId);
+                WriteAcquiredImage(layerRenderInfo);
 
-                LayerRenderInfo.SwapchainImageInfo swapchainImageInfo;
-                if (!container.SwapchainImageInfos.ContainsKey(container.RenderTextureId))
-                {
-                    swapchainImageInfo = new LayerRenderInfo.SwapchainImageInfo
-                    {
-                        RenderTexture = renderTexture, IsWritten = false
-                    };
-                    container.SwapchainImageInfos.Add(container.RenderTextureId, swapchainImageInfo);
-                }
+                // Consumes the flag which is safe as this runs from OnUpdate, after the SetActiveLayer pass, so a re-activated layer won't miss its first write.
+                layerRenderInfo.IsActiveLayer = false;
+            }
+        }
 
-                swapchainImageInfo = container.SwapchainImageInfos[container.RenderTextureId];
+        // Only the image acquired for this frame is writable; an ID from an earlier frame was already released by the native side.
+        // A frame with no usable image records nothing, so a static layer keeps requesting until a write lands.
+        static void WriteAcquiredImage(LayerRenderInfo layerRenderInfo)
+        {
+            if (!layerRenderInfo.HasAcquiredImage)
+            {
+                return;
+            }
 
-                var isVideo = false;
-#if UNITY_VIDEO
-                isVideo = container.VideoPlayer != null && container.VideoPlayer.enabled;
-#endif
-                var isRenderTexture = container.Texture is RenderTexture;
+            layerRenderInfo.HasAcquiredImage = false;
 
-                // Layers that have a new texture, have video, are a RenderTexture, or are flagged as dynamic must always have their swapchain image written to.
-                if (container.IsNewTexture || isVideo || isRenderTexture || container.IsDynamic)
-                {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture, container.MipMapMode);
-                    swapchainImageInfo.IsWritten = true;
-                }
+            var renderTexture = OpenXRLayerUtility.FindRenderTexture(layerRenderInfo.RenderTextureId);
+            if (renderTexture == null)
+            {
+                return;
+            }
 
-                // For all other layers only write to the swapchain image if it has not already been written.
-                else if (!swapchainImageInfo.IsWritten)
-                {
-                    OpenXRLayerUtility.WriteToRenderTexture(container.Texture, renderTexture, container.MipMapMode);
-                    swapchainImageInfo.IsWritten = true;
-                }
-
-                // Consume the flag so a layer that goes inactive without being removed stops being written next frame.
-                // Safe because this runs from OnUpdate, after the provider's SetActiveLayer pass, so a re-activated layer won't miss its first write.
-                container.IsActiveLayer = false;
+            if (layerRenderInfo.RecordAcquiredImage(renderTexture, RequiresContinuousWrite(layerRenderInfo)))
+            {
+                OpenXRLayerUtility.WriteToRenderTexture(layerRenderInfo.Texture, renderTexture, layerRenderInfo.MipMapMode);
             }
         }
 
@@ -644,36 +687,36 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 || texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.AndroidSurface)
                 return true;
 
-            if (m_RenderInfos.TryGetValue(layerInfo.Id, out var container))
+            if (m_RenderInfos.TryGetValue(layerInfo.Id, out var layerRenderInfo))
             {
-                container.IsNewTexture = container.Texture != texturesExtension.LeftTexture;
+                layerRenderInfo.IsNewTexture = layerRenderInfo.Texture != texturesExtension.LeftTexture;
 
                 var mipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension);
 
-                bool dimensionsChanged = container.IsNewTexture
-                    && (container.Texture.width != texturesExtension.LeftTexture.width
-                        || container.Texture.height != texturesExtension.LeftTexture.height);
+                bool dimensionsChanged = layerRenderInfo.IsNewTexture
+                    && (layerRenderInfo.Texture.width != texturesExtension.LeftTexture.width
+                        || layerRenderInfo.Texture.height != texturesExtension.LeftTexture.height);
 
-                if (dimensionsChanged || mipCount != container.SwapchainMipCount)
+                if (dimensionsChanged || mipCount != layerRenderInfo.SwapchainMipCount)
                 {
                     RemoveLayer(layerInfo.Id);
                     CreateSwapchainAsync(layerInfo);
                     return false;
                 }
 
-                if (container.IsNewTexture)
+                if (layerRenderInfo.IsNewTexture)
                 {
-                    container.Texture = texturesExtension.LeftTexture;
+                    layerRenderInfo.Texture = texturesExtension.LeftTexture;
 #if UNITY_VIDEO
-                    container.VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
+                    layerRenderInfo.VideoPlayer = layerInfo.Layer.GetComponent<VideoPlayer>();
 #endif
-                    container.MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
-                    container.SwapchainImageInfos.Clear();
+                    layerRenderInfo.MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>();
+                    layerRenderInfo.InvalidateSwapchainImages();
                 }
             }
             else
             {
-                var layerRenderInfo = new LayerRenderInfo
+                var newLayerRenderInfo = new LayerRenderInfo
                 {
                     Texture = texturesExtension.LeftTexture,
                     SwapchainMipCount = OpenXRLayerUtility.GetSwapchainMipCount(texturesExtension),
@@ -683,7 +726,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     MeshCollider = layerInfo.Layer.GetComponent<MeshCollider>()
                 };
 
-                m_RenderInfos.Add(layerInfo.Id, layerRenderInfo);
+                m_RenderInfos.Add(layerInfo.Id, newLayerRenderInfo);
             }
 
 #if XR_COMPOSITION_LAYERS_2_6_OR_GREATER
@@ -691,7 +734,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 #endif
             var mipMapMode = OpenXRLayerUtility.GetMipMapWriteMode(texturesExtension);
             if (m_RenderInfos[layerInfo.Id].MipMapMode != mipMapMode)
-                m_RenderInfos[layerInfo.Id].SwapchainImageInfos.Clear();
+            {
+                m_RenderInfos[layerInfo.Id].InvalidateSwapchainImages();
+            }
+
             m_RenderInfos[layerInfo.Id].MipMapMode = mipMapMode;
             m_RenderInfos[layerInfo.Id].IsActiveLayer = true;
             return true;
@@ -712,7 +758,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             if (!ValidateAndUpdateRenderInfo(layerInfo, texturesExtension))
                 return false;
 
-            OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, s_OnRenderTextureIdIdCallback);
+            if (NeedsSwapchainImage(layerInfo.Id))
+            {
+                OpenXRLayerUtility.RequestRenderTextureId(layerInfo.Id, s_OnRenderTextureIdIdCallback);
+            }
 
             return true;
         }
@@ -723,9 +772,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             if (Instance == null)
                 return;
 
-            if (Instance.m_RenderInfos.TryGetValue(layerId, out _))
+            if (Instance.m_RenderInfos.TryGetValue(layerId, out var layerRenderInfo))
             {
-                Instance.m_RenderInfos[layerId].RenderTextureId = texId;
+                layerRenderInfo.RenderTextureId = texId;
+                layerRenderInfo.HasAcquiredImage = texId != 0;
             }
         }
 

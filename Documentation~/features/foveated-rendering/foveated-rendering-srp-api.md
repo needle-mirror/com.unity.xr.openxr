@@ -50,6 +50,35 @@ The following code example sets foveated rendering to the maximum level and enab
 > [!NOTE]
 > This code example relies on methods available in Unity 6 or later. It doesn't compile in earlier versions.
 
+## Skip the fragment density map on the final passes
+
+When your project uses post-processing, the Universal Render Pipeline (URP) renders two lightweight full-screen passes at the end of each frame. `UberPost` applies effects such as bloom and tone mapping, and `FinalBlit` copies the result to the eye textures. Foveating these passes saves little GPU time, and on Meta Quest it costs more than it saves.
+
+In Unity 6.7 and later, Unity does the following for you:
+
+* On Meta Quest, Unity doesn't attach a fragment density map to either pass when you enable post-processing and disable multisample antialiasing (MSAA), reducing GPU frame time.
+* On every platform, Unity foveates `FinalBlit` only when it can't foveate the intermediate passes, for example when your project uses dynamic resolution.
+
+Unity applies the Meta Quest behavior when your project uses the **Meta Quest** build target or build profile. It doesn't apply to any other build target by default, including **Android XR**, **Android**, and the standalone build targets. If you build for a Meta Quest device through the **Android** build target, set [`FoveatedRenderingFeature.skipFDMForFinalPassesSRP`](xref:UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature.skipFDMForFinalPassesSRP) to `true` to get the same result:
+
+```csharp
+using UnityEngine;
+using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
+
+public class SkipFdmFinalPassesEnabler : MonoBehaviour
+{
+    void Start()
+    {
+        // Unity sets this automatically when you use the Meta Quest build target or build profile.
+        var foveatedRendering = OpenXRSettings.Instance.GetFeature<FoveatedRenderingFeature>();
+        foveatedRendering.skipFDMForFinalPassesSRP = true;
+    }
+}
+```
+
+This property applies only to the SRP foveation API. It has no effect if your project uses the legacy foveation API or quad views, and no effect in Unity versions earlier than 6.7.
+
 ## Additional resources
 
 * [Foveated rendering requirements reference](xref:openxr-foveated-rendering-requirements)

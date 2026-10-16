@@ -16,6 +16,8 @@ using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Features")]
     class FeatureTests : OpenXRLoaderSetup
     {
         public override void AfterTest()
@@ -25,6 +27,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Toggling the Mock Runtime feature's enabled flag through its FeatureInfo is reflected " +
+                     "on the live MockRuntime instance.")]
         public void EnableFeatures()
         {
             var featureInfos = GetFeatureInfos(BuildTargetGroup.Standalone);
@@ -36,6 +40,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A feature's UI name, version and extension strings match the values declared on its " +
+                     "OpenXRFeature attribute.")]
         public void CheckDefaultValues()
         {
             var featureInfos = GetFeatureInfos(BuildTargetGroup.Standalone);
@@ -115,6 +121,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetFeatureWithIdForActiveBuildTarget resolves a known feature id to its feature " +
+                     "instance.")]
         public void GetFeatureByFeatureId()
         {
             var feature = FeatureHelpers.GetFeatureWithIdForActiveBuildTarget(MockRuntime.featureId);
@@ -122,6 +130,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetFeatureWithIdForActiveBuildTarget returns null for an unknown, empty or null " +
+                     "feature id.")]
         public void GetFeatureByUnknownFeatureIdReturnsNull()
         {
             var feature = FeatureHelpers.GetFeatureWithIdForActiveBuildTarget("some.unknown.feature.id");
@@ -135,6 +145,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetFeaturesWithIdsForActiveBuildTarget returns exactly the features matching the " +
+                     "requested ids, each of the expected type.")]
         public void GetFeaturesWithIdsReturnsFeatures()
         {
             var featureIds = new[] { MockRuntime.featureId, EyeGazeInteraction.featureId };

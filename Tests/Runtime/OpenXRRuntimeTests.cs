@@ -19,6 +19,10 @@ using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Loader")]
+    [NUnit.Framework.Property("Covers", "Features")]
+    [NUnit.Framework.Property("Covers", "Rendering")]
     class OpenXRRuntimeTests : OpenXRLoaderSetup
     {
         const float k_oneFrameDuration = 1.0f / 72f; // 1 frame duration at 72 FPS
@@ -33,6 +37,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetAvailableExtensions on the mock runtime includes the known set of mock, KHR, EXT, " +
+                     "MSFT, VARJO and META extensions.")]
         public void TestAvailableExtensions()
         {
             // This test verifies that the list of available extensions contains a subset of known extensions.
@@ -67,6 +73,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("OnSystemChange fires during start with the runtime's system id.")]
         public IEnumerator SystemIdRetrieved()
         {
             bool systemIdReceived = false;
@@ -88,6 +95,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("OnSessionBegin fires during start with the session handle.")]
         public IEnumerator SessionBegan()
         {
             bool sessionBegan = false;
@@ -109,6 +117,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("OnSessionBegin fires once on start and OnSessionEnd fires with the same session handle " +
+                     "on shutdown.")]
         public IEnumerator SessionEnded()
         {
             bool sessionStarted = false;
@@ -148,6 +158,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("OnSessionDestroy fires on shutdown with the session handle.")]
         public void SessionDestroyed()
         {
             bool sessionDestroyed = false;
@@ -169,6 +180,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("OnInstanceDestroy fires on shutdown with the same instance handle that OnInstanceCreate " +
+                     "received.")]
         public void InstanceDestroyed()
         {
             object instance = null;
@@ -196,6 +209,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("OnAppSpaceChange fires once during start with the initial app space handle and is not " +
+                     "cleared before shutdown.")]
         public IEnumerator XrSpaceApp()
         {
             bool spaceAppSet = false;
@@ -230,6 +245,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("OpenXRRuntime.name reports 'Unity Mock Runtime' once the mock runtime is running.")]
         public IEnumerator RuntimeName()
         {
             base.InitializeAndStart();
@@ -238,6 +254,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Feature lifecycle callbacks arrive in the documented order from HookGetInstanceProcAddr " +
+                     "through OnInstanceDestroy across one start/stop cycle.")]
         public IEnumerator ExtensionCallbackOrder()
         {
             var callbackQueue = new List<string>();
@@ -289,6 +307,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Every session callback receives the same session handle and every instance callback " +
+                     "the same instance handle.")]
         public IEnumerator TestConsistentFeatureValues()
         {
             HashSet<string> methodsUsingSession = new HashSet<string>()
@@ -363,6 +383,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Session state transitions across start and stop follow the valid sequence Idle, Ready, " +
+                     "Synchronized, Visible, Focused and back down through Stopping to Exiting.")]
         public IEnumerator XrSessionStateChanged()
         {
             var states = new List<XrSessionState>();
@@ -405,6 +427,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Requesting the XR_UNITY_mock_test extension yields the mock's expected instance handle.")]
         public IEnumerator EnableSpecExtension()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -417,6 +440,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("GetExtensionVersion reports the mock test extension's declared version.")]
         public IEnumerator CheckSpecExtensionVersion()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -429,6 +453,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A requested and supported extension reports as enabled after start.")]
         public IEnumerator CheckSpecExtensionEnabled()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -452,6 +477,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(exclude = new[] { RuntimePlatform.Android })] // Vulkan doesn't have depth on earlier versions of unity
+        [Description("Each DepthSubmissionMode can be set while running and reads back the same value.")]
         public IEnumerator CheckDepthSubmissionMode([ValueSource("depthModes")] OpenXRSettings.DepthSubmissionMode depthMode)
         {
             base.InitializeAndStart();
@@ -462,6 +488,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The render mode can be switched between SinglePassInstanced and MultiPass while running " +
+                     "and reads back each value.")]
         public IEnumerator CheckRenderMode()
         {
             base.InitializeAndStart();
@@ -478,6 +506,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A requested extension already reports as enabled inside OnInstanceCreate.")]
         public IEnumerator CheckSpecExtensionEnabledAtXrInstanceCreated()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -519,6 +548,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
+        [Description("Against an OpenXR 1.1 runtime, extensions promoted to core report enabled even when the " +
+                     "mock does not offer them, while unpromoted unsupported ones stay disabled.")]
         public IEnumerator CheckExtensionEnabledRuntimeAPIVersion1_1([ValueSource(nameof(s_ExtensionsEnableExamples1_1))] (string extName, bool expected) extension)
         {
             AddExtension(extension.extName);
@@ -561,6 +592,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
+        [Description("Against an OpenXR 1.0 runtime (forced by rejecting the first xrCreateInstance), only " +
+                     "extensions the mock actually offers report enabled.")]
         public IEnumerator CheckExtensionEnabledRuntimeAPIVersion1_0([ValueSource(nameof(s_ExtensionsEnableExamples1_0))] (string extName, bool expected) extension)
         {
             AddExtension(extension.extName);
@@ -599,6 +632,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Stopping and restarting the display and input subsystems around a runtime pause (down " +
+                     "to Idle, back to Ready) keeps the frame loop running without errors.")]
         public IEnumerator SimulatePause()
         {
             // Initialize and make sure the frame loop is running
@@ -648,6 +683,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [Category("HMD")]
         [UnityTest]
+        [Description("The HMD device's userPresence feature follows XR_EXT_user_presence changes raised by " +
+                     "the runtime.")]
         public IEnumerator UserPresence()
         {
             AddExtension("XR_EXT_user_presence");
@@ -685,7 +722,95 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         }
 
+        [Category("HMD")]
         [UnityTest]
+        [Description("While the head rotates between frames, the HMD's left and right eye poses keep their " +
+                     "fixed offset and rotation relative to the center eye, including when the runtime " +
+                     "reports views that are canted relative to the view space.")]
+        public IEnumerator EyePosesFollowHeadWithCantedViews()
+        {
+            const float degreesPerFrame = 15.0f;
+            const float rotationToleranceDegrees = 0.1f;
+            const float positionToleranceMeters = 0.0001f;
+            const int framesToCheck = 10;
+
+            // Start the head away from identity so the cached eye poses depend on the head orientation.
+            var headPosition = new Vector3(0.1f, 1.6f, -0.2f);
+            var initialHeadRotation = Quaternion.Euler(10.0f, 30.0f, 0.0f);
+            var headRotationAxis = new Vector3(0.3f, 1.0f, 0.2f).normalized;
+
+            // Each eye is offset from the head and canted (yaw) and clocked (roll) relative to it.
+            var leftEyeOffset = new Vector3(-0.032f, 0.0f, 0.0f);
+            var rightEyeOffset = new Vector3(0.032f, 0.0f, 0.0f);
+            var leftEyeRotation = Quaternion.Euler(0.0f, -10.0f, 5.0f);
+            var rightEyeRotation = Quaternion.Euler(0.0f, 10.0f, -5.0f);
+
+            // Mock runtime default field of view for each eye
+            var leftFov = new Vector4(-0.995535672f, 0.811128199f, 0.954059243f, -0.954661012f);
+            var rightFov = new Vector4(-0.812360585f, 0.995566666f, 0.955580175f, -0.953877985f);
+            var trackedFlags = XrSpaceLocationFlags.PositionValid | XrSpaceLocationFlags.OrientationValid |
+                XrSpaceLocationFlags.PositionTracked | XrSpaceLocationFlags.OrientationTracked;
+            var headAngle = 0.0f;
+
+            // Places the head and both canted views consistently, as a real runtime would report them.
+            void SetHeadPose()
+            {
+                var headRotation = Quaternion.AngleAxis(headAngle, headRotationAxis) * initialHeadRotation;
+                MockRuntime.SetSpace(XrReferenceSpaceType.View, headPosition, headRotation, trackedFlags);
+                MockRuntime.SetViewPose(XrViewConfigurationType.PrimaryStereo, 0, headPosition + headRotation * leftEyeOffset, headRotation * leftEyeRotation, leftFov);
+                MockRuntime.SetViewPose(XrViewConfigurationType.PrimaryStereo, 1, headPosition + headRotation * rightEyeOffset, headRotation * rightEyeRotation, rightFov);
+            }
+
+            InitializeAndStart();
+            SetHeadPose();
+            yield return new WaitForXrFrame(2);
+
+            // Turn the head after every rendered frame so the next dynamic input update sees a newer head
+            // pose than the eye poses cached during rendering.
+            MockRuntime.SetFunctionCallback("xrEndFrame", (_, _) =>
+            {
+                headAngle += degreesPerFrame;
+                SetHeadPose();
+            });
+
+            var headDevice = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+            Assert.That(headDevice.isValid, Is.True);
+
+            Quaternion? previousCenterRotation = null;
+            for (var frame = 0; frame < framesToCheck; frame++)
+            {
+                yield return new WaitForXrFrame(1);
+
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.centerEyePosition, out var centerPosition), Is.True);
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.centerEyeRotation, out var centerRotation), Is.True);
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.leftEyePosition, out var leftPosition), Is.True);
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.leftEyeRotation, out var leftRotation), Is.True);
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.rightEyePosition, out var rightPosition), Is.True);
+                Assert.That(headDevice.TryGetFeatureValue(CommonUsages.rightEyeRotation, out var rightRotation), Is.True);
+
+                if (previousCenterRotation.HasValue)
+                {
+                    Assert.That(Quaternion.Angle(previousCenterRotation.Value, centerRotation), Is.GreaterThan(1.0f),
+                        $"Frame {frame}: the head did not move, so the cached eye poses were not exercised");
+                }
+
+                previousCenterRotation = centerRotation;
+
+                // Bring each eye pose into the head's local space; it must match what the runtime reported.
+                var inverseCenterRotation = Quaternion.Inverse(centerRotation);
+                Assert.That(Quaternion.Angle(inverseCenterRotation * leftRotation, leftEyeRotation), Is.LessThan(rotationToleranceDegrees),
+                    $"Frame {frame}: left eye rotation relative to the head");
+                Assert.That(Quaternion.Angle(inverseCenterRotation * rightRotation, rightEyeRotation), Is.LessThan(rotationToleranceDegrees),
+                    $"Frame {frame}: right eye rotation relative to the head");
+                Assert.That(Vector3.Distance(inverseCenterRotation * (leftPosition - centerPosition), leftEyeOffset), Is.LessThan(positionToleranceMeters),
+                    $"Frame {frame}: left eye position relative to the head");
+                Assert.That(Vector3.Distance(inverseCenterRotation * (rightPosition - centerPosition), rightEyeOffset), Is.LessThan(positionToleranceMeters),
+                    $"Frame {frame}: right eye position relative to the head");
+            }
+        }
+
+        [UnityTest]
+        [Description("TryGetDisplayRefreshRate reports the mock runtime's 60 Hz refresh rate.")]
         public IEnumerator RefreshRate()
         {
             base.InitializeAndStart();
@@ -714,6 +839,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.WindowsPlayer)]
+        [Description("Without the null graphics extension, instance creation enables one of the real " +
+                     "graphics-binding extensions (D3D11/12, OpenGL, Vulkan).")]
         public IEnumerator PreInitRealGfxAPI()
         {
             // remove the null gfx device from requested extensions
@@ -746,6 +873,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityPlatform(exclude = new[] { RuntimePlatform.OSXEditor, RuntimePlatform.OSXPlayer })] // OSX doesn't support single-pass very well, disable for test.
         [UnityTest]
+        [Description("In single-pass instanced mode the culling matrices differ from both per-eye view and " +
+                     "projection matrices, so culling uses a combined frustum.")]
         public IEnumerator CombinedFrustum()
         {
             var cameraGO = new GameObject("Test Cam");
@@ -786,6 +915,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When the runtime reports invalid view and space location flags, no primary layer is " +
+                     "submitted at end of frame.")]
         public IEnumerator InvalidLocateSpace()
         {
             MockRuntime.Instance.TestCallback = (methodName, param) =>
@@ -812,6 +943,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Activating the first-person observer secondary view submits one secondary layer, and " +
+                     "deactivating it drops back to zero.")]
         public IEnumerator FirstPersonObserver()
         {
             AddExtension("XR_MSFT_secondary_view_configuration");
@@ -834,6 +967,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("An invalid secondary view state from xrWaitFrame after activation is survived without a " +
+                     "crash and leaves no secondary layer.")]
         public IEnumerator FirstPersonObserverInvalidSecondaryView()
         {
             AddExtension("XR_MSFT_secondary_view_configuration");
@@ -861,6 +996,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Activating the third-person observer secondary view submits one secondary layer, and " +
+                     "deactivating it drops back to zero.")]
         public IEnumerator ThirdPersonObserver()
         {
             AddExtension("XR_MSFT_secondary_view_configuration");
@@ -883,6 +1020,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A secondary observer layer survives a session cycle down through Stopping and back to " +
+                     "Focused, and can still be turned off afterward.")]
         public IEnumerator FirstPersonObserverRestartWhileActive()
         {
             AddExtension("XR_MSFT_secondary_view_configuration");
@@ -934,6 +1073,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("With XR_VARJO_quad_views on a 1.0 runtime, multi-pass renders four passes and " +
+                     "single-pass instanced renders two.")]
         public IEnumerator VarjoQuadViews()
         {
             AddExtension("XR_VARJO_quad_views");
@@ -966,6 +1107,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A null entry in the features list does not crash start or shutdown.")]
         public IEnumerator NullFeature()
         {
             // Insert a null entry into the features list
@@ -986,6 +1128,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests whether or not the Initialize method of OpenXRLoader will properly handle an exception being thrown
         /// </summary>
         [Test]
+        [Description("An exception thrown from a feature during HookGetInstanceProcAddr aborts initialization " +
+                     "and leaves no loader instance.")]
         public void InitializeException()
         {
             MockRuntime.Instance.TestCallback = (methodName, param) =>
@@ -1012,6 +1156,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         internal static extern bool GetRegenerateTrackingOriginFlag();
 
         [UnityTest]
+        [Description("Requesting a Floor tracking origin on a 1.0 runtime without XR_EXT_local_floor sets the " +
+                     "tracking-origin regeneration flag, which clears once regeneration runs.")]
         public IEnumerator RegenerateTrackingOriginFlagTest()
         {
             // First, make sure that LocalFloor is being used in place of Floor (so that the LocalFloor code is triggered)
@@ -1054,6 +1200,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Refreshing the recenter space in Floor mode sets the regeneration flag, processes it, " +
+                     "and produces a new app space handle on every change.")]
         public IEnumerator FloorTrackingOriginIsRegenerated()
         {
             List<ulong> spaceSequence = new();
@@ -1099,6 +1247,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// and we check that this is populated on the XRDisplaySubsystem render parameters.
         /// </summary>
         [UnityTest]
+        [Description("A smaller XR_META_recommended_layer_resolution shrinks the render viewports below 1 " +
+                     "without recreating the swapchain.")]
         public IEnumerator MetaRecommendedResolutionTest()
         {
             AddExtension("XR_META_recommended_layer_resolution");
@@ -1172,6 +1322,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// and we check that this is populated on the XRDisplaySubsystem render parameters.
         /// </summary>
         [UnityTest]
+        [Description("A smaller XR_ANDROID_recommended_resolution, signalled by a resolution-changed event, " +
+                     "shrinks the render viewports below 1 without recreating the swapchain.")]
         public IEnumerator AndroidRecommendedResolutionTest()
         {
             AddExtension("XR_ANDROID_recommended_resolution");
@@ -1248,6 +1400,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// and will require a swapchain regeneration.
         /// </summary>
         [UnityTest]
+        [Description("A larger XR_META_recommended_layer_resolution forces the swapchain to be recreated.")]
         public IEnumerator MetaRecommendedResolutionSwapchainRegenerationTest()
         {
             AddExtension("XR_META_recommended_layer_resolution");
@@ -1291,6 +1444,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// and will require a swapchain regeneration.
         /// </summary>
         [UnityTest]
+        [Description("A larger XR_ANDROID_recommended_resolution, signalled by a resolution-changed event, " +
+                     "forces the swapchain to be recreated.")]
         public IEnumerator AndroidRecommendedResolutionSwapchainRegenerationTest()
         {
             AddExtension("XR_ANDROID_recommended_resolution");
@@ -1338,6 +1493,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// error when trying to initialize xr again. What should happen is a restart loop to restart XR.
         /// </summary>
         [UnityTest]
+        [Description("After a successful first initialization, repeated FormFactorUnavailable results from " +
+                     "xrGetSystem trigger restart attempts until the call succeeds.")]
         public IEnumerator RestartLoopTest()
         {
             float initialTimeBetweenRestarts = OpenXRRestarter.TimeBetweenRestartAttempts;
@@ -1391,6 +1548,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests that OpenXRRuntime.wantsToRestart is a global switch for de-activating the restarting of XR.
         /// </summary>
         [UnityTest]
+        [Description("When wantsToRestart returns false, a FormFactorUnavailable result shuts XR down instead " +
+                     "of retrying.")]
         public IEnumerator RestartLoopDisabledTest()
         {
             OpenXRRuntime.wantsToRestart += () => false;
@@ -1438,6 +1597,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// By default, xr initialization should not be retried per feedback from Microsoft.
         /// </summary>
         [UnityTest]
+        [Description("A FormFactorUnavailable result on the very first initialization is not retried by " +
+                     "default and leaves no loader.")]
         public IEnumerator RestartLoopDisabledBeforeInitializationTest()
         {
             OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
@@ -1484,6 +1645,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// explicitly enabled.
         /// </summary>
         [UnityTest]
+        [Description("With retryInitializationOnFormFactorErrors enabled, first-time initialization retries " +
+                     "xrGetSystem until it succeeds and the loader comes up.")]
         public IEnumerator XRGetSystemLoopBeforeInitializationTest()
         {
             OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(false);
@@ -1541,6 +1704,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When every wantsToRestart handler returns true, a LossPending session state triggers a " +
+                     "loader restart.")]
         public IEnumerator WantsToRestartTrue()
         {
             OpenXRRuntime.wantsToRestart += () => true;
@@ -1558,6 +1723,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When any wantsToRestart handler returns false, a LossPending session state shuts the " +
+                     "loader down instead of restarting it.")]
         public IEnumerator WantsToRestartFalse()
         {
             OpenXRRuntime.wantsToRestart += () => true;
@@ -1573,6 +1740,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When every wantsToQuit handler returns true, instance loss shuts the loader down and " +
+                     "raises onQuit.")]
         public IEnumerator WantsToQuitTrue()
         {
             var onQuit = false;
@@ -1593,6 +1762,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When any wantsToQuit handler returns false, instance loss shuts the loader down without " +
+                     "raising onQuit.")]
         public IEnumerator WantsToQuitFalse()
         {
             var onQuit = false;
@@ -1613,6 +1784,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A LossPending session state delivers OnSessionLossPending to features and restarts the " +
+                     "loader.")]
         public IEnumerator LossPendingCausesRestart()
         {
             bool lossPendingReceived = false;
@@ -1640,6 +1813,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A runtime failure from xrCreateSwapchain shuts the loader down.")]
         public IEnumerator CreateSwapChainRuntimeError()
         {
             MockRuntime.SetFunctionCallback("xrCreateSwapchain", (func) => XrResult.RuntimeFailure);
@@ -1657,6 +1831,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// loop to attempt to restart xr.
         /// </summary>
         [UnityTest]
+        [Description("A SessionLost result from xrCreateSwapchain after a successful first initialization " +
+                     "triggers a restart loop that brings the loader back up.")]
         public IEnumerator CreateSwapChainSessionLostError()
         {
             OpenXRLoaderBase.Internal_SetSuccessfullyInitialized(true);
@@ -1685,6 +1861,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A runtime failure from xrCreateSession is recorded in the diagnostic report and leaves " +
+                     "the loader stopped.")]
         public IEnumerator CreateSessionRuntimeFailure()
         {
             MockRuntime.SetFunctionCallback("xrCreateSession", (func) => XrResult.RuntimeFailure);
@@ -1698,6 +1876,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A runtime failure from xrEndFrame is recorded in the diagnostic report and shuts the " +
+                     "loader down.")]
         public IEnumerator EndFrameRuntimeFailure()
         {
             InitializeAndStart();
@@ -1715,6 +1895,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("ShutdownAndRestart can be invoked twice in a row and the frame loop keeps running.")]
         public IEnumerator MultipleRestart()
         {
             InitializeAndStart();
@@ -1729,6 +1910,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new[] { RuntimePlatform.Android })]
+        [Description("On Android with XR_KHR_android_thread_settings, the main and render threads are " +
+                     "registered with the runtime at initialization.")]
         public IEnumerator AndroidThreadSettingsSetAtInitialization()
         {
             InitializeAndStart();
@@ -1759,6 +1942,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// For EnabledExternally_NoOverride type, when exts available, If enabled externally, ext should be enabled.
         /// </summary>
         [UnityTest]
+        [Description("Built-in extensions follow their enable policy: enable-by-default ones turn on when " +
+                     "available, while allow-override and externally-enabled ones turn on only when both " +
+                     "requested and available.")]
         public IEnumerator BuiltInExtensionsBehavior()
         {
             // Enable exts externally for test purposes.
@@ -1770,10 +1956,10 @@ namespace UnityEngine.XR.OpenXR.Tests
 
             yield return new WaitForXrFrame(1);
 
-            // multiple exts case:  {{"XR_FB_foveation", "XR_FB_foveation_configuration", "XR_FB_swapchain_update_state"}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
-            // XR_FB_foveation & XR_FB_foveation_configuration are available, so should be enabled by default.
-            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation"), "XR_FB_foveation EnableByDefault_NoOverride is available and should be enabled.");
-            Assert.IsTrue(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_configuration"), "XR_FB_foveation_configuration EnableByDefault_NoOverride is available and should be enabled.");
+            // no exts case: {{}, CreateSymmetricProjectionExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
+            // Symmetric Projection requires no extensions, so it must not cause the foveation extensions to be enabled.
+            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation"), "XR_FB_foveation is not requested by any enabled feature and should not be enabled.");
+            Assert.IsFalse(OpenXRRuntime.IsExtensionEnabled("XR_FB_foveation_configuration"), "XR_FB_foveation_configuration is not requested by any enabled feature and should not be enabled.");
 
             // {{"XR_ANDROID_enumerate_system_extension_properties"}, CreateAndroidEnumerateSystemExtensionPropertiesExtension, kBuiltinExtensionEnableType_EnableByDefault_NoOverride}
             // XR_ANDROID_enumerate_system_extension_properties is available, so should be enabled by default.
@@ -1801,6 +1987,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("An additive interaction feature builds its action map, registers its layout, and merges " +
+                     "its actions into the target Touch Pro profile with the expected binding paths.")]
         public IEnumerator AdditiveFeatureMergesAndCreatesActions()
         {
             try
@@ -1870,6 +2058,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("IsSystemExtensionEnabled reflects the system extension list reported through " +
+                     "XR_ANDROID_enumerate_system_extension_properties.")]
         public IEnumerator AndroidEnumerateSystemExtensionProperties()
         {
             MockRuntime.SetFunctionCallback(
@@ -1894,6 +2084,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("skipFDMForFinalPassesSRP defaults per platform (true on Meta Quest), can be toggled " +
+                     "before and after start, and keeps its value across start.")]
         public IEnumerator SkipFDMForFinalPassesSRP()
         {
             var feature = EnableFeature<FoveatedRenderingFeature>();

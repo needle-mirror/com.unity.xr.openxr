@@ -8,6 +8,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
 {
     // Tests for <see cref="OpenXRLayerUtility.CanTextureUseGraphicsCopy"/>, which decides whether a composition
     // layer texture transfer can use a direct Graphics.CopyTexture or must fall back to Graphics.Blit.
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "CompositionLayers")]
     internal class CopyTextureOverBlitTests
     {
         const int k_Size = 64;
@@ -19,6 +21,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         public void TearDown() => m_Helpers.Cleanup();
 
         [Test]
+        [Description("A Texture2D whose size, format, mip count and dimension all match the destination " +
+                     "render texture qualifies for a direct Graphics.CopyTexture.")]
         public void MatchingTexture2D_CanCopy()
         {
             m_Helpers.RequireCopySupport();
@@ -30,6 +34,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A source half the destination's size cannot use CopyTexture and must fall back to Blit.")]
         public void SizeMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -41,6 +46,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A UNorm source into an sRGB destination cannot use CopyTexture and must fall back to Blit.")]
         public void FormatMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -52,6 +58,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A single-mip source into a three-mip destination cannot use CopyTexture and must fall " +
+                     "back to Blit.")]
         public void MipCountMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -63,6 +71,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A plain Texture2D written into a Tex2DArray destination must Blit so the slice routing " +
+                     "is correct.")]
         public void DimensionMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -75,6 +85,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A two-slice array source into a four-slice array destination cannot use CopyTexture " +
+                     "and must fall back to Blit.")]
         public void ArraySliceCountMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -86,6 +98,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A non-MSAA Texture2D into a 4x MSAA destination cannot use CopyTexture and must fall " +
+                     "back to Blit.")]
         public void MsaaMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireCopySupport();
@@ -97,6 +111,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A Texture2DArray whose slice count and format match the array destination qualifies " +
+                     "for a direct CopyTexture.")]
         public void MatchingTexture2DArray_CanCopy()
         {
             m_Helpers.RequireCopySupport();
@@ -108,6 +124,7 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("Two render textures of identical size and format qualify for a direct CopyTexture.")]
         public void MatchingRenderTexture_CanCopy()
         {
             m_Helpers.RequireBasicCopySupport();
@@ -119,6 +136,8 @@ namespace UnityEditor.XR.OpenXR.CompositionLayers.Tests
         }
 
         [Test]
+        [Description("A single-sample render texture into a 4x MSAA render texture cannot use CopyTexture " +
+                     "and must fall back to Blit.")]
         public void RenderTextureMsaaMismatch_FallsBackToBlit()
         {
             m_Helpers.RequireBasicCopySupport();

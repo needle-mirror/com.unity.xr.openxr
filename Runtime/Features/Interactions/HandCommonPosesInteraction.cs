@@ -63,12 +63,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.poke"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0)]
+            [Preserve, InputControl(offset = 0, usage = "Poke")]
             public PoseControl pokePose { get; private set; }
             /// <summary>
             /// A <see cref="PoseControl"/> that represents the <see cref="HandCommonPosesInteraction.pinch"/> OpenXR binding.
             /// </summary>
-            [Preserve, InputControl(offset = 0)]
+            [Preserve, InputControl(offset = 0, usage = "Pinch")]
             public PoseControl pinchPose { get; private set; }
 
             /// <summary>
@@ -116,6 +116,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         public const string extensionString = "XR_EXT_hand_interaction";
 
 #if UNITY_EDITOR
+        internal static bool IsIncompatibleProfile(OpenXRFeature feature) =>
+            feature is EyeGazeInteraction ||
+            feature is AndroidMouseInteractionProfile;
+
         protected internal override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup target)
         {
             results.Add( new ValidationRule(this){
@@ -136,7 +140,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         {
                             if (feature is HandCommonPosesInteraction)
                                 thisFeatureEnabled = true;
-                            else if (!((OpenXRInteractionFeature)feature).IsAdditive && !(feature is EyeGazeInteraction))
+                            else if (!((OpenXRInteractionFeature)feature).IsAdditive && !IsIncompatibleProfile(feature))
                                 otherNonAdditiveInteractionFeatureEnabled = true;
                         }
                     }
@@ -279,12 +283,16 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         },
                         isAdditive = true
                     },
-                    //Poke Pose
+                    // Poke Pose
                     new ActionConfig()
                     {
                         name = "PokePose",
                         localizedName = "Poke Pose",
                         type = ActionType.Pose,
+                        usages = new List<string>()
+                        {
+                            "Poke"
+                        },
                         bindings = new List<ActionBinding>()
                         {
                             new ActionBinding()
@@ -295,12 +303,16 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         },
                         isAdditive = true
                     },
-                    //Pinch Pose
+                    // Pinch Pose
                     new ActionConfig()
                     {
                         name = "PinchPose",
                         localizedName = "Pinch Pose",
                         type = ActionType.Pose,
+                        usages = new List<string>()
+                        {
+                            "Pinch"
+                        },
                         bindings = new List<ActionBinding>()
                         {
                             new ActionBinding()

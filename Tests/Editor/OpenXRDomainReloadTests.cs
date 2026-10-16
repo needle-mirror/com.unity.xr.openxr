@@ -19,9 +19,13 @@ namespace UnityEditor.XR.OpenXR.Tests
     /// Tests domain reloads within OpenXR.  Note that his class was named with two z's in front
     /// because the domain reloads during this test were causing other tests to fail that ran after it.
     /// </summary>
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "DomainReload")]
     internal class zzOpenXRDomainReloadTests : OpenXRLoaderSetup
     {
         [UnityTest]
+        [Description("A domain reload after the loader has started leaves the loader instance alive, and " +
+                     "it still shuts down cleanly afterward.")]
         public IEnumerator AfterInitialize()
         {
             MockRuntimeFeature.Instance.TestCallback = (methodName, param) => true;
@@ -44,6 +48,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The loader starts and shuts down normally after a domain reload that happened before " +
+                     "initialization.")]
         public IEnumerator BeforeInitialize()
         {
             MockRuntimeFeature.Instance.TestCallback = (methodName, param) => true;

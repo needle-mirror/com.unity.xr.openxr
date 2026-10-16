@@ -332,7 +332,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                     new ActionConfig()
                     {
                         name = "devicePose",
-                        localizedName = "Grip Pose",
+                        localizedName = "Device Pose",
                         type = ActionType.Pose,
                         usages = new List<string>()
                         {
@@ -366,7 +366,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Poke Pose
+                    // Poke Pose
                     new ActionConfig()
                     {
                         name = "PokePose",
@@ -385,7 +385,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pinch Pose
+                    // Pinch Pose
                     new ActionConfig()
                     {
                         name = "PinchPose",
@@ -404,7 +404,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pinch Value
+                    // Pinch Value
                     new ActionConfig()
                     {
                         name = "PinchValue",
@@ -423,7 +423,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pinch Touched
+                    // Pinch Touched
                     new ActionConfig()
                     {
                         name = "PinchTouched",
@@ -442,7 +442,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pinch Ready
+                    // Pinch Ready
                     new ActionConfig()
                     {
                         name = "PinchReady",
@@ -461,7 +461,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pointer Activate Value
+                    // Pointer Activate Value
                     new ActionConfig()
                     {
                         name = "PointerActivateValue",
@@ -480,7 +480,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pointer Activated
+                    // Pointer Activated
                     new ActionConfig()
                     {
                         name = "PointerActivated",
@@ -499,7 +499,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Pointer Activate Ready
+                    // Pointer Activate Ready
                     new ActionConfig()
                     {
                         name = "PointerActivateReady",
@@ -537,7 +537,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Grasp Firm
+                    // Grasp Firm
                     new ActionConfig()
                     {
                         name = "GraspFirm",
@@ -556,7 +556,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             }
                         }
                     },
-                    //Grasp Ready
+                    // Grasp Ready
                     new ActionConfig()
                     {
                         name = "GraspReady",

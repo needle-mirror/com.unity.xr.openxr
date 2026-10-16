@@ -6,6 +6,9 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "Features")]
+    [NUnit.Framework.Property("Covers", "Rendering")]
     class FoveatedRenderingFeatureTests
     {
         FoveatedRenderingFeature m_Feature;
@@ -32,6 +35,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A freshly created FoveatedRenderingFeature has dynamic foveation disabled.")]
         public void DynamicFoveationIsDisabledByDefault()
         {
             // Checked on a fresh instance rather than the project's, so the result is the actual
@@ -47,6 +51,8 @@ namespace UnityEditor.XR.OpenXR.Tests
             }
         }
 
+        [Description("Setting DynamicFoveationEnabled on the project's feature asset reads back the same " +
+                     "value while no OpenXR loader is running.")]
         [TestCase(true)]
         [TestCase(false)]
         public void DynamicFoveationEnabledRoundTrips(bool enableDynamicFoveation)
@@ -60,6 +66,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         // existed, which logged a warning on every startup. Reading or writing the property
         // without a session must be silent.
         [Test]
+        [Description("Reading or writing DynamicFoveationEnabled with no OpenXR session logs nothing, " +
+                     "guarding against the old per-startup warning.")]
         public void AccessingDynamicFoveationWithoutSessionDoesNotLog()
         {
             var messages = new List<string>();

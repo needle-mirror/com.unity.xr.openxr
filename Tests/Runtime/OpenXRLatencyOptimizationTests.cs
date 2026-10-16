@@ -9,6 +9,8 @@ using UnityEngine.XR.OpenXR.Features.Mock;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "PerformanceSettings")]
     class OpenXRLatencyOptimizationTests : OpenXRLoaderSetup
     {
         public override void BeforeTest()
@@ -29,6 +31,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
+        [Description("Under both latency optimization strategies, xrWaitFrame and xrBeginFrame are called " +
+                     "exactly once per rendered frame, with xrEndFrame trailing by one.")]
         public IEnumerator CheckFrameSyncFunctionsCalledOncePerFrame(
             [ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
         {
@@ -78,6 +82,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Under both latency optimization strategies, each frame calls xrWaitFrame, then " +
+                     "xrBeginFrame, then xrEndFrame, with no call repeated or out of order.")]
         public IEnumerator CheckFrameSynchronizationFunctionsAreCalledInOrder(
             [ValueSource(nameof(s_latencyOptimizations))] OpenXRSettings.LatencyOptimization priorityStrategy)
         {

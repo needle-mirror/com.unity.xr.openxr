@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEditor;
+
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -15,6 +17,7 @@ namespace UnityEngine.XR.OpenXR.Samples
 
         private string SampleDirectoryName = "Samples";
         private string PackageName = "OpenXR Plugin";
+        private Dictionary<int, int> m_dropdownOptionsIndexToSceneIndexMapping;
 
         void Start()
         {
@@ -33,6 +36,7 @@ namespace UnityEngine.XR.OpenXR.Samples
 
             // Settng up the Scene Navigation Menu's Dropdown
             sceneSelectionDropdown.options.Clear();
+            m_dropdownOptionsIndexToSceneIndexMapping = new Dictionary<int, int>(SceneManager.sceneCountInBuildSettings);
 
             // This iterates through all scenes that have been added to the build settings
             // identifing scenes which are included in samples imported through the OpenXR package,
@@ -44,6 +48,7 @@ namespace UnityEngine.XR.OpenXR.Samples
                 if (Path.GetFullPath(scenePath).Contains(sampleDirectoryPath))
                 {
                     string sceneName = Path.GetFileName(scenePath);
+                    m_dropdownOptionsIndexToSceneIndexMapping[sceneSelectionDropdown.options.Count] = i;
                     sceneSelectionDropdown.options.Add(new Dropdown.OptionData(sceneName));
                 }
             }
@@ -66,8 +71,9 @@ namespace UnityEngine.XR.OpenXR.Samples
             sceneLabel.text = SceneManager.GetActiveScene().name;
         }
 
-        void SwitchScene(int sceneIndex)
+        void SwitchScene(int dropdownIndex)
         {
+            int sceneIndex = m_dropdownOptionsIndexToSceneIndexMapping[dropdownIndex];
             SceneManager.LoadScene(sceneIndex);
         }
     }

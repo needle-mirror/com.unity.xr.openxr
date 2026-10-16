@@ -10,7 +10,33 @@ OpenXR is an extensible API that you can extend with new features. To facilitate
 
 Examples of what you can do with a custom feature include:
 
-* **Intercepting OpenXR function calls**: To intercept OpenXR function calls, override `OpenXRFeature.HookGetInstanceProcAddr`. Returning a different function pointer allows intercepting any OpenXR method. For an example, refer to the `Intercept Feature` sample.
+* **Intercepting OpenXR function calls**: To intercept OpenXR function calls, override `OpenXRFeature.HookGetInstanceProcAddr` and return a different function pointer. This redirects how OpenXR looks up native functions, allowing you to intercept any call. Implementing an interceptor requires a native plug-in that wraps the original function pointer and returns a replacement. The following example assumes the feature is already registered with an `[OpenXRFeature]` attribute as described in [Create OpenXR features](xref:openxr-create-features):
+
+  ```csharp
+  using System;
+  using System.Runtime.InteropServices;
+  using UnityEngine.XR.OpenXR.Features;
+
+  public class MyInterceptFeature : OpenXRFeature
+  {
+      const string k_LibraryName = "MyNativePlugin";
+
+      protected override IntPtr HookGetInstanceProcAddr(IntPtr func)
+      {
+          // Pass the original xrGetInstanceProcAddr to the native plug-in,
+          // which returns a replacement pointer that intercepts the calls you need.
+          return NativeApi.HookGetInstanceProcAddr(func);
+      }
+
+      static class NativeApi
+      {
+          [DllImport(k_LibraryName, EntryPoint = "MyPlugin_HookGetInstanceProcAddr")]
+          public static extern IntPtr HookGetInstanceProcAddr(IntPtr func);
+      }
+  }
+  ```
+
+  The native plug-in receives the original `xrGetInstanceProcAddr`, stores it, and returns a new function pointer. When OpenXR calls through the new pointer to look up a function — for example `xrCreateSession` — the native code can return its own implementation instead, then call the original when done.
 
 * **Calling OpenXR functions from a feature**: To call an OpenXR function within a feature you first need to retrieve a pointer to the function. To do this use the `OpenXRFeature.xrGetInstanceProcAddr` function pointer to request a pointer to the function you want to call. Using  `OpenXRFeature.xrGetInstanceProcAddr` to retrieve the function pointer ensures that any intercepted calls set up by features using `OpenXRFeature.HookGetInstanceProcAddr` will be included.
 

@@ -3,10 +3,14 @@ using NUnit.Framework;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "DiagnosticReport")]
     internal class DiagnosticReportTests
     {
         const string k_SectionOneTitle = "Section One";
         const string k_SectionTwoTitle = "Section Two";
+
+        static string NormalizeLineEndings(string value) => value.Replace("\r\n", "\n");
 
         [SetUp]
         public void SetUp()
@@ -15,6 +19,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetSection hands back a real section handle rather than the null-section " +
+                     "sentinel.")]
         public void GettingSectionReturnsValidHandle()
         {
             var sectionOneHandle = DiagnosticReport.GetSection(k_SectionOneTitle);
@@ -22,6 +28,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Asking for the same section title twice returns the same handle instead of " +
+                     "opening a second section.")]
         public void SameSectionTitleGivesSameSectionHandle()
         {
             var sectionOneHandle = DiagnosticReport.GetSection(k_SectionOneTitle);
@@ -30,6 +38,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Two different section titles get two distinct handles, so sections stay " +
+                     "separate.")]
         public void DifferentSectionTitlesGiveDifferentSectionHandles()
         {
             var sectionOneHandle = DiagnosticReport.GetSection(k_SectionOneTitle);
@@ -38,6 +48,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A report holding one empty section renders that section's header followed " +
+                     "by the always-present events header.")]
         public void CheckSimpleReportGenerationIsCorrect()
         {
             const string k_ExpectedOutput = "==== Section One ====\n\n==== Last 20 Events ====\n";
@@ -49,6 +61,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Entries added to a section render beneath its header in the order they " +
+                     "were added.")]
         public void CheckGenerateReportWithEntries()
         {
             const string k_ExpectedOutput = @"==== Section One ====
@@ -65,10 +79,12 @@ Entry Header 3: Entry Body 3
             DiagnosticReport.AddSectionEntry(sectionOneHandle, "Entry Header 3", "Entry Body 3");
 
             var report = DiagnosticReport.GenerateReport();
-            Assert.AreEqual(k_ExpectedOutput, report);
+            Assert.AreEqual(NormalizeLineEndings(k_ExpectedOutput), report);
         }
 
         [Test]
+        [Description("Two populated sections render in creation order, each carrying only its " +
+                     "own entries.")]
         public void CheckGenerateReportWithMultipleSectionsAndEntries()
         {
             const string k_ExpectedOutput = @"==== Section One ====
@@ -95,10 +111,12 @@ Entry Header 6: Entry Body 6
             DiagnosticReport.AddSectionEntry(sectionTwoHandle, "Entry Header 6", "Entry Body 6");
 
             var report = DiagnosticReport.GenerateReport();
-            Assert.AreEqual(k_ExpectedOutput, report);
+            Assert.AreEqual(NormalizeLineEndings(k_ExpectedOutput), report);
         }
 
         [Test]
+        [Description("An event entry renders under the events header even when the report has " +
+                     "no sections.")]
         public void CheckGeneratedEventsAreReported()
         {
             const string k_ExpectedOutput = @"==== Last 20 Events ====
@@ -108,10 +126,12 @@ Event One: Event Body One
             DiagnosticReport.AddEventEntry("Event One", "Event Body One");
 
             var report = DiagnosticReport.GenerateReport();
-            Assert.AreEqual(k_ExpectedOutput, report);
+            Assert.AreEqual(NormalizeLineEndings(k_ExpectedOutput), report);
         }
 
         [Test]
+        [Description("The events section is a bounded ring: adding more than twenty events keeps " +
+                     "only the twenty most recent and drops the oldest.")]
         public void CheckGeneratedEventsOverTwentyAreReported()
         {
             const string k_ExpectedOutput = @"==== Last 20 Events ====
@@ -144,10 +164,12 @@ Event 30: Event Body 30
 
 
             var report = DiagnosticReport.GenerateReport();
-            Assert.AreEqual(k_ExpectedOutput, report);
+            Assert.AreEqual(NormalizeLineEndings(k_ExpectedOutput), report);
         }
 
         [Test]
+        [Description("A report combining sections, a multi-line entry, a section break and more " +
+                     "than twenty events renders every part in the expected order.")]
         public void CheckFullReport()
         {
             const string k_ExpectedOutput = @"==== Section One ====
@@ -194,17 +216,17 @@ Event 30: Event Body 30
             var sectionTwoHandle = DiagnosticReport.GetSection(k_SectionTwoTitle);
             DiagnosticReport.AddSectionEntry(sectionTwoHandle, "Section Two Entry One", "Simple");
             DiagnosticReport.AddSectionBreak(sectionTwoHandle);
-            DiagnosticReport.AddSectionEntry(sectionTwoHandle, "Section Two Entry Two", @"(2)
-    FOO=BAR
-    BAZ=100
-");
+            DiagnosticReport.AddSectionEntry(
+                sectionTwoHandle, "Section Two Entry Two", "(2)\n    FOO=BAR\n    BAZ=100\n");
 
             var report = DiagnosticReport.GenerateReport();
             Debug.Log(report);
-            Assert.AreEqual(k_ExpectedOutput, report);
+            Assert.AreEqual(NormalizeLineEndings(k_ExpectedOutput), report);
         }
 
         [Test]
+        [Description("Sections render in the order they were first requested, so requesting the " +
+                     "same two titles in the opposite order produces a different report.")]
         public void SectionReportsStayInCreatedOrder()
         {
             var sectionOneHandle = DiagnosticReport.GetSection(k_SectionOneTitle);

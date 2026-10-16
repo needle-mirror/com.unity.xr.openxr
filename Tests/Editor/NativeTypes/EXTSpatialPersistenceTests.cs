@@ -5,6 +5,8 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "SpatialEntities")]
     class EXTSpatialPersistenceTests : MockRuntimeEditorTestBase
     {
         public override void OneTimeSetUp()
@@ -19,6 +21,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw async persistence-context create binding returns the runtime's result and " +
+                     "future handle.")]
         public void xrCreateSpatialPersistenceContextAsyncEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -34,6 +38,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the async persistence-context create returns the runtime's " +
+                     "result and future handle.")]
         public void xrCreateSpatialPersistenceContextAsyncEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -49,6 +55,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload taking only a persistence scope returns the runtime's result " +
+                     "and future handle.")]
         public void xrCreateSpatialPersistenceContextAsyncEXT_ConvenienceOverload_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -64,6 +72,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call enumeration of persistence scopes reports the count first and then fills " +
+                     "the array with the runtime's scopes.")]
         public unsafe void xrEnumerateSpatialPersistenceScopesEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -87,6 +97,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of scope enumeration allocates and fills an array with the " +
+                     "runtime's scopes.")]
         public void xrEnumerateSpatialPersistenceScopesEXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -103,6 +115,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the two-call scope enumeration reports the count and then " +
+                     "fills the array with the runtime's scopes.")]
         public unsafe void xrEnumerateSpatialPersistenceScopesEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -126,6 +140,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context NativeArray overload of scope enumeration allocates and fills an array " +
+                     "with the runtime's scopes.")]
         public void xrEnumerateSpatialPersistenceScopesEXT_NativeArray_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -142,6 +158,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing a persistence-context future yields success results and the runtime's " +
+                     "context handle.")]
         public void xrCreateSpatialPersistenceContextCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -158,6 +176,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the persistence-context completion yields success results " +
+                     "and the runtime's context handle.")]
         public void xrCreateSpatialPersistenceContextCompleteEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -174,6 +194,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Destroying a persistence context through the binding returns the runtime's success " +
+                     "result.")]
         public void xrDestroySpatialPersistenceContextEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

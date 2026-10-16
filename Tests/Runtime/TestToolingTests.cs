@@ -36,6 +36,10 @@ namespace UnityEngine.XR.OpenXR.Tests
     unsafe delegate XrResult GetSystemProperties_Delegate(XrSystemPropertiesHeader* systemPropertiesStruct);
     unsafe delegate XrResult GetSystem_Delegate(XrInstance instance, XrSystemGetInfo* getInfo, XrSystemId* systemId);
 
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "TestTooling")]
+    [NUnit.Framework.Property("Covers", "MockRuntime")]
+    [NUnit.Framework.Property("Covers", "EventQueue")]
     class TestToolingTests
     {
         static readonly string[] s_LifecycleCalls =
@@ -64,8 +68,19 @@ namespace UnityEngine.XR.OpenXR.Tests
 #endif
         static uint s_NumTimesMockSysPropertiesCalled;
 
-        static unsafe IntPtr GetSysProperties_UserPresence_MockCallback() =>
-            Marshal.GetFunctionPointerForDelegate((GetSystemProperties_Delegate)SysProperties_UserPresence_MockCallback);
+        // Rooted so the delegate is not collected while native holds its pointer. Declared before the
+        // pointer field because static field initializers run in declaration order.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe GetSystemProperties_Delegate k_SysProperties_UserPresence_MockCallback =
+            SysProperties_UserPresence_MockCallback;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe IntPtr k_SysProperties_UserPresence_MockCallbackPtr =
+            Marshal.GetFunctionPointerForDelegate(k_SysProperties_UserPresence_MockCallback);
 
         [MonoPInvokeCallback(typeof(GetSystemProperties_Delegate))]
         static unsafe XrResult SysProperties_UserPresence_MockCallback(XrSystemPropertiesHeader* systemPropertiesStruct)
@@ -81,8 +96,18 @@ namespace UnityEngine.XR.OpenXR.Tests
 #endif
         static uint s_NumTimesMockGetSystemCalled;
 
-        static unsafe IntPtr GetSystem_MockCallback() =>
-            Marshal.GetFunctionPointerForDelegate((GetSystem_Delegate)System_MockCallback);
+        // Rooted so the delegate is not collected while native holds its pointer. Declared before the
+        // pointer field because static field initializers run in declaration order.
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe GetSystem_Delegate k_System_MockCallback = System_MockCallback;
+
+#if LIFECYCLE_APIS_AVAILABLE
+        [NoAutoStaticsCleanup]
+#endif
+        static readonly unsafe IntPtr k_System_MockCallbackPtr =
+            Marshal.GetFunctionPointerForDelegate(k_System_MockCallback);
 
         [MonoPInvokeCallback(typeof(GetSystem_Delegate))]
         static unsafe XrResult System_MockCallback(XrInstance instance, XrSystemGetInfo* getInfo, XrSystemId* systemId)
@@ -108,6 +133,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Starting a MockOpenXREnvironment yields non-zero XrSession and XrInstance handles.")]
         public IEnumerator SessionAndInstanceAreValid()
         {
             bool xrSessionIsValid, xrInstanceIsValid;
@@ -130,6 +156,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A MockOpenXREnvironment can be stopped and started again and still yields valid " +
+                     "session and instance handles.")]
         public IEnumerator MockRuntimeEnvironmentCanBeRunMultipleTimes()
         {
             bool xrSessionIsValid, xrInstanceIsValid;
@@ -160,6 +188,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Intends to verify each OpenXRFeature lifecycle callback reaches TestCallback during a " +
+                     "start/stop cycle; the success flag is initialized to true, so the assertion cannot " +
+                     "currently fail.")]
         public IEnumerator MockRuntimeCallbacksReceived(
             [ValueSource(nameof(s_LifecycleCalls))] string lifecycleCallback)
         {
@@ -189,6 +220,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The MockRuntime feature is present in the environment's settings before start and is " +
+                     "enabled while the environment runs.")]
         public IEnumerator MockRuntimeFeatureIsEnabled()
         {
             using var testEnvironment = MockOpenXREnvironment.CreateEnvironment();
@@ -208,6 +241,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Disposing a MockOpenXREnvironment restores the project's original XRGeneralSettings " +
+                     "instance, or leaves it null if there was none.")]
         public IEnumerator OriginalXRGeneralSettingsAreStoredAndRestored()
         {
             var originalSettings = XRGeneralSettings.Instance;
@@ -236,6 +271,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [UnityPlatform(include = new RuntimePlatform[] { RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.LinuxEditor })]
+        [Description("Creating a MockOpenXREnvironment writes temporary test assets under Assets/Temp/Test " +
+                     "and disposing it deletes them.")]
         public IEnumerator TestAssetsAreCreatedAndDeleted()
         {
             var testAssetsPath = Path.GetFullPath(Path.Combine("Assets", "Temp", "Test"));
@@ -255,6 +292,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The XR Management active loader list is restored after a MockOpenXREnvironment is " +
+                     "disposed.")]
         public IEnumerator OriginalLoaderIsPreserved()
         {
             var activeLoaders = GetNamesOfActiveLoaders();
@@ -284,6 +323,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The project's OpenXRSettings instance is the same object before and after a " +
+                     "MockOpenXREnvironment run.")]
         public IEnumerator OriginalOpenXRSettingsArePreserved()
         {
             var originalSettings = OpenXRSettings.Instance;
@@ -303,6 +344,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("An extension requested on a MockOpenXREnvironment is removed from the mock runtime's " +
+                     "extension list once the environment is disposed.")]
         public IEnumerator AddExtensionIsNotPersisted()
         {
             const string sampleExtension = "XR_KHR_maintenance1";
@@ -326,6 +369,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 #if !OPENXR_USE_KHRONOS_LOADER
         // the Android Generic Loader is *not* supported by this API
         [UnityTest]
+        [Description("AddSupportedExtension makes the mock runtime advertise an extension so a request for " +
+                     "it is enabled, without enabling unrelated extensions.")]
         public IEnumerator TestAddSupportedExtension()
         {
             using var mockRuntimeEnvironment = MockOpenXREnvironment.CreateEnvironment();
@@ -351,6 +396,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests that mocked system properties get methods are called when desired.
         /// </summary>
         [UnityTest]
+        [Description("A system-properties mock registered for a structure type is called only while it is " +
+                     "set and not after it is cleared.")]
         public IEnumerator TestSetSysPropsFunctionForXrStructureType()
         {
             using var mockRuntimeEnvironment = MockOpenXREnvironment.CreateEnvironment();
@@ -366,7 +413,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // our "XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT" mock SHOULD be called when SET
             mockRuntimeEnvironment.SetSysPropertiesFunctionForXrStructureType(
                 XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT,
-                GetSysProperties_UserPresence_MockCallback());
+                k_SysProperties_UserPresence_MockCallbackPtr);
             s_NumTimesMockSysPropertiesCalled = 0;
             mockRuntimeEnvironment.Start();
             yield return null;
@@ -390,6 +437,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests that mocked OpenXR function pointer methods are called when desired.
         /// </summary>
         [UnityTest]
+        [Description("A function interceptor registered for xrGetSystem is called only while it is set and " +
+                     "not after it is cleared.")]
         public IEnumerator TestSetFunctionForInterceptor()
         {
             using var mockRuntimeEnvironment = MockOpenXREnvironment.CreateEnvironment();
@@ -406,7 +455,7 @@ namespace UnityEngine.XR.OpenXR.Tests
             // our "xrGetSystem" mock SHOULD be called when SET
             Console.WriteLine("TestSetFunctionForInterceptor() second test");
             mockRuntimeEnvironment.SetFunctionForInterceptor(
-                "xrGetSystem", GetSystem_MockCallback());
+                "xrGetSystem", k_System_MockCallbackPtr);
             s_NumTimesMockGetSystemCalled = 0;
             mockRuntimeEnvironment.Start();
             yield return null;
@@ -430,6 +479,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         /// Tests below are for Mock OpenXR Environment support for EnqueueMockEventData and ProcessEventQueue
         /// </summary>
         [UnityTest]
+        [Description("Events enqueued with EnqueueMockEventData and flushed with ProcessEventQueue reach the " +
+                     "plugin: user-presence changes toggle the HMD's userPresence feature.")]
         public IEnumerator TestEventQueueAPIs()
         {
             using var mockRuntimeEnvironment = MockOpenXREnvironment.CreateEnvironment();

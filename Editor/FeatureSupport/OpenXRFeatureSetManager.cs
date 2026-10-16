@@ -27,7 +27,7 @@ namespace UnityEditor.XR.OpenXR.Features
             {
                 EditorApplication.update -= OnFirstUpdate;
                 // Early out if this is invoked inside a secondary process (e.g. Standalone Profiler)
-                if ((uint)ProcessService.level == (uint)ProcessLevel.Secondary)
+                if ((uint)ProcessService.level == (uint)ProcessLevel.Secondary || AssetDatabase.IsAssetImportWorkerProcess())
                     return;
                 InitializeFeatureSets();
             }

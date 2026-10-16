@@ -15,9 +15,13 @@ namespace UnityEngine.XR.OpenXR.Tests
     /// <summary>
     /// Defines tests that validate the MockRuntime itself.
     /// </summary>
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "MockRuntime")]
     class MockRuntimeTests : OpenXRLoaderSetup
     {
         [UnityTest]
+        [Description("TransitionToState moves the mock session from Focused to Visible when the transition " +
+                     "is valid.")]
         public IEnumerator TransitionToState()
         {
             InitializeAndStart();
@@ -30,6 +34,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("An invalid transition (Focused to Synchronized) is refused unless forced, and forcing " +
+                     "it lands the session in Synchronized.")]
         public IEnumerator TransitionToStateForced()
         {
             InitializeAndStart();
@@ -44,6 +50,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When xrCreateSession fails, no feature receives OnSessionCreate.")]
         public IEnumerator CreateSessionFailure()
         {
             bool sawCreateSession = false;
@@ -76,6 +83,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [UnityTest]
+        [Description("xrBeginSession returning Success walks the session through to Focused; returning " +
+                     "LossPending stops at Ready. The display subsystem runs either way.")]
         public IEnumerator BeginSessionSuccessWithValues([ValueSource(nameof(beginSessionSuccessResults))]
             XrResult successResult)
         {
@@ -118,6 +127,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("When xrBeginSession fails, the session reaches Ready but never Synchronized, Visible " +
+                     "or Focused, while the display subsystem still runs.")]
         public IEnumerator BeginSessionFailure()
         {
             var states = new List<XrSessionState>();
@@ -149,6 +160,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 #if false
         // TEST WAS UNSTABLE, DISABLING FOR RELEASE ONLY
         [UnityTest]
+        [Description("Requesting session exit through the mock driver delivers OnSessionDestroy and shuts " +
+                     "the loader down.")]
         public IEnumerator TestRequestExitShutsdownSubsystems()
         {
             bool sawSessionDestroy = false;
@@ -181,6 +194,7 @@ namespace UnityEngine.XR.OpenXR.Tests
 #endif
 
         [UnityTest]
+        [Description("MockRuntime.RequestExitSession shuts the loader down once OpenXR is running.")]
         public IEnumerator RequestExitSession()
         {
             InitializeAndStart();
@@ -196,6 +210,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("MockRuntime.CauseInstanceLoss delivers OnInstanceLossPending to features and shuts the " +
+                     "loader down.")]
         public IEnumerator CauseInstanceLoss()
         {
             bool instanceLost = false;
@@ -221,6 +237,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Choosing the Additive environment blend mode during OnInstanceCreate makes the display " +
+                     "subsystem report a non-opaque display.")]
         public IEnumerator DisplayTransparent()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -244,6 +262,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("With the default blend mode, the display subsystem reports an opaque display.")]
         public IEnumerator DisplayOpaque()
         {
             InitializeAndStart();
@@ -255,6 +274,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("The blend mode defaults to Opaque, can be switched to the supported Additive mode, and " +
+                     "rejects the unsupported AlphaBlend mode.")]
         public IEnumerator MultipleEnvironmentBlendModes()
         {
             //Mock available environmentBlendModes are Opaque and Additive in mock_runtime.cpp EnumerateEnvironmentBlendModes.
@@ -277,6 +298,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Stage reference-space bounds set on the mock runtime surface as four floor-origin " +
+                     "boundary points at the expected corners.")]
         public IEnumerator BoundaryPoints()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -311,6 +334,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("With no reference-space bounds set, the input subsystem reports zero boundary points.")]
         public IEnumerator NoBoundaryPoints()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -334,6 +358,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Boundary points are reported in Floor tracking-origin mode and disappear after " +
+                     "switching to Device mode.")]
         public IEnumerator BoundryPointsForTrackingOrigin()
         {
             AddExtension(MockRuntime.XR_UNITY_mock_test);
@@ -369,6 +395,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A before-call callback registered for xrCreateInstance is invoked when the loader " +
+                     "starts.")]
         public IEnumerator BeforeFunctionCallbackSuccess()
         {
             var createInstanceCalled = false;
@@ -387,6 +415,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A before-call callback that fails xrCreateInstance prevents the loader from " +
+                     "initializing.")]
         public void BeforeFunctionCallbackError()
         {
             var createInstanceCalled = false;
@@ -407,6 +437,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("An after-call callback registered for xrCreateInstance is invoked with the call's " +
+                     "Success result.")]
         public IEnumerator AfterFunctionCallback()
         {
             var createInstanceCalled = false;
@@ -427,6 +459,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Function callbacks registered on the mock runtime are cleared when the loader shuts " +
+                     "down.")]
         public IEnumerator CallbacksClearedOnLoaderShutdown()
         {
             MockRuntime.SetFunctionCallback("xrBeginSession", _ => XrResult.Success);

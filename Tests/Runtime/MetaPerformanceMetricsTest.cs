@@ -7,6 +7,9 @@ using ProviderXRStats = UnityEngine.XR.Provider.XRStats;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "MetaQuest")]
+    [NUnit.Framework.Property("Covers", "Statistics")]
     class MetaPerformanceMetricsTests : OpenXRLoaderSetup
     {
         static readonly string kAppCPUFrametimeStr = "/perfmetrics_meta/app/cpu_frametime";
@@ -125,6 +128,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("Every XR_META_performance_metrics counter seeded by the runtime surfaces through " +
+                     "XRStats under its Unity stat name, with GPU frame times converted from milliseconds " +
+                     "to seconds.")]
         public IEnumerator TestAllMetrics()
         {
             base.InitializeAndStart();

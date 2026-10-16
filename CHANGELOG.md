@@ -9,13 +9,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
-## [1.19.0-pre.2] - 2026-09-09
+## [1.19.0] - 2026-10-16
+
+### Added
+
+### Changed
+
+* Changed static image layers that use a single texture for both eyes to stop acquiring a new swapchain image every frame once their images are written, removing per-frame swapchain work for layers whose content doesn't change.
+
+### Deprecated
+
+### Removed
+
+* Removed incorrect validation rules that used upscaling.
+
+### Fixed
+
+* Fixed a build asset version error that would sometimes appear for the openxrpackagesettings.asset when upgrading the OpenXR package.
+* Fixed issue in the Sample Starter Assets where the right hand would not be visible.
+* Fixed Symmetric Projection being silently disabled on runtimes that do not support the `XR_FB_foveation` and `XR_FB_foveation_configuration` extensions. This dependency was removed in 1.13.0 but was reintroduced when Symmetric Projection was moved into an extension. `XR_FB_foveation`, `XR_FB_foveation_configuration` and `XR_FB_swapchain_update_state` are no longer enabled by default, and are only enabled when a feature such as Foveated Rendering requests them.
+* Fixed a desync that could happen between depth imageRect size and color imageRect size.
+* Fixed static composition layers flickering between old frames when their texture content was updated with the Source Textures **Dynamic Texture** option turned off at runtime.
+* Fixed `CopyFromSource` mipmapped composition layers appearing upside down and mirrored on graphics APIs whose texture coordinates start at the top (such as Direct3D and Vulkan).
+* Fixed issue in the Sample Starter Assets to properly navigate scenes using the scene navigator.
+* Fixed an issue where OpenXR Plug-in would save changes to all assets in your project on domain reloads, when it should have only saved changes to its OpenXR Settings asset.
+* Fixed incorrect left and right eye poses reported by the HMD while the head was moving. Eye positions did not follow the head's rotation, and eye rotations were wrong on devices whose views are rotated relative to the head.
+
+### Security
+
+## [1.19.0-pre.2] - 2026-10-02
 
 ### Added
 
 * Added mipmap support for composition layers with the `CopyFromSource` and `AutoGenerate` mip modes on Local Texture layers. Applies to Quad, Cylinder, Cube, and Equirect layers, and requires Unity 6000.7.0a4 or newer.
 * Added the Meta Temporal Pixel Synthesis feature, which uses the `XR_META_temporal_pixel_synthesis` extension to let the runtime apply temporal anti-aliasing and upscaling to your rendered frames. Moving this work to the runtime can improve performance compared with performing it in your application. Refer to [Temporal Pixel Synthesis](xref:openxr-temporal-pixel-synthesis).
-* Added `skipFDMForFinalPassesSRP` as a sub-option for SRP-based Foveated Rendering.
+* Added [`FoveatedRenderingFeature.skipFDMForFinalPassesSRP`](xref:UnityEngine.XR.OpenXR.Features.FoveatedRenderingFeature.skipFDMForFinalPassesSRP), which stops Unity from attaching a fragment density map to the `FinalBlit` and `UberPost` passes of the Universal Render Pipeline (URP). Unity enables it by default on Meta Quest, which can reduce GPU frame time. Requires Unity 6.7 or newer. Refer to [Use the SRP foveation API](xref:openxr-foveated-rendering-srp-api).
 * Added native types for the hand tracking extension `XR_META_hand_tracking_unextrapolated_poses`.
 
 ### Fixed
@@ -29,6 +57,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed OpenXR features that do not define `BuildTargetGroups` in their `OpenXRFeatureAttribute` disappearing from the OpenXR Project Settings window. Omitting `BuildTargetGroups` once again means that the feature supports every build target group.
 * Fixed how temporal pixel synthesis works with quad views.
 * Fixed a possible compiler error in Unity 6.6 when this package is used in combination with XR Plug-in Management 4.7.0 or newer.
+* Fixed Hand Interaction Poses input devices not having poke pose and pinch pose usages set. They now match Hand Interaction Profile input devices. This allows poke and pinch poses to be queried through the `InputDevice.TryGetFeatureValue` API.
+* Fixed Hand Interaction Profile `devicePose` control to use the correct localized name that matches other input devices.
 * Fixed a crash on the CoreCLR scripting backend caused by managed callback delegates being garbage collected while native code still held their function pointers. Delegates passed to the OpenXR native plugin are now rooted in static fields for the lifetime of the process.
 * Fixed a `KeyNotFoundException` thrown when a composition layer was removed while its swapchain creation request was still in flight. The swapchain callbacks now verify that the layer is still present before processing the result.
 * Fixed the Play Mode OpenXR Runtime selector throwing `PlatformNotSupportedException` and `NullReferenceException` on macOS when the Editor runs on CoreCLR, which doesn't support the Windows Registry on non-Windows platforms.
@@ -56,6 +86,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 * Fixed `OpenXRCustomLayerHandler` continuing to render video and RenderTexture composition layers every frame after they became inactive without being removed.
+* Fixed the D-Pad Binding, Palm Pose, and Hand Interaction Poses features not reporting a Project Validation error when none of the enabled interaction profiles can be augmented by them.
 
 ## [1.18.0] - 2026-08-04
 

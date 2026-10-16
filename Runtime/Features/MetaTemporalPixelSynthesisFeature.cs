@@ -350,33 +350,6 @@ namespace UnityEngine.XR.OpenXR.Features.Meta
 #if UNITY_RENDER_PIPELINES_UNIVERSAL
             rules.Add(new ValidationRule(this)
             {
-                message = "Temporal Pixel Synthesis should not be used with URP Upscaling as it results in a performance degradation.",
-                checkPredicate = () =>
-                {
-                    var openXRSettings = OpenXRSettings.GetSettingsForBuildTargetGroup(targetGroup);
-                    var feature = openXRSettings?.GetFeature<MetaTemporalPixelSynthesisFeature>();
-                    if (feature == null || !feature.enabled)
-                        return true;
-
-                    var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
-                    if (urpAsset == null)
-                        return true;
-
-                    return urpAsset.upscalingFilter == UpscalingFilterSelection.Auto;
-                },
-                fixIt = () =>
-                {
-                    var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
-                    if (urpAsset != null)
-                        urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
-                },
-                error = false,
-                fixItAutomatic = true,
-                fixItMessage = "Set Upscaling Filter to Automatic."
-            });
-
-            rules.Add(new ValidationRule(this)
-            {
                 message = "Temporal Pixel Synthesis should not be used with URP Anti-Aliasing as it results in a performance degradation.",
                 checkPredicate = () =>
                 {

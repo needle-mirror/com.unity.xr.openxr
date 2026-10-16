@@ -9,6 +9,8 @@ using XrSpatialEntityIdEXT = System.UInt64;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "SpatialEntities")]
     class EXTSpatialEntityTests : MockRuntimeEditorTestBase
     {
         public override void OneTimeSetUp()
@@ -21,6 +23,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw enumeration of spatial capabilities reports the count and then fills " +
+                     "the array with PlaneTracking, MarkerTrackingQRCode and Anchor.")]
         public unsafe void xrEnumerateSpatialCapabilities_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -43,6 +47,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of capability enumeration allocates a three-element array " +
+                     "holding the runtime's capabilities.")]
         public void xrEnumerateSpatialCapabilities_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -60,6 +66,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the two-call capability enumeration reports the count and " +
+                     "fills the array with the runtime's capabilities.")]
         public unsafe void xrEnumerateSpatialCapabilities_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -82,6 +90,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context NativeArray overload of capability enumeration allocates and fills an " +
+                     "array with the runtime's capabilities.")]
         public void xrEnumerateSpatialCapabilities_UsingContext_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -99,6 +109,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw enumeration of a capability's component types reports the count and " +
+                     "then fills Bounded2D and PlaneAlignment for plane tracking.")]
         public unsafe void xrEnumerateSpatialCapabilityComponentTypesEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -126,6 +138,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of component-type enumeration allocates and fills an array " +
+                     "with the runtime's component types.")]
         public void xrEnumerateSpatialCapabilityComponentTypesEXT_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -144,6 +158,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the two-call component-type enumeration reports the count and " +
+                     "fills the runtime's component types.")]
         public unsafe void xrEnumerateSpatialCapabilityComponentTypesEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -171,6 +187,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context NativeArray overload of component-type enumeration allocates and fills an " +
+                     "array with the runtime's component types.")]
         public void xrEnumerateSpatialCapabilityComponentTypesEXT_UsingContext_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -189,6 +207,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw enumeration of a capability's features reports the count and then " +
+                     "fills the QR-code marker tracking features.")]
         public unsafe void xrEnumerateSpatialCapabilityFeaturesEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -218,6 +238,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of capability-feature enumeration allocates and fills an " +
+                     "array with the runtime's features.")]
         public void xrEnumerateSpatialCapabilityFeaturesEXT_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -236,6 +258,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the two-call capability-feature enumeration reports the count " +
+                     "and fills the runtime's features.")]
         public unsafe void xrEnumerateSpatialCapabilityFeaturesEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -263,6 +287,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context NativeArray overload of capability-feature enumeration allocates and fills " +
+                     "an array with the runtime's features.")]
         public void xrEnumerateSpatialCapabilityFeaturesEXT_UsingContext_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -281,6 +307,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw async spatial-context create binding returns the runtime's result and future " +
+                     "handle.")]
         public void xrCreateSpatialContextAsyncEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -298,6 +326,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the async spatial-context create returns success and the " +
+                     "runtime's future handle.")]
         public void xrCreateSpatialContextAsyncEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -314,6 +344,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing a spatial-context future yields a success futureResult and the runtime's " +
+                     "context handle.")]
         public void xrCreateSpatialContextCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -328,6 +360,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the spatial-context completion yields a success futureResult " +
+                     "and the runtime's context handle.")]
         public void xrCreateSpatialContextCompleteEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -342,6 +376,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Destroying a spatial context through the binding returns the runtime's success result.")]
         public void xrDestroySpatialContextEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -354,6 +389,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Creating a spatial entity from an id through the raw binding returns the runtime's " +
+                     "entity handle.")]
         public void xrCreateSpatialEntityFromIdEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -368,6 +405,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload taking a bare entity id returns the runtime's entity handle.")]
         public void xrCreateSpatialEntityFromIdEXT_ConvenienceOverload_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -381,6 +419,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Destroying a spatial entity through the binding returns the runtime's success result.")]
         public void xrDestroySpatialEntityEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -393,6 +432,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw async discovery-snapshot create binding accepts a component-type list and " +
+                     "returns the runtime's future handle.")]
         public unsafe void xrCreateSpatialDiscoverySnapshotAsyncEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -414,6 +455,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing a discovery-snapshot future through the raw binding yields a success " +
+                     "futureResult and the runtime's snapshot handle.")]
         public void xrCreateSpatialDiscoverySnapshotCompleteEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -431,6 +474,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the discovery-snapshot completion yields a success " +
+                     "futureResult and the runtime's snapshot handle.")]
         public void xrCreateSpatialDiscoverySnapshotCompleteEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -447,6 +492,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call component-data query reports entity id and state counts, then fills the " +
+                     "entity id and Tracking state the runtime returns.")]
         public unsafe void xrQuerySpatialComponentDataEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -486,6 +533,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw string-buffer getter reports the byte count and then fills the " +
+                     "runtime's UTF-8 string.")]
         public unsafe void xrGetSpatialBufferStringEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -510,6 +559,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the string-buffer getter allocates and fills the runtime's " +
+                     "UTF-8 bytes.")]
         public void xrGetSpatialBufferStringEXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -526,6 +577,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the string-buffer getter taking a bare buffer id allocates " +
+                     "and fills the runtime's UTF-8 bytes.")]
         public void xrGetSpatialBufferStringEXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -541,6 +594,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw uint8 buffer getter reports the count and then fills the runtime's " +
+                     "bytes.")]
         public unsafe void xrGetSpatialBufferUint8EXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -565,6 +620,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the uint8 buffer getter allocates and fills the runtime's " +
+                     "bytes.")]
         public void xrGetSpatialBufferUint8EXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -581,6 +638,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the uint8 buffer getter taking a bare buffer id allocates " +
+                     "and fills the runtime's bytes.")]
         public void xrGetSpatialBufferUint8EXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -596,6 +655,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw uint16 buffer getter reports the count and then fills the runtime's " +
+                     "five values.")]
         public unsafe void xrGetSpatialBufferUint16EXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -623,6 +684,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the uint16 buffer getter allocates and fills the runtime's " +
+                     "values.")]
         public void xrGetSpatialBufferUint16EXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -643,6 +706,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the uint16 buffer getter taking a bare buffer id allocates " +
+                     "and fills the runtime's values.")]
         public void xrGetSpatialBufferUint16EXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -662,6 +727,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw uint32 buffer getter reports the count and then fills the runtime's " +
+                     "two values.")]
         public unsafe void xrGetSpatialBufferUint32EXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -686,6 +753,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the uint32 buffer getter allocates and fills the runtime's " +
+                     "values.")]
         public void xrGetSpatialBufferUint32EXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -703,6 +772,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the uint32 buffer getter taking a bare buffer id allocates " +
+                     "and fills the runtime's values.")]
         public void xrGetSpatialBufferUint32EXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -719,6 +790,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw float buffer getter reports the count and then fills the runtime's " +
+                     "two values.")]
         public unsafe void xrGetSpatialBufferFloatEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -743,6 +816,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the float buffer getter allocates and fills the runtime's " +
+                     "values.")]
         public void xrGetSpatialBufferFloatEXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -760,6 +835,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the float buffer getter taking a bare buffer id allocates " +
+                     "and fills the runtime's values.")]
         public void xrGetSpatialBufferFloatEXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -776,6 +853,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw Vector2f buffer getter reports the count and then fills the runtime's " +
+                     "two vectors.")]
         public unsafe void xrGetSpatialBufferVector2fEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -800,6 +879,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the Vector2f buffer getter allocates and fills the " +
+                     "runtime's vectors.")]
         public void xrGetSpatialBufferVector2fEXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -817,6 +898,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the Vector2f buffer getter taking a bare buffer id " +
+                     "allocates and fills the runtime's vectors.")]
         public void xrGetSpatialBufferVector2fEXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -833,6 +916,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call raw Vector3f buffer getter reports the count and then fills the runtime's " +
+                     "two vectors.")]
         public unsafe void xrGetSpatialBufferVector3fEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -857,6 +942,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray overload of the Vector3f buffer getter allocates and fills the " +
+                     "runtime's vectors.")]
         public void xrGetSpatialBufferVector3fEXT_NativeArray_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -874,6 +961,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of the Vector3f buffer getter taking a bare buffer id " +
+                     "allocates and fills the runtime's vectors.")]
         public void xrGetSpatialBufferVector3fEXT_NativeArray_Convenience_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -890,6 +979,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw update-snapshot create binding returns the runtime's snapshot handle.")]
         public unsafe void xrCreateSpatialUpdateSnapshotEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -905,6 +995,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of update-snapshot create taking raw pointers returns success " +
+                     "and the runtime's snapshot handle.")]
         public unsafe void xrCreateSpatialUpdateSnapshotEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -919,6 +1011,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context NativeArray overload of update-snapshot create returns success and the " +
+                     "runtime's snapshot handle.")]
         public void xrCreateSpatialUpdateSnapshotEXT_NativeArray_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -935,6 +1029,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Destroying a spatial snapshot through the binding returns the runtime's success result.")]
         public void xrDestroySpatialSnapshotEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -952,6 +1047,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         static extern unsafe bool ValidateStruct(XrBaseInStructure* structPtr);
 
         [Test]
+        [Description("The native EXT_spatial_entity validator accepts a context create-info chaining plane, " +
+                     "anchor, ArUco, AprilTag, QR and micro-QR capability configurations, confirming the C# " +
+                     "and C layouts agree.")]
         public unsafe void ValidateStruct_XrSpatialContextCreateInfoEXT()
         {
             var planeComponents = new NativeArray<XrSpatialComponentTypeEXT>(4, Allocator.Temp);

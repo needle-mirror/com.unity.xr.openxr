@@ -175,7 +175,7 @@ namespace UnityEngine.XR.OpenXR
         /// depending on which technique is supported by the current device.
         /// The difference between these two options is the runtime API used by Unity to control the amount of foveation.
         /// If you are using the Built-In Render Pipeline, you must use the `Legacy` option.
-        /// Refer to[Foveated Rendering in OpenXR](xref:openxr-foveated-rendering) for more information.
+        /// Refer to [Foveated Rendering in OpenXR](xref:openxr-foveated-rendering) for more information.
         /// `QuadViews` uses a different rendering technique to achieve the same goal of rendering the central area
         /// of the user's view at a higher resolution than the periphery. The `QuadViews` option does not have an associated runtime API.
         /// Refer to [Quad Views](xref:openxr-quad-views) for more information.
@@ -405,6 +405,8 @@ namespace UnityEngine.XR.OpenXR
         /// <summary>
         /// If enabled, when the application begins it will create a stereo symmetric view that has the eye buffer resolution change based on the IPD.
         /// Provides a performance benefit across all IPDs.
+        /// The value is read when the display subsystem starts. A value set while OpenXR is running applies from the next display
+        /// subsystem start, is not returned by the getter, and is replaced by the configured value when the OpenXR loader initializes again.
         /// </summary>
         public bool symmetricProjection
         {

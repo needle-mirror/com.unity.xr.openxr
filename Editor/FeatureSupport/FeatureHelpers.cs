@@ -324,7 +324,8 @@ namespace UnityEditor.XR.OpenXR.Features
             }
 
             List<FeatureInfo> allFeatureInfo = allOpenXRFeatures.Select(x => GetFeatureInfo(x, group)).ToList();
-            if (TryFindCustomLoaderWithHighestPriority(allFeatureInfo, out var customLoaderFeatureInfo) && !string.IsNullOrWhiteSpace(customLoaderFeatureInfo.CustomLoaderName))
+            if (TryFindCustomLoaderWithHighestPriority(allFeatureInfo, out var customLoaderFeatureInfo)
+                && !string.IsNullOrWhiteSpace(customLoaderFeatureInfo.CustomLoaderName))
             {
                 openXrSettings.customLoaderName = customLoaderFeatureInfo.CustomLoaderName;
                 EditorUtility.SetDirty(openXrSettings);
@@ -334,10 +335,8 @@ namespace UnityEditor.XR.OpenXR.Features
                 openXrSettings.customLoaderName = string.Empty;
                 EditorUtility.SetDirty(openXrSettings);
             }
-            if (EditorUtility.IsDirty(openXrSettings))
-                AssetDatabase.SaveAssetIfDirty(openXrSettings);
 
-            AssetDatabase.SaveAssets();
+            AssetDatabase.SaveAssetIfDirty(openXrSettings);
         }
 
         static bool HasSameFeatureReferences(OpenXRFeature[] currentFeatures, OpenXRFeature[] updatedFeatures)

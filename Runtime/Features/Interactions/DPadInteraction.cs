@@ -231,6 +231,12 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         private const string layoutName = "XRDPad";
 
 #if UNITY_EDITOR
+        internal static bool IsIncompatibleProfile(OpenXRFeature feature) =>
+            feature is EyeGazeInteraction ||
+            feature is AndroidMouseInteractionProfile ||
+            feature is HandInteractionProfile ||
+            feature is KHRSimpleControllerProfile;
+
         protected internal override void GetValidationChecks(List<OpenXRFeature.ValidationRule> results, BuildTargetGroup target)
         {
             results.Add( new ValidationRule(this){
@@ -251,7 +257,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                         {
                             if (feature is DPadInteraction)
                                 thisFeatureEnabled = true;
-                            else if (!((OpenXRInteractionFeature)feature).IsAdditive && !(feature is EyeGazeInteraction))
+                            else if (!((OpenXRInteractionFeature)feature).IsAdditive && !IsIncompatibleProfile(feature))
                                 otherNonAdditiveInteractionFeatureEnabled = true;
                         }
                     }

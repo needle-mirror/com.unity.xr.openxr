@@ -7,6 +7,8 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "SpatialEntities")]
     class ANDROIDSpatialDiscoveryRaycastTests : MockRuntimeEditorTestBase
     {
         const string k_ExtensionName = "XR_ANDROID_spatial_discovery_raycast";
@@ -33,6 +35,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw xrCreateSpatialRaycastSnapshotANDROID binding forwards the raycast info to the " +
+                     "runtime and returns its snapshot handle.")]
         public unsafe void xrCreateSpatialRaycastSnapshotANDROID_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -57,6 +61,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload with no component filter forwards the ray untransformed, passes " +
+                     "a zero component count, and returns the runtime's snapshot handle.")]
         public unsafe void xrCreateSpatialRaycastSnapshotANDROID_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -88,6 +94,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload passes the supplied component types through to the runtime and " +
+                     "treats a zero maxDistance as an unbounded ray.")]
         public void xrCreateSpatialRaycastSnapshotANDROID_UsingContext_ForwardsComponentTypes()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -113,6 +121,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Every XrSpatialRaycastInfoANDROID constructor sets the structure type, coordinates " +
+                     "pass through untransformed, and omitting maxDistance produces an unbounded ray.")]
         public unsafe void XrSpatialRaycastInfoANDROID_ConstructorsInitializeType()
         {
             var origin = XrVector3f.FromSessionSpaceCoordinates(1, 2, 3);
@@ -142,6 +152,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         // reject as an invalid handle or time.
 
         [Test]
+        [Description("XrSpatialRaycastInfoANDROID.TryCreate reports failure and leaves the struct at " +
+                     "default both before the environment starts and after start with no frame rendered.")]
         [TestCase(false, TestName = "TryCreate_Fails_BeforeStart")]
         [TestCase(true, TestName = "TryCreate_Fails_StartedButNoFrameRendered")]
         public void TryCreate_FailsWhenStateIsUnavailable(bool start)
@@ -162,6 +174,9 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("All XrSpatialRaycastSnapshotCreateInfoANDROID constructors set the structure type; the " +
+                     "raycast-info-only form yields an empty component list and the NativeArray forms agree " +
+                     "with the pointer form.")]
         public unsafe void XrSpatialRaycastSnapshotCreateInfoANDROID_ConstructorsInitializeType()
         {
             var raycastInfo = new XrSpatialRaycastInfoANDROID(
@@ -187,6 +202,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The NativeArray and read-only constructors of XrSpatialComponentRaycastResultListANDROID " +
+                     "produce the same structure type, count and buffer pointer.")]
         public unsafe void XrSpatialComponentRaycastResultListANDROID_ConstructorsAgree()
         {
             var results = new NativeArray<XrSpatialRaycastResultDataANDROID>(3, Allocator.Temp);
@@ -202,6 +219,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("XrSpatialCapabilityConfigurationDepthRaycastANDROID sets its structure type, the " +
+                     "DepthRaycast capability and the enabled component list.")]
         public unsafe void XrSpatialCapabilityConfigurationDepthRaycastANDROID_InitializesTypeAndCapability()
         {
             var components = CreateRaycastComponents();
@@ -216,6 +235,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("XrSpatialRaycastResultDataANDROID equality and hashing compare pose and distance, and " +
+                     "a value never equals an unrelated object.")]
         public void XrSpatialRaycastResultDataANDROID_EqualityAndHashing()
         {
             var pose = new XrPosef(new Vector3(1, 2, 3), UnityEngine.Quaternion.identity);
@@ -236,6 +257,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         static extern unsafe bool ValidateStruct(XrBaseInStructure* structPtr);
 
         [Test]
+        [Description("The native EXT_spatial_entity validator accepts a context create-info carrying a " +
+                     "depth-raycast capability configuration, confirming the C# and C struct layouts agree.")]
         public unsafe void ValidateStruct_AcceptsDepthRaycastCapabilityConfiguration()
         {
             var components = CreateRaycastComponents();

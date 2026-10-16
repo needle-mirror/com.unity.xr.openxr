@@ -13,6 +13,10 @@ using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Loader")]
+    // The whole file is compiled only under UNITY_EDITOR; the scanner cannot see that gate.
+    [NUnit.Framework.Property("Requires", "EditorOnly")]
     class OpenXRLoaderTests : OpenXRLoaderSetup
     {
         public override void BeforeTest()
@@ -118,6 +122,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
+        [Description("Forcing the loader to halt at each intermediate LoaderState yields the expected " +
+                     "Initialize, Start, Stop and Deinitialize return values for that state.")]
         public IEnumerator StateTransitionValidation([ValueSource(nameof(stateTransitions))] StateTransition stateTransition)
         {
             Assert.IsNotNull(Loader);
@@ -150,6 +156,8 @@ namespace UnityEngine.XR.OpenXR.Tests
 
         [UnityTest]
         [Category("Loader Tests")]
+        [Description("After Initialize, the loader can Start and Stop three times in a row, reporting the " +
+                     "right state each time, and then Deinitialize back to Uninitialized.")]
         public IEnumerator CanStopAndStartMultipleTimes()
         {
             Assert.IsNotNull(Loader);

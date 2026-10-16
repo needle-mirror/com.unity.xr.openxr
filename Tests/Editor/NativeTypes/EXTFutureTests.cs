@@ -4,6 +4,8 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Futures")]
     class EXTFutureTests : MockRuntimeEditorTestBase
     {
         [OneTimeSetUp]
@@ -15,6 +17,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw xrPollFutureEXT binding returns the runtime's result and the future's Ready " +
+                     "state.")]
         public void xrPollFutureEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrPollFutureEXT", EXTFutureMocks.xrPollFutureEXT_Ready_Ptr);
@@ -28,6 +32,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of xrPollFutureEXT returns an unqualified success status and the " +
+                     "future's Ready state.")]
         public void xrPollFutureEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrPollFutureEXT", EXTFutureMocks.xrPollFutureEXT_Ready_Ptr);
@@ -41,6 +47,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of xrPollFutureEXT taking a bare future handle returns success " +
+                     "and the Ready state.")]
         public void xrPollFutureEXT_UsingContextConvenient_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrPollFutureEXT", EXTFutureMocks.xrPollFutureEXT_Ready_Ptr);
@@ -53,6 +61,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw xrCancelFutureEXT binding returns the runtime's success result.")]
         public void XrCancelFutureEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrCancelFutureEXT", EXTFutureMocks.xrCancelFutureEXT_Ptr);
@@ -65,6 +74,7 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of xrCancelFutureEXT returns an unqualified success status.")]
         public void XrCancelFutureEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrCancelFutureEXT", EXTFutureMocks.xrCancelFutureEXT_Ptr);
@@ -77,6 +87,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The convenience overload of xrCancelFutureEXT taking a bare future handle returns " +
+                     "success.")]
         public void XrCancelFutureEXT_UsingContextConvenient_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor("xrCancelFutureEXT", EXTFutureMocks.xrCancelFutureEXT_Ptr);

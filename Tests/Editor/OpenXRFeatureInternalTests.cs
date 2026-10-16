@@ -3,6 +3,8 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Features")]
     class OpenXRFeatureInternalTests : MockRuntimeEditorTestBase
     {
         // The app space is assigned when the input provider starts; the predicted display time is cached from
@@ -12,6 +14,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         // runtime would reject as an invalid handle or time.
 
         [Test]
+        [Description("Internal_GetPredictedDisplayTime reports failure and leaves the time at zero both " +
+                     "before the environment starts and after start with no frame rendered.")]
         [TestCase(false, TestName = "Internal_GetPredictedDisplayTime_Fails_BeforeStart")]
         [TestCase(true, TestName = "Internal_GetPredictedDisplayTime_Fails_StartedButNoFrameRendered")]
         public void Internal_GetPredictedDisplayTime_FailsWhenStateIsUnavailable(bool start)
@@ -26,6 +30,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Internal_GetAppSpaceAndPredictedDisplayTime reports failure and leaves both space " +
+                     "and time at zero before the environment starts and after start with no frame rendered.")]
         [TestCase(false, TestName = "Internal_GetAppSpaceAndPredictedDisplayTime_Fails_BeforeStart")]
         [TestCase(true, TestName = "Internal_GetAppSpaceAndPredictedDisplayTime_Fails_StartedButNoFrameRendered")]
         public void Internal_GetAppSpaceAndPredictedDisplayTime_FailsWhenStateIsUnavailable(bool start)

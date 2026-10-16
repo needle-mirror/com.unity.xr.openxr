@@ -6,9 +6,13 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "Features")]
     class OpenXRCallbackTests : OpenXRLoaderSetup
     {
         [Test]
+        [Description("OnInstanceCreate fires on features during loader start and receives the runtime's " +
+                     "instance handle.")]
         public void InstanceCreated()
         {
             bool instanceCreated = false;
@@ -30,6 +34,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("OnSessionCreate fires on features during loader start and receives the runtime's " +
+                     "session handle.")]
         public void SessionCreated()
         {
             bool sessionCreated = false;

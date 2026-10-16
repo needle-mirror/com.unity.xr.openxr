@@ -241,16 +241,6 @@ namespace UnityEditor.XR.OpenXR
                 buildTargetGroup = BuildTargetGroup.Standalone,
             },
 #endif // ENABLE_INPUT_SYSTEM
-#if UNITY_RENDER_PIPELINES_UNIVERSAL
-            new() {
-                message = "[Optional] Enabling URP upscaling decreases performance significantly because it is currently not supported by XR. Please disable it by setting Upscaling Filter to Automatic in the Universal Render Pipeline Asset.",
-                checkPredicate = URPUpscalingValidationPredicate,
-                fixIt = URPUpscalingFix,
-                fixItMessage = "URP upscaling has been disabled by setting the Upscaling Filter to Automatic in the Universal Render Pipeline Asset.",
-                error = false,
-                errorEnteringPlaymode = false,
-            },
-#endif
             new()
             {
                 message = "[Optional] Switch to use InputSystem.XR.PoseControl instead of OpenXR.Input.PoseControl, which will be deprecated in a future release.",
@@ -567,22 +557,6 @@ namespace UnityEditor.XR.OpenXR
             return true;
         }
 
-        static bool URPUpscalingValidationPredicate()
-        {
-            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
-            if (currentRenderPipelineAsset == null)
-            {
-                return false;
-            }
-#if UNITY_RENDER_PIPELINES_UNIVERSAL
-            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
-            if (urpAsset != null) {
-                return urpAsset.upscalingFilter == UpscalingFilterSelection.Auto;
-            }
-#endif
-            return false;
-        }
-
         static void SoftShadowFixItButtonPress()
         {
             RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
@@ -609,37 +583,6 @@ namespace UnityEditor.XR.OpenXR
             }
 #endif // UNITY_RENDER_PIPELINES_UNIVERSAL
             Debug.LogWarning("Unable to disable soft shadows.");
-        }
-
-        static void URPUpscalingFix()
-        {
-            RenderPipelineAsset currentRenderPipelineAsset = GraphicsSettings.currentRenderPipeline;
-            // If current render pipeline is Built-In Render Pipeline
-            if (currentRenderPipelineAsset == null)
-            {
-                Debug.LogWarning("No Render Pipeline Asset was found. Please assign a Default Render Pipeline Asset in the Graphics settings or assign a Render Pipeline Asset in the active Quality level.");
-                return;
-            }
-#if UNITY_RENDER_PIPELINES_UNIVERSAL
-            UniversalRenderPipelineAsset urpAsset = currentRenderPipelineAsset as UniversalRenderPipelineAsset;
-            if (urpAsset != null)
-            {
-#if UNITY_6000_3_OR_NEWER
-                var urpAssetID = urpAsset.GetEntityId();
-#else
-                var urpAssetID = urpAsset.GetInstanceID();
-#endif
-                if (AssetDatabase.CanOpenAssetInEditor(urpAssetID))
-                {
-                    AssetDatabase.OpenAsset(urpAssetID);
-                    urpAsset.upscalingFilter = UpscalingFilterSelection.Auto;
-                }
-                else
-                    Debug.LogWarning("Unable to open URP asset in Editor.");
-                return;
-            }
-#endif // UNITY_RENDER_PIPELINES_UNIVERSAL
-            Debug.LogWarning("Unable to disable URP upscaling.");
         }
     }
 }

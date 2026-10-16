@@ -12,9 +12,14 @@ using Assert = UnityEngine.Assertions.Assert;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Settings")]
+    [NUnit.Framework.Property("Covers", "Loader")]
     internal class OpenXRRuntimeSelectorTests : OpenXRInputTestsBase
     {
         [Test]
+        [Description("The runtime detector list always starts with SystemDefault and ends with " +
+                     "OtherRuntime.")]
         public void NoAvailableRuntimesTest()
         {
             List<OpenXRRuntimeSelector.RuntimeDetector> detectorList = OpenXRRuntimeSelector.GenerateRuntimeDetectorList();
@@ -24,6 +29,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("With an empty AvailableRuntimes registry map, the WindowsMR, SteamVR and Oculus " +
+                     "detectors are still offered.")]
         public void BuiltInRuntimesAsAvailableRuntimesTest()
         {
             // Simulate what happens if the AvailableRuntimes registry key is empty.
@@ -50,6 +57,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Runtimes whose registry value is 0 appear in the detector list and those flagged 1 " +
+                     "are omitted, for both built-in detectors and arbitrary JSON paths.")]
         public void DiscoveredAvailableRuntimesTest()
         {
             OpenXRRuntimeSelector.WindowsMRDetector windowsMRDetector = new OpenXRRuntimeSelector.WindowsMRDetector();
@@ -85,6 +94,9 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Selecting a custom 'other' runtime JSON sets XR_RUNTIME_JSON on leaving edit mode, " +
+                     "clears it on re-entering edit mode, and the chosen path survives detector-list " +
+                     "refreshes.")]
         public void TestSelectOtherRuntime()
         {
             // Get the OtherRuntime choice (verify that it's the last detector)

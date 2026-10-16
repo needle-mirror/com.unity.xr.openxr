@@ -3,6 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "ApiVersioning")]
     internal class UnityVersionTests
     {
         public static readonly string[] s_ValidStrings =
@@ -53,6 +55,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [Test]
+        [Description("Well-formed Unity version strings — alpha, beta, release-candidate, " +
+                     "patch and uppercase-suffix forms — parse to a non-zero packed version.")]
         public void ValidStrings([ValueSource(nameof(s_ValidStrings))] string versionString)
         {
             var version = Internal_GetUnityVersion(versionString);
@@ -60,6 +64,9 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Malformed version strings — wrong field counts, unknown release " +
+                     "suffixes, non-numeric fields and out-of-range years — parse to zero " +
+                     "rather than to a bogus version.")]
         public void InvalidStrings([ValueSource(nameof(s_InvalidStrings))] string versionString)
         {
             var version = Internal_GetUnityVersion(versionString);
@@ -67,6 +74,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Packed version numbers sort in release order, so every version " +
+                     "compares greater than all versions released before it.")]
         public void NumericalCorrectness()
         {
             // Convert all of the version strings to numbers

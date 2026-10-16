@@ -11,6 +11,8 @@ using static UnityEditor.XR.OpenXR.Tests.OpenXREditorTestHelpers;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "Features")]
     class FeatureSetTests : OpenXRLoaderSetup
     {
         const string k_KnownFeatureSetName = "Known Test";
@@ -165,6 +167,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("A build target with no registered feature sets (iOS) yields an empty list.")]
         public void NoFeatureSetsReturnsEmptyList()
         {
             var featureSets = OpenXRFeatureSetManager.FeatureSetsForBuildTarget(BuildTargetGroup.iOS);
@@ -172,6 +175,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("With the test feature sets excluded, the WSA build target reports no feature sets at " +
+                     "all.")]
         public void FoundExpectedFeatureSets()
         {
             InitializeFeatureSets(false);
@@ -190,6 +195,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("GetFeatureSetWithId returns null both for a build target that lacks the set and for " +
+                     "an unknown id.")]
         public void UnknownFeatureSetRerturnNull()
         {
             // For this test we do not want the test features enabled so rerun the initilization with
@@ -201,6 +208,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("On Standalone, a test-registered feature set that shares an id with the built-in " +
+                     "'Known Test' set replaces it, so the override's name is reported.")]
         public void OverrideKnownTestFeatureSet()
         {
             var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.Standalone, k_TestFeatureSetId);
@@ -209,6 +218,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("On Android, where no override is registered for the id, the built-in 'Known Test' " +
+                     "feature set is still the one reported.")]
         public void NonoverrideKnownTestFeatureSet()
         {
             var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetWithId(BuildTargetGroup.Android, k_TestFeatureSetId);
@@ -217,6 +228,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Enabling a feature set turns on exactly the features it lists and nothing else.")]
         public void EnableFeatureSetEnablesFeatures()
         {
             EnableFeatureSet(BuildTargetGroup.Standalone, k_TestFeatureSetId, enabled: true);
@@ -224,6 +236,7 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Disabling a previously enabled feature set turns its features back off.")]
         public void DisableFeatureSetDisabledFeatures()
         {
             // Enable the feature set and make sure only its features are enabled
@@ -236,6 +249,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Disabling one of two feature sets that share a required feature keeps the shared " +
+                     "feature enabled until the other set is disabled as well.")]
         public void DisableSharedFeaturesLeaveSharedFeaturesEnabled()
         {
             // Enable all WSA feature sets and make sure only the WSA feature set features are enabled
@@ -260,6 +275,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Enabling and then disabling a feature set leaves features that were enabled " +
+                     "independently of it untouched.")]
         public void DisableSharedFeaturesLeaveOthersFeaturesEnabled()
         {
             string[] allFeatureIds = {
@@ -287,6 +304,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Enabling a feature set turns on its required and default features and leaves its " +
+                     "purely optional features off.")]
         public void EnablingFeatureSetEnabledDefaultFeatures()
         {
             var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
@@ -298,6 +317,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Optional features stay off when a set is enabled or disabled, but once the user " +
+                     "enables them, re-enabling the set leaves them on.")]
         public void EnablingFeatureSetLeavesOptionFeaturesEnabled()
         {
             // Enable the feature set
@@ -323,6 +344,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Disabling a feature set turns off its required features but leaves its default " +
+                     "features enabled.")]
         public void DisablingFeatureSetLeavesDefaultFeaturesEnabled()
         {
             var foundFeatureSet = OpenXRFeatureSetManager.GetFeatureSetInfoWithId(BuildTargetGroup.Standalone, k_TestFeatureSetIdFour);
@@ -339,6 +362,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Turning a set's default features off by hand keeps them off while the set's required " +
+                     "features remain enabled.")]
         public void DisablingFeatureSetLeavesDisabledDefaultFeaturesDisabled()
         {
             var buildTargetGroup = BuildTargetGroup.Standalone;
@@ -359,6 +384,8 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("While a feature set is enabled its required features cannot be disabled; before it is " +
+                     "enabled and after it is disabled they toggle freely.")]
         public void CanNotChangeEnabledStateOfRequiredFeature()
         {
             OpenXRFeatureSetManager.activeBuildTarget = BuildTargetGroup.Standalone;

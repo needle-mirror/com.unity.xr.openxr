@@ -8,6 +8,8 @@ using Unity.Scripting.LifecycleManagement;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Unit")]
+    [NUnit.Framework.Property("Covers", "ApiVersioning")]
     class OpenXRApiVersionTests
     {
         internal struct TestCase<TExpected>
@@ -45,6 +47,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [Test]
+        [Description("CompareTo orders two OpenXRApiVersion values by major, then minor, " +
+                     "then patch, and sorts a null operand first.")]
         public void OpenXRApiVersion_CompareTo(
             [ValueSource(nameof(s_compareToTestCases))] TestCase<int> testCase)
         {
@@ -73,6 +77,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         };
 
         [Test]
+        [Description("Equals treats two OpenXRApiVersion values as equal only when major, " +
+                     "minor and patch all match, and never equal to null.")]
         public void OpenXRApiVersion_Equals(
             [ValueSource(nameof(s_equalsTestCases))] TestCase<bool> testCase)
         {

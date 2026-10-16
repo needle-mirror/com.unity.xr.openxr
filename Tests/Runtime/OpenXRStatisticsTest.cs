@@ -7,9 +7,14 @@ using UnityEngine.XR.OpenXR.Features;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Statistics")]
+    [NUnit.Framework.Property("Covers", "Features")]
     class OpenXRStatisticsTests : OpenXRLoaderSetup
     {
         [UnityTest]
+        [Description("A stat registered with StatOptionNone retains its last set value " +
+                     "across frames and is readable through XRStats.TryGetStat.")]
         public IEnumerator RegisterAndSetTestStatistic_UsingStatFlagStatOptionNone()
         {
             var feature = ScriptableObject.CreateInstance<SingleStatTestFeature>();
@@ -34,6 +39,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [UnityTest]
+        [Description("A stat registered with ClearOnUpdate reads back its set value on the " +
+                     "same frame and resets to zero on the following update.")]
         public IEnumerator RegisterAndSetTestStatistic_UsingStatFlagClearOnUpdate()
         {
             var feature = ScriptableObject.CreateInstance<SingleStatTestFeature>();

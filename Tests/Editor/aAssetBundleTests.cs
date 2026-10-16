@@ -8,6 +8,8 @@ using UnityEditor.SceneManagement;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Build")]
+    [NUnit.Framework.Property("Covers", "BuildPipeline")]
     internal class aAssetBundleTests
     {
         // Disabled Test due to failure caused by XRManagementAnalytics. Must be re-enabled upon resolving XR-10191

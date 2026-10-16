@@ -8,6 +8,8 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
         static void ExampleHolder()
         { // This method is a placeholder to hold the code snippets.
             #region PowerSavingsHintExample
+            // using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
+
             // Set power savings hint for CPU and GPU
             XrPerformanceSettingsFeature.SetPerformanceLevelHint(
                 PerformanceDomain.Cpu,
@@ -20,6 +22,8 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
             #endregion
 
             #region SustainedLowHintExample
+            // using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
+
             // Set sustained low hint for CPU and GPU
             XrPerformanceSettingsFeature.SetPerformanceLevelHint(
                 PerformanceDomain.Cpu,
@@ -32,6 +36,8 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
             #endregion
 
             #region SustainedHighHintExample
+            // using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
+
             // Set sustained high hint for GPU
             XrPerformanceSettingsFeature.SetPerformanceLevelHint(
                 PerformanceDomain.Gpu,
@@ -41,6 +47,8 @@ namespace UnityEngine.XR.OpenXR.CodeSamples.Editor.Tests
             #endregion
 
             #region BoostHintExample
+            // using UnityEngine.XR.OpenXR.Features.Extensions.PerformanceSettings;
+
             // Set boost hint for CPU
             XrPerformanceSettingsFeature.SetPerformanceLevelHint(
                 PerformanceDomain.Cpu,

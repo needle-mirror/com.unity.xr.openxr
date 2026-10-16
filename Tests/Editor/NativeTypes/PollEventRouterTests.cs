@@ -6,6 +6,8 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "EventQueue")]
     class PollEventRouterTests : MockRuntimeEditorTestBase
     {
         List<XrEventDataSpatialDiscoveryRecommendedEXT> m_EventsReceived = new();
@@ -22,6 +24,9 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Subscribing to all poll events delivers each queued event once, " +
+                     "rejects a second subscription from the same handler, and stops " +
+                     "delivering once the handler unsubscribes.")]
         public unsafe void TrySubscribeToAllEvents_InvokesCorrectly()
         {
             m_Environment.Start();
@@ -58,6 +63,9 @@ namespace UnityEditor.XR.OpenXR.Tests
         }
 
         [Test]
+        [Description("Subscribing to one event type delivers only that type, leaves other " +
+                     "event types on the queue undelivered, rejects a duplicate " +
+                     "subscription, and stops delivering once the handler unsubscribes.")]
         public unsafe void TrySubscribeToEventType_InvokesCorrectly()
         {
             m_Environment.Start();

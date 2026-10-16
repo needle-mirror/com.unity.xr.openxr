@@ -5,6 +5,8 @@ using UnityEngine.XR.OpenXR.NativeTypes;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "SpatialEntities")]
     class EXTSpatialImageTrackingTests : MockRuntimeEditorTestBase
     {
         public override void OneTimeSetUp()
@@ -19,6 +21,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The two-call enumeration of reference image formats reports the count on the sizing " +
+                     "call and fills the array with the runtime's formats on the second.")]
         public unsafe void xrEnumerateSpatialReferenceImageFormatsEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -43,6 +47,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Enumerating reference image formats into a too-small array returns SizeInsufficient " +
+                     "together with the required count.")]
         public unsafe void xrEnumerateSpatialReferenceImageFormatsEXT_InsufficientCapacity_ReturnsSizeInsufficient()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -60,6 +66,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload allocates a NativeArray of the right length and fills it with the " +
+                     "runtime's reference image formats.")]
         public void xrEnumerateSpatialReferenceImageFormatsEXT_UsingContext_Array_AllocatesCorrectly()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -78,6 +86,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw async database-create binding accepts a reference image with planes and " +
+                     "returns the runtime's future handle.")]
         public void xrCreateSpatialImageTrackingDatabaseAsyncEXT_ReturnsFuture()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -106,6 +116,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the async database-create call returns success and the " +
+                     "runtime's future handle.")]
         public void xrCreateSpatialImageTrackingDatabaseAsyncEXT_UsingContext_ReturnsFuture()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -134,6 +146,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Completing the database-create future returns a completion with the right structure " +
+                     "type, a success futureResult and the database handle.")]
         public void xrCreateSpatialImageTrackingDatabaseCompleteEXT_ReturnsDatabase()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -152,6 +166,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of the database-create completion returns the typed completion " +
+                     "with a success result and the database handle.")]
         public void xrCreateSpatialImageTrackingDatabaseCompleteEXT_UsingContext_ReturnsDatabase()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -170,6 +186,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Destroying an image tracking database through the binding returns the runtime's " +
+                     "success result.")]
         public void xrDestroySpatialImageTrackingDatabaseEXT_ReturnsSuccess()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -184,6 +202,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The defaultValue of XrCreateSpatialImageTrackingDatabaseCompletionEXT carries the " +
+                     "correct structure type.")]
         public void XrCreateSpatialImageTrackingDatabaseCompletionEXT_DefaultValue_HasCorrectType()
         {
             var completion = XrCreateSpatialImageTrackingDatabaseCompletionEXT.defaultValue;
@@ -192,6 +212,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("Building a reference image plane and image from NativeArrays records buffer size, " +
+                     "strides, dimensions, format and plane count.")]
         public void XrSpatialReferenceImageEXT_ConstructsFromNativeArray()
         {
             using var buffer = new NativeArray<byte>(16, Allocator.Temp);
@@ -214,6 +236,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The read-only NativeArray constructors for reference image planes and images record " +
+                     "the same fields as the mutable ones.")]
         public void XrSpatialReferenceImageEXT_ConstructsFromReadOnlyNativeArray()
         {
             using var buffer = new NativeArray<byte>(16, Allocator.Temp);

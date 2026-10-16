@@ -5,6 +5,8 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
 {
+    [Category("Level.Integration")]
+    [Property("Covers", "SpatialEntities")]
     class EXTSpatialAnchorTests : MockRuntimeEditorTestBase
     {
         public override void OneTimeSetUp()
@@ -19,6 +21,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The raw xrCreateSpatialAnchorEXT binding returns the runtime's result plus the anchor " +
+                     "id and entity handle it reports.")]
         public void xrCreateSpatialAnchorEXT_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -34,6 +38,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The context overload of xrCreateSpatialAnchorEXT taking an XrPosef returns success " +
+                     "plus the runtime's anchor id and entity handle.")]
         public void xrCreateSpatialAnchorEXT_UsingContext_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(
@@ -48,6 +54,8 @@ namespace UnityEditor.XR.OpenXR.Tests.NativeTypes
         }
 
         [Test]
+        [Description("The xrCreateSpatialAnchorEXT overload taking a Unity Vector3 and Quaternion returns " +
+                     "success plus the runtime's anchor id and entity handle.")]
         public void xrCreateSpatialAnchorEXT_UsingContext_WithUnityInputs_ReturnsRuntimeValues()
         {
             m_Environment.SetFunctionForInterceptor(

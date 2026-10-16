@@ -433,7 +433,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return;
             }
 
-            bool isRawCopyWouldFlip = RawCopyIntoSwapchainWouldFlip();
+            bool isRawCopyWouldFlip = RawCopyIntoSwapchainWouldFlip(renderTexture);
 
             if (isDestinationMipped && mipMapMode == MipMapWriteMode.CopyFromSource && SwapchainSupportsPerMipWrites())
             {
@@ -473,7 +473,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         // Graphics.CopyTexture is a raw image copy and any (non-cube) layer texture created without AllowVerticalFlip on
         // top-left-origin graphics APIs (Metal, D3D, Vulkan) when copied lands upside down regardless of the source type, blit stays upright.
-        static bool RawCopyIntoSwapchainWouldFlip() => SystemInfo.graphicsUVStartsAtTop;
+        static bool RawCopyIntoSwapchainWouldFlip(RenderTexture destination) =>
+            SystemInfo.graphicsUVStartsAtTop
+            && (destination.descriptor.flags & RenderTextureCreationFlags.AllowVerticalFlip) == 0;
 
         static bool TryWriteAuthoredMips(Texture source, RenderTexture destination)
         {
@@ -513,7 +515,16 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
                 var converted = RenderTexture.GetTemporary(
                     new RenderTextureDescriptor(mipWidth, mipHeight, destination.graphicsFormat, 0));
-                Graphics.Blit(sourceMip, converted);
+
+                if (RawCopyIntoSwapchainWouldFlip(destination))
+                {
+                    Graphics.Blit(sourceMip, converted, new Vector2(1f, -1f), new Vector2(0f, 1f));
+                }
+                else
+                {
+                    Graphics.Blit(sourceMip, converted);
+                }
+
                 Graphics.CopyTexture(converted, 0, 0, destination, 0, mip);
 
                 RenderTexture.ReleaseTemporary(sourceMip);

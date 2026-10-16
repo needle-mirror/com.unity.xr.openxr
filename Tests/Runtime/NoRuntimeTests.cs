@@ -6,6 +6,8 @@ using UnityEngine.TestTools;
 
 namespace UnityEngine.XR.OpenXR.Tests
 {
+    [Category("Level.Integration")]
+    [NUnit.Framework.Property("Covers", "Loader")]
     class NoRuntimeTests : OpenXRLoaderSetup
     {
         static XRManagerSettings manager => XRGeneralSettings.Instance?.Manager;
@@ -31,6 +33,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [Category("Loader Tests")]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })] // we can't run these tests on player because only the mock loader is included - this needs the khronos loader
+        [Description("With XR_RUNTIME_JSON pointing at a nonexistent runtime and the mock runtime disabled, " +
+                     "starting XR leaves no active loader and does not crash.")]
         public IEnumerator NoInitNoCrash()
         {
             InitializeAndStart();
@@ -43,6 +47,8 @@ namespace UnityEngine.XR.OpenXR.Tests
         [UnityTest]
         [Category("Loader Tests")]
         [UnityPlatform(include = new[] { RuntimePlatform.WindowsEditor })]
+        [Description("After a failed start with no runtime available, restoring the mock runtime and " +
+                     "starting again yields an active loader running the Unity Mock Runtime.")]
         public IEnumerator LoadRuntimeAfterNoRuntime()
         {
             InitializeAndStart();

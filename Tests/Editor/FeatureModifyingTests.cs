@@ -9,6 +9,11 @@ using UnityEngine.XR.OpenXR.Tests;
 
 namespace UnityEditor.XR.OpenXR.Tests
 {
+    // Level carried as a Property, not a Category: the only test here is [Explicit], and a
+    // Level.Build category sweep would count as an explicit match and run it.
+    [NUnit.Framework.Property("PyramidLevel", "Build")]
+    [NUnit.Framework.Property("Covers", "Features")]
+    [NUnit.Framework.Property("Covers", "ProjectValidation")]
     class FeatureModifyingTests : OpenXRLoaderSetup
     {
         // Override AfterTest to prevent OpenXRSettings.Instance.features from getting reset.
@@ -18,6 +23,8 @@ namespace UnityEditor.XR.OpenXR.Tests
 
         [Test]
         [Category("BuildUnitTest"), Explicit]
+        [Description("Swapping in a package-settings asset that holds duplicate feature entries is flagged " +
+                     "by AssetHasNoDuplicates, and RegenerateXRPackageSettingsAsset yields a clean asset.")]
         public void DuplicateSettingAssetTest()
         {
             // Store original file paths and backup

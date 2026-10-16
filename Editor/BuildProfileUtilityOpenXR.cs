@@ -25,6 +25,9 @@ namespace UnityEditor.XR.OpenXR
 
         static void OnEditorReloadedDelayed()
         {
+            if (UnityEditor.MPE.ProcessService.level != UnityEditor.MPE.ProcessLevel.Main || AssetDatabase.IsAssetImportWorkerProcess())
+                return;
+
 #if UNITY_META_QUEST
             if (!instance.isMetaQuestInitialized)
                 instance.InitializeMetaQuestSettings();
