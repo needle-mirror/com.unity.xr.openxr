@@ -9,7 +9,7 @@ OpenXR is an open, royalty-free standard developed by Khronos that aims to simpl
 
 This version of OpenXR is compatible with the following versions of the Unity Editor:
 
-* 6000.0 LTS+
+* 7000.0+
 
 ## Runtimes
 

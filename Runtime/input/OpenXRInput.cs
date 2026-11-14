@@ -255,7 +255,7 @@ namespace UnityEngine.XR.OpenXR.Input
                 foreach (var deviceInfo in actionMap.deviceInfos)
                 {
                     var localizedName = actionMap.desiredInteractionProfile == null ? UserPathToDeviceName(deviceInfo.userPath) : actionMap.localizedName;
-                    if (0 == Internal_RegisterDeviceDefinition(deviceInfo.userPath, actionMap.desiredInteractionProfile, isAdditive, (uint)deviceInfo.characteristics, localizedName, actionMap.manufacturer, actionMap.serialNumber))
+                    if (0 == Internal_RegisterDeviceDefinition(deviceInfo.userPath, actionMap.desiredInteractionProfile, isAdditive, actionMap.parentInteractionProfiles?.ToArray(), (uint)(actionMap.parentInteractionProfiles?.Count ?? 0), (uint)deviceInfo.characteristics, localizedName, actionMap.manufacturer, actionMap.serialNumber))
                     {
                         OpenXRRuntime.LogLastError();
                         return false;
@@ -837,7 +837,7 @@ namespace UnityEngine.XR.OpenXR.Input
         static extern bool Internal_GetActionIsActiveNoISX(uint deviceId, string name);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_RegisterDeviceDefinition", CharSet = CharSet.Ansi)]
-        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, [MarshalAs(UnmanagedType.I1)] bool isAdditive, uint characteristics, string name, string manufacturer, string serialNumber);
+        private static extern ulong Internal_RegisterDeviceDefinition(string userPath, string interactionProfile, [MarshalAs(UnmanagedType.I1)] bool isAdditive, string[] parentInteractionProfiles, uint parentInteractionProfileCount, uint characteristics, string name, string manufacturer, string serialNumber);
 
         [DllImport(Library, EntryPoint = "OpenXRInputProvider_CreateActionSet", CharSet = CharSet.Ansi)]
         private static extern ulong Internal_CreateActionSet(string name, string localizedName, SerializedGuid guid);

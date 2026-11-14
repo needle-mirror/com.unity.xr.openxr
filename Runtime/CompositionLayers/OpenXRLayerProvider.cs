@@ -208,7 +208,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 foreach (var created in createdLayers)
                 {
-                    if (created.Layer == null)
+                    if (created.Layer == null || created.Layer.LayerData == null)
                         continue;
 
                     var layerDataType = created.Layer.LayerData.GetType();
@@ -225,7 +225,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 foreach (var modified in modifiedLayers)
                 {
-                    if (modified.Layer == null)
+                    if (modified.Layer == null || modified.Layer.LayerData == null)
                         continue;
 
                     var layerDataType = modified.Layer.LayerData.GetType();
@@ -271,7 +271,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
         }
 
-        void HandleBeforeRender()
+        internal void HandleBeforeRender()
         {
             SetActiveLayersForHandlers(m_LastKnownActiveLayers);
             IssueHandlerUpdates();
@@ -283,7 +283,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             {
                 foreach (var active in activeLayers)
                 {
-                    if (active.Layer == null)
+                    if (active.Layer == null || active.Layer.LayerData == null)
                         continue;
 
                     var layerDataType = active.Layer.LayerData.GetType();
@@ -313,6 +313,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// <remarks>This is called by the OpenXRLoader class when StopInternal() is invoked.</remarks>
         public void Dispose()
         {
+            Application.onBeforeRender -= HandleBeforeRender;
+            m_LastKnownActiveLayers.Clear();
+
             foreach (var handler in LayerHandlers.Values)
             {
                 if (handler is IDisposable)
@@ -322,6 +325,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             LayerHandlers.Clear();
+            OpenXRLayerSwapchainRegistry.Clear();
             OpenXRLayerUtility.ClearCubemapConversionCache();
             OpenXRLayerUtility.ClearRenderTextureCache();
             isStarted = false;

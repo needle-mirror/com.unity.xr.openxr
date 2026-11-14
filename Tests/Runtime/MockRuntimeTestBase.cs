@@ -52,7 +52,7 @@ namespace UnityEngine.XR.OpenXR.Tests
         }
 
         [TearDown]
-        protected void TearDown()
+        protected virtual void TearDown()
         {
             m_Environment.Stop();
 

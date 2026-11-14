@@ -72,7 +72,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 && swapchainOutput.secondStereoHandle != 0;
 
             var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
-            var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
 
             nativeLayer = new XrCompositionLayerEquirectKHR()
             {
@@ -159,7 +159,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 Width = texturesExtension.LeftTexture.width,
                 Height = texturesExtension.LeftTexture.height
             };
-            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
             nativeLayer.Radius = data.Radius;
             nativeLayer.Scale = new XrVector2f(scaleCalculated);
             nativeLayer.Bias = new XrVector2f(biasCalculated);
@@ -315,7 +315,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 && swapchainOutput.secondStereoHandle != 0;
 
             var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
-            var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
 
             nativeLayer = new XrCompositionLayerEquirect2KHR()
             {
@@ -407,7 +407,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 Width = texturesExtension.LeftTexture.width,
                 Height = texturesExtension.LeftTexture.height
             };
-            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
             nativeLayer.Radius = data.Radius;
             nativeLayer.CentralHorizontalAngle = data.CentralHorizontalAngle;
             nativeLayer.UpperVerticalAngle = data.UpperVerticalAngle;

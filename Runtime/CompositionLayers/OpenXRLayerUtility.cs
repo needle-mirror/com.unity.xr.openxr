@@ -30,6 +30,27 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     /// </summary>
     public static class OpenXRLayerUtility
     {
+        internal static Camera MainCameraCache
+        {
+            get
+            {
+#if XR_COMPOSITION_LAYERS_7_0_OR_GREATER
+                return CompositionLayerManager.MainCameraCache;
+#else
+                return CompositionLayerManager.mainCameraCache;
+#endif
+            }
+        }
+
+        internal static TexturesExtension.SourceTextureEnum GetSourceTexture(TexturesExtension texturesExtension)
+        {
+#if XR_COMPOSITION_LAYERS_7_0_OR_GREATER
+            return texturesExtension.SourceTexture;
+#else
+            return texturesExtension.sourceTexture;
+#endif
+        }
+
         internal unsafe delegate void LayerCallbackDelegate(int layerId, XrCompositionLayerBaseHeader* layer);
 
 #if LIFECYCLE_APIS_AVAILABLE

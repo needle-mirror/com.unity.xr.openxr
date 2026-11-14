@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -6,6 +7,7 @@ namespace UnityEngine.XR.OpenXR.Samples
 {
     public class PlayerRigSingleton : MonoBehaviour
     {
+        [NoAutoStaticsCleanup]
         public static PlayerRigSingleton instance;
         public Camera playerCamera;
 

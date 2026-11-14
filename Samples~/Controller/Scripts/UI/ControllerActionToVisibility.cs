@@ -4,7 +4,7 @@ using UnityEngine.XR.OpenXR.Input;
 
 namespace UnityEngine.XR.OpenXR.Samples.ControllerSample
 {
-    public class ActionToVisibility : MonoBehaviour
+    public class ControllerActionToVisibility : MonoBehaviour
     {
         [SerializeField] private InputActionReference _actionReference = null;
 

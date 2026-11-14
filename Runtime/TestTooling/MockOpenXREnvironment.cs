@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine.Assertions;
 using UnityEngine.XR.Management;
@@ -27,6 +28,8 @@ namespace UnityEngine.XR.OpenXR.TestTooling
     public class MockOpenXREnvironment : IDisposable
     {
         bool m_MockRuntimeIsRunning = false;
+
+        readonly Dictionary<string, bool> m_SystemExtensionStates = new Dictionary<string, bool>();
 
 #if UNITY_EDITOR && OPENXR_USE_KHRONOS_LOADER
         private const string k_RuntimeJsonEnvKey = "XR_RUNTIME_JSON";
@@ -140,6 +143,7 @@ namespace UnityEngine.XR.OpenXR.TestTooling
             }
 
             PrepareBeforeTest();
+            RegisterSystemExtensionStateCallback();
             InitializeLoader();
             StartSubsystems();
             m_MockRuntimeIsRunning = true;
@@ -179,6 +183,26 @@ namespace UnityEngine.XR.OpenXR.TestTooling
                 throw new InvalidOperationException("Call AddSupportedExtension() prior to calling Start() on the MockOpenXREnvironment.");
             NativeApi.AddSupportedExtension(extensionName, extensionVersion);
         }
+
+        /// <summary>
+        /// Sets whether the mock runtime reports the given Android system extension as enabled through
+        /// <c>xrEnumerateSystemExtensionPropertiesANDROID</c>, which backs <see cref="OpenXRRuntime.IsSystemExtensionEnabled"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Call this before <see cref="Start"/>. The mock runtime applies the state when it creates the instance,
+        /// so features that check <see cref="OpenXRRuntime.IsSystemExtensionEnabled"/> during instance setup observe it.
+        /// The state persists for the lifetime of this object and applies again on each call to <see cref="Start"/>.
+        /// </para>
+        /// <para>
+        /// System extensions use a separate mechanism from <see cref="AddSupportedExtension"/>, which advertises instance
+        /// extensions through <c>xrEnumerateInstanceExtensionProperties</c>.
+        /// </para>
+        /// </remarks>
+        /// <param name="extensionName">Name of the system extension, such as <c>XR_META_hand_tracking_microgestures</c>.</param>
+        /// <param name="enabled"><c>true</c> to make the mock runtime report the extension as enabled. Otherwise, <c>false</c>.</param>
+        public void SetSystemExtensionEnabled(string extensionName, bool enabled) =>
+            m_SystemExtensionStates[extensionName] = enabled;
 
         /// <summary>
         /// Passes a mocked C# function that to the native Mock Runtime for handling the retrieval of system properties
@@ -330,6 +354,25 @@ namespace UnityEngine.XR.OpenXR.TestTooling
                 }
             }
 #endif
+        }
+
+        void RegisterSystemExtensionStateCallback()
+        {
+            if (m_SystemExtensionStates.Count == 0)
+                return;
+
+            // The native setter must run after the mock runtime plugin loads but before the first
+            // IsSystemExtensionEnabled query, hence xrCreateInstance. Register after PrepareBeforeTest(), whose first
+            // enable resets callbacks; Stop() clears them again, so every Start() re-registers. Chain any existing
+            // after-callback so a test's hook still runs.
+            var existingCallback = MockRuntime.GetAfterFunctionCallback("xrCreateInstance");
+            MockRuntime.SetFunctionCallback("xrCreateInstance", (function, result) =>
+            {
+                foreach (var state in m_SystemExtensionStates)
+                    MockRuntime.AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled(state.Key, state.Value);
+
+                existingCallback?.Invoke(function, result);
+            });
         }
 
         static void InitializeLoader()

@@ -55,6 +55,10 @@ namespace UnityEngine.XR.OpenXR.Features
         internal static extern bool Internal_GetAppSpaceAndPredictedDisplayTime(
             out ulong appSpace, out long predictedDisplayTime);
 
+        [DllImport(Library, EntryPoint = "OpenXRInputProvider_TryGetCurrentReferenceSpaceChangedPose")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool Internal_TryGetCurrentReferenceSpaceChangedPose(out Pose poseInPreviousSpace);
+
         [DllImport(Library, EntryPoint = "NativeConfig_GetProcAddressPtr")]
         internal static extern IntPtr Internal_GetProcAddressPtr([MarshalAs(UnmanagedType.I1)] bool loaderDefault);
 

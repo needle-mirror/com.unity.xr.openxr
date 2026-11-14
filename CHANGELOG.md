@@ -9,15 +9,49 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 > When updating the Changelog, please ensure we follow the standards for ordering headers as outlined here: [US-0039](https://standards.ds.unity3d.com/Standards/US-0039/). Specifically: Under ## headers, ### \<type\> headers are listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security
 -->
 
-## [1.19.0] - 2026-10-16
+## [7.0.0-pre.1] - 2026-11-14
 
 ### Added
+
+* Added the Hand Interaction Profile Microgestures feature, which binds to the swipe and tap microgesture inputs that the `XR_META_hand_tracking_microgestures` extension adds to the Hand Interaction Profile. Refer to [Hand Interaction Profile Microgestures](xref:openxr-hand-interaction-profile-microgestures).
+* Added [`MockOpenXREnvironment.SetSystemExtensionEnabled`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.SetSystemExtensionEnabled(System.String,System.Boolean)), which sets whether the mock runtime reports an Android system extension as enabled to `OpenXRRuntime.IsSystemExtensionEnabled`.
+* Added `XrReferenceSpaceType.StationaryReferenceSpaceExt` for the `XR_EXT_stationary_reference_space` extension.
+* Added `XrStationaryReferenceSpaceFeature`, a feature for creating, destroying, and querying the validity of a stationary reference space (`XR_EXT_stationary_reference_space`). `InitializeStationaryReferenceSpace` returns an `OpenXRResultStatus`.
+* Added `XrStationaryReferenceSpaceFeature.LocateAppSpaceInStationarySpace`, `LocateStationarySpaceInAppSpace`, `LocateTargetSpaceInStationarySpace`, and `LocateStationarySpaceInBaseSpace` for locating spaces relative to the stationary reference space. Each returns an `OpenXRResultStatus` and outputs the pose with its `XrSpaceLocationFlags`.
+* Added `XrStationaryReferenceSpaceFeature.stationarySpaceChanged` event, raised when the runtime reports a reference space change for the stationary reference space.
+* Added `OpenXRFeature.OnReferenceSpaceChanged`, called when the runtime reports a reference space change.
+* Added `XrStationaryReferenceSpaceFeature.GetStationarySpaceGenerationId`, returning an `OpenXRResultStatus`, for querying the generation ID (`XrUuid`) of the stationary reference space (`XR_EXT_stationary_reference_space`). The runtime assigns a new generation ID when it can't relocate the previous stationary reference space origin and starts a new one. Recentering doesn't change the generation ID.
+
+### Changed
+
+* Updated the package version to 7.0.0-pre.1.
+* Updated the minimum supported Unity version to 7000.0.
+* Upgraded the Android NDK version used to build the native plug-ins from r16b to r25b. This upgrade has no effect on your app's behavior.
+* Changed the sample descriptions in the Package Manager to use one short summary followed by a list of each sample's dependencies, matching the other XR packages.
+* Updated the `TrackingOrigin` sample to include an example of how to use the Stationary Reference Space feature.
+
+### Fixed
+
+* Fixed deprecated warnings when using XR Composition Layers version 7.0.0-pre.1 or newer.
+* Fixed the `Unity.XR.OpenXR` assembly failing to compile on Unity 7000.0 because `OpenXRProjectionLayer` subscribed to the obsolete `Camera.onPostRender`. The projection layer now relies on `RenderPipelineManager.endCameraRendering` only, since the Built-in Render Pipeline is removed in Unity 7.
+* Fixed composition layers to keep rendering, without blank frames, after `CompositionLayer.ChangeLayerDataType` switches between types that share a swapchain, such as quad and cylinder. Switching to a type that needs a different swapchain, such as quad to cube, logs a warning that the layer must be recreated to change to that type.
+* Fixed a `NullReferenceException` thrown every frame by `OpenXRLayerProvider.UpdateLayers` when a Composition Layer with no Layer Type was present in the scene and a headset was connected.
+* Fixed builds for build target groups that OpenXR does not support, such as visionOS, failing with `No OpenXR loader library found` when the OpenXR loader is assigned to that build target group. The build now removes the OpenXR loader from that build target group in XR Plug-in Management and logs a warning. On iOS and visionOS, the OpenXR loader no longer initializes at runtime, so XR Plug-in Management continues to the next loader in the list.
+* Fixed `OpenXRFeatureAttribute` throwing an `ArgumentNullException` when resolving a feature's documentation link in projects that compile scripts with the MSBuild compilation pipeline, on Unity versions where `PackageInfo.FindForAssembly` can't find the package.
+* Fixed prefab import errors reported when the Controller, Graphics or Tracking Origin samples are imported without the Starter Assets sample they depend on. The Starter Assets sample is now imported along with them. Requires Unity 6000.5.7f1 or newer.
+* Fixed changes to `OpenXRSettings` rendering properties not being saved when made by Project Validation fixes or scripts.
+* Fixed a GPU memory leak on each headset sleep/wake cycle where the eye-buffer swapchain textures were not destroyed when the display stopped.
+* Fixed `OpenXRLayerProvider` instances staying subscribed to `Application.onBeforeRender` after being disposed, which kept each previous provider alive across application pause/resume and submitted duplicate composition layers every frame. ([UUM-158598](https://issuetracker.unity3d.com/product/unity/issues/guid/UUM-158598))
+* Fixed Projection Layer Rig render textures being released but never destroyed when the layer was removed or the application paused.
+* Fixed a swapchain being recreated and never destroyed after a per-eye (stereo) composition layer was removed or disabled.
+* Fixed `UAL0010` and `UAL0013` compiler errors in the Starter Assets sample, and warnings in the Graphics sample, on Unity 7000.0 by marking the sample singletons' static `instance` fields with `NoAutoStaticsCleanup`.
+* Fixed `XR_META_performance_metrics` stats (includes GPU frame time) not being reported when another OpenXR feature, such as the Meta XR Core SDK's `MetaXRFeature`, also requested the extension.
+
+## [1.19.0] - 2026-10-16
 
 ### Changed
 
 * Changed static image layers that use a single texture for both eyes to stop acquiring a new swapchain image every frame once their images are written, removing per-frame swapchain work for layers whose content doesn't change.
-
-### Deprecated
 
 ### Removed
 
@@ -34,8 +68,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Fixed issue in the Sample Starter Assets to properly navigate scenes using the scene navigator.
 * Fixed an issue where OpenXR Plug-in would save changes to all assets in your project on domain reloads, when it should have only saved changes to its OpenXR Settings asset.
 * Fixed incorrect left and right eye poses reported by the HMD while the head was moving. Eye positions did not follow the head's rotation, and eye rotations were wrong on devices whose views are rotated relative to the head.
-
-### Security
+* Fixed content on a projection eye rig layer, such as controllers, disappearing when closer to the eyes than the rig cameras' own near clip plane. The rig cameras now cull with the main camera's near and far clip planes, as they already render with its projection.
+* Fixed compile errors when importing both the Controller and Starter Assets samples.
 
 ## [1.19.0-pre.2] - 2026-10-02
 
@@ -91,7 +125,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.18.0] - 2026-08-04
 
 ### Added
-
 * Added `gripOrientation` and `pointerOrientation` as aliases for `deviceRotation` and `pointerRotation` in `HandInteractionProfile`.
 * Added `palmOrientation` as an alias for `palmRotation` in `PalmPoseInteraction`.
 
@@ -119,8 +152,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   * Fixed some conditions for enabling Project Validation rules related to D-Pad Binding and Palm Pose features when only the Eye Gaze Interaction Profile is enabled.
 * Fixed an issue where package setting assets would be refreshed on Unity Editor startup, causing import errors. This was implemented by separating refreshing OpenXR Features from querying OpenXR Features.
 * Fixed compilation errors caused by lack of StaticCleanup attributes in Unity 6.7.
-
-### Security
 
 ## [1.18.0-pre.2] - 2026-06-16
 

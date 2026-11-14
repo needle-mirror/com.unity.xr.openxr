@@ -1,3 +1,4 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ namespace UnityEngine.XR.OpenXR.Samples
 {
     public class SceneNavigationUI : MonoBehaviour
     {
+        [NoAutoStaticsCleanup]
         public static SceneNavigationUI instance;
         public Text sceneLabel;
         public Dropdown sceneSelectionDropdown;

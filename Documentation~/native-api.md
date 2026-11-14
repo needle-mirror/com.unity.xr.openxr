@@ -17,7 +17,7 @@ The OpenXR native API currently supports the following OpenXR extensions:
 * [XR_EXT_future](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_future)
 * [XR_EXT_spatial_anchor](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_anchor)
 * [XR_EXT_spatial_entity](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_entity)
-* `XR_EXT_spatial_image_tracking` (not yet part of the public spec)
+* [XR_EXT_spatial_image_tracking](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_image_tracking)
 * [XR_EXT_spatial_marker_tracking](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_marker_tracking)
 * [XR_EXT_spatial_persistence](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_persistence)
 * [XR_EXT_spatial_persistence_operations](https://registry.khronos.org/OpenXR/specs/1.1/html/xrspec.html#XR_EXT_spatial_persistence_operations)

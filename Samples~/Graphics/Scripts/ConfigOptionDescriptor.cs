@@ -1,3 +1,4 @@
+using Unity.Scripting.LifecycleManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ namespace UnityEngine.XR.OpenXR.Samples.GraphicsSample
 
         public Text ConfigOptionDescription;
 
+        [NoAutoStaticsCleanup]
         public static ConfigOptionDescriptor instance;
 
         // Initialize the instance so it can be accessed by any game object

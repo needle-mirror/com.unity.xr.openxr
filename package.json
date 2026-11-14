@@ -1,8 +1,9 @@
 {
   "name": "com.unity.xr.openxr",
   "displayName": "OpenXR Plugin",
-  "version": "1.19.0",
-  "unity": "6000.0",
+  "version": "7.0.0-pre.1",
+  "unity": "7000.0",
+  "unityRelease": "0a12",
   "description": "OpenXR is an open, royalty-free standard developed by Khronos that aims to simplify AR/VR development by allowing developers to target a wide range of AR/VR devices. Use this plug-in to enable OpenXR in XR Plug-in Management.",
   "keywords": [
     "openxr",
@@ -21,22 +22,22 @@
   "samples": [
     {
       "displayName": "Starter Assets",
-      "description": "Common assets required by OpenXR Samples, allowing for core interaction and navigation between samples.",
+      "description": "Common assets required by OpenXR Samples, enabling input and navigation between samples. Import this sample first.",
       "path": "Samples~/StarterAssets"
     },
     {
       "displayName": "Controller",
-      "description": "Basic sample showing how to create and reference OpenXR action maps with the new input system.\nRequires the OpenXR Starter Assets to be imported to function properly.",
+      "description": "Demo scene that shows live controller input (buttons, axes and thumbsticks) read through Input System actions.\n<i>Dependencies:</i>\n • Starter Assets sample",
       "path": "Samples~/Controller"
     },
     {
       "displayName": "Graphics",
-      "description": "Sample showcasing several XR-specific graphics options. \nRequires the OpenXR Starter Assets to be imported to function properly.",
+      "description": "Demo scene that showcases several XR-specific graphics options.\n<i>Dependencies:</i>\n • Starter Assets sample",
       "path": "Samples~/Graphics"
     },
     {
       "displayName": "Tracking Origin",
-      "description": "Demonstrates how the different tracking origin modes function, as well as options available to each mode.\nRequires the OpenXR Starter Assets to be imported to function properly.",
+      "description": "Demonstrates how the different tracking origin modes function, as well as options available to each mode, and how a stationary reference space stays fixed in the physical world when the tracking origin moves.\nRequires the OpenXR Starter Assets to be imported to function properly.",
       "path": "Samples~/TrackingOrigin"
     },
     {
@@ -46,20 +47,20 @@
     },
     {
       "displayName": "Custom Composition Layer Feature",
-      "description": "Demonstrates how to add support for a custom composition layer type.",
+      "description": "Example scripts that add a custom composition layer type through an OpenXR feature. Contains no scene.\n<i>Dependencies:</i>\n • <a href=\"com.unity3d.kharma:upmpackage/com.unity.xr.compositionlayers\">XR Composition Layers</a>",
       "path": "Samples~/CustomCompositionLayerFeature"
     }
   ],
   "_upm": {
-    "changelog": "### Added\n\n### Changed\n\n* Changed static image layers that use a single texture for both eyes to stop acquiring a new swapchain image every frame once their images are written, removing per-frame swapchain work for layers whose content doesn't change.\n\n### Deprecated\n\n### Removed\n\n* Removed incorrect validation rules that used upscaling.\n\n### Fixed\n\n* Fixed a build asset version error that would sometimes appear for the openxrpackagesettings.asset when upgrading the OpenXR package.\n* Fixed issue in the Sample Starter Assets where the right hand would not be visible.\n* Fixed Symmetric Projection being silently disabled on runtimes that do not support the `XR_FB_foveation` and `XR_FB_foveation_configuration` extensions. This dependency was removed in 1.13.0 but was reintroduced when Symmetric Projection was moved into an extension. `XR_FB_foveation`, `XR_FB_foveation_configuration` and `XR_FB_swapchain_update_state` are no longer enabled by default, and are only enabled when a feature such as Foveated Rendering requests them.\n* Fixed a desync that could happen between depth imageRect size and color imageRect size.\n* Fixed static composition layers flickering between old frames when their texture content was updated with the Source Textures **Dynamic Texture** option turned off at runtime.\n* Fixed `CopyFromSource` mipmapped composition layers appearing upside down and mirrored on graphics APIs whose texture coordinates start at the top (such as Direct3D and Vulkan).\n* Fixed issue in the Sample Starter Assets to properly navigate scenes using the scene navigator.\n* Fixed an issue where OpenXR Plug-in would save changes to all assets in your project on domain reloads, when it should have only saved changes to its OpenXR Settings asset.\n* Fixed incorrect left and right eye poses reported by the HMD while the head was moving. Eye positions did not follow the head's rotation, and eye rotations were wrong on devices whose views are rotated relative to the head.\n\n### Security"
+    "changelog": "### Added\n\n* Added the Hand Interaction Profile Microgestures feature, which binds to the swipe and tap microgesture inputs that the `XR_META_hand_tracking_microgestures` extension adds to the Hand Interaction Profile. Refer to [Hand Interaction Profile Microgestures](xref:openxr-hand-interaction-profile-microgestures).\n* Added [`MockOpenXREnvironment.SetSystemExtensionEnabled`](xref:UnityEngine.XR.OpenXR.TestTooling.MockOpenXREnvironment.SetSystemExtensionEnabled(System.String,System.Boolean)), which sets whether the mock runtime reports an Android system extension as enabled to `OpenXRRuntime.IsSystemExtensionEnabled`.\n* Added `XrReferenceSpaceType.StationaryReferenceSpaceExt` for the `XR_EXT_stationary_reference_space` extension.\n* Added `XrStationaryReferenceSpaceFeature`, a feature for creating, destroying, and querying the validity of a stationary reference space (`XR_EXT_stationary_reference_space`). `InitializeStationaryReferenceSpace` returns an `OpenXRResultStatus`.\n* Added `XrStationaryReferenceSpaceFeature.LocateAppSpaceInStationarySpace`, `LocateStationarySpaceInAppSpace`, `LocateTargetSpaceInStationarySpace`, and `LocateStationarySpaceInBaseSpace` for locating spaces relative to the stationary reference space. Each returns an `OpenXRResultStatus` and outputs the pose with its `XrSpaceLocationFlags`.\n* Added `XrStationaryReferenceSpaceFeature.stationarySpaceChanged` event, raised when the runtime reports a reference space change for the stationary reference space.\n* Added `OpenXRFeature.OnReferenceSpaceChanged`, called when the runtime reports a reference space change.\n* Added `XrStationaryReferenceSpaceFeature.GetStationarySpaceGenerationId`, returning an `OpenXRResultStatus`, for querying the generation ID (`XrUuid`) of the stationary reference space (`XR_EXT_stationary_reference_space`). The runtime assigns a new generation ID when it can't relocate the previous stationary reference space origin and starts a new one. Recentering doesn't change the generation ID.\n\n### Changed\n\n* Updated the package version to 7.0.0-pre.1.\n* Updated the minimum supported Unity version to 7000.0.\n* Upgraded the Android NDK version used to build the native plug-ins from r16b to r25b. This upgrade has no effect on your app's behavior.\n* Changed the sample descriptions in the Package Manager to use one short summary followed by a list of each sample's dependencies, matching the other XR packages.\n* Updated the `TrackingOrigin` sample to include an example of how to use the Stationary Reference Space feature.\n\n### Fixed\n\n* Fixed deprecated warnings when using XR Composition Layers version 7.0.0-pre.1 or newer.\n* Fixed the `Unity.XR.OpenXR` assembly failing to compile on Unity 7000.0 because `OpenXRProjectionLayer` subscribed to the obsolete `Camera.onPostRender`. The projection layer now relies on `RenderPipelineManager.endCameraRendering` only, since the Built-in Render Pipeline is removed in Unity 7.\n* Fixed composition layers to keep rendering, without blank frames, after `CompositionLayer.ChangeLayerDataType` switches between types that share a swapchain, such as quad and cylinder. Switching to a type that needs a different swapchain, such as quad to cube, logs a warning that the layer must be recreated to change to that type.\n* Fixed a `NullReferenceException` thrown every frame by `OpenXRLayerProvider.UpdateLayers` when a Composition Layer with no Layer Type was present in the scene and a headset was connected.\n* Fixed builds for build target groups that OpenXR does not support, such as visionOS, failing with `No OpenXR loader library found` when the OpenXR loader is assigned to that build target group. The build now removes the OpenXR loader from that build target group in XR Plug-in Management and logs a warning. On iOS and visionOS, the OpenXR loader no longer initializes at runtime, so XR Plug-in Management continues to the next loader in the list.\n* Fixed `OpenXRFeatureAttribute` throwing an `ArgumentNullException` when resolving a feature's documentation link in projects that compile scripts with the MSBuild compilat"
   },
   "upmCi": {
-    "footprint": "7c692959adb886008e12584c31be326d7b019427"
+    "footprint": "c1191e93ab0154715665d734333829c9ae34d323"
   },
-  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@1.19/manual/index.html",
+  "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.xr.openxr@7.0/manual/index.html",
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/xr.git",
     "type": "git",
-    "revision": "21671009324b04a5cf766def6620556e1692d5c4"
+    "revision": "97aa00bbf170ab2202509a163aaa8c48beaca341"
   }
 }

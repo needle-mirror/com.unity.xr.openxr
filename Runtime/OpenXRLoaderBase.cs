@@ -47,6 +47,9 @@ namespace UnityEngine.XR.OpenXR
         [DllImport(LibraryName, EntryPoint = "session_SetSuccessfullyInitialized")]
         internal static extern void Internal_SetSuccessfullyInitialized([MarshalAs(UnmanagedType.I1)] bool value);
 
+        [DllImport(LibraryName, EntryPoint = "NativeConfig_SetXrTeardownInProgress")]
+        static extern void Internal_SetXrTeardownInProgress([MarshalAs(UnmanagedType.I1)] bool inProgress);
+
         [DllImport(LibraryName, EntryPoint = "session_RequestOpenXRApiVersion")]
         private static extern void Internal_RequestOpenXRApiVersion(uint majorVersion, uint minorVersion, uint patchVersion);
 

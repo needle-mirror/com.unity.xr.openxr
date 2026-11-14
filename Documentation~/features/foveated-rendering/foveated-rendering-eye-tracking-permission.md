@@ -33,6 +33,12 @@ Keep `android:required="false"` unless your application requires eye-tracking ha
 
 Refer to [Declare permissions for an application](xref:um-android-permissions-declare) for instructions about how to add these and other custom elements to the Android manifest.
 
+## Request the permission at runtime
+
+When you enable the **Foveated Rendering** feature, Unity requests the eye-tracking permission from the user when it initializes XR, if they haven't already granted it. On Meta Quest devices, Unity makes this request only if you enable the **Meta Quest Support** feature. If you don't enable **Meta Quest Support**, request `com.oculus.permission.EYE_TRACKING` in your own code.
+
+By default, Unity initializes XR when your application starts, so the permission prompt appears at launch. To control when the prompt appears, disable **Initialize XR on Startup** in **Project Settings** > **XR Plug-in Management** and initialize XR from your own code. For more information, refer to [XR Plug-in Management settings](xref:um-xr-plugin-management) in the Unity Manual.
+
 ## Handle a denied permission
 
 If the user denies permission, your application uses fixed foveated rendering instead. Refer to [Request runtime permissions](xref:um-android-requesting-permissions) for more information about handling Android permission issues.

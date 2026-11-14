@@ -154,14 +154,18 @@ MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_SetViewState,
 #endif
 
 MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_SetReferenceSpace,
-    (XrReferenceSpaceType referenceSpace, UnityVector3 position, UnityVector4 orientation, XrSpaceLocationFlags locationFlags),
-    (referenceSpace, position, orientation, locationFlags))
+    (XrReferenceSpaceType referenceSpace, UnityVector3 position, UnityVector4 orientation, XrSpaceLocationFlags locationFlags, int32_t queueEventBehavior),
+    (referenceSpace, position, orientation, locationFlags, queueEventBehavior))
 #if !TRAMPOLINE
 {
     if (nullptr == s_runtime)
         return;
 
-    s_runtime->SetSpace(referenceSpace, {orientation, position}, locationFlags);
+    s_runtime->SetSpace(
+        referenceSpace,
+        {orientation, position},
+        locationFlags,
+        static_cast<MockRuntime::SetReferenceSpaceQueueEventBehavior>(queueEventBehavior));
 }
 #endif
 
@@ -370,6 +374,17 @@ MOCK_API_TRAMPOLINE(void, NO_RETURN(), MockRuntime_AndroidEnumerateSystemExtensi
 }
 #endif
 
+MOCK_API_TRAMPOLINE(bool, false, MockRuntime_StationaryReferenceSpace_TrySetGenerationId,
+    (XrUuid * newGenerationId),
+    (newGenerationId))
+#if !TRAMPOLINE
+{
+    if (MockStationaryReferenceSpace::Instance() == nullptr)
+        return false;
+    return MockStationaryReferenceSpace::Instance()->SetStationarySpaceGenerationId(*newGenerationId);
+}
+#endif
+
 #ifdef XR_USE_PLATFORM_ANDROID
 MOCK_API_TRAMPOLINE(bool, false, MockRuntime_IsAndroidThreadTypeRegistered,
     (uint32_t threadTypeValue),
@@ -417,6 +432,7 @@ XrResult GetProcAddrMockAPI(XrInstance instance, const char* name, PFN_xrVoidFun
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_CauseNotification)
     GET_PROC_ADDRESS(MockRuntime_PerformanceSettings_GetPerformanceLevelHint)
     GET_PROC_ADDRESS(MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled)
+    GET_PROC_ADDRESS(MockRuntime_StationaryReferenceSpace_TrySetGenerationId)
 #ifdef XR_USE_PLATFORM_ANDROID
     GET_PROC_ADDRESS(MockRuntime_IsAndroidThreadTypeRegistered)
     GET_PROC_ADDRESS(MockRuntime_GetRegisteredAndroidThreadsCount)

@@ -49,7 +49,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetRenderMode(value);
                 else
-                    m_renderMode = value;
+                    SetSerializedField(ref m_renderMode, value);
             }
         }
 
@@ -93,7 +93,7 @@ namespace UnityEngine.XR.OpenXR
             }
             set
             {
-                m_latencyOptimization = value;
+                SetSerializedField(ref m_latencyOptimization, value);
             }
         }
 
@@ -106,7 +106,7 @@ namespace UnityEngine.XR.OpenXR
         public bool autoColorSubmissionMode
         {
             get => m_autoColorSubmissionMode;
-            set => m_autoColorSubmissionMode = value;
+            set => SetSerializedField(ref m_autoColorSubmissionMode, value);
         }
 
         [SerializeField]
@@ -140,7 +140,10 @@ namespace UnityEngine.XR.OpenXR
                         value.Length
                     );
                 else
+                {
                     m_colorSubmissionModes.m_List = value;
+                    MarkDirty();
+                }
             }
         }
 
@@ -241,7 +244,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetDepthSubmissionMode(value);
                 else
-                    m_depthSubmissionMode = value;
+                    SetSerializedField(ref m_depthSubmissionMode, value);
             }
         }
 
@@ -269,7 +272,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetSpaceWarpMotionVectorTextureFormat(value);
                 else
-                    m_spacewarpMotionVectorTextureFormat = value;
+                    SetSerializedField(ref m_spacewarpMotionVectorTextureFormat, value);
             }
         }
 
@@ -287,7 +290,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetOptimizeBufferDiscards(value);
                 else
-                    m_optimizeBufferDiscards = value;
+                    SetSerializedField(ref m_optimizeBufferDiscards, value);
             }
         }
 
@@ -416,7 +419,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetSymmetricProjection(value);
                 else
-                    m_symmetricProjection = value;
+                    SetSerializedField(ref m_symmetricProjection, value);
             }
         }
 
@@ -445,7 +448,7 @@ namespace UnityEngine.XR.OpenXR
                     m_optimizeMultiviewRenderRegions = value;
 #pragma warning restore CS0618
 
-                    m_multiviewRenderRegionsOptimizationMode = newMode;
+                    SetSerializedField(ref m_multiviewRenderRegionsOptimizationMode, newMode);
                 }
             }
         }
@@ -462,7 +465,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetMultiviewRenderRegionsOptimizationMode(value);
                 else
-                    m_multiviewRenderRegionsOptimizationMode = value;
+                    SetSerializedField(ref m_multiviewRenderRegionsOptimizationMode, value);
             }
         }
 
@@ -488,7 +491,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetUsedFoveatedRenderingApi(value);
                 else
-                    m_foveatedRenderingApi = value;
+                    SetSerializedField(ref m_foveatedRenderingApi, value);
             }
         }
 #else
@@ -517,7 +520,7 @@ namespace UnityEngine.XR.OpenXR
                 if (OpenXRLoaderBase.Instance != null)
                     Internal_SetUseOpenXRPredictedTime(value);
                 else
-                    m_useOpenXRPredictedTime = value;
+                    SetSerializedField(ref m_useOpenXRPredictedTime, value);
             }
         }
 #endif

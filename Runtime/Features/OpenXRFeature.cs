@@ -258,6 +258,14 @@ namespace UnityEngine.XR.OpenXR.Features
         protected internal virtual void OnAppSpaceChange(ulong xrSpace) { }
 
         /// <summary>
+        /// Called when a reference space changes. When the reference space and the app space are changed
+        /// on the same frame, this is called before <see cref="XRInputSubsystem.trackingOriginUpdated"/>.
+        /// </summary>
+        /// <param name="referenceSpaceType">The reference space type that is changing.</param>
+        /// <param name="poseInPreviousSpace">Pose in the previous space, if available. Null if not available.</param>
+        protected internal virtual void OnReferenceSpaceChanged(ulong referenceSpaceType, Pose? poseInPreviousSpace) { }
+
+        /// <summary>
         /// Called when the OpenXR loader receives the XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED event
         /// from the runtime signaling that the XrSessionState has changed.
         /// </summary>
@@ -704,6 +712,7 @@ namespace UnityEngine.XR.OpenXR.Features
             // Runtime
             XrSessionStateChanged,
             XrChangedSpaceApp,
+            XrReferenceSpaceChanged,
 
             // Shutdown
             XrEndSession,
@@ -762,6 +771,11 @@ namespace UnityEngine.XR.OpenXR.Features
                         break;
                     case NativeEvent.XrChangedSpaceApp:
                         feature.OnAppSpaceChange(payload);
+                        break;
+                    case NativeEvent.XrReferenceSpaceChanged:
+                        var result = Internal_TryGetCurrentReferenceSpaceChangedPose(out Pose pose);
+                        var posePayload = result ? pose : (Pose?)null;
+                        feature.OnReferenceSpaceChanged(payload, posePayload);
                         break;
                     case NativeEvent.XrSessionStateChanged:
                         Internal_GetSessionState(out var oldState, out var newState);

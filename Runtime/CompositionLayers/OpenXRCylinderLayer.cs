@@ -54,7 +54,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     return false;
                 }
 
-                switch (texturesExtension.sourceTexture)
+                switch (OpenXRLayerUtility.GetSourceTexture(texturesExtension))
                 {
                     case TexturesExtension.SourceTextureEnum.LocalTexture:
                     {
@@ -122,7 +122,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 int subImageWidth = 0;
                 int subImageHeight = 0;
 
-                switch (texturesExtension.sourceTexture)
+                switch (OpenXRLayerUtility.GetSourceTexture(texturesExtension))
                 {
                     case TexturesExtension.SourceTextureEnum.LocalTexture:
                     {
@@ -152,7 +152,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     && swapchainOutput.secondStereoHandle != 0;
 
                 var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
-                var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+                var pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
                 float radius = data.ApplyTransformScale ? scaledSize.radius : data.Radius;
                 float centralAngle = data.ApplyTransformScale ? scaledSize.centralAngle : data.CentralAngle;
                 float aspectRatio = data.ApplyTransformScale ? scaledSize.aspectRatio : data.AspectRatio;
@@ -302,7 +302,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 }
             }
 
-            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
 
             if (texturesExtension.CustomRects && layerDataChanged)
@@ -311,7 +311,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
                 nativeLayer.SubImage.ImageRect = OpenXRStereoLayerData.ToSubImageRect(texturesExtension.LeftEyeSourceRect, subImageWidth, subImageHeight);
 
-                var worldPose = OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache);
+                var worldPose = OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache);
                 var currentPosition = worldPose.position;
 
                 float cylinderHeight = nativeLayer.Radius * nativeLayer.CentralAngle / nativeLayer.AspectRatio;

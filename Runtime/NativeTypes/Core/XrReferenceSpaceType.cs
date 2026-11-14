@@ -31,6 +31,11 @@ namespace UnityEngine.XR.OpenXR.NativeTypes
         /// <summary>
         /// Combined Eye (Varjo specific).
         /// </summary>
-        CombinedEyeVarjo = 1000121000
+        CombinedEyeVarjo = 1000121000,
+
+        /// <summary>
+        /// Stationary reference space (provided by the `XR_EXT_stationary_reference_space` extension).
+        /// </summary>
+        StationaryReferenceSpaceExt = 1000742000
     }
 }

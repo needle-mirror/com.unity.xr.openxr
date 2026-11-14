@@ -65,7 +65,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             width = 0;
             height = 0;
 
-            switch (texturesExtension.sourceTexture)
+            switch (OpenXRLayerUtility.GetSourceTexture(texturesExtension))
             {
                 case TexturesExtension.SourceTextureEnum.LocalTexture:
                 {

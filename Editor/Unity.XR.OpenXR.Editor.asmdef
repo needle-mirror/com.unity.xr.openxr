@@ -47,6 +47,11 @@
             "name": "com.unity.xr.management",
             "expression": "4.7.0",
             "define": "XRM_4_7_0_OR_NEWER"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.5.7f1",
+            "define": "SAMPLE_IMPORT_EVENT_AVAILABLE"
         }
     ],
     "noEngineReferences": false

@@ -22,6 +22,26 @@ namespace UnityEditor.XR.OpenXR
             return false;
         }
 
+        internal static void RemoveActiveLoaders(BuildTargetGroup targetGroup, System.Type loader)
+        {
+            var settings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(targetGroup);
+            if (!settings)
+                return;
+
+            RemoveActiveLoaders(settings.Manager, loader);
+        }
+
+        internal static void RemoveActiveLoaders(XRManagerSettings manager, System.Type loader)
+        {
+            foreach (var activeLoader in manager.activeLoaders.Where(loader.IsInstanceOfType).ToList())
+            {
+                manager.TryRemoveLoader(activeLoader);
+            }
+
+            EditorUtility.SetDirty(manager);
+            AssetDatabase.SaveAssetIfDirty(manager);
+        }
+
         public int callbackOrder => -100;
 
         public void OnPreprocessBuild(BuildReport report)

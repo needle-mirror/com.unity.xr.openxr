@@ -170,7 +170,7 @@ namespace UnityEditor.XR.OpenXR.Features
         /// <remarks>
         /// <para>
         /// Unity applications will use the highest OpenXR API version requested among all OpenXR Features and the default loader.
-        /// If the targetted OpenXR API Version is lower than the version specified by the default loader, the default version is used instead.
+        /// If the targeted OpenXR API Version is lower than the version specified by the default loader, the default version is used instead.
         /// </para>
         /// </remarks>
         /// <example>
@@ -200,11 +200,13 @@ namespace UnityEditor.XR.OpenXR.Features
         [CopyField(nameof(OpenXRFeature.featureIdInternal))] public string FeatureId = "";
 
 
+        const string k_PackageName = "com.unity.xr.openxr";
+
         internal static readonly System.Text.RegularExpressions.Regex k_PackageVersionRegex = new System.Text.RegularExpressions.Regex(@"(\d*\.\d*)\..*");
 
         /// <summary>
         /// This method returns the OpenXR internal documentation link.  This is necessary because the documentation link was made public in the
-        /// Costants class which prevents it from being alterned in anything but a major revision.  This method will patch up the documentation links
+        /// Constants class which prevents it from being altered in anything but a major revision.  This method will patch up the documentation links
         /// as needed as long as they are internal openxr documentation links.
         /// </summary>
         internal string InternalDocumentationLink
@@ -217,7 +219,10 @@ namespace UnityEditor.XR.OpenXR.Features
                 // Update the version if needed
                 if (DocumentationLink.StartsWith(Constants.k_DocumentationManualURL))
                 {
-                    var version = PackageManager.PackageInfo.FindForAssembly(typeof(OpenXRFeatureAttribute).Assembly)?.version;
+                    var version = PackageManager.PackageInfo.FindForPackageName(k_PackageName)?.version;
+                    if (string.IsNullOrEmpty(version))
+                        return DocumentationLink;
+
                     var majorminor = k_PackageVersionRegex.Match(version).Groups[1].Value;
                     DocumentationLink = DocumentationLink.Replace("1.0", majorminor);
                 }

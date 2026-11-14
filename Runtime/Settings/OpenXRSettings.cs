@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -32,6 +33,28 @@ namespace UnityEngine.XR.OpenXR
             }
             ApplyRenderSettings();
             ApplyPermissionSettings();
+        }
+
+        /// <summary>
+        /// Assigns a serialized field and marks this asset dirty in the Editor if the value changed.
+        /// </summary>
+        void SetSerializedField<T>(ref T field, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return;
+
+            field = value;
+            MarkDirty();
+        }
+
+        /// <summary>
+        /// Marks this asset dirty in the Editor so that changes to its serialized fields are saved.
+        /// </summary>
+        void MarkDirty()
+        {
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(this);
+#endif
         }
 
 #if UNITY_EDITOR

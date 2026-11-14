@@ -23,11 +23,21 @@ static const MockRuntimeCreateFlags MR_CREATE_USER_PRESENCE_EXT = 0x00080000;
 static const MockRuntimeCreateFlags MR_CREATE_KHR_ANDROID_THREAD_SETTINGS_EXT = 0x00100000;
 static const MockRuntimeCreateFlags MR_CREATE_META_TOUCH_CONTROLLER_PLUS = 0x00200000;
 static const MockRuntimeCreateFlags MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES = 0x00400000;
+static const MockRuntimeCreateFlags MR_CREATE_STATIONARY_REFERENCE_SPACE_EXT = 0x00800000;
 
 static const MockRuntimeCreateFlags MR_CREATE_ALL_GFX_EXT = MR_CREATE_VULKAN_GFX_EXT | MR_CREATE_NULL_GFX_EXT | MR_CREATE_D3D11_GFX_EXT | MR_CREATE_D3D12_GFX_EXT;
 
 class MockRuntime
 {
+public:
+    /// @brief Flags that control the queueing behavior of SetSpace for reference spaces.
+    enum class SetReferenceSpaceQueueEventBehavior
+    {
+        DoNotQueue = 0,
+        QueueWithoutPose = 1,
+        QueueWithPose = 2
+    };
+
 public:
     MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags);
 
@@ -68,9 +78,9 @@ public:
         return (createFlags & MR_CREATE_CONFORMANCE_AUTOMATION_EXT) != 0;
     }
 
-    bool IsLocalFloorSpaceEnabled() const
+    bool IsStationarySpaceEnabled() const
     {
-        return true;
+        return (createFlags & MR_CREATE_STATIONARY_REFERENCE_SPACE_EXT) != 0;
     }
 
     XrResult GetNextEvent(XrEventDataBuffer* eventData);
@@ -135,7 +145,11 @@ public:
 
     XrResult LocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location);
 
-    void SetSpace(XrReferenceSpaceType referenceSpaceType, XrPosef pose, XrSpaceLocationFlags spaceLocationFlags);
+    void SetSpace(
+        XrReferenceSpaceType referenceSpaceType,
+        XrPosef pose,
+        XrSpaceLocationFlags spaceLocationFlags,
+        SetReferenceSpaceQueueEventBehavior queueEventBehavior);
     void SetSpace(XrAction action, XrPosef pose, XrSpaceLocationFlags spaceLocationFlags);
     void SetViewPose(XrViewConfigurationType viewConfigurationType, int viewIndex, XrPosef pose, XrFovf fov);
     void SetViewStateFlags(XrViewConfigurationType viewConfigurationType, XrViewStateFlags viewStateFlags);
@@ -156,6 +170,8 @@ public:
 
     XrResult CreateReferenceSpace(const XrReferenceSpaceCreateInfo* createInfo, XrSpace* space);
     XrResult CreateActionSpace(const XrActionSpaceCreateInfo* createInfo, XrSpace* space);
+
+    XrResult DestroySpace(XrSpace space);
 
     void VisibilityMaskChangedKHR(XrViewConfigurationType viewConfigurationType, uint32_t viewIndex);
 

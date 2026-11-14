@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Extensions/mock_android_enumerate_system_extension_properties.h"
+#include "Extensions/mock_ext_stationary_reference_space.h"
 #include "Extensions/mock_khr_android_thread_settings.h"
 #include "Extensions/mock_meta_performance_metrics.h"
 #include "Extensions/mock_performance_settings.h"

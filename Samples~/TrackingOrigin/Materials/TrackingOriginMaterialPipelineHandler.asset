@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2df4bebae2c4be4f9fb3e5fd2c84240, type: 3}
+  m_Name: TrackingOriginMaterialPipelineHandler
+  m_EditorClassIdentifier: Assembly-CSharp::UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.MaterialPipelineHandler
+  m_ShaderContainers:
+  - material: {fileID: 2100000, guid: fedbc2fd3a2b0394fa183555416559a6, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 80f3be9de970f3e4da65f8631daa5f90, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 0ba16ede1d9f77949aa2cf97f2b7e680, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 9bab47ad733a38044984c31f181b01b6, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 4aaf41068ae73f44f8e1818d6212b545, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  - material: {fileID: 2100000, guid: 18e5d465bcfff27449e785d510ea247c, type: 2}
+    useSRPShaderName: 1
+    scriptableRenderPipelineShaderName: Universal Render Pipeline/Lit
+    scriptableRenderPipelineShader: {fileID: 0}
+    useBuiltinShaderName: 1
+    builtInPipelineShaderName: Standard
+    builtInPipelineShader: {fileID: 0}
+  m_AutoRefreshShaders: 1

@@ -62,6 +62,17 @@ namespace UnityEditor.XR.OpenXR.Features
 
             var extensions = FeatureHelpersInternal.GetAllFeatureInfo(report.summary.platformGroup);
 
+            if (openXRLoaderActive &&
+                !extensions.ActiveCustomLoaderFeature.HasValue &&
+                !OpenXRManagementSettings.IsBuildTargetGroupSupported(report.summary.platformGroup))
+            {
+                BuildHelperUtils.RemoveActiveLoaders(report.summary.platformGroup, typeof(OpenXRLoaderBase));
+                Debug.LogWarning(
+                    $"Removed the OpenXR loader from the {report.summary.platformGroup} build target group in " +
+                    "XR Plug-in Management, because OpenXR does not support this build target group.");
+                openXRLoaderActive = false;
+            }
+
             // Keep set of seen plugins, only disable plugins that haven't been seen.
             HashSet<string> seenPlugins = new HashSet<string>();
 

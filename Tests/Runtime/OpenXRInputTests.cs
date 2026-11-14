@@ -75,7 +75,9 @@ namespace UnityEngine.XR.OpenXR.Tests
             typeof(HandCommonPosesInteraction),
             typeof(DPadInteraction),
             typeof(PalmPoseInteraction),
-            typeof(MockAdditiveFeature)
+            typeof(HandInteractionProfileMicrogestures),
+            typeof(MockAdditiveFeature),
+            typeof(SingleHostAdditiveTestFeature)
         };
 
         /// <summary>

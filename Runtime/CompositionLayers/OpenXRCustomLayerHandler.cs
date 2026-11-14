@@ -163,6 +163,13 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 IsSettled = false;
             }
 
+            // Keeps the texture and mip count, so a texture resized during the other handler's turn is still detected.
+            public void InvalidateImagesWrittenElsewhere()
+            {
+                InvalidateSwapchainImages();
+                HasAcquiredImage = false;
+            }
+
             public class SwapchainImageInfo
             {
                 public RenderTexture RenderTexture;
@@ -373,6 +380,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         Dictionary<int, LayerRenderInfo> m_RenderInfos = new();
         Dictionary<int, CompositionLayerManager.LayerInfo> m_LayerInfos = new();
+        Dictionary<int, SwapchainCreateInfo> m_PendingSwapchainCreateInfos = new();
+        Dictionary<int, int> m_NativeLayerSwapchainVersions = new();
 
         NativeArray<T> m_ActiveNativeLayers;
         NativeArray<int> m_ActiveNativeLayerOrders;
@@ -493,11 +502,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             if (!m_nativeLayers.TryGetValue(layerInfo.Id, out var nativeLayer))
             {
-                if (texturesExtension != null && texturesExtension.TextureAdded)
+                // A layer whose LayerData type changed reaches the new type's handler as a modification.
+                if (!m_LayerInfos.ContainsKey(layerInfo.Id))
+                {
+                    CreateLayer(layerInfo);
+                }
+                else if (texturesExtension != null && texturesExtension.TextureAdded)
                 {
                     texturesExtension.TextureAdded = false;
                     CreateLayer(layerInfo);
                 }
+
                 return;
             }
 
@@ -514,6 +529,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         public virtual void RemoveLayer(int removedLayerId)
         {
             OpenXRLayerUtility.ReleaseSwapchain(removedLayerId);
+            OpenXRLayerSwapchainRegistry.Remove(removedLayerId);
             if (m_LayerInfos.ContainsKey(removedLayerId))
             {
                 OpenXRLayerUtility.RemoveActiveLayer(m_LayerInfos[removedLayerId].Layer.Order);
@@ -521,6 +537,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             m_nativeLayers.Remove(removedLayerId);
             m_LayerInfos.Remove(removedLayerId);
             m_RenderInfos.Remove(removedLayerId);
+            m_PendingSwapchainCreateInfos.Remove(removedLayerId);
+            m_NativeLayerSwapchainVersions.Remove(removedLayerId);
         }
 
         /// <summary>
@@ -531,6 +549,9 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         /// being set to active.</param>
         public virtual void SetActiveLayer(CompositionLayerManager.LayerInfo layerInfo)
         {
+            if (!TryUseLayerSwapchain(layerInfo))
+                return;
+
             if (!m_nativeLayers.TryGetValue(layerInfo.Id, out var nativeLayer))
                 return;
 
@@ -543,6 +564,38 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             m_ActiveNativeLayers[m_ActiveNativeLayerCount] = m_nativeLayers[layerInfo.Id];
             m_ActiveNativeLayerOrders[m_ActiveNativeLayerCount] = layerInfo.Layer.Order;
             ++m_ActiveNativeLayerCount;
+        }
+
+        // A layer that changed LayerData type can reach this handler after this frame's update, and its swapchain may
+        // have been created or replaced by another type's handler. Returns false when the native layer must not be
+        // submitted because its swapchain is being rebuilt.
+        bool TryUseLayerSwapchain(CompositionLayerManager.LayerInfo layerInfo)
+        {
+            var layerId = layerInfo.Id;
+            if (!m_LayerInfos.ContainsKey(layerId))
+                CreateLayer(layerInfo);
+
+            var isBuiltOnSwapchain = m_NativeLayerSwapchainVersions.TryGetValue(layerId, out var builtVersion);
+            if (!isBuiltOnSwapchain && !m_PendingSwapchainCreateInfos.ContainsKey(layerId))
+                return true;
+
+            if (!OpenXRLayerSwapchainRegistry.TryGet(layerId, out var swapchain))
+                return !isBuiltOnSwapchain;
+
+            if (!isBuiltOnSwapchain || swapchain.Version != builtVersion)
+            {
+                m_nativeLayers.Remove(layerId);
+                m_NativeLayerSwapchainVersions.Remove(layerId);
+                m_RenderInfos.Remove(layerId);
+                CreateSwapchainAsync(layerInfo);
+            }
+
+            // Another type's handler wrote the shared images since this handler did, so its record of them is stale.
+            if (OpenXRLayerSwapchainRegistry.SetUser(layerId, this)
+                && m_RenderInfos.TryGetValue(layerId, out var layerRenderInfo))
+                layerRenderInfo.InvalidateImagesWrittenElsewhere();
+
+            return true;
         }
 
         /// <summary>
@@ -570,6 +623,8 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 m_LayerInfos.Clear();
                 m_nativeLayers.Clear();
                 m_RenderInfos.Clear();
+                m_PendingSwapchainCreateInfos.Clear();
+                m_NativeLayerSwapchainVersions.Clear();
             }
 
             if (m_ActiveNativeLayers.IsCreated)
@@ -593,6 +648,24 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             var success = CreateSwapchain(layerInfo, out var swapChainInfo);
             if (!success)
                 return;
+
+            if (OpenXRLayerSwapchainRegistry.TryGet(layerInfo.Id, out var liveSwapchain))
+            {
+                if (liveSwapchain.CanBeReusedFor(
+                        swapChainInfo.nativeStruct, swapChainInfo.isExternalSurface, swapChainInfo.isStereo))
+                {
+                    BuildOnLiveSwapchain(layerInfo, liveSwapchain);
+                    return;
+                }
+
+                // Native reuses a layer's swapchain by id, so one that doesn't fit stays with the type it was made for.
+                Debug.LogWarning($"Composition layer '{layerInfo.Layer.name}' changed to "
+                    + $"{layerInfo.Layer.LayerData.GetType().Name}, but its swapchain was created for a layer type "
+                    + "that needs a different one, so it won't render. Recreate the layer to change it to this type.");
+                return;
+            }
+
+            m_PendingSwapchainCreateInfos[layerInfo.Id] = swapChainInfo;
 
             if (swapChainInfo.isStereo)
                 OpenXRLayerUtility.CreateStereoSwapchain(
@@ -624,6 +697,37 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             else
                 Debug.LogError("CreateNativeLayer failed");
 #endif
+        }
+
+        // The native plugin would hand this handler the live swapchain anyway, but only through a callback a frame or
+        // two later. Building on it now keeps the layer visible.
+        void BuildOnLiveSwapchain(CompositionLayerManager.LayerInfo layerInfo, OpenXRLayerSwapchain swapchain)
+        {
+            m_PendingSwapchainCreateInfos.Remove(layerInfo.Id);
+            m_NativeLayerSwapchainVersions[layerInfo.Id] = swapchain.Version;
+            var swapchainOutput = new SwapchainCreatedOutput
+            {
+                handle = swapchain.Handle,
+                secondStereoHandle = swapchain.SecondStereoHandle,
+            };
+            OnCreatedSwapchain(layerInfo, swapchainOutput);
+        }
+
+        void HandleCreatedSwapchain(CompositionLayerManager.LayerInfo layerInfo, SwapchainCreatedOutput swapchainOutput)
+        {
+            if (m_PendingSwapchainCreateInfos.Remove(layerInfo.Id, out var swapchainCreateInfo))
+            {
+                var swapchain = OpenXRLayerSwapchainRegistry.Record(
+                    layerInfo.Id,
+                    swapchainCreateInfo.nativeStruct,
+                    swapchainCreateInfo.isExternalSurface,
+                    swapchainCreateInfo.isStereo,
+                    swapchainOutput.handle,
+                    swapchainOutput.secondStereoHandle);
+                m_NativeLayerSwapchainVersions[layerInfo.Id] = swapchain.Version;
+            }
+
+            OnCreatedSwapchain(layerInfo, swapchainOutput);
         }
 
         /// <summary>
@@ -684,7 +788,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             if (texturesExtension == null
                 || texturesExtension.LeftTexture == null
-                || texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.AndroidSurface)
+                || OpenXRLayerUtility.GetSourceTexture(texturesExtension) == TexturesExtension.SourceTextureEnum.AndroidSurface)
                 return true;
 
             if (m_RenderInfos.TryGetValue(layerInfo.Id, out var layerRenderInfo))
@@ -787,9 +891,11 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 if (Instance == null || !Instance.m_LayerInfos.TryGetValue(layerId, out var layerInfo))
                     return;
 
-                Instance.OnCreatedSwapchain(
-                    layerInfo,
-                    new SwapchainCreatedOutput { handle = swapchainHandle });
+                // The layer can lose its LayerData before the provider is told to remove it.
+                if (layerInfo.Layer == null || layerInfo.Layer.LayerData == null)
+                    return;
+
+                Instance.HandleCreatedSwapchain(layerInfo, new SwapchainCreatedOutput { handle = swapchainHandle });
             });
         }
 
@@ -801,7 +907,10 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 if (Instance == null || !Instance.m_LayerInfos.TryGetValue(layerId, out var layerInfo))
                     return;
 
-                Instance.OnCreatedSwapchain(
+                if (layerInfo.Layer == null || layerInfo.Layer.LayerData == null)
+                    return;
+
+                Instance.HandleCreatedSwapchain(
                     layerInfo,
                     new SwapchainCreatedOutput
                     {

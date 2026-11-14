@@ -59,7 +59,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 && swapchainOutput.secondStereoHandle != 0;
 
             var layerFlags = data.BlendType == BlendType.Premultiply ? XrCompositionLayerFlags.SourceAlpha : XrCompositionLayerFlags.SourceAlpha | XrCompositionLayerFlags.UnPremultipliedAlpha;
-            var orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            var orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
 
             nativeLayer = new XrCompositionLayerCubeKHR()
             {
@@ -108,7 +108,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
             var transform = layerInfo.Layer.GetComponent<Transform>();
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
-            nativeLayer.Orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Orientation = new XrQuaternionf(OpenXRUtility.ComputePoseToWorldSpace(transform, OpenXRLayerUtility.MainCameraCache).rotation);
 
             if (m_StereoData.TryGetValue(layerInfo.Id, out var stereoData))
             {

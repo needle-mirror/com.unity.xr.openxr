@@ -154,6 +154,12 @@ namespace UnityEngine.XR.OpenXR.Features
             /// Serial number of the device
             /// </summary>
             public string serialNumber;
+
+            /// <summary>
+            /// For an additive map, the interaction profiles under which its devices are enabled. When null or empty,
+            /// additive devices are enabled under any current interaction profile.
+            /// </summary>
+            internal List<string> parentInteractionProfiles;
         }
 
         /// <summary>

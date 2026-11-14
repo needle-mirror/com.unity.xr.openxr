@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Scripting.LifecycleManagement;
 using UnityEditor;
 using UnityEngine.XR.OpenXR.Features;
 #if UNITY_EDITOR
@@ -27,6 +28,7 @@ namespace UnityEngine.XR.OpenXR.Samples.MeshingFeature
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.example.meshing";
 
+        [NoAutoStaticsCleanup]
         private static List<XRMeshSubsystemDescriptor> s_MeshDescriptors =
             new List<XRMeshSubsystemDescriptor>();
 

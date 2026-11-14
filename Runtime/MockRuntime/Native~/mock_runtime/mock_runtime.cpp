@@ -106,6 +106,9 @@ MockRuntime::MockRuntime(XrInstance instance, MockRuntimeCreateFlags flags)
     if ((createFlags & MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES) == MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES)
         MockAndroidEnumerateSystemExtensionProperties::Init(*this);
 
+    if ((createFlags & MR_CREATE_STATIONARY_REFERENCE_SPACE_EXT) != 0)
+        MockStationaryReferenceSpace::Init(*this);
+
     recommendedResolutionChanged = false;
 
     // Generate the internal strings
@@ -416,17 +419,42 @@ void MockRuntime::SetSpace(XrAction action, XrPosef pose, XrSpaceLocationFlags s
     }
 }
 
-void MockRuntime::SetSpace(XrReferenceSpaceType referenceType, XrPosef pose, XrSpaceLocationFlags spaceLocationFlags)
+void MockRuntime::SetSpace(
+    XrReferenceSpaceType referenceType,
+    XrPosef pose,
+    XrSpaceLocationFlags spaceLocationFlags,
+    SetReferenceSpaceQueueEventBehavior queueEventBehavior)
 {
-    // Set all reference spaces that match the reference space type
+    // Set all live reference spaces that match the reference space type
+    bool anySpaceMatched = false;
     for (auto& mockSpace : spaces)
     {
-        if (mockSpace.referenceSpaceType == referenceType)
-        {
-            mockSpace.pose = pose;
-            mockSpace.locationFlags = spaceLocationFlags;
-        }
+        if (mockSpace.isDestroyed || mockSpace.referenceSpaceType != referenceType)
+            continue;
+
+        mockSpace.pose = pose;
+        mockSpace.locationFlags = spaceLocationFlags;
+        anySpaceMatched = true;
     }
+
+    // The change event is per reference space type, not per space handle, so queue it once however many spaces of
+    // that type exist.
+    if (!anySpaceMatched || queueEventBehavior == SetReferenceSpaceQueueEventBehavior::DoNotQueue)
+        return;
+
+    const bool sendPoseInEvent = queueEventBehavior == SetReferenceSpaceQueueEventBehavior::QueueWithPose;
+    XrEventDataReferenceSpaceChangePending refSpaceChangingEvt =
+        {
+            XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING,
+            nullptr,
+            session,
+            referenceType,
+            GetPredictedTime(),
+            sendPoseInEvent,
+            sendPoseInEvent ? pose : XrPosef(),
+        };
+
+    QueueEvent(refSpaceChangingEvt);
 }
 
 XrResult MockRuntime::LocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location)
@@ -1408,6 +1436,10 @@ XrResult MockRuntime::CreateReferenceSpace(const XrReferenceSpaceCreateInfo* cre
     case XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT:
         break;
 
+    case XR_REFERENCE_SPACE_TYPE_STATIONARY_EXT:
+        if (createFlags & MR_CREATE_STATIONARY_REFERENCE_SPACE_EXT)
+            break;
+
     default:
         return XR_ERROR_REFERENCE_SPACE_UNSUPPORTED;
     }
@@ -1483,6 +1515,27 @@ XrResult MockRuntime::CreateActionSpace(const XrActionSpaceCreateInfo* createInf
     *space = (XrSpace)spaces.size();
 
     return XR_SUCCESS;
+}
+
+XrResult MockRuntime::DestroySpace(XrSpace spaceToDestroy)
+{
+    // NB: Do *NOT* resize the vector. MockSpace handles are indicies into the spaces vector.
+    // Instead, mark it as destroyed and validate that we haven't already attempted to destroy it.
+    // This allows us to check for double frees, which can occasionally lead to crashes.
+
+    if (spaceToDestroy == XR_NULL_HANDLE)
+        return XR_ERROR_HANDLE_INVALID;
+
+    XrResult result = XR_ERROR_HANDLE_INVALID;
+
+    size_t spaceIdx = static_cast<size_t>(reinterpret_cast<uintptr_t>(spaceToDestroy)) - 1;
+    if (spaceIdx < spaces.size() && !spaces[spaceIdx].isDestroyed)
+    {
+        spaces[spaceIdx].isDestroyed = true;
+        result = XR_SUCCESS;
+    }
+
+    return result;
 }
 
 XrResult MockRuntime::GetInputSourceLocalizedName(const XrInputSourceLocalizedNameGetInfo* getInfo, uint32_t bufferCapacityInput, uint32_t* bufferCountOutput, char* buffer)
@@ -1760,6 +1813,9 @@ XrResult MockRuntime::GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* 
 #endif
 
     if (MockAndroidEnumerateSystemExtensionProperties::Instance() && XR_SUCCESS == MockAndroidEnumerateSystemExtensionProperties_GetInstanceProcAddr(name, function))
+        return XR_SUCCESS;
+
+    if (MockStationaryReferenceSpace::Instance() && XR_SUCCESS == MockStationaryReferenceSpace_GetInstanceProcAddr(name, function))
         return XR_SUCCESS;
 
     return XR_ERROR_FUNCTION_UNSUPPORTED;

@@ -52,6 +52,7 @@
   * [Meta Quest Touch Plus Controller Profile](features/metaquesttouchpluscontrollerprofile.md)
   * [HP Reverb G2 Controller Profile](features/hpreverbg2controllerprofile.md)
   * [Hand Interaction Profile](features/handinteractionprofile.md)
+  * [Hand Interaction Profile Microgestures](features/handinteractionprofilemicrogestures.md)
   * [DPad Interaction](features/dpadinteraction.md)
   * [Palm Pose Interaction](features/palmposeinteraction.md)
   * [Hand Common Poses Interaction](features/handcommonposesinteraction.md)

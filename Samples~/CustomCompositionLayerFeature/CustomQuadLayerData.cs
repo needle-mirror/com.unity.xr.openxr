@@ -17,7 +17,11 @@ using Unity.XR.CompositionLayers.Layers;
     InspectorIcon = "",
     ListViewIcon = "",
     Description = "Custom shape example.",
+#if XR_COMPOSITION_LAYERS_7_0_OR_GREATER
+    SuggestedExtensionTypes = new[] { typeof(TexturesExtension) }
+#else
     SuggestedExtenstionTypes = new[] { typeof(TexturesExtension) }
+#endif
  )]
 
 public class CustomQuadLayerData : LayerData

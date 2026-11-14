@@ -9,7 +9,6 @@
         return XR_ERROR_FUNCTION_UNSUPPORTED;
 
 std::unique_ptr<MockAndroidEnumerateSystemExtensionProperties> MockAndroidEnumerateSystemExtensionProperties::s_Instance;
-std::unordered_map<std::string, bool> MockAndroidEnumerateSystemExtensionProperties::s_SystemEnabledExtensions{};
 
 MockAndroidEnumerateSystemExtensionProperties* MockAndroidEnumerateSystemExtensionProperties::Instance()
 {
@@ -33,7 +32,14 @@ MockAndroidEnumerateSystemExtensionProperties::MockAndroidEnumerateSystemExtensi
 
 void MockAndroidEnumerateSystemExtensionProperties::SetSystemExtensionEnabled(const char* extName, bool enabled)
 {
-    s_SystemEnabledExtensions[extName] = enabled;
+    auto* instance = Instance();
+    if (nullptr == instance)
+    {
+        MOCK_TRACE_ERROR("SetSystemExtensionEnabled(%s) called without a mock instance; set it from an xrCreateInstance callback.", extName);
+        return;
+    }
+
+    instance->m_SystemEnabledExtensions[extName] = enabled;
 }
 
 XrResult MockAndroidEnumerateSystemExtensionProperties::EnumerateSystemExtensionProperties(
@@ -43,14 +49,14 @@ XrResult MockAndroidEnumerateSystemExtensionProperties::EnumerateSystemExtension
     uint32_t* propertyCountOutput,
     XrSystemExtensionPropertiesANDROID* properties)
 {
-    *propertyCountOutput = static_cast<uint32_t>(s_SystemEnabledExtensions.size());
+    *propertyCountOutput = static_cast<uint32_t>(m_SystemEnabledExtensions.size());
 
     if (propertyCapacityInput == 0)
     {
         return XR_SUCCESS;
     }
 
-    if (propertyCapacityInput < s_SystemEnabledExtensions.size())
+    if (propertyCapacityInput < m_SystemEnabledExtensions.size())
     {
         return XR_ERROR_SIZE_INSUFFICIENT;
     }
@@ -67,18 +73,15 @@ XrResult MockAndroidEnumerateSystemExtensionProperties::EnumerateSystemExtension
             return XR_ERROR_VALIDATION_FAILURE;
     }
 
-    auto iter = s_SystemEnabledExtensions.cbegin();
+    auto iter = m_SystemEnabledExtensions.cbegin();
     for (uint32_t i = 0; i < *propertyCountOutput; i++)
     {
-        XrSystemExtensionPropertiesANDROID prop{};
-        prop.type = XR_TYPE_SYSTEM_EXTENSION_PROPERTIES_ANDROID;
-        prop.properties.type = XR_TYPE_EXTENSION_PROPERTIES;
+        auto& prop = properties[i];
         strncpy(prop.properties.extensionName, iter->first.c_str(), XR_MAX_EXTENSION_NAME_SIZE - 1);
         prop.properties.extensionName[XR_MAX_EXTENSION_NAME_SIZE - 1] = '\0';
         prop.properties.extensionVersion = 0; // we don't care about version for now
         prop.isSupported = iter->second ? XR_TRUE : XR_FALSE;
 
-        properties[i] = prop;
         iter++;
     }
 

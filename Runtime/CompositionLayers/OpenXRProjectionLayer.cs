@@ -35,10 +35,23 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
                 if (rigTextures != null)
                 {
-                    foreach (var renderTexture in rigTextures)
+                    for (int i = 0; i < rigTextures.Length; i++)
                     {
-                        renderTexture.Release();
+                        var renderTexture = rigTextures[i];
+                        if (renderTexture == null)
+                            continue;
+
+                        var camera = rigCameras != null && i < rigCameras.Length ? rigCameras[i] : null;
+                        if (camera != null && camera.targetTexture == renderTexture)
+                            camera.targetTexture = null;
+
+                        if (Application.isPlaying)
+                            UnityEngine.Object.Destroy(renderTexture);
+                        else
+                            UnityEngine.Object.DestroyImmediate(renderTexture);
                     }
+
+                    rigTextures = null;
                 }
             }
         }
@@ -64,7 +77,6 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         {
             Application.onBeforeRender += OnBeforeRender;
             RenderPipelineManager.endCameraRendering += OnCameraEndRendering;
-            Camera.onPostRender += OnCameraPostRender;
         }
 
         /// <summary>
@@ -80,6 +92,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             }
 
             Application.onBeforeRender -= OnBeforeRender;
+            RenderPipelineManager.endCameraRendering -= OnCameraEndRendering;
             base.Dispose(disposing);
         }
 
@@ -226,7 +239,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     return false;
                 }
 
-                m_ProjectionData.Add(layer.Id, new ProjectionData
+                SetProjectionData(layer.Id, new ProjectionData
                 {
                     layer = layer,
                     nativeViews = nativeViews,
@@ -268,7 +281,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 rightCamera.enabled = false;
             }
 
-            m_ProjectionData.Add(layer.Id, new ProjectionData
+            SetProjectionData(layer.Id, new ProjectionData
             {
                 layer = layer,
                 nativeViews = nativeViews,
@@ -278,6 +291,14 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             });
 
             return true;
+        }
+
+        static void SetProjectionData(int layerId, ProjectionData projectionData)
+        {
+            if (m_ProjectionData.Remove(layerId, out var existingProjectionData))
+                existingProjectionData.Dispose();
+
+            m_ProjectionData.Add(layerId, projectionData);
         }
 
         /// <summary>
@@ -353,19 +374,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         }
 
         // Used to hault calls to GetStereoProjectionMatrix before the main camera's projection matrix has been initialized
-        void OnCameraPostRender(Camera cam)
+        void OnCameraEndRendering(ScriptableRenderContext context, Camera camera)
         {
-            var mainCamera = CompositionLayerManager.mainCameraCache;
-            if (m_isMainCameraRendered || mainCamera == null || cam != mainCamera)
+            var mainCamera = OpenXRLayerUtility.MainCameraCache;
+            if (m_isMainCameraRendered || mainCamera == null || camera != mainCamera)
+            {
                 return;
+            }
 
             m_isMainCameraRendered = true;
-            Camera.onPostRender -= OnCameraPostRender;
             RenderPipelineManager.endCameraRendering -= OnCameraEndRendering;
         }
-
-        // Used to hault calls to GetStereoProjectionMatrix before the main camera's projection matrix has been initialized
-        void OnCameraEndRendering(ScriptableRenderContext cxt, Camera cam) => OnCameraPostRender(cam);
 
         void OnBeforeRender()
         {
@@ -384,12 +403,17 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
 
         void UpdateProjectionRig(ProjectionData projectionData)
         {
-            var mainCamera = CompositionLayerManager.mainCameraCache;
+            var mainCamera = OpenXRLayerUtility.MainCameraCache;
             var leftCamera = projectionData.rigCameras[0];
             var rightCamera = projectionData.rigCameras[1];
 
             if (m_isMainCameraRendered && leftCamera != null && rightCamera != null)
             {
+                // Culling uses the camera's own clip planes, not the ones in the projection matrix.
+                leftCamera.nearClipPlane = mainCamera.nearClipPlane;
+                leftCamera.farClipPlane = mainCamera.farClipPlane;
+                rightCamera.nearClipPlane = mainCamera.nearClipPlane;
+                rightCamera.farClipPlane = mainCamera.farClipPlane;
                 leftCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
                 rightCamera.projectionMatrix = mainCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
 
@@ -479,6 +503,5 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
         internal unsafe static extern bool ext_composition_layers_GetStereoViews(XrView* view1, XrView* view2);
     }
 }
-
 
 #endif

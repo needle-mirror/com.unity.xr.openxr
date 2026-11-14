@@ -29,8 +29,7 @@ private:
     static std::unique_ptr<MockAndroidEnumerateSystemExtensionProperties> s_Instance;
 
     MockRuntime& m_Runtime;
-
-    static std::unordered_map<std::string, bool> s_SystemEnabledExtensions;
+    std::unordered_map<std::string, bool> m_SystemEnabledExtensions{};
 };
 
 XrResult MockAndroidEnumerateSystemExtensionProperties_GetInstanceProcAddr(const char* name, PFN_xrVoidFunction* function);

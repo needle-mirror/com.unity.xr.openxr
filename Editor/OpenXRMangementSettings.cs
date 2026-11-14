@@ -68,6 +68,9 @@ namespace UnityEditor.XR.OpenXR
         public IXRPackageMetadata metadata => s_Metadata;
 
         internal static string PackageId => s_Metadata.packageId;
+
+        internal static bool IsBuildTargetGroupSupported(BuildTargetGroup buildTargetGroup) =>
+            s_Metadata.loaderMetadata[0].supportedBuildTargets.Contains(buildTargetGroup);
     }
 }
 #endif

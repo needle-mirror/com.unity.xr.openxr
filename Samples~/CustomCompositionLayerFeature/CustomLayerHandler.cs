@@ -13,6 +13,27 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
     /// </summary>
     public class CustomLayerHandler : OpenXRCustomLayerHandler<CustomNativeCompositionLayerQuad>
     {
+        static Camera MainCameraCache
+        {
+            get
+            {
+#if XR_COMPOSITION_LAYERS_7_0_OR_GREATER
+                return CompositionLayerManager.MainCameraCache;
+#else
+                return CompositionLayerManager.mainCameraCache;
+#endif
+            }
+        }
+
+        static TexturesExtension.SourceTextureEnum GetSourceTexture(TexturesExtension texturesExtension)
+        {
+#if XR_COMPOSITION_LAYERS_7_0_OR_GREATER
+            return texturesExtension.SourceTexture;
+#else
+            return texturesExtension.sourceTexture;
+#endif
+        }
+
         protected override bool CreateSwapchain(CompositionLayerManager.LayerInfo layer, out SwapchainCreateInfo swapchainCreateInfo)
         {
             unsafe
@@ -24,7 +45,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                     return false;
                 }
 
-                if (texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.LocalTexture && texturesExtension.LeftTexture != null)
+                if (GetSourceTexture(texturesExtension) == TexturesExtension.SourceTextureEnum.LocalTexture && texturesExtension.LeftTexture != null)
                 {
                     var xrCreateInfo = new XrSwapchainCreateInfo()
                     {
@@ -65,7 +86,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 var transform = layer.Layer.GetComponent<Transform>();
                 int subImageWidth = 0;
                 int subImageHeight = 0;
-                if (texturesExtension.sourceTexture == TexturesExtension.SourceTextureEnum.LocalTexture && texturesExtension.LeftTexture != null)
+                if (GetSourceTexture(texturesExtension) == TexturesExtension.SourceTextureEnum.LocalTexture && texturesExtension.LeftTexture != null)
                 {
                     subImageWidth = texturesExtension.LeftTexture.width;
                     subImageHeight = texturesExtension.LeftTexture.height;
@@ -93,7 +114,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                         },
                         ImageArrayIndex = 0
                     },
-                    Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation),
+                    Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).rotation),
                     Size = new XrExtent2Df()
                     {
                         Width = size.x,
@@ -113,7 +134,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
             var data = layerInfo.Layer.LayerData as CustomQuadLayerData;
             var transform = layerInfo.Layer.GetComponent<Transform>();
 
-            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).rotation);
             nativeLayer.Size = new XrExtent2Df()
             {
                 Width = data.GetScaledSize(transform.lossyScale).x,
@@ -135,7 +156,7 @@ namespace UnityEngine.XR.OpenXR.CompositionLayers
                 return false;
 
             var transform = layerInfo.Layer.GetComponent<Transform>();
-            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, CompositionLayerManager.mainCameraCache).rotation);
+            nativeLayer.Pose = new XrPosef(OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).position, OpenXRUtility.ComputePoseToWorldSpace(transform, MainCameraCache).rotation);
             nativeLayer.Space = OpenXRLayerUtility.GetCurrentAppSpace();
             return base.ActiveNativeLayer(layerInfo, ref nativeLayer);
         }

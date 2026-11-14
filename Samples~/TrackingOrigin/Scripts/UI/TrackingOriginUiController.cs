@@ -38,6 +38,10 @@ namespace UnityEngine.XR.OpenXR.Samples.TrackingOriginSample
         GameObject m_heightSection;
 
         [SerializeField]
+        [Tooltip("Spacing and divider above the height section. Hidden with the section so the panel doesn't show two dividers in a row.")]
+        GameObject[] m_HeightSectionDividers;
+
+        [SerializeField]
         Slider m_heightSlider;
 
         [SerializeField]
@@ -178,6 +182,10 @@ namespace UnityEngine.XR.OpenXR.Samples.TrackingOriginSample
             m_unboundedDescription.SetActive(mode == TrackingOriginMode.Unbounded);
             // In most cases, the height is only used for the device tracking origin mode
             m_heightSection.SetActive(mode == TrackingOriginMode.Device);
+            foreach (var divider in m_HeightSectionDividers)
+            {
+                divider.SetActive(mode == TrackingOriginMode.Device);
+            }
         }
 
         void OnHeightChanged(float height)

@@ -37,6 +37,6 @@ The sample implements the following notable scripts:
 | `Scripts/ActionToSliderISX.cs` | Drives a `Slider` value from a float `InputActionReference` each frame, hiding the slider if the action is not active. |
 | `Scripts/ActionToVector2.cs` | Extends `ActionToControl`. Repositions a `RectTransform` handle within a 2D area to reflect the `Vector2` action value. |
 | `Scripts/ActionToVector2SliderISX.cs` | Drives two separate `Slider` components (X and Y) from a `Vector2` `InputActionReference` each frame. |
-| `Scripts/ActionToVisibility.cs` | Shows or hides a `GameObject` by polling `OpenXRInput.TryGetInputSourceName` in a coroutine; the target is made visible once the action has a bound OpenXR source. |
+| `Scripts/ControllerActionToVisibility.cs` | Shows or hides a `GameObject` by polling `OpenXRInput.TryGetInputSourceName` in a coroutine; the target is made visible once the action has a bound OpenXR source. |
 | `Scripts/ActionToVisibilityISX.cs` | Shows or hides a `GameObject` each frame based on whether the action is enabled and has active controls, without requiring an OpenXR source-name query. |
 | `Scripts/DisplayDeviceInfoFromActionISX.cs` | Displays the connected device name, ID, and usage strings in a `Text` component each frame. Toggles a root `GameObject` on or off depending on whether a device is present. |

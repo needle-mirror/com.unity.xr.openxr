@@ -369,6 +369,11 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/left/input/aim_activate_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pointer Activate Ready"},
             {"/user/hand/left/input/grasp_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grasp Value"},
             {"/user/hand/left/input/grasp_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Grasp Ready"},
+            {"/user/hand/left/input/swipe_left_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Left"},
+            {"/user/hand/left/input/swipe_right_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Right"},
+            {"/user/hand/left/input/swipe_forward_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Forward"},
+            {"/user/hand/left/input/swipe_backward_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Backward"},
+            {"/user/hand/left/input/tap_thumb_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Tap Thumb"},
             {"/user/hand/right/input/aim/pose", XR_ACTION_TYPE_POSE_INPUT, "Aim"},
             {"/user/hand/right/input/grip/pose", XR_ACTION_TYPE_POSE_INPUT, "Grip"},
             {"/user/hand/right/input/poke_ext/pose", XR_ACTION_TYPE_POSE_INPUT, "Poke"},
@@ -379,6 +384,11 @@ static std::vector<MockInteractionProfileDef> s_InteractionProfiles = {
             {"/user/hand/right/input/aim_activate_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Pointer Activate Ready"},
             {"/user/hand/right/input/grasp_ext/value", XR_ACTION_TYPE_FLOAT_INPUT, "Grasp Value"},
             {"/user/hand/right/input/grasp_ext/ready_ext", XR_ACTION_TYPE_BOOLEAN_INPUT, "Grasp Ready"},
+            {"/user/hand/right/input/swipe_left_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Left"},
+            {"/user/hand/right/input/swipe_right_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Right"},
+            {"/user/hand/right/input/swipe_forward_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Forward"},
+            {"/user/hand/right/input/swipe_backward_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Swipe Backward"},
+            {"/user/hand/right/input/tap_thumb_meta/click", XR_ACTION_TYPE_BOOLEAN_INPUT, "Tap Thumb"},
         }},
     // Meta Quest Pro Touch Controller Profile
     {

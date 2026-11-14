@@ -200,6 +200,9 @@ namespace UnityEngine.XR.OpenXR
         /// <returns>True if initialized, false otherwise.</returns>
         public override bool Initialize()
         {
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_VISIONOS)
+            return false;
+#else
             if (currentLoaderState == LoaderState.Initialized)
                 return true;
 
@@ -239,7 +242,10 @@ namespace UnityEngine.XR.OpenXR
             OpenXRAnalytics.SendInitializeEvent(false);
 
             return false;
+#endif
         }
+
+        static void OnApplicationQuitting() => Internal_SetXrTeardownInProgress(true);
 
         bool InitializeInternal()
         {
@@ -251,6 +257,10 @@ namespace UnityEngine.XR.OpenXR
             if (ShouldExitEarly()) return false;
 #endif
             Internal_SetSuccessfullyInitialized(false);
+
+            Internal_SetXrTeardownInProgress(false);
+            Application.quitting -= OnApplicationQuitting;
+            Application.quitting += OnApplicationQuitting;
 
             OpenXRInput.RegisterLayouts();
 

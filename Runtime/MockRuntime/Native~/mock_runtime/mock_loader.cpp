@@ -172,6 +172,12 @@ uint64_t s_nextInstanceId = 11; // Start at 11 because 10 is a special test case
         nullptr,
         XR_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES_EXTENSION_NAME,
         XR_ANDROID_enumerate_system_extension_properties_SPEC_VERSION
+    },
+    {
+        XR_TYPE_EXTENSION_PROPERTIES,
+        nullptr,
+        XR_EXT_STATIONARY_REFERENCE_SPACE_EXTENSION_NAME,
+        XR_EXT_stationary_reference_space_SPEC_VERSION
     }
 #if defined(XR_USE_PLATFORM_ANDROID)
     ,{
@@ -386,6 +392,12 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrCreateInstance(const XrIn
         {
             flags |= MR_CREATE_ANDROID_ENUMERATE_SYSTEM_EXTENSION_PROPERTIES;
         }
+
+        if (strncmp(XR_EXT_STATIONARY_REFERENCE_SPACE_EXTENSION_NAME, extension, sizeof(XR_EXT_STATIONARY_REFERENCE_SPACE_EXTENSION_NAME)) == 0)
+        {
+            flags |= MR_CREATE_STATIONARY_REFERENCE_SPACE_EXT;
+            continue;
+        }
     }
 
     if ((flags & MR_CREATE_ALL_GFX_EXT) == 0)
@@ -513,13 +525,13 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateReferenceSpaces(
     if (!spaceCountOutput)
         return XR_ERROR_VALIDATION_FAILURE;
 
-    if (s_runtime->IsLocalFloorSpaceEnabled())
+    if (s_runtime->IsStationarySpaceEnabled())
     {
-        *spaceCountOutput = 5;
+        *spaceCountOutput = 6;
     }
     else
     {
-        *spaceCountOutput = 4;
+        *spaceCountOutput = 5;
     }
 
     if (spaceCapacityInput == 0)
@@ -532,9 +544,10 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateReferenceSpaces(
     spaces[1] = XR_REFERENCE_SPACE_TYPE_LOCAL;
     spaces[2] = XR_REFERENCE_SPACE_TYPE_STAGE;
     spaces[3] = XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT;
-    if (s_runtime->IsLocalFloorSpaceEnabled())
+    spaces[4] = XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT;
+    if (s_runtime->IsStationarySpaceEnabled())
     {
-        spaces[4] = XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT;
+        spaces[5] = XR_REFERENCE_SPACE_TYPE_STATIONARY_EXT;
     }
 
     return XR_SUCCESS;
@@ -571,7 +584,8 @@ extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrLocateSpace(XrSpace space
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrDestroySpace(XrSpace space)
 {
     LOG_FUNC();
-    MOCK_HOOK(XR_SUCCESS);
+    CHECK_RUNTIME();
+    MOCK_HOOK(s_runtime->DestroySpace(space));
 }
 
 extern "C" XrResult UNITY_INTERFACE_EXPORT XRAPI_PTR xrEnumerateViewConfigurations(XrInstance instance, XrSystemId systemId, uint32_t viewConfigurationTypeCapacityInput, uint32_t* viewConfigurationTypeCountOutput, XrViewConfigurationType* viewConfigurationTypes)

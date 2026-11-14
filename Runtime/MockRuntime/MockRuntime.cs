@@ -66,6 +66,27 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         }
 
         /// <summary>
+        /// Options for how <see cref="SetSpace(XrReferenceSpaceType, Vector3, Quaternion, XrSpaceLocationFlags, SetReferenceSpaceQueueEventBehavior) "/> handles queueing XrEventDataReferenceSpaceChange events.
+        /// </summary>
+        public enum SetReferenceSpaceQueueEventBehavior
+        {
+            /// <summary>
+            /// Do not queue the event.
+            /// </summary>
+            DoNotQueue,
+
+            /// <summary>
+            /// Queue the event, but do not set poseValid.
+            /// </summary>
+            QueueWithoutPose,
+
+            /// <summary>
+            /// Queue the event with poseValid set to true.
+            /// </summary>
+            QueueWithPose
+        }
+
+        /// <summary>
         /// Delegate invoked on ScriptEvents
         /// </summary>
         /// <param name="evt">ScriptEvent invoked.</param>
@@ -578,18 +599,36 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
             XrViewConfigurationType viewConfigurationType, XrViewStateFlags viewStateFlags);
 
         /// <summary>
+        /// Set the reference space to use at Runtime. This does not queue XrEventDataReferenceSpaceChange events.
+        /// </summary>
+        /// <param name="referenceSpace">The type of reference space being set.</param>
+        /// <param name="position">Position of the space.</param>
+        /// <param name="orientation">Orientation of the space.</param>
+        /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
+        public static void SetSpace(
+            XrReferenceSpaceType referenceSpace,
+            Vector3 position,
+            Quaternion orientation,
+            XrSpaceLocationFlags locationFlags)
+        {
+            SetSpace(referenceSpace, position, orientation, locationFlags, SetReferenceSpaceQueueEventBehavior.DoNotQueue);
+        }
+
+        /// <summary>
         /// Set the reference space to use at Runtime.
         /// </summary>
         /// <param name="referenceSpace">The type of reference space being set.</param>
         /// <param name="position">Position of the space.</param>
         /// <param name="orientation">Orientation of the space.</param>
         /// <param name="locationFlags">XrSpaceLocationFlags for the space.</param>
+        /// <param name="queueEventBehavior">The requested behavior for queueing the event.</param>
         [DllImport(extLib, EntryPoint = "MockRuntime_SetReferenceSpace")]
         public static extern void SetSpace(
             XrReferenceSpaceType referenceSpace,
             Vector3 position,
             Quaternion orientation,
-            XrSpaceLocationFlags locationFlags);
+            XrSpaceLocationFlags locationFlags,
+            [MarshalAs(UnmanagedType.I4)] SetReferenceSpaceQueueEventBehavior queueEventBehavior);
 
         /// <summary>
         /// Set the reference space to use for input actions.
@@ -681,6 +720,10 @@ namespace UnityEngine.XR.OpenXR.Features.Mock
         //
         [DllImport(extLib, EntryPoint = "MockRuntime_AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled")]
         internal static extern void AndroidEnumerateSystemExtensionProperties_SetSystemExtensionEnabled(string extName, [MarshalAs(UnmanagedType.I1)] bool enabled);
+
+        [DllImport(extLib, EntryPoint = "MockRuntime_StationaryReferenceSpace_TrySetGenerationId")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        internal static extern bool StationaryReferenceSpace_TrySetGenerationId(in XrUuid nextGenerationId);
 
 #if UNITY_EDITOR
         static void UseGenericLoaderAndroid()
